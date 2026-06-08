@@ -1,0 +1,21 @@
+# Populated in Phase A1 (full backend scaffold)
+spring:
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    it.mazzoni.vis: INFO
