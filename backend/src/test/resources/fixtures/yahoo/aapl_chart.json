@@ -1,0 +1,22 @@
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {
+          "currency": "USD",
+          "symbol": "AAPL",
+          "exchangeName": "NMS",
+          "regularMarketPrice": 182.5,
+          "longName": "Apple Inc.",
+          "shortName": "Apple Inc.",
+          "chartPreviousClose": 181.12
+        },
+        "timestamp": [1696865400],
+        "indicators": {
+          "quote": [{"open": [182.22], "high": [183.12], "low": [181.50], "close": [182.5], "volume": [48000000]}]
+        }
+      }
+    ],
+    "error": null
+  }
+}
