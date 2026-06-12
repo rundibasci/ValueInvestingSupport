@@ -1,5 +1,6 @@
 package it.mazzoni.vis.demo;
 
+import it.mazzoni.vis.config.SecurityConfig;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse.DcfValuation;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse.FinancialSummary;
@@ -10,6 +11,7 @@ import it.mazzoni.vis.exception.SymbolNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {DemoAnalysisController.class, GlobalExceptionHandler.class})
+@Import(SecurityConfig.class)
 class DemoAnalysisControllerTest {
 
     @Autowired
