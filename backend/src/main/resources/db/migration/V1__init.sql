@@ -1,0 +1,1 @@
+-- Baseline migration. Schema tables created in Phase A2.
