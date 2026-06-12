@@ -21,6 +21,10 @@ public class YahooFinanceWebClientConfig {
         return WebClient.builder()
                 .baseUrl("https://query1.finance.yahoo.com")
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .defaultHeader("User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+                        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .defaultHeader("Accept", "application/json")
                 .build();
     }
 }

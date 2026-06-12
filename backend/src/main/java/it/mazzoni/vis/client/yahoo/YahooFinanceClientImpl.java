@@ -1,5 +1,6 @@
 package it.mazzoni.vis.client.yahoo;
 
+import it.mazzoni.vis.client.yahoo.YahooCrumbProvider.CrumbSession;
 import it.mazzoni.vis.client.yahoo.dto.ChartResponse;
 import it.mazzoni.vis.client.yahoo.dto.QuoteSummaryResponse;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
@@ -23,37 +24,30 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
             "cashflowStatementHistory,summaryDetail,assetProfile";
 
     private final WebClient webClient;
+    private final YahooCrumbProvider crumbProvider;
 
-    public YahooFinanceClientImpl(WebClient yahooFinanceWebClient) {
+    public YahooFinanceClientImpl(WebClient yahooFinanceWebClient,
+                                  YahooCrumbProvider crumbProvider) {
         this.webClient = yahooFinanceWebClient;
+        this.crumbProvider = crumbProvider;
     }
 
     @Override
     @Cacheable(key = "'qs:' + #symbol.toUpperCase()")
     public QuoteSummaryResponse getQuoteSummary(String symbol) {
+        CrumbSession session = crumbProvider.acquireSession();
         try {
-            QuoteSummaryResponse response = webClient.get()
-                    .uri("/v10/finance/quoteSummary/" + symbol.toUpperCase() + "?modules=" + MODULES)
-                    .retrieve()
-                    .bodyToMono(QuoteSummaryResponse.class)
-                    .block(Duration.ofSeconds(10));
-
-            if (response == null
-                    || response.quoteSummary() == null
-                    || response.quoteSummary().error() != null
-                    || response.quoteSummary().result() == null
-                    || response.quoteSummary().result().isEmpty()) {
-                throw new SymbolNotFoundException(symbol);
-            }
-            return response;
-        } catch (SymbolNotFoundException | MarketDataUnavailableException e) {
-            throw e;
+            return doGetQuoteSummary(symbol, session);
         } catch (WebClientResponseException e) {
-            if (e.getStatusCode().is5xxServerError()) {
-                throw new MarketDataUnavailableException(
-                        "Yahoo Finance server error: " + e.getStatusCode(), e);
+            if (e.getStatusCode().value() == 401) {
+                crumbProvider.invalidate();
+                try {
+                    return doGetQuoteSummary(symbol, crumbProvider.acquireSession());
+                } catch (WebClientResponseException e2) {
+                    throw toAppException(symbol, e2);
+                }
             }
-            throw new SymbolNotFoundException(symbol);
+            throw toAppException(symbol, e);
         } catch (WebClientRequestException e) {
             throw new MarketDataUnavailableException(
                     "Yahoo Finance is unavailable: " + e.getMessage(), e);
@@ -63,32 +57,68 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     @Override
     @Cacheable(key = "'ch:' + #symbol.toUpperCase()")
     public ChartResponse getChart(String symbol) {
+        CrumbSession session = crumbProvider.acquireSession();
         try {
-            ChartResponse response = webClient.get()
-                    .uri("/v8/finance/chart/" + symbol.toUpperCase())
-                    .retrieve()
-                    .bodyToMono(ChartResponse.class)
-                    .block(Duration.ofSeconds(10));
-
-            if (response == null
-                    || response.chart() == null
-                    || response.chart().error() != null
-                    || response.chart().result() == null
-                    || response.chart().result().isEmpty()) {
-                throw new SymbolNotFoundException(symbol);
-            }
-            return response;
-        } catch (SymbolNotFoundException | MarketDataUnavailableException e) {
-            throw e;
+            return doGetChart(symbol, session);
         } catch (WebClientResponseException e) {
-            if (e.getStatusCode().is5xxServerError()) {
-                throw new MarketDataUnavailableException(
-                        "Yahoo Finance server error: " + e.getStatusCode(), e);
+            if (e.getStatusCode().value() == 401) {
+                crumbProvider.invalidate();
+                try {
+                    return doGetChart(symbol, crumbProvider.acquireSession());
+                } catch (WebClientResponseException e2) {
+                    throw toAppException(symbol, e2);
+                }
             }
-            throw new SymbolNotFoundException(symbol);
+            throw toAppException(symbol, e);
         } catch (WebClientRequestException e) {
             throw new MarketDataUnavailableException(
                     "Yahoo Finance is unavailable: " + e.getMessage(), e);
         }
+    }
+
+    private QuoteSummaryResponse doGetQuoteSummary(String symbol, CrumbSession session) {
+        QuoteSummaryResponse response = webClient.get()
+                .uri("/v10/finance/quoteSummary/" + symbol.toUpperCase()
+                     + "?modules=" + MODULES + "&crumb=" + session.crumb())
+                .header("Cookie", session.cookie())
+                .retrieve()
+                .bodyToMono(QuoteSummaryResponse.class)
+                .block(Duration.ofSeconds(10));
+
+        if (response == null
+                || response.quoteSummary() == null
+                || response.quoteSummary().error() != null
+                || response.quoteSummary().result() == null
+                || response.quoteSummary().result().isEmpty()) {
+            throw new SymbolNotFoundException(symbol);
+        }
+        return response;
+    }
+
+    private ChartResponse doGetChart(String symbol, CrumbSession session) {
+        ChartResponse response = webClient.get()
+                .uri("/v8/finance/chart/" + symbol.toUpperCase()
+                     + "?crumb=" + session.crumb())
+                .header("Cookie", session.cookie())
+                .retrieve()
+                .bodyToMono(ChartResponse.class)
+                .block(Duration.ofSeconds(10));
+
+        if (response == null
+                || response.chart() == null
+                || response.chart().error() != null
+                || response.chart().result() == null
+                || response.chart().result().isEmpty()) {
+            throw new SymbolNotFoundException(symbol);
+        }
+        return response;
+    }
+
+    private RuntimeException toAppException(String symbol, WebClientResponseException e) {
+        if (e.getStatusCode().is5xxServerError() || e.getStatusCode().value() == 429) {
+            return new MarketDataUnavailableException(
+                    "Yahoo Finance unavailable: " + e.getStatusCode(), e);
+        }
+        return new SymbolNotFoundException(symbol);
     }
 }
