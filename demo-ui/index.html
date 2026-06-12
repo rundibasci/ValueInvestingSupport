@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Value Investing Support — Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef } = React;
+
+const API_BASE = 'http://localhost:8080';
+
+function fmt(value, decimals = 2) {
+  if (value == null) return 'N/A';
+  return Number(value).toFixed(decimals);
+}
+
+function fmtLarge(value) {
+  if (value == null) return 'N/A';
+  const n = Number(value);
+  const abs = Math.abs(n);
+  if (abs >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+  if (abs >= 1e9)  return (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6)  return (n / 1e6).toFixed(2) + 'M';
+  return n.toFixed(2);
+}
+
+function fmtPct(value) {
+  if (value == null) return 'N/A';
+  return Number(value).toFixed(1) + '%';
+}
+
+const RECS = {
+  QUALITY_VALUE: { label: 'Quality Value', sub: 'Strong fundamentals priced below fair value', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800' },
+  UNDERVALUED:   { label: 'Undervalued',   sub: 'Priced significantly below fair value',       bg: 'bg-blue-50',    border: 'border-blue-200',    text: 'text-blue-800'    },
+  FAIRLY_VALUED: { label: 'Fairly Valued', sub: 'Priced near intrinsic value',                  bg: 'bg-gray-50',    border: 'border-gray-200',    text: 'text-gray-700'    },
+  OVERVALUED:    { label: 'Overvalued',    sub: 'Priced above fair value — consider waiting',   bg: 'bg-red-50',     border: 'border-red-200',     text: 'text-red-800'     },
+};
+
+function mosBadgeClass(mos) {
+  const n = Number(mos);
+  if (n > 15) return 'bg-green-100 text-green-800 border-green-200';
+  if (n >= 5)  return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+  return 'bg-red-100 text-red-800 border-red-200';
+}
+
+function StatCell({ label, value }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-xs text-gray-500 uppercase tracking-wide">{label}</span>
+      <span className="text-sm font-semibold text-gray-800 mt-0.5">{value}</span>
+    </div>
+  );
+}
+
+function ValuationRow({ label, value, sub }) {
+  return (
+    <div className="flex items-baseline justify-between py-2.5 border-b border-gray-100 last:border-0">
+      <span className="text-sm text-gray-600">{label}</span>
+      <div className="text-right">
+        <span className="text-sm font-semibold text-gray-900">{value}</span>
+        {sub && <span className="text-xs text-gray-400 ml-2">{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
+function Results({ data }) {
+  const rec = RECS[data.recommendation] || { label: data.recommendation, sub: '', bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700' };
+  const { financialSummary: fs, valuation: v } = data;
+
+  return (
+    <div className="space-y-4 mt-6">
+      {/* Company header */}
+      <div className="bg-white rounded-xl border border-gray-200 px-6 py-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{data.companyName}</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              <span className="font-mono font-semibold text-gray-700">{data.symbol}</span>
+              {data.sector && <> &middot; {data.sector}</>}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-gray-900">
+              {data.currency} {fmt(data.currentPrice)}
+            </div>
+            <div className="text-xs text-gray-400 mt-0.5">Current price</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Financial summary */}
+      {fs && (
+        <div className="bg-white rounded-xl border border-gray-200 px-6 py-4">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Financial Summary (TTM)</h3>
+          <div className="grid grid-cols-4 gap-4">
+            <StatCell label="Revenue"        value={fmtLarge(fs.revenue)} />
+            <StatCell label="Net Income"     value={fmtLarge(fs.netIncome)} />
+            <StatCell label="Free Cash Flow" value={fmtLarge(fs.fcf)} />
+            <StatCell label="EPS"            value={fs.eps != null ? `$${fmt(fs.eps)}` : 'N/A'} />
+          </div>
+        </div>
+      )}
+
+      {/* Valuation */}
+      <div className="bg-white rounded-xl border border-gray-200 px-6 py-4">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Valuation</h3>
+        {v.dcf ? (
+          <ValuationRow
+            label="DCF Fair Value"
+            value={`$${fmt(v.dcf.fairValue)}`}
+            sub={`range $${fmt(v.dcf.low)} – $${fmt(v.dcf.high)}`}
+          />
+        ) : (
+          <div className="py-2.5 border-b border-gray-100 text-sm text-gray-400 italic">
+            DCF not available — insufficient FCF history (&lt; 3 years positive FCF)
+          </div>
+        )}
+        <ValuationRow
+          label="Graham Number"
+          value={v.grahamNumber != null ? `$${fmt(v.grahamNumber)}` : 'N/A'}
+        />
+        <ValuationRow
+          label="Composite Fair Value"
+          value={v.composite != null ? `$${fmt(v.composite)}` : 'N/A'}
+          sub="DCF 60% · Graham 25% · DDM 15%"
+        />
+      </div>
+
+      {/* MoS + Recommendation */}
+      <div className="bg-white rounded-xl border border-gray-200 px-6 py-4">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Margin of Safety</h3>
+            <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-bold border ${mosBadgeClass(data.marginOfSafety)}`}>
+              {fmtPct(data.marginOfSafety)}
+            </span>
+          </div>
+          <div className="text-right">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Recommendation</h3>
+            <div className={`inline-block px-4 py-2 rounded-lg border ${rec.bg} ${rec.border}`}>
+              <div className={`text-sm font-bold ${rec.text}`}>{rec.label}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{rec.sub}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [ticker, setTicker] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+  const inputRef = useRef(null);
+
+  async function handleAnalyze(e) {
+    e.preventDefault();
+    const symbol = ticker.trim().toUpperCase();
+    if (!symbol) return;
+
+    setStatus('loading');
+    setData(null);
+    setError('');
+
+    try {
+      const res = await fetch(`${API_BASE}/demo/analyze/${encodeURIComponent(symbol)}`);
+      if (res.status === 404) {
+        setStatus('error');
+        setError(`Symbol "${symbol}" not found. Check the ticker and try again.`);
+        return;
+      }
+      if (!res.ok) {
+        setStatus('error');
+        setError(`Service error (HTTP ${res.status}). Is the backend running on localhost:8080?`);
+        return;
+      }
+      const json = await res.json();
+      setData(json);
+      setStatus('success');
+    } catch {
+      setStatus('error');
+      setError('Cannot reach the backend. Make sure Spring Boot is running on localhost:8080.');
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-2xl mx-auto flex items-center gap-2">
+          <h1 className="text-lg font-bold text-gray-900">Value Investing Support</h1>
+          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">demo</span>
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-8">
+        <form onSubmit={handleAnalyze} className="flex gap-3">
+          <input
+            ref={inputRef}
+            type="text"
+            value={ticker}
+            onChange={e => setTicker(e.target.value)}
+            placeholder="Enter ticker symbol — e.g. AAPL"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm font-mono uppercase placeholder:normal-case placeholder:font-sans placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoFocus
+            disabled={status === 'loading'}
+          />
+          <button
+            type="submit"
+            disabled={status === 'loading' || !ticker.trim()}
+            className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {status === 'loading' ? 'Analyzing…' : 'Analyze'}
+          </button>
+        </form>
+
+        {status === 'loading' && (
+          <div className="mt-8 text-center text-gray-500 text-sm">
+            <span className="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2 align-middle" />
+            Fetching data and running valuation models…
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="mt-6 bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {status === 'success' && data && <Results data={data} />}
+      </main>
+
+      <footer className="border-t border-gray-200 bg-white px-6 py-4 mt-auto">
+        <p className="max-w-2xl mx-auto text-xs text-gray-400 text-center">
+          {data?.disclaimer ?? 'This is a decision-support tool, not investment advice (MiFID II).'}
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body>
+</html>
