@@ -1,6 +1,6 @@
 package it.mazzoni.vis.demo;
 
-import it.mazzoni.vis.config.SecurityConfig;
+import it.mazzoni.vis.config.DemoSecurityConfig;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse.DcfValuation;
 import it.mazzoni.vis.demo.dto.DemoAnalysisResponse.FinancialSummary;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {DemoAnalysisController.class, GlobalExceptionHandler.class})
-@Import(SecurityConfig.class)
+@Import(DemoSecurityConfig.class)
 class DemoAnalysisControllerTest {
 
     @Autowired
