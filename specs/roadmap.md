@@ -148,6 +148,30 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 
 ---
 
+## Group Val — Connected Valuation Demo
+
+Goal: validate and demonstrate the full production value chain with real FMP data, auth, and DB-backed state — before building the screener. Produces an authenticated, stakeholder-showable endpoint that delivers the core promise: *"give me a ticker, I'll tell you if it's undervalued."* The M0 demo proved the concept; Val proves the production system.
+
+### Phase Val1: Single-Stock Analysis Endpoint
+- `GET /api/v1/securities/{symbol}/quick-analysis` (auth required, all roles)
+- Reads latest `FundamentalSnapshot` + `RatioSnapshot` from DB (populated by B3 ingestion)
+- Fetches current price from Redis cache; falls back to most recent `PriceQuote` in DB
+- Calls `ValuationService.calculate()` → composite fair value, MoS, recommendation
+- Response structure mirrors the M0 schema; adds `dataAsOf` (snapshot date) and `"source": "fmp"`
+- Error cases: 404 if ticker not in DB, 422 if snapshot older than 7 days (stale data guard)
+- RULE-06 guard respected: DCF omitted if < 3 years of positive FCF; falls back to Graham-only composite
+- MiFID II disclaimer required in response body
+- Unit test: `QuickAnalysisControllerTest` (MockMvc, mocked service)
+
+### Phase Val2: Demo Seed Endpoint & Smoke Test
+- `POST /api/v1/admin/seed` (ADMIN only) — triggers on-demand FMP ingestion for a configurable ticker list (`SEED_TICKERS` env var, default `AAPL,MSFT,KO,JNJ`)
+- For each ticker: fetch company profile → fundamentals → ratios → price quote → run `ValuationService` → persist
+- Response: array of `{ symbol, compositeFairValue, marginOfSafety, recommendation }` per seeded ticker
+- Integration test `ValuationDemoIT`: login as admin → `POST /api/v1/admin/seed?tickers=AAPL` → `GET /api/v1/securities/AAPL/quick-analysis` → assert `marginOfSafety` non-null and `recommendation` set
+- `scripts/demo.sh`: documented curl sequence (login → seed → analyze → logout) — shareable with stakeholders
+
+---
+
 ## Group D — Scoring & Screener
 
 ### Phase D1: Value Score Engine
@@ -299,6 +323,7 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 | M1: Backend Running | A1, A2, A3 | — | Auth-protected API, full DB schema, Docker Compose |
 | M2: Data Flowing | B1, B2, B3 | Yahoo → FMP switchable | Market data client + Redis cache + nightly ingestion jobs |
 | M3: Valuation Working | C1, C2, C3 | either | DCF/Graham/DDM via API, persisted to DB |
+| **M3.5: Connected Demo** | Val1, Val2 | FMP | Authenticated single-stock analysis endpoint — real FMP data → valuation → MoS, stakeholder-showable |
 | M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
 | M5: Security Detail | E1, E2, E3 | FMP | All per-stock endpoints live |
 | M6: Portfolio | F1, F2, F3, F4 | FMP | Watchlist + Portfolio Builder + Rebalancing |
@@ -307,3 +332,5 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 | M9: Production Ready | H7, I1, I2 | FMP | Dashboard + tests + observability |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
+>
+> **M3.5 is the first production-quality stakeholder demo.** It uses real FMP data, real auth, and the real DB — making it the natural checkpoint before the screener complexity begins.
