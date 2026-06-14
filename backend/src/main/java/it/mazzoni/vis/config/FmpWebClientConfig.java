@@ -2,6 +2,7 @@ package it.mazzoni.vis.config;
 
 import io.netty.channel.ChannelOption;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -11,23 +12,25 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Duration;
 
 @Configuration
-public class YahooFinanceWebClientConfig {
+@ConditionalOnProperty(name = "market-data.source", havingValue = "fmp")
+public class FmpWebClientConfig {
 
-    @Value("${yahoo.finance.base-url:https://query1.finance.yahoo.com}")
+    @Value("${fmp.base-url:https://financialmodelingprep.com/stable}")
     private String baseUrl;
 
+    @Value("${fmp.api-key:${FMP_API_KEY:}}")
+    private String apiKey;
+
     @Bean
-    public WebClient yahooFinanceWebClient() {
+    public WebClient fmpWebClient() {
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5_000)
-                .responseTimeout(Duration.ofSeconds(10));
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+                .responseTimeout(Duration.ofSeconds(15));
 
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .defaultHeader("User-Agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-                        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .defaultHeader("apikey", apiKey)
                 .defaultHeader("Accept", "application/json")
                 .build();
     }

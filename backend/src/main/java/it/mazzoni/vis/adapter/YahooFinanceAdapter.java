@@ -1,7 +1,9 @@
 package it.mazzoni.vis.adapter;
 
 import it.mazzoni.vis.client.yahoo.dto.*;
+import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
+import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import org.springframework.stereotype.Component;
 
@@ -93,6 +95,55 @@ public class YahooFinanceAdapter {
                 sd != null ? rawToBigDecimal(sd.payoutRatio()) : null,
                 sd != null ? rawToBigDecimal(sd.beta()) : null
         );
+    }
+
+    public CompanyProfile toCompanyProfile(String symbol, QuoteSummaryResponse qsr, ChartResponse cr) {
+        QuoteSummaryResult r = qsr.quoteSummary().result().get(0);
+        AssetProfileDto ap = r.assetProfile();
+        SummaryDetailDto sd = r.summaryDetail();
+        DefaultKeyStatisticsDto ks = r.defaultKeyStatistics();
+
+        String companyName = null;
+        if (cr != null && cr.chart() != null
+                && cr.chart().result() != null
+                && !cr.chart().result().isEmpty()) {
+            ChartMeta meta = cr.chart().result().get(0).meta();
+            companyName = meta.longName() != null ? meta.longName() : meta.shortName();
+        }
+
+        BigDecimal marketCap = null;
+        if (sd != null && sd.marketCap() != null) {
+            marketCap = rawToBigDecimal(sd.marketCap());
+        } else if (ks != null && ks.sharesOutstanding() != null) {
+            BigDecimal shares = rawToBigDecimal(ks.sharesOutstanding());
+            BigDecimal price = cr != null && cr.chart() != null
+                    && cr.chart().result() != null && !cr.chart().result().isEmpty()
+                    ? BigDecimal.valueOf(cr.chart().result().get(0).meta().regularMarketPrice())
+                    : null;
+            marketCap = (shares != null && price != null) ? shares.multiply(price) : null;
+        }
+
+        return new CompanyProfile(
+                symbol.toUpperCase(),
+                companyName,
+                ap != null ? ap.sector() : null,
+                ap != null ? ap.industry() : null,
+                ap != null ? ap.country() : null,
+                sd != null ? sd.currency() : null,
+                null,
+                marketCap
+        );
+    }
+
+    public MarketPriceQuote toPriceQuote(String symbol, ChartResponse cr) {
+        if (cr == null || cr.chart() == null
+                || cr.chart().result() == null || cr.chart().result().isEmpty()) {
+            return new MarketPriceQuote(symbol.toUpperCase(), null, null, null, null);
+        }
+        ChartMeta meta = cr.chart().result().get(0).meta();
+        BigDecimal price = meta.regularMarketPrice() != null
+                ? BigDecimal.valueOf(meta.regularMarketPrice()) : null;
+        return new MarketPriceQuote(symbol.toUpperCase(), price, meta.currency(), null, null);
     }
 
     // --- helpers ---

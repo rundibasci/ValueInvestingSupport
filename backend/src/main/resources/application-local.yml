@@ -1,3 +1,9 @@
+market-data:
+  source: ${MARKET_DATA_SOURCE:fmp}
+
+fmp:
+  api-key: ${FMP_API_KEY:}
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/vis

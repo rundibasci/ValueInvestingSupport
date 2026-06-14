@@ -1,3 +1,6 @@
+market-data:
+  source: yahoo
+
 spring:
   cache:
     type: caffeine
