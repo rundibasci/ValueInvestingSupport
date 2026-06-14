@@ -9,7 +9,7 @@ spring:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
   flyway:
-    enabled: true
+    enabled: false  # H2 cannot execute PostgreSQL-specific SQL in V2 migration
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
