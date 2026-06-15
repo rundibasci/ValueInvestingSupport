@@ -1,6 +1,10 @@
 market-data:
   source: ${MARKET_DATA_SOURCE:fmp}
 
+spring:
+  cache:
+    type: redis
+
 fmp:
   api-key: ${FMP_API_KEY:}
 

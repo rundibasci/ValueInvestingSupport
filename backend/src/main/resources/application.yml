@@ -8,6 +8,17 @@ spring:
   jpa:
     open-in-view: false
 
+market-data:
+  source: yahoo
+
+app:
+  cache:
+    ttl:
+      quote: 15m
+      ratios: 6h
+      fundamentals: 6h
+      profile: 24h
+
 jwt:
   access-token-expiry-seconds: 900
   refresh-token-expiry-seconds: 604800
