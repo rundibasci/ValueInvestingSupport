@@ -124,6 +124,26 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 
 ---
 
+## Group LS — Local Stack Demo
+
+Goal: validate the auth + cache stack is working end-to-end before valuation work begins. Runs entirely with H2 in-memory database and Docker Redis — no PostgreSQL container needed. Provides a clickable HTML page to manually test login, JWT handling, and protected endpoint access with the built-in admin user. Requires B1 and B2 only; B3 can follow after.
+
+### Phase LS1: H2 Demo Profile & Admin Seed
+- `application-demo.yml` profile: H2 in-memory datasource, Redis at `localhost:6379` (Docker)
+- Flyway H2-compatible dialect — DDL reviewed for H2 compatibility; H2-incompatible syntax guarded per migration file
+- `DemoDataSeeder` `@Component` (active on `demo` profile only): on startup inserts `User { username=admin, password=BCrypt("admin"), role=ADMIN }` if not already present
+- `docker-compose.demo.yml`: Redis only (no PostgreSQL — H2 replaces it)
+- Smoke test: `GET /actuator/health` → returns `UP` with H2 + Redis status indicators
+
+### Phase LS2: HTML Demo Client
+- Single `demo.html` served as Spring Boot static resource (`src/main/resources/static/demo.html`)
+- Login form → `POST /auth/login` (username: `admin` / password: `admin`) → JWT stored in JS memory
+- "Ping Admin" button → `GET /api/v1/admin/ping` with `Authorization: Bearer <token>` header; new admin-only endpoint returning `{ "status": "ok", "role": "ADMIN" }`
+- Response panel shows: HTTP status, decoded role from JWT, cache hit/miss response header
+- Pure HTML + vanilla JS + fetch API — no build step, no framework, no bundler
+
+---
+
 ## Group C — Valuation Engine
 
 ### Phase C1: Graham Number & DDM
@@ -322,6 +342,7 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 | **M0: Demo** | Z1–Z5 | Yahoo Finance (free) | Single-page "analyze a ticker" app — valuation + MoS, no auth, no DB |
 | M1: Backend Running | A1, A2, A3 | — | Auth-protected API, full DB schema, Docker Compose |
 | M2: Data Flowing | B1, B2, B3 | Yahoo → FMP switchable | Market data client + Redis cache + nightly ingestion jobs |
+| **ML: Local Stack Demo** | LS1, LS2 | — | Login + protected endpoint via browser; H2 in-memory DB + Docker Redis; admin/admin default user |
 | M3: Valuation Working | C1, C2, C3 | either | DCF/Graham/DDM via API, persisted to DB |
 | **M3.5: Connected Demo** | Val1, Val2 | FMP | Authenticated single-stock analysis endpoint — real FMP data → valuation → MoS, stakeholder-showable |
 | M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
