@@ -23,7 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest(properties = {"market-data.source=fmp", "fmp.api-key=test-key"})
+@SpringBootTest(properties = {"market-data.source=fmp", "fmp.api-key=test-key", "spring.cache.type=none"})
 @ActiveProfiles("demo")
 class FmpMarketDataClientTest {
 
