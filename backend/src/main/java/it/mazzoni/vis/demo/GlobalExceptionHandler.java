@@ -3,6 +3,8 @@ package it.mazzoni.vis.demo;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.valuation.ValuationDataUnavailableException;
+import it.mazzoni.vis.valuation.ValuationNotApplicableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,6 +24,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MarketDataUnavailableException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Map<String, String> handleMarketDataUnavailable(MarketDataUnavailableException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(ValuationDataUnavailableException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleValuationDataUnavailable(ValuationDataUnavailableException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(ValuationNotApplicableException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleValuationNotApplicable(ValuationNotApplicableException ex) {
         return Map.of("error", ex.getMessage());
     }
 
