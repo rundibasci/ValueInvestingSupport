@@ -8,7 +8,7 @@ CREATE TABLE job_run_log (
     completed_at       TIMESTAMP,
     status             VARCHAR(20)  NOT NULL,
     records_processed  INT,
-    error_message      CLOB,
+    error_message      VARCHAR(32767),
     PRIMARY KEY (id)
 );
 

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIS — Local Stack Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f4f6f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; color: #0f3460; }
+    header p  { font-size: 0.85rem; color: #555; margin-top: 0.25rem; }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 1.25rem;
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f3460;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    label { display: block; font-size: 0.8rem; color: #444; margin-bottom: 0.25rem; }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ccd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-bottom: 0.9rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus { border-color: #0f3460; }
+
+    button {
+      width: 100%;
+      padding: 0.6rem;
+      background: #0f3460;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    button:hover:not(:disabled) { background: #16213e; }
+    button:disabled { background: #aab; cursor: not-allowed; }
+
+    .status {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      display: none;
+    }
+    .status.visible { display: block; }
+    .status.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .status.err { background: #fce4ec; color: #c62828; border: 1px solid #f8bbd0; }
+
+    .token-box {
+      background: #f0f4ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #3730a3;
+      word-break: break-all;
+    }
+
+    dl { display: grid; grid-template-columns: 110px 1fr; gap: 0.4rem 0.75rem; font-size: 0.85rem; }
+    dt { color: #666; font-weight: 600; }
+    dd { color: #111; }
+
+    .ping-result {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      display: none;
+    }
+    .ping-result.visible { display: block; }
+    .ping-result.ok  { background: #e8f5e9; border: 1px solid #c8e6c9; }
+    .ping-result.err { background: #fce4ec; border: 1px solid #f8bbd0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Value Investing Support</h1>
+  <p>Local Stack Demo — auth + protected endpoint smoke test</p>
+</header>
+
+<!-- ── Login ─────────────────────────────────────────── -->
+<div class="card" id="card-login">
+  <h2>1 · Login</h2>
+  <form id="login-form" novalidate>
+    <label for="email">Email</label>
+    <input type="email" id="email" value="admin@localstack.local" autocomplete="username">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" value="admin" autocomplete="current-password">
+
+    <button type="submit" id="login-btn">Login</button>
+  </form>
+  <div class="status" id="login-status"></div>
+</div>
+
+<!-- ── Token ──────────────────────────────────────────── -->
+<div class="card" id="card-token" hidden>
+  <h2>2 · JWT Token (in memory)</h2>
+  <div class="token-box" id="token-snippet"></div>
+</div>
+
+<!-- ── Ping ───────────────────────────────────────────── -->
+<div class="card" id="card-ping" hidden>
+  <h2>3 · Admin Ping</h2>
+  <button type="button" id="ping-btn">Ping  GET /api/v1/admin/ping</button>
+  <div class="ping-result" id="ping-result"></div>
+</div>
+
+<script>
+  let token = null;
+
+  const $ = id => document.getElementById(id);
+
+  function showStatus(el, text, isOk) {
+    el.textContent = text;
+    el.className = 'status visible ' + (isOk ? 'ok' : 'err');
+  }
+
+  $('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email    = $('email').value.trim();
+    const password = $('password').value;
+    const btn      = $('login-btn');
+    const status   = $('login-status');
+
+    btn.disabled = true;
+    btn.textContent = 'Logging in…';
+
+    try {
+      const resp = await fetch('/auth/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password })
+      });
+
+      if (!resp.ok) {
+        const msg = await resp.text().catch(() => resp.statusText);
+        throw new Error(`${resp.status} — ${msg}`);
+      }
+
+      const data = await resp.json();
+      token = data.accessToken;
+
+      showStatus(status, `Logged in as ${email}`, true);
+      $('token-snippet').textContent = token.substring(0, 48) + '…';
+      $('card-token').hidden = false;
+      $('card-ping').hidden  = false;
+
+    } catch (err) {
+      showStatus(status, `Login failed: ${err.message}`, false);
+      token = null;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Login';
+    }
+  });
+
+  $('ping-btn').addEventListener('click', async () => {
+    const btn    = $('ping-btn');
+    const result = $('ping-result');
+
+    btn.disabled = true;
+    btn.textContent = 'Pinging…';
+
+    try {
+      const resp   = await fetch('/api/v1/admin/ping', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const xCache = resp.headers.get('X-Cache') || 'n/a';
+      const body   = await resp.json();
+
+      result.innerHTML = `<dl>
+        <dt>HTTP status</dt><dd>${resp.status} ${resp.statusText}</dd>
+        <dt>Role</dt><dd>${body.role ?? '—'}</dd>
+        <dt>X-Cache</dt><dd>${xCache}</dd>
+      </dl>`;
+      result.className = 'ping-result visible ' + (resp.ok ? 'ok' : 'err');
+
+    } catch (err) {
+      result.textContent = `Error: ${err.message}`;
+      result.className = 'ping-result visible err';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Ping  GET /api/v1/admin/ping';
+    }
+  });
+</script>
+</body>
+</html>
