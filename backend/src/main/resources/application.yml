@@ -35,3 +35,9 @@ app:
 jwt:
   access-token-expiry-seconds: 900
   refresh-token-expiry-seconds: 604800
+
+valuation:
+  weights:
+    dcf: 0.60
+    graham: 0.25
+    ddm: 0.15
