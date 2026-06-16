@@ -18,6 +18,15 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Phase B3: `scripts/ingestion-demo.sh` — manual smoke-test sequence: login → trigger bulk-profile-sync → health check → trigger quote-refresh
 - Phase B3: Unit tests — `JobRunLoggerTest` (success and failure paths with `REQUIRES_NEW` isolation) and `IngestionJobHealthIndicatorTest` (all-UP, FAILED→DOWN, never-run→DOWN)
 - Phase B3 feature specification: plan, requirements, and validation criteria (`specs/2026-06-16-b3-data-ingestion-jobs/`)
+- Phase LS1: `application-localstack` Spring profile — H2 in-memory datasource, Flyway H2 dialect, Docker Redis, test-only RS256 key pair embedded in YAML
+- Phase LS1: `docker-compose.demo.yml` — Redis-only Compose file for the Local Stack Demo (no PostgreSQL needed)
+- Phase LS1: H2-compatible Flyway migrations under `db/migration/h2/` for V1 and V2 core schema
+- Phase LS1: `DemoDataSeeder` `@Component` (`@Profile("localstack")`) — seeds `admin@localstack.local / admin` on `ApplicationReadyEvent` if absent
+- Phase LS1: Feature specification (`specs/2026-06-15-ls1-local-stack-demo/`) — plan, requirements, validation
+- Phase LS2: `demo.html` static resource — vanilla JS login form calls `POST /auth/login`, stores JWT in memory; Ping button calls `GET /api/v1/admin/ping` with Bearer token; response panel shows HTTP status, role, and `X-Cache` header
+- Phase LS2: `DemoStartupListener` `@Component` (`@Profile("localstack")`) — prints demo URL and credentials to console on `ApplicationReadyEvent`; server stays running
+- Phase LS2: `AdminPingController` — `GET /api/v1/admin/ping` (ADMIN role) returning `{ "status": "ok", "role": "ADMIN" }`
+- Phase LS2: Feature specification (`specs/2026-06-16-ls2-html-demo-client/`) — plan, requirements, validation
 - Secret management: `.env` (gitignored) for runtime FMP key and DB credentials; `backend/src/test/resources/application-fmpkey.yml` (gitignored via `**/application-fmpkey.yml`) activating the real FMP key in integration tests; `@ActiveProfiles({"test","fmpkey"})` convention established
 - `FmpMarketDataClientLiveIT` — 8 live integration tests against the real FMP API (profile, quote, ratios, fundamentals, stock list, dividends, insider trades, DCF); extended endpoints gracefully accept NOT_FOUND / SERVICE_UNAVAILABLE to accommodate plan-level access differences
 - Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
@@ -78,7 +87,9 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - `application.yml`: added `market-data.source: yahoo` default and `app.cache.ttl.*` TTL defaults
 - `application-local.yml`: added `spring.cache.type: redis` to activate `RedisCacheManager` for local dev
 - `application-test.yml`: added `spring.cache.type: simple` and `market-data.source: fmp` to standardise the test context without requiring a live Redis instance
+- Roadmap: Group Score Full Pipeline Demo (Score1, Score2) inserted between Group Val and Group D as a full-pipeline validation milestone before screener
 
 ### Fixed
 - `DemoAnalysisControllerTest`: added `@Import(SecurityConfig.class)` to restore all 4 passing tests after Spring Security was added to the classpath
 - `FmpMarketDataClientTest`: added `spring.cache.type=none` to prevent cross-test cache pollution introduced by `@Cacheable` on `FmpMarketDataClient`
+- H2 schema validation on `localstack` profile: `CLOB` → `VARCHAR(32767)` for `description` columns in `security` and `portfolio` tables (V2) and `error_message` in `job_run_log` (V3); H2 2.x maps `CLOB` to `Types#CLOB` but JPA `String` fields without `@Lob` expect `Types#VARCHAR`
