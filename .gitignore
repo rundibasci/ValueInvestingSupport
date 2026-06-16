@@ -12,6 +12,7 @@ backend/target/
 
 # Environment — never commit real secrets
 .env
+**/application-fmpkey.yml
 
 # OS
 .DS_Store

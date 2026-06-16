@@ -34,6 +34,7 @@ Every feature must map to one or more steps in this cycle.
 4. **Separation of support and advice** — the system is a *decision-support* tool, not a regulated investment advisor (MiFID II disclaimer mandatory on all Fair Value / Value Score screens).
 5. **Cache-first for external data** — FMP API calls are always backed by local DB/Redis; the system must function even if FMP is temporarily unavailable.
 6. **Immutable historical data** — once a fundamental snapshot is ingested, it is never overwritten; corrections append new records.
+7. **Secrets never in source control** — API keys, passwords, and tokens live exclusively in `.env` (local) or injected environment variables (CI/CD); no credential may appear in any committed file.
 
 ## Out of Scope (MVP v1)
 

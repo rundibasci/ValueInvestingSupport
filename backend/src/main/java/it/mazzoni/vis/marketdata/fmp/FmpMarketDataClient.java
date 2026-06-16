@@ -16,8 +16,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @ConditionalOnProperty(name = "market-data.source", havingValue = "fmp")
@@ -105,6 +107,70 @@ public class FmpMarketDataClient implements MarketDataClient {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol);
         }
         return adapter.toMarketPriceQuote(symbol, quotes.get(0));
+    }
+
+    @Override
+    public List<FmpStockListEntry> listSymbols(String exchange) {
+        List<FmpStockListEntry> all = fmpWebClient.get()
+                .uri("/stock-list")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<FmpStockListEntry>>() {})
+                .retryWhen(RETRY_SPEC)
+                .onErrorMap(WebClientResponseException.class,
+                        e -> new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, exchange, e))
+                .block();
+        if (all == null) return List.of();
+        return all.stream()
+                .filter(e -> exchange.equalsIgnoreCase(e.exchangeShortName()) && "stock".equalsIgnoreCase(e.type()))
+                .toList();
+    }
+
+    @Override
+    public List<FmpDividendEntry> getDividendHistory(String symbol) {
+        FmpDividendHistoryResponse response = fmpWebClient.get()
+                .uri(u -> u.path("/historical-price-full/stock_dividend/{symbol}").build(symbol.toUpperCase()))
+                .retrieve()
+                .onStatus(status -> status.value() == 404,
+                        resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol)))
+                .bodyToMono(FmpDividendHistoryResponse.class)
+                .retryWhen(RETRY_SPEC)
+                .onErrorMap(WebClientResponseException.class,
+                        e -> new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e))
+                .block();
+        if (response == null || response.historical() == null) return List.of();
+        return response.historical();
+    }
+
+    @Override
+    public List<FmpInsiderTradingEntry> getInsiderTransactions(String symbol) {
+        List<FmpInsiderTradingEntry> result = fmpWebClient.get()
+                .uri(u -> u.path("/insider-trading")
+                        .queryParam("symbol", symbol.toUpperCase())
+                        .queryParam("limit", 50)
+                        .build())
+                .retrieve()
+                .onStatus(status -> status.value() == 404,
+                        resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol)))
+                .bodyToMono(new ParameterizedTypeReference<List<FmpInsiderTradingEntry>>() {})
+                .retryWhen(RETRY_SPEC)
+                .onErrorMap(WebClientResponseException.class,
+                        e -> new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e))
+                .block();
+        return result != null ? result : List.of();
+    }
+
+    @Override
+    public Optional<BigDecimal> getFmpDcf(String symbol) {
+        List<FmpDcfEntry> entries = fmpWebClient.get()
+                .uri(u -> u.path("/discounted-cash-flow/{symbol}").build(symbol.toUpperCase()))
+                .retrieve()
+                .onStatus(status -> status.value() == 404, resp -> Mono.empty())
+                .bodyToMono(new ParameterizedTypeReference<List<FmpDcfEntry>>() {})
+                .retryWhen(RETRY_SPEC)
+                .onErrorResume(WebClientResponseException.class, e -> Mono.empty())
+                .block();
+        if (entries == null || entries.isEmpty()) return Optional.empty();
+        return Optional.ofNullable(entries.get(0).dcf());
     }
 
     private <T> List<T> fetchList(String path, String symbol,

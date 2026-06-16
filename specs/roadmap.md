@@ -6,6 +6,11 @@ Implementation broken into small, shippable phases. Each phase produces working,
 - **Demo milestone (M0):** Yahoo Finance public API — zero cost, no API key, sufficient for a single-stock vertical slice.
 - **Production milestone (M1+):** FMP Premium — official, bulk, full screener. Switch is isolated to the data client layer; Valuation Engine and Score Engine are untouched.
 
+**FMP API key — local setup (required from B1 onward):**
+- Copy `.env.example` to `.env` (gitignored) and set `FMP_API_KEY=<your-key>` and `MARKET_DATA_SOURCE=fmp`.
+- For integration tests that hit FMP directly: create `backend/src/test/resources/application-fmpkey.yml` (gitignored via `**/application-fmpkey.yml`) containing `fmp.api-key: <your-key>`, then annotate the test class with `@ActiveProfiles({"test","fmpkey"})`.
+- Neither file is ever committed. See `specs/tech-stack.md` → *Secrets & Local Configuration* for the full pattern.
+
 ---
 
 ## Group Z — Demo (Vertical Slice, Zero Cost)

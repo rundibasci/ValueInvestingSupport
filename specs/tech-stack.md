@@ -104,12 +104,49 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | Recommended Plan | Premium ($49/mo) — 300 req/min, 30y history, bulk APIs |
 | Key | Stored in environment variable `FMP_API_KEY`, never in code |
 
+## Secrets & Local Configuration
+
+All credentials are kept out of version control. Two complementary mechanisms are in use:
+
+### `.env` (local runtime)
+Copy `.env.example` → `.env` (listed in `.gitignore`). Spring Boot loads it via `spring.config.import=optional:file:.env[.properties]` or the IDE environment injection. Variables:
+
+```
+SPRING_PROFILES_ACTIVE=local
+MARKET_DATA_SOURCE=fmp
+FMP_API_KEY=<your-key>
+DATABASE_URL=jdbc:postgresql://localhost:5432/vis
+DATABASE_USERNAME=vis
+DATABASE_PASSWORD=vis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+JWT_PRIVATE_KEY=
+JWT_PUBLIC_KEY=
+```
+
+### `application-fmpkey.yml` (test profile)
+`backend/src/test/resources/application-fmpkey.yml` — gitignored via `**/application-fmpkey.yml`. Activate on integration test classes that call FMP directly:
+
+```java
+@ActiveProfiles({"test", "fmpkey"})
+```
+
+Content:
+```yaml
+fmp:
+  api-key: <your-key>
+market-data:
+  source: fmp
+```
+
+> **Rule:** the actual key value must never appear in any committed file — not in `application.yml`, not in test fixtures, not in comments.
+
 ## Infrastructure & DevOps
 
 | Concern | Choice |
 |---|---|
 | Local dev | Docker Compose (PostgreSQL + Redis) |
-| Secrets | Environment variables / `.env` (never committed) |
+| Secrets | `.env` (runtime) + `application-fmpkey.yml` (tests) — both gitignored; never committed |
 | Logging | Logback → structured JSON → ELK (production) |
 | Metrics | Micrometer → Prometheus → Grafana |
 | Health | Spring Boot Actuator `/actuator/health` |

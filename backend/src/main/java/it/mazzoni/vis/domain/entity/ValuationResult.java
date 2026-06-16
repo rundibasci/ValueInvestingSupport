@@ -48,6 +48,9 @@ public class ValuationResult {
     @Column(length = 30)
     private Recommendation recommendation;
 
+    @Column(length = 30)
+    private String source;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -83,4 +86,7 @@ public class ValuationResult {
 
     public Recommendation getRecommendation() { return recommendation; }
     public void setRecommendation(Recommendation recommendation) { this.recommendation = recommendation; }
+
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
 }
