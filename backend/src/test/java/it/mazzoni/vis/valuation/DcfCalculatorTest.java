@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.data.Offset.offset;
 
 class DcfCalculatorTest {
 
@@ -160,6 +162,62 @@ class DcfCalculatorTest {
         DcfResult result = calculator.calculate(baseInput(3)).get();
         assertThat(result.fairValue().compareTo(BigDecimal.ZERO)).isGreaterThan(0);
         assertThat(result.enterpriseValue().compareTo(BigDecimal.ZERO)).isGreaterThan(0);
+    }
+
+    @Test
+    void referenceValue_zeroGrowthPerpetuity_matchesCoverR() {
+        // With zero growth and zero terminal rate, the 10-year DCF + perpetuity terminal
+        // equals the perpetuity formula C/r by mathematical identity (errors < 1 cent).
+        DcfInput input = new DcfInput(
+                new BigDecimal("100"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("0.10"),
+                BigDecimal.ONE,
+                BigDecimal.ZERO,
+                5
+        );
+        DcfResult result = calculator.calculate(input).get();
+        // base: 100/0.10 = 1000.00
+        assertThat(result.fairValue()).isEqualByComparingTo(new BigDecimal("1000.00"));
+        assertThat(result.enterpriseValue()).isEqualByComparingTo(new BigDecimal("1000.00"));
+        // low (WACC+2% = 0.12): 100/0.12 = 833.33...
+        assertThat(result.fairValueLow()).isCloseTo(new BigDecimal("833.33"), offset(new BigDecimal("0.02")));
+        // high (WACC-1% = 0.09): 100/0.09 = 1111.11...
+        assertThat(result.fairValueHigh()).isCloseTo(new BigDecimal("1111.11"), offset(new BigDecimal("0.02")));
+    }
+
+    @Test
+    void terminalRateEqualToWacc_throwsIllegalArgumentException() {
+        DcfInput input = new DcfInput(
+                new BigDecimal("1000"),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.05"),
+                new BigDecimal("0.09"),
+                new BigDecimal("0.09"),
+                new BigDecimal("10"),
+                BigDecimal.ZERO,
+                5
+        );
+        assertThatThrownBy(() -> calculator.calculate(input))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void terminalRateGreaterThanWacc_throwsIllegalArgumentException() {
+        DcfInput input = new DcfInput(
+                new BigDecimal("1000"),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.05"),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.09"),
+                new BigDecimal("10"),
+                BigDecimal.ZERO,
+                5
+        );
+        assertThatThrownBy(() -> calculator.calculate(input))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

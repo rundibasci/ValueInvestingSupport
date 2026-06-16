@@ -14,6 +14,10 @@ public class DcfCalculator {
         if (input.fcfYearsPositive() < 3) {
             return Optional.empty();
         }
+        if (input.terminalRate().compareTo(input.wacc()) >= 0) {
+            throw new IllegalArgumentException(
+                    "terminalRate (" + input.terminalRate() + ") must be less than wacc (" + input.wacc() + ")");
+        }
 
         BigDecimal enterpriseValue = presentValue(
                 input.fcfTtm(), input.growthY1Y5(), input.growthY6Y10(),
