@@ -6,6 +6,30 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- Phase B3: Flyway migration V3 — `job_run_log` table (UUID PK, `RUNNING / SUCCESS / FAILED` status, records-processed counter, error message); H2-compatible variant under `db/migration/h2/`; `source` column added to `valuation_result` with `idx_valuation_source` index
+- Phase B3: `JobRunLog` JPA entity + `JobRunLogRepository` (`findTop1ByJobNameOrderByStartedAtDesc`)
+- Phase B3: `JobLogWriter` (package-private `@Component`, `REQUIRES_NEW` transaction per operation) + `JobRunLogger` `@Service` — two-class pattern that avoids Spring AOP self-invocation on `@Transactional`
+- Phase B3: 7 ingestion jobs — `BulkProfileSyncJob`, `BulkFundamentalsSyncJob`, `BulkRatiosSyncJob`, `BulkDcfSyncJob`, `QuoteRefreshJob`, `DividendUpdateJob`, `InsiderTradingJob`; each job is idempotent (existence-check before insert) and appends a `JobRunLog` row on every run
+- Phase B3: `@EnableScheduling` + `ThreadPoolTaskScheduler` (pool = 4, prefix `ingestion-`); `JobsProperties` `@ConfigurationProperties` record binding `app.jobs.*` (enabled flag, exchange list, per-job cron map)
+- Phase B3: `IngestionJobHealthIndicator` — Spring Boot Actuator `HealthIndicator` named `ingestionJobs` checking 7 jobs against staleness windows (quote: 20 min, insider: 90 min, all nightly jobs: 26 h); reports `DOWN` on FAILED status or overdue last run
+- Phase B3: `POST /api/v1/admin/jobs/{jobName}/run` — async job trigger (202 response) via `CompletableFuture.runAsync`
+- Phase B3: `MarketDataClient` interface extended with `listSymbols`, `getDividendHistory`, `getInsiderTransactions`, `getFmpDcf`; FMP implementations added for all four; Yahoo stubs throw `UnsupportedOperationException` for bulk methods
+- Phase B3: FMP DTOs — `FmpStockListEntry`, `FmpDividendEntry`, `FmpDividendHistoryResponse`, `FmpInsiderTradingEntry`, `FmpDcfEntry`
+- Phase B3: `scripts/ingestion-demo.sh` — manual smoke-test sequence: login → trigger bulk-profile-sync → health check → trigger quote-refresh
+- Phase B3: Unit tests — `JobRunLoggerTest` (success and failure paths with `REQUIRES_NEW` isolation) and `IngestionJobHealthIndicatorTest` (all-UP, FAILED→DOWN, never-run→DOWN)
+- Phase B3 feature specification: plan, requirements, and validation criteria (`specs/2026-06-16-b3-data-ingestion-jobs/`)
+- Secret management: `.env` (gitignored) for runtime FMP key and DB credentials; `backend/src/test/resources/application-fmpkey.yml` (gitignored via `**/application-fmpkey.yml`) activating the real FMP key in integration tests; `@ActiveProfiles({"test","fmpkey"})` convention established
+- `FmpMarketDataClientLiveIT` — 8 live integration tests against the real FMP API (profile, quote, ratios, fundamentals, stock list, dividends, insider trades, DCF); extended endpoints gracefully accept NOT_FOUND / SERVICE_UNAVAILABLE to accommodate plan-level access differences
+- Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
+
+### Changed
+- `.gitignore`: added `.env` and `**/application-fmpkey.yml` patterns to prevent accidental credential commit
+- `application.yml`: `app.jobs.*` block added (under single `app:` key) with cron schedules and exchange list; `application-test.yml` sets all crons to `"-"` to disable scheduled triggers during the test suite
+- Repository interfaces extended with existence-check methods (`existsBy…`) and `@Query`-based `findAllDistinctSymbols()` on `WatchlistItemRepository` and `HoldingRepository` for ingestion idempotency and watchlist/portfolio symbol collection
+- `specs/mission.md`: added design principle #7 — "Secrets never in source control"
+- `specs/roadmap.md`: FMP API key local setup documented under data source strategy
+- `specs/tech-stack.md`: new "Secrets & Local Configuration" section documenting `.env` (runtime) and `application-fmpkey.yml` (test) patterns with the never-commit rule
+
 - Project constitution: mission statement, tech-stack decisions, and phased roadmap (`specs/`)
 - Phase Z1 feature specification: requirements, implementation plan, and validation criteria
 - Spring Boot 3.4.0 backend scaffold with `demo` profile (no database or Redis required)

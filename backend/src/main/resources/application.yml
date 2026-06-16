@@ -18,6 +18,19 @@ app:
       ratios: 6h
       fundamentals: 6h
       profile: 24h
+  jobs:
+    enabled: true
+    exchanges:
+      - NYSE
+      - NASDAQ
+    cron:
+      bulk-profile:      "0 0 2 * * *"
+      bulk-fundamentals: "0 0 3 * * *"
+      bulk-ratios:       "0 30 3 * * *"
+      bulk-dcf:          "0 0 4 * * *"
+      quote-refresh:     "0 */15 * * * *"
+      dividend-update:   "0 0 6 * * *"
+      insider-trading:   "0 0 * * * *"
 
 jwt:
   access-token-expiry-seconds: 900

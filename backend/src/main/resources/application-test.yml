@@ -19,3 +19,17 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+app:
+  jobs:
+    enabled: true
+    exchanges:
+      - NYSE
+    cron:
+      bulk-profile:      "-"
+      bulk-fundamentals: "-"
+      bulk-ratios:       "-"
+      bulk-dcf:          "-"
+      quote-refresh:     "-"
+      dividend-update:   "-"
+      insider-trading:   "-"

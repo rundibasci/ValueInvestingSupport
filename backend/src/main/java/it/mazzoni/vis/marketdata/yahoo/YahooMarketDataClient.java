@@ -12,9 +12,16 @@ import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @ConditionalOnProperty(name = "market-data.source", havingValue = "yahoo")
@@ -81,5 +88,25 @@ public class YahooMarketDataClient implements MarketDataClient {
         } catch (MarketDataUnavailableException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
         }
+    }
+
+    @Override
+    public List<FmpStockListEntry> listSymbols(String exchange) {
+        throw new UnsupportedOperationException("listSymbols is not supported by the Yahoo Finance client");
+    }
+
+    @Override
+    public List<FmpDividendEntry> getDividendHistory(String symbol) {
+        throw new UnsupportedOperationException("getDividendHistory is not supported by the Yahoo Finance client");
+    }
+
+    @Override
+    public List<FmpInsiderTradingEntry> getInsiderTransactions(String symbol) {
+        throw new UnsupportedOperationException("getInsiderTransactions is not supported by the Yahoo Finance client");
+    }
+
+    @Override
+    public Optional<BigDecimal> getFmpDcf(String symbol) {
+        return Optional.empty();
     }
 }
