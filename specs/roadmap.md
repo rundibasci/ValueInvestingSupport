@@ -192,6 +192,36 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 
 ---
 
+## Group Score — Full Pipeline Demo
+
+Goal: validate and demonstrate the complete data → valuation → scoring → ranking chain before building the full screener. An authenticated admin endpoint accepts a ticker list, seeds FMP data for each ticker, runs the valuation engine, computes a composite Value Score, and returns the tickers ranked by score — stakeholder-showable before any screener UI exists.
+
+### Phase Score1: Pipeline Run Endpoint
+- `POST /api/v1/admin/pipeline-run` (ADMIN only), body: `{ "tickers": ["AAPL", "MSFT", "KO", "JNJ"] }`
+- For each ticker: fetch + persist `FundamentalSnapshot`, `RatioSnapshot`, `PriceQuote` (via `MarketDataClient`), run `ValuationService.calculate()` → persist `ValuationResult`
+- Compute `ValueScore` using the full 5-factor formula (MoS 30, Quality 25, Safety 20, Growth 15, Dividend 10) — same formula that D1 will expose individually; persist `ValueScore`
+- Response: array sorted by `totalScore DESC`:
+  ```json
+  [
+    {
+      "symbol": "KO",
+      "companyName": "Coca-Cola Co.",
+      "compositeFairValue": 58.2,
+      "marginOfSafety": 18.4,
+      "totalScore": 72.5,
+      "recommendation": "QUALITY_VALUE"
+    }
+  ]
+  ```
+- Re-uses `MarketDataClient`, `ValuationService`; introduces `ValueScoreService` (same class D1 will use — no duplication at merge time)
+
+### Phase Score2: Integration Test & Demo Script
+- Integration test `PipelineDemoIT` (uses `localstack` profile + H2 + Testcontainers Redis or Docker Redis):
+  - Login as admin → `POST /api/v1/admin/pipeline-run` with `["AAPL"]` → assert response contains `totalScore` non-null and `marginOfSafety` non-null; assert ticker ranked first in list
+- `scripts/pipeline-demo.sh`: documented curl sequence (login → pipeline-run → print ranked table) — shareable with stakeholders
+
+---
+
 ## Group D — Scoring & Screener
 
 ### Phase D1: Value Score Engine
@@ -345,6 +375,7 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 | **ML: Local Stack Demo** | LS1, LS2 | — | Login + protected endpoint via browser; H2 in-memory DB + Docker Redis; admin/admin default user |
 | M3: Valuation Working | C1, C2, C3 | either | DCF/Graham/DDM via API, persisted to DB |
 | **M3.5: Connected Demo** | Val1, Val2 | FMP | Authenticated single-stock analysis endpoint — real FMP data → valuation → MoS, stakeholder-showable |
+| **M3.8: Pipeline Demo** | Score1, Score2 | FMP | Seed → Valuate → Score → ranked table; full 5-factor Value Score validated end-to-end before screener |
 | M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
 | M5: Security Detail | E1, E2, E3 | FMP | All per-stock endpoints live |
 | M6: Portfolio | F1, F2, F3, F4 | FMP | Watchlist + Portfolio Builder + Rebalancing |
@@ -355,3 +386,5 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
 > **M3.5 is the first production-quality stakeholder demo.** It uses real FMP data, real auth, and the real DB — making it the natural checkpoint before the screener complexity begins.
+>
+> **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.
