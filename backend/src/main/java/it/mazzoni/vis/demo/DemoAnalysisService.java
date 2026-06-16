@@ -14,6 +14,7 @@ import it.mazzoni.vis.valuation.DcfCalculator;
 import it.mazzoni.vis.valuation.DcfInput;
 import it.mazzoni.vis.valuation.DcfResult;
 import it.mazzoni.vis.valuation.GrahamCalculator;
+import it.mazzoni.vis.valuation.GrahamNotApplicableException;
 import it.mazzoni.vis.valuation.MarginOfSafetyCalculator;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +48,12 @@ public class DemoAnalysisService {
 
         FundamentalSnapshot snapshot = adapter.toFundamentalSnapshot(symbol, qsr, cr);
 
-        BigDecimal grahamNumber = GrahamCalculator.calculate(
-                snapshot.epsTtm(), snapshot.bookValuePerShare());
+        BigDecimal grahamNumber;
+        try {
+            grahamNumber = GrahamCalculator.calculate(snapshot.epsTtm(), snapshot.bookValuePerShare());
+        } catch (GrahamNotApplicableException e) {
+            grahamNumber = null;
+        }
 
         Optional<DcfResult> dcfResult = computeDcf(snapshot);
 
