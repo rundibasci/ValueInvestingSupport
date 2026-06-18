@@ -3,6 +3,7 @@ package it.mazzoni.vis.demo;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.valuation.StaleDataException;
 import it.mazzoni.vis.valuation.ValuationDataUnavailableException;
 import it.mazzoni.vis.valuation.ValuationNotApplicableException;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MarketDataUnavailableException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Map<String, String> handleMarketDataUnavailable(MarketDataUnavailableException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(StaleDataException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleStaleData(StaleDataException ex) {
         return Map.of("error", ex.getMessage());
     }
 
