@@ -6,6 +6,25 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- Phase Val1: `GET /api/v1/securities/{symbol}/quick-analysis` — authenticated endpoint (all roles) returning composite fair value, MoS, recommendation, and MiFID II disclaimer from DB-backed fundamentals; 422 when snapshot older than 7 days, 404 on unknown symbol
+- Phase Val1: `QuickAnalysisService` — 7-day stale guard, delegates to `ValuationService` with conservative default params from `ValuationDefaultsProperties`; maps result to `QuickAnalysisResponse` with `dataAsOf` and `source: "fmp"` fields
+- Phase Val1: `ValuationDefaultsProperties` `@ConfigurationProperties("valuation.defaults")` — WACC 9%, growth Y1–5 8%, Y6–10 4%, terminal 2.5%; DDM intentionally absent (skipped in quick-analysis)
+- Phase Val1: `StaleDataException` — 422 thrown when `FundamentalSnapshot.reportDate` older than 7 days
+- Phase Val1: 5-test `QuickAnalysisIT` — happy path, 404 unknown symbol, 422 stale snapshot, 401 no token, 422 all models ineligible
+- Phase Val1: Feature specification (`specs/2026-06-18-val1-single-stock-analysis/`) — plan, requirements, validation
+- Phase C3: `ValuationService.calculate(symbol, params) → ValuationOutcome` — orchestrates DCF, Graham, DDM; composite blended with configurable weights (DCF 60%, Graham 25%, DDM 15%) with proportional normalization when models are excluded
+- Phase C3: `MarginOfSafetyCalculator` + `Recommendation` derivation (STRONG_BUY ≥ 25%, QUALITY_VALUE ≥ 10%, FAIR_VALUE ≥ 0%, OVERVALUED < 0%); `ValuationResult` persisted to DB on every call
+- Phase C3: `POST /api/v1/securities/{symbol}/valuation/dcf` — authenticated endpoint; response includes `weights` map for transparency; `ValuationWeightsProperties` configurable per environment
+- Phase C3: 19-test suite — `ValuationServiceTest` (all weight-normalization paths), `ValuationControllerTest` (MockMvc), reference-value weight assertion
+- Phase C3: Feature specification (`specs/2026-06-16-c3-composite-fair-value/`) — plan, requirements, validation
+- Phase C2: `DcfCalculator.calculate(DcfInput) → Optional<DcfResult>` — explicit Y1–10 projections + Gordon Growth terminal; RULE-06 guard returns `Optional.empty()` when `fcfYearsPositive < 3`
+- Phase C2: `DcfResult` record — `fairValue`, `fairValueLow` (WACC+2%), `fairValueHigh` (WACC−1%), `enterpriseValue`, parameter snapshot
+- Phase C2: 16-test `DcfCalculatorTest` — reference calculation, RULE-06 guard, WACC ± scenario bounds
+- Phase C2: Feature specification (`specs/2026-06-16-c2-dcf-engine/`) — plan, requirements, validation
+- Phase C1: `GrahamCalculator.calculate(eps, bvps)` — √(22.17 × EPS × BVPS); `GrahamNotApplicableException` when EPS ≤ 0 or BVPS ≤ 0
+- Phase C1: `DdmCalculator.calculate(dpsTtm, growthRate, requiredReturn, consecutiveYears)` — Gordon Growth DDM; `DdmNotEligibleException` (RULE-07: < 5 consecutive dividend years), `DdmNotApplicableException` (requiredReturn ≤ growthRate)
+- Phase C1: 18-test suite — `GrahamCalculatorTest` and `DdmCalculatorTest` with known reference values
+- Phase C1: Feature specification (`specs/2026-06-16-c1-graham-ddm/`) — plan, requirements, validation
 - Phase B3: Flyway migration V3 — `job_run_log` table (UUID PK, `RUNNING / SUCCESS / FAILED` status, records-processed counter, error message); H2-compatible variant under `db/migration/h2/`; `source` column added to `valuation_result` with `idx_valuation_source` index
 - Phase B3: `JobRunLog` JPA entity + `JobRunLogRepository` (`findTop1ByJobNameOrderByStartedAtDesc`)
 - Phase B3: `JobLogWriter` (package-private `@Component`, `REQUIRES_NEW` transaction per operation) + `JobRunLogger` `@Service` — two-class pattern that avoids Spring AOP self-invocation on `@Transactional`
