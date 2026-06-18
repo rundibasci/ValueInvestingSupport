@@ -41,3 +41,8 @@ valuation:
     dcf: 0.60
     graham: 0.25
     ddm: 0.15
+  defaults:
+    wacc: 0.09
+    growth-y1-y5: 0.08
+    growth-y6-y10: 0.04
+    terminal-rate: 0.025
