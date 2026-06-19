@@ -1,14 +1,12 @@
 market-data:
   source: ${MARKET_DATA_SOURCE:fmp}
 
-spring:
-  cache:
-    type: redis
-
 fmp:
   api-key: ${FMP_API_KEY:}
 
 spring:
+  cache:
+    type: redis
   datasource:
     url: jdbc:postgresql://localhost:5432/vis
     username: ${DATABASE_USERNAME:vis}
@@ -19,6 +17,7 @@ spring:
     show-sql: false
   flyway:
     enabled: true
+    locations: classpath:db/migration
   data:
     redis:
       host: ${REDIS_HOST:localhost}

@@ -74,6 +74,7 @@ public class JwtService {
     private static PrivateKey parsePrivateKey(String pem) {
         try {
             String stripped = pem
+                    .replace("\\n", "\n")
                     .replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
                     .replaceAll("\\s", "");
@@ -87,6 +88,7 @@ public class JwtService {
     private static PublicKey parsePublicKey(String pem) {
         try {
             String stripped = pem
+                    .replace("\\n", "\n")
                     .replace("-----BEGIN PUBLIC KEY-----", "")
                     .replace("-----END PUBLIC KEY-----", "")
                     .replaceAll("\\s", "");
