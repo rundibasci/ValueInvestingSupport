@@ -67,14 +67,14 @@ class FmpMarketDataClientTest {
     private static final String INCOME_AAPL = """
             [{"symbol":"AAPL","date":"2023-09-30","revenue":383285000000,
               "netIncome":96995000000,"operatingIncome":114301000000,
-              "grossProfit":169148000000,"eps":6.16,"epsdiluted":6.13}]
+              "grossProfit":169148000000,"eps":6.16,"epsDiluted":6.13,
+              "weightedAverageShsOutDil":15552752000}]
             """;
 
     private static final String BALANCE_AAPL = """
             [{"symbol":"AAPL","date":"2023-09-30","totalAssets":352583000000,
               "totalLiabilities":290437000000,"totalEquity":62146000000,
-              "totalDebt":111088000000,"cashAndShortTermInvestments":29965000000,
-              "sharesOutstanding":15552752000}]
+              "totalDebt":111088000000,"cashAndShortTermInvestments":29965000000}]
             """;
 
     private static final String CASHFLOW_AAPL = """

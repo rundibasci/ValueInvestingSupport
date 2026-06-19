@@ -12,6 +12,5 @@ public record FmpBalanceSheetEntry(
         BigDecimal totalLiabilities,
         BigDecimal totalEquity,
         BigDecimal totalDebt,
-        BigDecimal cashAndShortTermInvestments,
-        Long sharesOutstanding
+        BigDecimal cashAndShortTermInvestments
 ) {}

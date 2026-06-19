@@ -1,6 +1,7 @@
 package it.mazzoni.vis.marketdata.fmp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
@@ -13,5 +14,6 @@ public record FmpIncomeStatementEntry(
         BigDecimal operatingIncome,
         BigDecimal grossProfit,
         BigDecimal eps,
-        BigDecimal epsdiluted
+        @JsonProperty("epsDiluted") BigDecimal epsDiluted,
+        @JsonProperty("weightedAverageShsOutDil") Long sharesOutstandingDil
 ) {}

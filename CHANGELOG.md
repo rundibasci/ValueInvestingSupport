@@ -6,6 +6,13 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- Phase Val2: `POST /api/v1/admin/seed` — admin endpoint that fetches live market data for a ticker list (default `SEED_TICKERS`: AAPL, MSFT, KO, JNJ), upserts `Security`, `FundamentalSnapshot` (one row per FCF year), `RatioSnapshot`, `PriceQuote`, runs valuation, returns `SeedResult[]`; active on all profiles except `demo`
+- Phase Val2: `SeedService` — orchestrates per-symbol upsert in a single `@Transactional`; captures `MarketDataException` per ticker and returns `SeedResult.failed` without aborting the batch
+- Phase Val2: `SeedResult` record — per-symbol outcome with `symbol`, `companyName`, `compositeFairValue`, `marginOfSafety`, `recommendation`, and `error` fields
+- Phase Val2: `LocalDataSeeder` `@Component` (`@Profile("local")`) — seeds `admin@example.com / Admin1234!` on `ApplicationReadyEvent` if absent; serves the `local` Spring profile
+- Phase Val2: `scripts/demo.sh` — end-to-end shell demo: login → `POST /admin/seed` for each ticker → `GET /securities/{symbol}/quick-analysis`; parameterised via env vars
+- Phase Val2: 3 test classes — `SeedControllerTest` (MockMvc), `SeedServiceTest` (unit), `ValuationDemoIT` (full integration seed → quick-analysis flow)
+- Phase Val2: Feature specification (`specs/2026-06-19-val2-demo-seed-endpoint/`) — plan, requirements, validation
 - Phase Val1: `GET /api/v1/securities/{symbol}/quick-analysis` — authenticated endpoint (all roles) returning composite fair value, MoS, recommendation, and MiFID II disclaimer from DB-backed fundamentals; 422 when snapshot older than 7 days, 404 on unknown symbol
 - Phase Val1: `QuickAnalysisService` — 7-day stale guard, delegates to `ValuationService` with conservative default params from `ValuationDefaultsProperties`; maps result to `QuickAnalysisResponse` with `dataAsOf` and `source: "fmp"` fields
 - Phase Val1: `ValuationDefaultsProperties` `@ConfigurationProperties("valuation.defaults")` — WACC 9%, growth Y1–5 8%, Y6–10 4%, terminal 2.5%; DDM intentionally absent (skipped in quick-analysis)
@@ -51,6 +58,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
 
 ### Changed
+- H2 Flyway migrations moved from `db/migration/h2/` to `db/migration-h2/` to decouple the H2 migration path from the PostgreSQL path
 - `.gitignore`: added `.env` and `**/application-fmpkey.yml` patterns to prevent accidental credential commit
 - `application.yml`: `app.jobs.*` block added (under single `app:` key) with cron schedules and exchange list; `application-test.yml` sets all crons to `"-"` to disable scheduled triggers during the test suite
 - Repository interfaces extended with existence-check methods (`existsBy…`) and `@Query`-based `findAllDistinctSymbols()` on `WatchlistItemRepository` and `HoldingRepository` for ingestion idempotency and watchlist/portfolio symbol collection

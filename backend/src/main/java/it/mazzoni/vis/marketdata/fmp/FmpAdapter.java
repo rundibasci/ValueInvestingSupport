@@ -35,11 +35,11 @@ public class FmpAdapter {
             FmpProfileEntry profile,
             BigDecimal currentPrice) {
 
-        BigDecimal epsTtm = income.isEmpty() ? null : income.get(0).epsdiluted();
+        BigDecimal epsTtm = income.isEmpty() ? null : income.get(0).epsDiluted();
         BigDecimal totalDebt = balance.isEmpty() ? null : balance.get(0).totalDebt();
         BigDecimal cash = balance.isEmpty() ? null : balance.get(0).cashAndShortTermInvestments();
         BigDecimal netDebt = (totalDebt != null && cash != null) ? totalDebt.subtract(cash) : null;
-        Long shares = balance.isEmpty() ? null : balance.get(0).sharesOutstanding();
+        Long shares = income.isEmpty() ? null : income.get(0).sharesOutstandingDil();
 
         BigDecimal bookValuePerShare = null;
         if (!balance.isEmpty() && balance.get(0).totalEquity() != null && shares != null && shares > 0) {
