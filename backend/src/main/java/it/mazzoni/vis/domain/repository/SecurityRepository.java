@@ -12,6 +12,10 @@ public interface SecurityRepository extends JpaRepository<Security, UUID>, JpaSp
     Optional<Security> findBySymbol(String symbol);
     boolean existsBySymbol(String symbol);
 
+    List<Security> findTop10BySymbolContainingIgnoreCaseOrCompanyNameContainingIgnoreCase(String symbol, String companyName);
+
+    List<Security> findBySectorAndSymbolNot(String sector, String symbol);
+
     @Query("SELECT DISTINCT s.sector FROM Security s WHERE s.sector IS NOT NULL ORDER BY s.sector")
     List<String> findDistinctSectors();
 

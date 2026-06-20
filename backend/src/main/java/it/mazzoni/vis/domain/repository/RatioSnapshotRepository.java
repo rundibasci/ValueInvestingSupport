@@ -12,4 +12,7 @@ public interface RatioSnapshotRepository extends JpaRepository<RatioSnapshot, UU
     List<RatioSnapshot> findBySecurityAndPeriodOrderByReportDateDesc(Security security, Period period);
     List<RatioSnapshot> findBySecurity(Security security);
     boolean existsBySecurityAndPeriodAndReportDate(Security security, Period period, LocalDate reportDate);
+
+    List<RatioSnapshot> findTop10BySecurityOrderByReportDateDesc(Security security);
+    java.util.Optional<RatioSnapshot> findTopBySecurityOrderByReportDateDesc(Security security);
 }

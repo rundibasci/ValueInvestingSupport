@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface InsiderTradeRepository extends JpaRepository<InsiderTrade, UUID> {
     List<InsiderTrade> findBySecurityOrderByTradeDateDesc(Security security);
     boolean existsBySecurityAndTradeDateAndInsiderName(Security security, LocalDate tradeDate, String insiderName);
+
+    List<InsiderTrade> findBySecurityAndTradeDateGreaterThanEqualOrderByTradeDateDesc(Security security, LocalDate since);
 }
