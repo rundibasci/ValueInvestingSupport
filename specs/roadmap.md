@@ -310,6 +310,37 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 
 ---
 
+## Group PFD — Portfolio & Full-Feature HTML Demo
+
+Goal: replace the curl-and-script stakeholder workflow with a single, self-contained HTML page that exercises every endpoint built through Group F — screener, security detail, watchlist, portfolio management, simulation, and rebalancing — in addition to all panels already present in FD1. No new backend endpoints; no build step required. Makes the complete system demonstrable in a browser before the full React UI (Group H) is started.
+
+### Phase PFD1: Complete Feature Demo Page
+- `full-demo.html` served as Spring Boot static resource (`src/main/resources/static/full-demo.html`)
+- Inherits all panels from FD1 (auth, health, seed, quick analysis, DCF custom valuation, cache eviction, job trigger)
+- **Screener panel** *(any authenticated role)*: filter form (sector, exchange, MoS min/max, score min) → `POST /api/v1/screener` → sortable results table with MoS badges; preset buttons (Graham, Dividend, Quality) → `GET /api/v1/screener/presets`; click row fills Security Detail panel symbol
+- **Security Detail panel** *(any authenticated role)*: symbol input → tabbed sub-panels:
+  - Profile & Financials: `GET /api/v1/securities/{symbol}` + `GET /api/v1/securities/{symbol}/financials`
+  - Ratios: `GET /api/v1/securities/{symbol}/ratios`
+  - Full Valuation: `GET /api/v1/securities/{symbol}/valuation`
+  - Dividends: `GET /api/v1/securities/{symbol}/dividends`
+  - Growth: `GET /api/v1/securities/{symbol}/growth`
+  - Insiders: `GET /api/v1/securities/{symbol}/insiders`
+  - Peers: `GET /api/v1/securities/{symbol}/peers`
+  - Add to Watchlist button inline
+- **Watchlist panel** *(any authenticated role)*:
+  - List: `GET /api/v1/watchlist` → table with MoS badge + inline alert threshold inputs
+  - Add item: `POST /api/v1/watchlist`; update threshold: `PUT /api/v1/watchlist/{id}`; remove: `DELETE /api/v1/watchlist/{id}`
+  - Active alerts sub-section: `GET /api/v1/watchlist/alerts` → dismissable rows
+- **Portfolio panel** *(any authenticated role)*:
+  - Create/list: `GET/POST /api/v1/portfolios` → portfolio selector dropdown
+  - Holdings table for selected portfolio: `GET /api/v1/portfolios/{id}` → add/update/delete holdings via inline forms (`POST/PUT/DELETE /api/v1/portfolios/{id}/holdings`)
+  - Simulate button: `POST /api/v1/portfolios/{id}/simulate` → proposed allocation table (weights, shares, cost, sector %, average MoS)
+  - Rebalance button: `GET /api/v1/portfolios/{id}/rebalance` → buy/sell recommendation table
+- Every panel has a collapsible raw-JSON inspector (`<details>`) for developer use
+- Pure HTML5 + vanilla JavaScript + fetch API — no npm, no bundler, no CDN dependencies; `BASE_URL` constant at top of script for configurable backend target
+
+---
+
 ## Group G — Alert Engine
 
 ### Phase G1: Alert Detection Job
@@ -403,6 +434,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 | M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
 | M5: Security Detail | E1, E2, E3 | FMP | All per-stock endpoints live |
 | M6: Portfolio | F1, F2, F3, F4 | FMP | Watchlist + Portfolio Builder + Rebalancing |
+| **M6.5: Full-Feature Demo** | PFD1 | FMP | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
 | M7: Alerts | G1, G2 | FMP | Automated alert detection + email delivery |
 | M8: Frontend MVP | H1–H6 | FMP | Full React UI connected to backend |
 | M9: Production Ready | H7, I1, I2 | FMP | Dashboard + tests + observability |
@@ -414,3 +446,5 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 > **M3.6 makes M3.5 browser-accessible.** A single HTML file — no curl, no scripting knowledge — exposes every feature built through Val2. Stakeholders can log in, seed data, inspect valuations, and trigger jobs from a web browser. It intentionally precedes Group H (full React UI) to keep early feedback cycles fast without a build step.
 >
 > **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.
+>
+> **M6.5 is the complete HTML test harness.** A single `full-demo.html` covers every backend endpoint built through Group F — screener, security detail, watchlist, portfolio, simulation, and rebalancing — in addition to all FD1 panels. Stakeholders and developers can exercise the full system from a browser before the React frontend (Group H) is started, and it remains available as a low-friction regression test page throughout H development.
