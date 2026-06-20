@@ -14,6 +14,7 @@ import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.SourceTracker;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationParams;
 import it.mazzoni.vis.valuation.ValuationService;
@@ -41,6 +42,7 @@ public class SeedService {
     private final PriceQuoteRepository priceQuoteRepository;
     private final ValuationService valuationService;
     private final ValuationDefaultsProperties defaults;
+    private final SourceTracker sourceTracker;
 
     public SeedService(MarketDataClient marketDataClient,
                        SecurityRepository securityRepository,
@@ -48,7 +50,8 @@ public class SeedService {
                        RatioSnapshotRepository ratioSnapshotRepository,
                        PriceQuoteRepository priceQuoteRepository,
                        ValuationService valuationService,
-                       ValuationDefaultsProperties defaults) {
+                       ValuationDefaultsProperties defaults,
+                       SourceTracker sourceTracker) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
@@ -56,6 +59,7 @@ public class SeedService {
         this.priceQuoteRepository = priceQuoteRepository;
         this.valuationService = valuationService;
         this.defaults = defaults;
+        this.sourceTracker = sourceTracker;
     }
 
     public List<SeedResult> seedTickers(List<String> symbols) {
@@ -68,6 +72,7 @@ public class SeedService {
 
     @Transactional
     SeedResult seedOne(String symbol) {
+        sourceTracker.clear();
         try {
             Security security = upsertSecurity(symbol);
             persistFundamentals(security, symbol);
@@ -82,16 +87,21 @@ public class SeedService {
 
             return SeedResult.success(symbol, security.getCompanyName(),
                     result.getCompositeFairValue(), result.getMarginOfSafety(),
-                    result.getRecommendation());
+                    result.getRecommendation(), sourceTracker.summarize());
 
         } catch (MarketDataException e) {
             log.warn("Seed failed for {}: {}", symbol, e.getMessage());
-            String errorMsg = e.getErrorCode() == MarketDataException.ErrorCode.NOT_FOUND
-                    ? "not found" : e.getMessage();
+            String errorMsg = switch (e.getErrorCode()) {
+                case NOT_FOUND         -> "not found";
+                case PLAN_RESTRICTION  -> "not available on current FMP plan";
+                default                -> e.getMessage();
+            };
             return SeedResult.failed(symbol, errorMsg);
         } catch (Exception e) {
             log.warn("Seed failed for {}: {}", symbol, e.getMessage());
             return SeedResult.failed(symbol, e.getMessage());
+        } finally {
+            sourceTracker.clear();
         }
     }
 
@@ -115,10 +125,12 @@ public class SeedService {
     }
 
     private void persistFundamentals(Security security, String symbol) {
+        LocalDate today = LocalDate.now();
+        if (fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, today)) {
+            return;
+        }
         it.mazzoni.vis.domain.FundamentalSnapshot data = marketDataClient.getFundamentals(symbol);
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
-
-        LocalDate today = LocalDate.now();
         int currentYear = today.getYear();
         for (int i = 0; i < Math.max(1, fcfHistory.size()); i++) {
             LocalDate reportDate = today.minusYears(i);

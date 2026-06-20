@@ -10,15 +10,16 @@ public record SeedResult(
         BigDecimal compositeFairValue,
         BigDecimal marginOfSafety,
         Recommendation recommendation,
+        String source,
         String error
 ) {
     static SeedResult success(String symbol, String companyName,
                               BigDecimal compositeFairValue, BigDecimal marginOfSafety,
-                              Recommendation recommendation) {
-        return new SeedResult(symbol, companyName, compositeFairValue, marginOfSafety, recommendation, null);
+                              Recommendation recommendation, String source) {
+        return new SeedResult(symbol, companyName, compositeFairValue, marginOfSafety, recommendation, source, null);
     }
 
     static SeedResult failed(String symbol, String error) {
-        return new SeedResult(symbol, null, null, null, null, error);
+        return new SeedResult(symbol, null, null, null, null, null, error);
     }
 }

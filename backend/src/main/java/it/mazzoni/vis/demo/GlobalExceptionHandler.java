@@ -53,6 +53,7 @@ public class GlobalExceptionHandler {
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case SERVICE_UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
             case INVALID_SYMBOL -> HttpStatus.BAD_REQUEST;
+            case PLAN_RESTRICTION -> HttpStatus.PAYMENT_REQUIRED;
         };
         return org.springframework.http.ResponseEntity.status(status)
                 .body(Map.of("error", ex.getMessage()));

@@ -2,7 +2,7 @@ package it.mazzoni.vis.marketdata;
 
 public class MarketDataException extends RuntimeException {
 
-    public enum ErrorCode { NOT_FOUND, SERVICE_UNAVAILABLE, INVALID_SYMBOL }
+    public enum ErrorCode { NOT_FOUND, SERVICE_UNAVAILABLE, INVALID_SYMBOL, PLAN_RESTRICTION }
 
     private final ErrorCode errorCode;
     private final String symbol;

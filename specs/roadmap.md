@@ -197,6 +197,24 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 
 ---
 
+## Group FD — Interactive Feature Demo
+
+Goal: replace the curl-only stakeholder workflow with a browser-based clickable interface that exposes every feature built through Val2 — auth, health, seed, quick analysis, DCF custom valuation, cache eviction, and job trigger — in a single self-contained HTML page. No new backend endpoints; no build step required. Makes M3.5 immediately shareable with non-technical stakeholders.
+
+### Phase FD1: Feature Demo Page
+- `feature-demo.html` served as Spring Boot static resource (`src/main/resources/static/feature-demo.html`)
+- **Auth panel:** username + password → `POST /auth/login` → JWT stored in JS memory; Logout → `POST /auth/logout`; decoded role shown in header; ADMIN-only and auth-required sections toggled accordingly
+- **Health panel** *(public)*: **Check Health** → `GET /actuator/health` → overall status chip + per-component rows (`db`, `redis`, `ingestionJobs`, `diskSpace`)
+- **Quick Analysis panel** *(any authenticated role)*: symbol input → `GET /api/v1/securities/{symbol}/quick-analysis` → company name, price, composite fair value, MoS badge (green ≥ 15 %, yellow 5–15 %, red < 5 %), recommendation, `dataAsOf`; MiFID II disclaimer
+- **DCF Custom Valuation panel** *(any authenticated role)*: symbol + WACC + growth Y1–5 + growth Y6–10 + terminal rate → `POST /api/v1/securities/{symbol}/valuation/dcf` → fair value base/low/high, enterprise value, parameter echo; MiFID II disclaimer
+- **Seed panel** *(ADMIN only)*: ticker CSV input → `POST /api/v1/admin/seed` → table of results with MoS badges; per-ticker error rows shown inline
+- **Cache Eviction panel** *(ADMIN only)*: symbol → `DELETE /api/v1/admin/cache/{symbol}` → confirmation message
+- **Job Trigger panel** *(ADMIN only)*: dropdown of 7 job names → `POST /api/v1/admin/jobs/{jobName}/run` → 202 confirmation
+- Every panel has a collapsible raw-JSON inspector (`<details>`) for developer use
+- Pure HTML5 + vanilla JavaScript + fetch API — no npm, no bundler, no CDN dependencies; runs offline against any backend URL (`BASE_URL` constant at top of script)
+
+---
+
 ## Group Score — Full Pipeline Demo
 
 Goal: validate and demonstrate the complete data → valuation → scoring → ranking chain before building the full screener. An authenticated admin endpoint accepts a ticker list, seeds FMP data for each ticker, runs the valuation engine, computes a composite Value Score, and returns the tickers ranked by score — stakeholder-showable before any screener UI exists.
@@ -380,6 +398,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 | **ML: Local Stack Demo** | LS1, LS2 | — | Login + protected endpoint via browser; H2 in-memory DB + Docker Redis; admin/admin default user |
 | M3: Valuation Working | C1, C2, C3 | either | DCF/Graham/DDM via API, persisted to DB |
 | **M3.5: Connected Demo** | Val1, Val2 | FMP | Authenticated single-stock analysis endpoint — real FMP data → valuation → MoS, stakeholder-showable |
+| **M3.6: Feature Demo UI** | FD1 | FMP | Browser-based demo page exposing all features built through Val2: auth, health, seed, quick analysis, DCF, cache eviction, job trigger — no curl required |
 | **M3.8: Pipeline Demo** | Score1, Score2 | FMP | Seed → Valuate → Score → ranked table; full 5-factor Value Score validated end-to-end before screener |
 | M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
 | M5: Security Detail | E1, E2, E3 | FMP | All per-stock endpoints live |
@@ -391,5 +410,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
 > **M3.5 is the first production-quality stakeholder demo.** It uses real FMP data, real auth, and the real DB — making it the natural checkpoint before the screener complexity begins.
+>
+> **M3.6 makes M3.5 browser-accessible.** A single HTML file — no curl, no scripting knowledge — exposes every feature built through Val2. Stakeholders can log in, seed data, inspect valuations, and trigger jobs from a web browser. It intentionally precedes Group H (full React UI) to keep early feedback cycles fast without a build step.
 >
 > **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.

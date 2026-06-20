@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Value Investing Platform — Feature Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #22c55e;
+      --yellow:  #eab308;
+      --red:     #ef4444;
+      --blue:    #3b82f6;
+      --bg:      #0f172a;
+      --surface: #1e293b;
+      --border:  #334155;
+      --text:    #e2e8f0;
+      --muted:   #94a3b8;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 1rem; font-weight: 700; flex: 1; }
+    header h1 span { color: var(--muted); font-weight: 400; }
+    #auth-status { font-size: .8rem; color: var(--muted); }
+    #logout-btn  { display: none; }
+
+    /* ── Main ────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .top-row, .mid-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .admin-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: .5rem;
+      padding: 1.25rem;
+    }
+    section h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: .9rem;
+      color: var(--text);
+    }
+
+    #admin-section {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    #admin-section > h2 {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge         { padding: .2rem .6rem; border-radius: .25rem; font-weight: 600; font-size: .8rem; }
+    .badge-green   { background: var(--green);  color: #fff; }
+    .badge-yellow  { background: var(--yellow); color: #000; }
+    .badge-red     { background: var(--red);    color: #fff; }
+    .badge-neutral { background: var(--border); color: var(--text); }
+    .badge-blue    { background: var(--blue);   color: #fff; }
+
+    /* ── Forms ───────────────────────────────────────────────── */
+    .field { margin-bottom: .5rem; }
+    .field label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .2rem; }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .35rem .6rem;
+      border-radius: .25rem;
+      width: 100%;
+      font-family: inherit;
+      font-size: .85rem;
+    }
+    input:focus, select:focus { outline: 1px solid var(--blue); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+
+    button {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: .45rem 1rem;
+      border-radius: .25rem;
+      cursor: pointer;
+      margin-top: .6rem;
+      font-family: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    button:hover  { background: #2563eb; }
+    button:active { background: #1d4ed8; }
+    button.danger { background: var(--red); }
+    button.danger:hover { background: #dc2626; }
+
+    /* ── Result areas ────────────────────────────────────────── */
+    .result { margin-top: .75rem; min-height: 1rem; }
+    .result-row { display: flex; gap: .5rem; align-items: baseline; margin-bottom: .3rem; }
+    .result-label { color: var(--muted); font-size: .8rem; min-width: 10ch; }
+
+    .err { color: var(--red); font-size: .85rem; }
+    .ok  { color: var(--green); font-size: .85rem; }
+
+    /* ── Table ───────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .5rem; }
+    th { color: var(--muted); font-weight: 600; text-align: left; padding: .3rem .5rem;
+         border-bottom: 1px solid var(--border); }
+    td { padding: .35rem .5rem; border-bottom: 1px solid #253045; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Health component rows ───────────────────────────────── */
+    .component-row { display: flex; justify-content: space-between; align-items: center;
+                     padding: .25rem 0; border-bottom: 1px solid #253045; }
+    .component-row:last-child { border-bottom: none; }
+    .component-name { color: var(--text); font-size: .85rem; }
+
+    /* ── Raw JSON inspector ──────────────────────────────────── */
+    details { margin-top: .75rem; }
+    summary { cursor: pointer; color: var(--muted); font-size: .78rem; user-select: none; }
+    summary:hover { color: var(--text); }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: .25rem;
+      padding: .6rem;
+      font-size: .75rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--muted);
+      margin-top: .4rem;
+      max-height: 18rem;
+      overflow-y: auto;
+    }
+
+    /* ── Disclaimer ──────────────────────────────────────────── */
+    .disclaimer {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: .75rem;
+      line-height: 1.4;
+    }
+
+    /* ── Overlay (auth-required / admin-only) ────────────────── */
+    .overlay {
+      position: relative;
+      pointer-events: none;
+      user-select: none;
+    }
+    .overlay::after {
+      content: attr(data-msg);
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, .75);
+      color: var(--muted);
+      font-size: .9rem;
+      border-radius: .5rem;
+    }
+    .overlay button, .overlay input, .overlay select { pointer-events: none; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: .6rem 1.5rem;
+      font-size: .72rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Value Investing Platform <span>— Feature Demo</span></h1>
+  <span id="auth-status">Not logged in</span>
+  <button id="logout-btn" class="danger" style="margin-top:0">Logout</button>
+</header>
+
+<main>
+
+  <!-- ── Top row: Auth + Health ──────────────────────────── -->
+  <div class="top-row">
+
+    <section id="auth-panel">
+      <h3>Authentication</h3>
+      <div class="field">
+        <label>Email</label>
+        <input id="login-email" type="email" value="admin@example.com" placeholder="email@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="login-password" type="password" value="Admin1234!" placeholder="password">
+      </div>
+      <button id="login-btn">Login</button>
+      <div class="result" id="auth-result"></div>
+    </section>
+
+    <section id="health-panel">
+      <h3>System Health</h3>
+      <button id="health-btn">Check Health</button>
+      <div class="result" id="health-result"></div>
+      <details><summary>Raw JSON</summary><pre id="health-raw"></pre></details>
+    </section>
+
+  </div>
+
+  <!-- ── Mid row: Quick Analysis + DCF ──────────────────── -->
+  <div class="mid-row">
+
+    <section id="analysis-panel" class="auth-required" data-msg="Login to access this section">
+      <h3>Quick Analysis</h3>
+      <div class="field">
+        <label>Ticker Symbol</label>
+        <input id="analysis-symbol" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase">
+      </div>
+      <button id="analyze-btn">Analyze</button>
+      <div class="result" id="analysis-result"></div>
+      <p class="disclaimer">This is a decision-support tool, not investment advice (MiFID II).</p>
+      <details><summary>Raw JSON</summary><pre id="analysis-raw"></pre></details>
+    </section>
+
+    <section id="dcf-panel" class="auth-required" data-msg="Login to access this section">
+      <h3>DCF Custom Valuation</h3>
+      <div class="field">
+        <label>Ticker Symbol</label>
+        <input id="dcf-symbol" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>WACC %</label>
+          <input id="dcf-wacc" type="number" value="9.0" step="0.1" min="0.1">
+        </div>
+        <div class="field">
+          <label>Growth Y1–5 %</label>
+          <input id="dcf-g15" type="number" value="8.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Growth Y6–10 %</label>
+          <input id="dcf-g610" type="number" value="4.0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Terminal Rate %</label>
+          <input id="dcf-terminal" type="number" value="2.5" step="0.1" min="0.1">
+        </div>
+      </div>
+      <button id="dcf-btn">Run DCF</button>
+      <div class="result" id="dcf-result"></div>
+      <p class="disclaimer">This is a decision-support tool, not investment advice (MiFID II).</p>
+      <details><summary>Raw JSON</summary><pre id="dcf-raw"></pre></details>
+    </section>
+
+  </div>
+
+  <!-- ── Admin section ───────────────────────────────────── -->
+  <section id="admin-section">
+    <h2>Admin Controls</h2>
+    <div class="admin-row">
+
+      <section id="seed-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Seed Data</h3>
+        <div class="field">
+          <label>Tickers (comma-separated)</label>
+          <input id="seed-tickers" type="text" value="AAPL,MSFT,KO,JNJ" placeholder="AAPL,MSFT,KO">
+        </div>
+        <button id="seed-btn">Seed</button>
+        <div class="result" id="seed-result"></div>
+        <details><summary>Raw JSON</summary><pre id="seed-raw"></pre></details>
+      </section>
+
+      <section id="cache-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Cache Eviction</h3>
+        <div class="field">
+          <label>Symbol</label>
+          <input id="evict-symbol" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase">
+        </div>
+        <button id="evict-btn" class="danger">Evict Cache</button>
+        <div class="result" id="evict-result"></div>
+      </section>
+
+      <section id="jobs-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Job Trigger</h3>
+        <div class="field">
+          <label>Job Name</label>
+          <select id="job-name">
+            <option value="quote-refresh">quote-refresh</option>
+            <option value="bulk-profile-sync">bulk-profile-sync</option>
+            <option value="bulk-fundamentals-sync">bulk-fundamentals-sync</option>
+            <option value="bulk-ratios-sync">bulk-ratios-sync</option>
+            <option value="bulk-dcf-sync">bulk-dcf-sync</option>
+            <option value="dividend-update">dividend-update</option>
+            <option value="insider-trading">insider-trading</option>
+          </select>
+        </div>
+        <button id="job-btn">Trigger Job</button>
+        <div class="result" id="job-result"></div>
+        <details><summary>Raw JSON</summary><pre id="job-raw"></pre></details>
+      </section>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  MiFID II disclaimer: This page is a decision-support tool for internal use only. Nothing presented constitutes investment advice, a solicitation, or an offer to buy or sell financial instruments.
+</footer>
+
+<script>
+  const BASE_URL = 'http://localhost:8080';
+  let authToken    = null;
+  let refreshToken = null;
+  let userRole     = null;
+
+  // ── Auth helpers ─────────────────────────────────────────────
+  function decodeJwtPayload(token) {
+    try {
+      const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(b64));
+    } catch { return {}; }
+  }
+
+  function authHeaders() {
+    return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+  }
+
+  function onLoginSuccess(data) {
+    authToken    = data.accessToken;
+    refreshToken = data.refreshToken;
+    const payload = decodeJwtPayload(authToken);
+    userRole = payload.role || (Array.isArray(payload.roles) ? payload.roles[0] : null) || 'USER';
+    const email = payload.sub || 'user';
+    document.getElementById('auth-status').textContent = `${email} · ${userRole}`;
+    document.getElementById('logout-btn').style.display = 'inline-block';
+    document.getElementById('auth-result').innerHTML =
+      `<span class="ok">Logged in as <strong>${email}</strong> · role: <span class="badge badge-blue">${userRole}</span></span>`;
+    updateAdminSections(userRole === 'ADMIN');
+    updateAuthRequiredSections(true);
+  }
+
+  function onLogout() {
+    authToken    = null;
+    refreshToken = null;
+    userRole     = null;
+    document.getElementById('auth-status').textContent = 'Not logged in';
+    document.getElementById('logout-btn').style.display = 'none';
+    document.getElementById('auth-result').innerHTML = '<span class="ok">Logged out.</span>';
+    updateAdminSections(false);
+    updateAuthRequiredSections(false);
+  }
+
+  // ── API helpers ───────────────────────────────────────────────
+  async function apiCall(method, path, body = null) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', ...authHeaders() }
+    };
+    if (body !== null) opts.body = JSON.stringify(body);
+    const res = await fetch(BASE_URL + path, opts);
+    if (res.status === 401) { onLogout(); throw new Error('SESSION_EXPIRED'); }
+    return res;
+  }
+
+  // ── Render helpers ────────────────────────────────────────────
+  function mosBadge(mos) {
+    if (mos == null) return '<span class="badge badge-neutral">N/A</span>';
+    const pct = Number(mos);
+    if (pct >= 15) return `<span class="badge badge-green">${pct.toFixed(1)} %</span>`;
+    if (pct >= 5)  return `<span class="badge badge-yellow">${pct.toFixed(1)} %</span>`;
+    return              `<span class="badge badge-red">${pct.toFixed(1)} %</span>`;
+  }
+
+  function recBadge(rec) {
+    if (!rec) return '<span class="badge badge-neutral">—</span>';
+    const map = {
+      STRONG_BUY:    'badge-green',
+      QUALITY_VALUE: 'badge-green',
+      FAIR_VALUE:    'badge-yellow',
+      OVERVALUED:    'badge-red',
+    };
+    return `<span class="badge ${map[rec] || 'badge-neutral'}">${rec.replace(/_/g, ' ')}</span>`;
+  }
+
+  function statusBadge(status) {
+    return status === 'UP'
+      ? '<span class="badge badge-green">UP</span>'
+      : `<span class="badge badge-red">${status || 'DOWN'}</span>`;
+  }
+
+  function fmtCurrency(val, currency) {
+    if (val == null) return '—';
+    const n = Number(val);
+    if (Math.abs(n) >= 1e9)  return `${currency || ''} ${(n/1e9).toFixed(2)} B`;
+    if (Math.abs(n) >= 1e6)  return `${currency || ''} ${(n/1e6).toFixed(2)} M`;
+    return `${currency || ''} ${n.toFixed(2)}`;
+  }
+
+  function fmtPrice(val) {
+    if (val == null) return '—';
+    return Number(val).toFixed(2);
+  }
+
+  function sourceBadge(source) {
+    if (!source) return '<span class="badge badge-neutral">—</span>';
+    if (source === 'FMP') return '<span class="badge badge-blue">FMP</span>';
+    if (source === 'Yahoo') return '<span class="badge badge-yellow">Yahoo</span>';
+    return `<span class="badge badge-neutral">${source}</span>`;
+  }
+
+  // ── Visibility toggles ────────────────────────────────────────
+  function updateAdminSections(isAdmin) {
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.dataset.msg = isAdmin ? '' : 'Login as ADMIN to access this section';
+      el.classList.toggle('overlay', !isAdmin);
+    });
+  }
+
+  function updateAuthRequiredSections(isAuthed) {
+    document.querySelectorAll('.auth-required').forEach(el => {
+      el.dataset.msg = isAuthed ? '' : 'Login to access this section';
+      el.classList.toggle('overlay', !isAuthed);
+    });
+  }
+
+  // ── Event listeners ───────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // Initial state
+    updateAdminSections(false);
+    updateAuthRequiredSections(false);
+
+    // Login
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const result   = document.getElementById('auth-result');
+      result.innerHTML = '<span style="color:var(--muted)">Logging in…</span>';
+      try {
+        const res  = await apiCall('POST', '/auth/login', { email, password });
+        const data = await res.json();
+        if (!res.ok) {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || JSON.stringify(data)}</span>`;
+        } else {
+          onLoginSuccess(data);
+        }
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (refreshToken) {
+        try { await apiCall('POST', '/auth/logout', { refreshToken }); } catch { /* ignore */ }
+      }
+      onLogout();
+    });
+
+    // Health
+    document.getElementById('health-btn').addEventListener('click', async () => {
+      const result = document.getElementById('health-result');
+      const raw    = document.getElementById('health-raw');
+      result.innerHTML = '<span style="color:var(--muted)">Checking…</span>';
+      try {
+        const res  = await fetch(BASE_URL + '/actuator/health');
+        const data = await res.json();
+        raw.textContent = JSON.stringify(data, null, 2);
+        const overall = data.status || 'UNKNOWN';
+        let html = `<div class="result-row"><span class="result-label">Overall</span>${statusBadge(overall)}</div>`;
+        if (data.components) {
+          html += Object.entries(data.components).map(([name, comp]) =>
+            `<div class="component-row"><span class="component-name">${name}</span>${statusBadge(comp.status)}</div>`
+          ).join('');
+        }
+        result.innerHTML = html;
+      } catch (e) {
+        result.innerHTML = `<span class="err">Network error: ${e.message}</span>`;
+        raw.textContent = '';
+      }
+    });
+
+    // Quick Analysis
+    document.getElementById('analyze-btn').addEventListener('click', async () => {
+      const symbol = document.getElementById('analysis-symbol').value.trim().toUpperCase();
+      const result = document.getElementById('analysis-result');
+      const raw    = document.getElementById('analysis-raw');
+      if (!symbol) { result.innerHTML = '<span class="err">Enter a ticker symbol.</span>'; return; }
+      result.innerHTML = '<span style="color:var(--muted)">Analyzing…</span>';
+      try {
+        const res  = await apiCall('GET', `/api/v1/securities/${encodeURIComponent(symbol)}/quick-analysis`);
+        const data = await res.json();
+        raw.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok) {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || JSON.stringify(data)}</span>`;
+          return;
+        }
+        const v = data.valuation || {};
+        const dcf = v.dcf || {};
+        const fs  = data.financialSummary || {};
+        result.innerHTML = `
+          <div class="result-row"><span class="result-label">Company</span><strong>${data.companyName || '—'}</strong></div>
+          <div class="result-row"><span class="result-label">Sector</span><span>${data.sector || '—'}</span></div>
+          <div class="result-row"><span class="result-label">Price</span><span>${data.currency || ''} ${fmtPrice(data.currentPrice)}</span></div>
+          <div class="result-row"><span class="result-label">DCF Fair Val</span><span>${data.currency || ''} ${fmtPrice(dcf.fairValue)} <span style="color:var(--muted);font-size:.78rem"> (${fmtPrice(dcf.low)} – ${fmtPrice(dcf.high)})</span></span></div>
+          <div class="result-row"><span class="result-label">Graham #</span><span>${data.currency || ''} ${fmtPrice(v.grahamNumber)}</span></div>
+          <div class="result-row"><span class="result-label">Composite</span><span>${data.currency || ''} ${fmtPrice(v.composite)}</span></div>
+          <div class="result-row"><span class="result-label">MoS</span>${mosBadge(data.marginOfSafety)}</div>
+          <div class="result-row"><span class="result-label">Signal</span>${recBadge(data.recommendation)}</div>
+          <div class="result-row"><span class="result-label">Revenue</span><span>${fmtCurrency(fs.revenue, data.currency)}</span></div>
+          <div class="result-row"><span class="result-label">FCF</span><span>${fmtCurrency(fs.fcf, data.currency)}</span></div>
+          <div class="result-row"><span class="result-label">EPS</span><span>${fmtPrice(fs.eps)}</span></div>
+          <div class="result-row"><span class="result-label">Data as of</span><span>${data.dataAsOf || '—'}</span></div>
+        `;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    // DCF
+    document.getElementById('dcf-btn').addEventListener('click', async () => {
+      const symbol   = document.getElementById('dcf-symbol').value.trim().toUpperCase();
+      const wacc     = parseFloat(document.getElementById('dcf-wacc').value);
+      const g15      = parseFloat(document.getElementById('dcf-g15').value);
+      const g610     = parseFloat(document.getElementById('dcf-g610').value);
+      const terminal = parseFloat(document.getElementById('dcf-terminal').value);
+      const result   = document.getElementById('dcf-result');
+      const raw      = document.getElementById('dcf-raw');
+      if (!symbol) { result.innerHTML = '<span class="err">Enter a ticker symbol.</span>'; return; }
+      result.innerHTML = '<span style="color:var(--muted)">Running DCF…</span>';
+      try {
+        const res  = await apiCall('POST', `/api/v1/securities/${encodeURIComponent(symbol)}/valuation/dcf`, {
+          wacc:         wacc     / 100,
+          growthY1Y5:   g15      / 100,
+          growthY6Y10:  g610     / 100,
+          terminalRate: terminal / 100,
+        });
+        const data = await res.json();
+        raw.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok) {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || JSON.stringify(data)}</span>`;
+          return;
+        }
+        result.innerHTML = `
+          <div class="result-row"><span class="result-label">DCF Base</span><span>${fmtPrice(data.dcfFairValue)}</span></div>
+          <div class="result-row"><span class="result-label">DCF Low</span><span>${fmtPrice(data.dcfFairValueLow)}</span></div>
+          <div class="result-row"><span class="result-label">DCF High</span><span>${fmtPrice(data.dcfFairValueHigh)}</span></div>
+          <div class="result-row"><span class="result-label">Graham #</span><span>${fmtPrice(data.grahamNumber)}</span></div>
+          <div class="result-row"><span class="result-label">Composite</span><span>${fmtPrice(data.compositeFairValue)}</span></div>
+          <div class="result-row"><span class="result-label">Current</span><span>${fmtPrice(data.currentPrice)}</span></div>
+          <div class="result-row"><span class="result-label">MoS</span>${mosBadge(data.marginOfSafety)}</div>
+          <div class="result-row"><span class="result-label">Signal</span>${recBadge(data.recommendation)}</div>
+        `;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    // Seed
+    document.getElementById('seed-btn').addEventListener('click', async () => {
+      const tickers = document.getElementById('seed-tickers').value.trim();
+      const result  = document.getElementById('seed-result');
+      const raw     = document.getElementById('seed-raw');
+      if (!tickers) { result.innerHTML = '<span class="err">Enter at least one ticker.</span>'; return; }
+      result.innerHTML = '<span style="color:var(--muted)">Seeding… (this may take a minute)</span>';
+      try {
+        const res  = await apiCall('POST', `/api/v1/admin/seed?tickers=${encodeURIComponent(tickers)}`);
+        const data = await res.json();
+        raw.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok) {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || JSON.stringify(data)}</span>`;
+          return;
+        }
+        const rows = Array.isArray(data) ? data : [];
+        if (rows.length === 0) {
+          result.innerHTML = '<span class="ok">Seed complete (no results returned).</span>';
+          return;
+        }
+        const tbody = rows.map(r => {
+          const errCell = r.error ? `<td style="color:var(--red)">${r.error}</td>` : `<td>${mosBadge(r.marginOfSafety)}</td>`;
+          return `<tr>
+            <td>${r.symbol || '—'}</td>
+            <td>${r.companyName || '—'}</td>
+            <td>${r.error ? '—' : fmtPrice(r.compositeFairValue)}</td>
+            ${errCell}
+            <td>${r.error ? '' : recBadge(r.recommendation)}</td>
+            <td>${sourceBadge(r.source)}</td>
+          </tr>`;
+        }).join('');
+        result.innerHTML = `<table>
+          <thead><tr><th>Symbol</th><th>Company</th><th>Fair Value</th><th>MoS</th><th>Signal</th><th>Source</th></tr></thead>
+          <tbody>${tbody}</tbody>
+        </table>`;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    // Cache eviction
+    document.getElementById('evict-btn').addEventListener('click', async () => {
+      const symbol = document.getElementById('evict-symbol').value.trim().toUpperCase();
+      const result = document.getElementById('evict-result');
+      if (!symbol) { result.innerHTML = '<span class="err">Enter a symbol.</span>'; return; }
+      result.innerHTML = '<span style="color:var(--muted)">Evicting…</span>';
+      try {
+        const res = await apiCall('DELETE', `/api/v1/admin/cache/${encodeURIComponent(symbol)}`);
+        if (res.status === 204 || res.ok) {
+          result.innerHTML = `<span class="ok">Cache evicted for <strong>${symbol}</strong>.</span>`;
+        } else {
+          let msg = '';
+          try { const d = await res.json(); msg = d.message || JSON.stringify(d); } catch { msg = res.statusText; }
+          result.innerHTML = `<span class="err">Error ${res.status}: ${msg}</span>`;
+        }
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    // Job trigger
+    document.getElementById('job-btn').addEventListener('click', async () => {
+      const jobName = document.getElementById('job-name').value;
+      const result  = document.getElementById('job-result');
+      const raw     = document.getElementById('job-raw');
+      result.innerHTML = '<span style="color:var(--muted)">Triggering…</span>';
+      try {
+        const res  = await apiCall('POST', `/api/v1/admin/jobs/${encodeURIComponent(jobName)}/run`);
+        let data = {};
+        try { data = await res.json(); } catch { /* 202 may have no body */ }
+        raw.textContent = JSON.stringify(data, null, 2);
+        if (res.status === 202 || res.ok) {
+          result.innerHTML = `<span class="ok">Job <strong>${jobName}</strong> triggered. Status: ${data.status || 'triggered'}</span>`;
+        } else {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || JSON.stringify(data)}</span>`;
+        }
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+  });
+</script>
+</body>
+</html>

@@ -47,6 +47,9 @@ public class FmpMarketDataClient implements MarketDataClient {
                 .onStatus(status -> status.value() == 404,
                         resp -> Mono.error(new MarketDataException(
                                 MarketDataException.ErrorCode.NOT_FOUND, symbol)))
+                .onStatus(status -> status.value() == 402,
+                        resp -> Mono.error(new MarketDataException(
+                                MarketDataException.ErrorCode.PLAN_RESTRICTION, symbol)))
                 .onStatus(status -> status.is5xxServerError() || status.value() == 429,
                         resp -> Mono.error(new MarketDataException(
                                 MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol)))
@@ -181,6 +184,9 @@ public class FmpMarketDataClient implements MarketDataClient {
                 .onStatus(status -> status.value() == 404,
                         resp -> Mono.error(new MarketDataException(
                                 MarketDataException.ErrorCode.NOT_FOUND, symbol)))
+                .onStatus(status -> status.value() == 402,
+                        resp -> Mono.error(new MarketDataException(
+                                MarketDataException.ErrorCode.PLAN_RESTRICTION, symbol)))
                 .onStatus(status -> status.is5xxServerError() || status.value() == 429,
                         resp -> Mono.error(new MarketDataException(
                                 MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol)))
