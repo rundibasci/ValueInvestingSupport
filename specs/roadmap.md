@@ -5,6 +5,7 @@ Implementation broken into small, shippable phases. Each phase produces working,
 **Data source strategy:**
 - **Demo milestone (M0):** Yahoo Finance public API — zero cost, no API key, sufficient for a single-stock vertical slice.
 - **Production milestone (M1+):** FMP Premium — official, bulk, full screener. Switch is isolated to the data client layer; Valuation Engine and Score Engine are untouched.
+- **Yahoo Finance fallback (all milestones):** Yahoo Finance remains a live fallback in every phase after M0. If FMP is unavailable (quota exceeded, outage, key missing), `MarketDataClient` switches to `YahooMarketDataClient` automatically — same domain types, no code changes outside the client layer. Control via `MARKET_DATA_SOURCE=fmp` (default for M1+) or `MARKET_DATA_SOURCE=yahoo`.
 
 **FMP API key — local setup (required from B1 onward):**
 - Copy `.env.example` to `.env` (gitignored) and set `FMP_API_KEY=<your-key>` and `MARKET_DATA_SOURCE=fmp`.
@@ -106,9 +107,9 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 ### Phase B1: Market Data Client Abstraction
 - `MarketDataClient` interface: `getProfile(symbol)`, `getFundamentals(symbol)`, `getRatios(symbol)`, `getQuote(symbol)`
 - Two implementations behind the same interface:
-  - `YahooMarketDataClient` — reuses Z2 Yahoo Finance client; active when `MARKET_DATA_SOURCE=yahoo`
-  - `FmpMarketDataClient` — FMP WebClient with API key, retry (exponential backoff, max 3), error handling (429/503); active when `MARKET_DATA_SOURCE=fmp`
-- Spring `@Profile` or `@ConditionalOnProperty` to select implementation at startup
+  - `YahooMarketDataClient` — reuses Z2 Yahoo Finance client; active when `MARKET_DATA_SOURCE=yahoo`; **also serves as runtime fallback** when FMP is unavailable (quota exceeded, HTTP 429/503 after retries, key absent)
+  - `FmpMarketDataClient` — FMP WebClient with API key, retry (exponential backoff, max 3), error handling (429/503); active when `MARKET_DATA_SOURCE=fmp`; on non-retryable failure delegates to `YahooMarketDataClient`
+- Spring `@Profile` or `@ConditionalOnProperty` to select primary implementation at startup; fallback wiring is always present regardless of active source
 - DTOs and adapters isolated per client; domain entities are shared
 
 ### Phase B2: Redis Cache Layer
@@ -182,7 +183,7 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 - Reads latest `FundamentalSnapshot` + `RatioSnapshot` from DB (populated by B3 ingestion)
 - Fetches current price from Redis cache; falls back to most recent `PriceQuote` in DB
 - Calls `ValuationService.calculate()` → composite fair value, MoS, recommendation
-- Response structure mirrors the M0 schema; adds `dataAsOf` (snapshot date) and `"source": "fmp"`
+- Response structure mirrors the M0 schema; adds `dataAsOf` (snapshot date) and `"source": "fmp"` (or `"yahoo"` when FMP fallback was used)
 - Error cases: 404 if ticker not in DB, 422 if snapshot older than 7 days (stale data guard)
 - RULE-06 guard respected: DCF omitted if < 3 years of positive FCF; falls back to Graham-only composite
 - MiFID II disclaimer required in response body
@@ -423,21 +424,21 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 | Milestone | Phases | Data Source | Deliverable |
 |---|---|---|---|
-| **M0: Demo** | Z1–Z5 | Yahoo Finance (free) | Single-page "analyze a ticker" app — valuation + MoS, no auth, no DB |
+| **M0: Demo** | Z1–Z5 | Yahoo Finance (free, primary) | Single-page "analyze a ticker" app — valuation + MoS, no auth, no DB |
 | M1: Backend Running | A1, A2, A3 | — | Auth-protected API, full DB schema, Docker Compose |
-| M2: Data Flowing | B1, B2, B3 | Yahoo → FMP switchable | Market data client + Redis cache + nightly ingestion jobs |
+| M2: Data Flowing | B1, B2, B3 | FMP primary / Yahoo fallback | Market data client + Redis cache + nightly ingestion jobs |
 | **ML: Local Stack Demo** | LS1, LS2 | — | Login + protected endpoint via browser; H2 in-memory DB + Docker Redis; admin/admin default user |
-| M3: Valuation Working | C1, C2, C3 | either | DCF/Graham/DDM via API, persisted to DB |
-| **M3.5: Connected Demo** | Val1, Val2 | FMP | Authenticated single-stock analysis endpoint — real FMP data → valuation → MoS, stakeholder-showable |
-| **M3.6: Feature Demo UI** | FD1 | FMP | Browser-based demo page exposing all features built through Val2: auth, health, seed, quick analysis, DCF, cache eviction, job trigger — no curl required |
-| **M3.8: Pipeline Demo** | Score1, Score2 | FMP | Seed → Valuate → Score → ranked table; full 5-factor Value Score validated end-to-end before screener |
-| M4: Screener Live | D1, D2 | FMP (bulk) | Full screener API with Value Score, < 500ms |
-| M5: Security Detail | E1, E2, E3 | FMP | All per-stock endpoints live |
-| M6: Portfolio | F1, F2, F3, F4 | FMP | Watchlist + Portfolio Builder + Rebalancing |
-| **M6.5: Full-Feature Demo** | PFD1 | FMP | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
-| M7: Alerts | G1, G2 | FMP | Automated alert detection + email delivery |
-| M8: Frontend MVP | H1–H6 | FMP | Full React UI connected to backend |
-| M9: Production Ready | H7, I1, I2 | FMP | Dashboard + tests + observability |
+| M3: Valuation Working | C1, C2, C3 | FMP primary / Yahoo fallback | DCF/Graham/DDM via API, persisted to DB |
+| **M3.5: Connected Demo** | Val1, Val2 | FMP primary / Yahoo fallback | Authenticated single-stock analysis endpoint — real data → valuation → MoS, stakeholder-showable |
+| **M3.6: Feature Demo UI** | FD1 | FMP primary / Yahoo fallback | Browser-based demo page exposing all features built through Val2: auth, health, seed, quick analysis, DCF, cache eviction, job trigger — no curl required |
+| **M3.8: Pipeline Demo** | Score1, Score2 | FMP primary / Yahoo fallback | Seed → Valuate → Score → ranked table; full 5-factor Value Score validated end-to-end before screener |
+| M4: Screener Live | D1, D2 | FMP primary / Yahoo fallback | Full screener API with Value Score, < 500ms |
+| M5: Security Detail | E1, E2, E3 | FMP primary / Yahoo fallback | All per-stock endpoints live |
+| M6: Portfolio | F1, F2, F3, F4 | FMP primary / Yahoo fallback | Watchlist + Portfolio Builder + Rebalancing |
+| **M6.5: Full-Feature Demo** | PFD1 | FMP primary / Yahoo fallback | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
+| M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
+| M8: Frontend MVP | H1–H6 | FMP primary / Yahoo fallback | Full React UI connected to backend |
+| M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >

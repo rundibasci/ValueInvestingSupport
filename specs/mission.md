@@ -32,7 +32,7 @@ Every feature must map to one or more steps in this cycle.
 2. **Transparency** — all valuation outputs include their input parameters and the formula used; nothing is a black box.
 3. **Conservative defaults** — when in doubt, use the more pessimistic assumption (higher WACC, lower growth rate).
 4. **Separation of support and advice** — the system is a *decision-support* tool, not a regulated investment advisor (MiFID II disclaimer mandatory on all Fair Value / Value Score screens).
-5. **Cache-first for external data** — FMP API calls are always backed by local DB/Redis; the system must function even if FMP is temporarily unavailable.
+5. **Cache-first for external data, Yahoo Finance as runtime fallback** — FMP API calls are always backed by local DB/Redis; the system must function even if FMP is temporarily unavailable. When FMP cannot be reached (quota exceeded, outage, or API key absent), the `MarketDataClient` abstraction falls back to Yahoo Finance automatically — no API key required, same domain types returned. This fallback applies in every milestone, not only the M0 demo.
 6. **Immutable historical data** — once a fundamental snapshot is ingested, it is never overwritten; corrections append new records.
 7. **Secrets never in source control** — API keys, passwords, and tokens live exclusively in `.env` (local) or injected environment variables (CI/CD); no credential may appear in any committed file.
 
