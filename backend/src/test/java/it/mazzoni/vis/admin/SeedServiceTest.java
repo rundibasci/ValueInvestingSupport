@@ -1,6 +1,7 @@
 package it.mazzoni.vis.admin;
 
 import it.mazzoni.vis.config.ValuationDefaultsProperties;
+import it.mazzoni.vis.marketdata.SourceTracker;
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
 import it.mazzoni.vis.domain.MarketPriceQuote;
@@ -46,6 +47,7 @@ class SeedServiceTest {
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
     @Mock PriceQuoteRepository priceQuoteRepository;
     @Mock ValuationService valuationService;
+    @Mock SourceTracker sourceTracker;
 
     SeedService seedService;
 
@@ -56,7 +58,7 @@ class SeedServiceTest {
                 new BigDecimal("0.04"), new BigDecimal("0.025"));
         seedService = new SeedService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
-                priceQuoteRepository, valuationService, defaults);
+                priceQuoteRepository, valuationService, defaults, sourceTracker);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
         Mockito.lenient().when(securityRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
