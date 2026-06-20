@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- Group D — D1: `GET /api/v1/securities/{symbol}/score` — returns the latest `ValueScore` for a symbol, computing on demand if none is stored; D2: `POST /api/v1/screener` — paginated stock screener with sector, exchange, MoS, score, ROIC, D/E, and dividend-yield filters sorted by any score field across pages via EntityManager + CriteriaBuilder theta-joins with correlated MAX subqueries; `GET /presets` (Graham, Dividend, Quality), `GET /sectors`, `GET /exchanges` helpers; Flyway V4 — 5 composite indexes; 19 tests (MockMvc unit, `@DataJpaTest`/H2, Testcontainers PostgreSQL IT with 5 000-row seed and < 500 ms gate); feature specification `specs/2026-06-20-d1-d2-screener-and-scoring/`
 - Phase Score1/2: `POST /api/v1/admin/pipeline-run` (ADMIN only) — runs the full Seed → Valuate → Score → Rank pipeline for a configurable ticker list; returns results sorted by `totalScore DESC`; per-ticker errors surfaced as inline rows without aborting the batch
 - Phase Score1/2: `ValueScoreService.compute(symbol) → ValueScore` — 5-factor formula: MoS (30 pts), Quality/ROIC (25 pts), Safety/D-E (20 pts), Growth/revenue (15 pts), Dividend (10 pts); ROIC falls back to ROE when absent; persists `ValueScore` to DB; same class D1 screener will import
 - Phase Score1/2: `PipelineRunService` — orchestrates `SeedService` then `ValueScoreService` per ticker; sorts results by `totalScore DESC` with null scores last
