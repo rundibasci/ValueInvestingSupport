@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface ValueScoreRepository extends JpaRepository<ValueScore, UUID> {
     Optional<ValueScore> findTopBySecurityOrderByScoreDateDesc(Security security);
+    Optional<ValueScore> findTopBySecuritySymbolOrderByScoreDateDesc(String symbol);
 }
