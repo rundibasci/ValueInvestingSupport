@@ -49,7 +49,7 @@ class SeedControllerTest {
         when(seedService.seedTickers(anyList())).thenReturn(List.of(
                 SeedResult.success("AAPL", "Apple Inc.",
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE)));
+                        Recommendation.QUALITY_VALUE, "FMP")));
 
         mockMvc.perform(post("/api/v1/admin/seed").param("tickers", "AAPL"))
                 .andExpect(status().isOk())
@@ -66,7 +66,7 @@ class SeedControllerTest {
         when(seedService.seedTickers(List.of("AAPL", "MSFT", "KO", "JNJ"))).thenReturn(
                 List.of(SeedResult.success("AAPL", "Apple Inc.",
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE)));
+                        Recommendation.QUALITY_VALUE, "FMP")));
 
         mockMvc.perform(post("/api/v1/admin/seed"))
                 .andExpect(status().isOk())
@@ -79,7 +79,7 @@ class SeedControllerTest {
                 SeedResult.failed("XYZ", "not found"),
                 SeedResult.success("AAPL", "Apple Inc.",
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE)));
+                        Recommendation.QUALITY_VALUE, "FMP")));
 
         mockMvc.perform(post("/api/v1/admin/seed").param("tickers", "XYZ,AAPL"))
                 .andExpect(status().isOk())

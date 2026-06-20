@@ -6,6 +6,12 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- Phase Score1/2: `POST /api/v1/admin/pipeline-run` (ADMIN only) — runs the full Seed → Valuate → Score → Rank pipeline for a configurable ticker list; returns results sorted by `totalScore DESC`; per-ticker errors surfaced as inline rows without aborting the batch
+- Phase Score1/2: `ValueScoreService.compute(symbol) → ValueScore` — 5-factor formula: MoS (30 pts), Quality/ROIC (25 pts), Safety/D-E (20 pts), Growth/revenue (15 pts), Dividend (10 pts); ROIC falls back to ROE when absent; persists `ValueScore` to DB; same class D1 screener will import
+- Phase Score1/2: `PipelineRunService` — orchestrates `SeedService` then `ValueScoreService` per ticker; sorts results by `totalScore DESC` with null scores last
+- Phase Score1/2: `scripts/pipeline-demo.sh` — end-to-end shell demo: login → `POST /admin/pipeline-run` → ranked table printed via jq
+- Phase Score1/2: 8 tests — `ValueScoreServiceTest` (6 unit tests: all sub-scores, ROIC→ROE fallback, currentRatio cap, dividend streak, null-safe paths), `PipelineControllerTest` (MockMvc), `PipelineDemoIT` (integration, `@Tag("integration")`)
+- Phase Score1/2: Feature specification (`specs/2026-06-20-score-pipeline-demo/`) — plan, requirements, validation
 - Phase Val2: `POST /api/v1/admin/seed` — admin endpoint that fetches live market data for a ticker list (default `SEED_TICKERS`: AAPL, MSFT, KO, JNJ), upserts `Security`, `FundamentalSnapshot` (one row per FCF year), `RatioSnapshot`, `PriceQuote`, runs valuation, returns `SeedResult[]`; active on all profiles except `demo`
 - Phase Val2: `SeedService` — orchestrates per-symbol upsert in a single `@Transactional`; captures `MarketDataException` per ticker and returns `SeedResult.failed` without aborting the batch
 - Phase Val2: `SeedResult` record — per-symbol outcome with `symbol`, `companyName`, `compositeFairValue`, `marginOfSafety`, `recommendation`, and `error` fields
