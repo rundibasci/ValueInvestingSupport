@@ -26,6 +26,9 @@ public class WatchlistItem {
     @Column(precision = 5, scale = 2)
     private BigDecimal mosAlertMax;
 
+    @Column(precision = 10, scale = 4)
+    private BigDecimal fundamentalDegradeThreshold;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime addedAt;
 
@@ -48,6 +51,11 @@ public class WatchlistItem {
 
     public BigDecimal getMosAlertMax() { return mosAlertMax; }
     public void setMosAlertMax(BigDecimal mosAlertMax) { this.mosAlertMax = mosAlertMax; }
+
+    public BigDecimal getFundamentalDegradeThreshold() { return fundamentalDegradeThreshold; }
+    public void setFundamentalDegradeThreshold(BigDecimal fundamentalDegradeThreshold) {
+        this.fundamentalDegradeThreshold = fundamentalDegradeThreshold;
+    }
 
     public LocalDateTime getAddedAt() { return addedAt; }
 }
