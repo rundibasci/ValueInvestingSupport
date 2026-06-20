@@ -248,6 +248,54 @@
 
   </div>
 
+  <!-- ── Admin section ───────────────────────────────────── -->
+  <section id="admin-section">
+    <h2>Admin Controls</h2>
+    <div class="admin-row">
+
+      <section id="seed-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Seed Data</h3>
+        <div class="field">
+          <label>Tickers (comma-separated)</label>
+          <input id="seed-tickers" type="text" value="AAPL,MSFT,KO,JNJ" placeholder="AAPL,MSFT,KO">
+        </div>
+        <button id="seed-btn">Seed</button>
+        <div class="result" id="seed-result"></div>
+        <details><summary>Raw JSON</summary><pre id="seed-raw"></pre></details>
+      </section>
+
+      <section id="cache-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Cache Eviction</h3>
+        <div class="field">
+          <label>Symbol</label>
+          <input id="evict-symbol" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase">
+        </div>
+        <button id="evict-btn" class="danger">Evict Cache</button>
+        <div class="result" id="evict-result"></div>
+      </section>
+
+      <section id="jobs-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
+        <h3>Job Trigger</h3>
+        <div class="field">
+          <label>Job Name</label>
+          <select id="job-name">
+            <option value="quote-refresh">quote-refresh</option>
+            <option value="bulk-profile-sync">bulk-profile-sync</option>
+            <option value="bulk-fundamentals-sync">bulk-fundamentals-sync</option>
+            <option value="bulk-ratios-sync">bulk-ratios-sync</option>
+            <option value="bulk-dcf-sync">bulk-dcf-sync</option>
+            <option value="dividend-update">dividend-update</option>
+            <option value="insider-trading">insider-trading</option>
+          </select>
+        </div>
+        <button id="job-btn">Trigger Job</button>
+        <div class="result" id="job-result"></div>
+        <details><summary>Raw JSON</summary><pre id="job-raw"></pre></details>
+      </section>
+
+    </div>
+  </section>
+
   <!-- ── Mid row: Quick Analysis + DCF ──────────────────── -->
   <div class="mid-row">
 
@@ -296,54 +344,6 @@
     </section>
 
   </div>
-
-  <!-- ── Admin section ───────────────────────────────────── -->
-  <section id="admin-section">
-    <h2>Admin Controls</h2>
-    <div class="admin-row">
-
-      <section id="seed-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
-        <h3>Seed Data</h3>
-        <div class="field">
-          <label>Tickers (comma-separated)</label>
-          <input id="seed-tickers" type="text" value="AAPL,MSFT,KO,JNJ" placeholder="AAPL,MSFT,KO">
-        </div>
-        <button id="seed-btn">Seed</button>
-        <div class="result" id="seed-result"></div>
-        <details><summary>Raw JSON</summary><pre id="seed-raw"></pre></details>
-      </section>
-
-      <section id="cache-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
-        <h3>Cache Eviction</h3>
-        <div class="field">
-          <label>Symbol</label>
-          <input id="evict-symbol" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase">
-        </div>
-        <button id="evict-btn" class="danger">Evict Cache</button>
-        <div class="result" id="evict-result"></div>
-      </section>
-
-      <section id="jobs-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
-        <h3>Job Trigger</h3>
-        <div class="field">
-          <label>Job Name</label>
-          <select id="job-name">
-            <option value="quote-refresh">quote-refresh</option>
-            <option value="bulk-profile-sync">bulk-profile-sync</option>
-            <option value="bulk-fundamentals-sync">bulk-fundamentals-sync</option>
-            <option value="bulk-ratios-sync">bulk-ratios-sync</option>
-            <option value="bulk-dcf-sync">bulk-dcf-sync</option>
-            <option value="dividend-update">dividend-update</option>
-            <option value="insider-trading">insider-trading</option>
-          </select>
-        </div>
-        <button id="job-btn">Trigger Job</button>
-        <div class="result" id="job-result"></div>
-        <details><summary>Raw JSON</summary><pre id="job-raw"></pre></details>
-      </section>
-
-    </div>
-  </section>
 
 </main>
 
