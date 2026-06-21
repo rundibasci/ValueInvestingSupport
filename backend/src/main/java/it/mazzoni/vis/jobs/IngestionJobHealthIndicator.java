@@ -4,6 +4,7 @@ import it.mazzoni.vis.domain.entity.JobRunLog;
 import it.mazzoni.vis.domain.repository.JobRunLogRepository;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component("ingestionJobs")
+@ConditionalOnProperty(name = "app.jobs.enabled", havingValue = "true", matchIfMissing = true)
 public class IngestionJobHealthIndicator implements HealthIndicator {
 
     private static final Map<String, Duration> EXPECTED_WINDOWS = Map.of(

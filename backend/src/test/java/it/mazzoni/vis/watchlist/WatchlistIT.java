@@ -6,7 +6,7 @@ import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.watchlist.dto.AddWatchlistItemRequest;
 import it.mazzoni.vis.watchlist.dto.UpdateWatchlistThresholdRequest;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -30,8 +30,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.security.KeyPair;
@@ -51,13 +49,15 @@ import static org.mockito.Mockito.doAnswer;
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("watchlist-test")
-@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WatchlistIT {
 
-    @Container
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    static {
+        POSTGRES.start();
+    }
 
     static final KeyPair KEY_PAIR;
 
@@ -96,7 +96,7 @@ class WatchlistIT {
     String adminToken;
     UUID adminUserId;
 
-    @BeforeAll
+    @BeforeEach
     @SuppressWarnings("unchecked")
     void setUpOnce() {
         ValueOperations<String, String> valueOps = Mockito.mock(ValueOperations.class);

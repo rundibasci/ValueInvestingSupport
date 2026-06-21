@@ -30,8 +30,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.security.KeyPair;
@@ -57,13 +55,15 @@ import static org.mockito.Mockito.doAnswer;
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("screener-test")
-@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ScreenerIT {
 
-    @Container
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    static {
+        POSTGRES.start();
+    }
 
     static final KeyPair KEY_PAIR;
 
@@ -268,8 +268,8 @@ class ScreenerIT {
     }
 
     private void seed5000Rows() {
-        String today = java.time.LocalDate.now().toString();
-        String now = java.time.LocalDateTime.now().toString();
+        java.sql.Date today = java.sql.Date.valueOf(java.time.LocalDate.now());
+        java.sql.Timestamp now = java.sql.Timestamp.valueOf(java.time.LocalDateTime.now());
 
         // Sectors and exchanges to spread across rows
         String[] sectors = {"Technology", "Consumer Staples", "Healthcare", "Energy", "Financials"};

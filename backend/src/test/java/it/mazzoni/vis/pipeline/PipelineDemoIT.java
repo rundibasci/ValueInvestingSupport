@@ -5,6 +5,7 @@ import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
+import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
@@ -36,6 +37,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
@@ -92,6 +94,7 @@ class PipelineDemoIT {
     @Autowired SecurityRepository securityRepository;
     @Autowired FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Autowired PriceQuoteRepository priceQuoteRepository;
+    @Autowired RatioSnapshotRepository ratioSnapshotRepository;
     @Autowired ValuationResultRepository valuationResultRepository;
     @Autowired ValueScoreRepository valueScoreRepository;
 
@@ -103,6 +106,7 @@ class PipelineDemoIT {
         valueScoreRepository.deleteAll();
         valuationResultRepository.deleteAll();
         priceQuoteRepository.deleteAll();
+        ratioSnapshotRepository.deleteAll();
         fundamentalSnapshotRepository.deleteAll();
         securityRepository.deleteAll();
         userRepository.deleteAll();
@@ -129,6 +133,7 @@ class PipelineDemoIT {
         valueScoreRepository.deleteAll();
         valuationResultRepository.deleteAll();
         priceQuoteRepository.deleteAll();
+        ratioSnapshotRepository.deleteAll();
         fundamentalSnapshotRepository.deleteAll();
         securityRepository.deleteAll();
         userRepository.deleteAll();
@@ -153,7 +158,8 @@ class PipelineDemoIT {
         PipelineRunResult result = results.get(0);
         assertThat(result.symbol()).isEqualTo("AAPL");
         assertThat(result.error()).isNull();
-        assertThat(result.totalScore()).isNotNull().isPositive();
+        assertThat(result.totalScore()).isNotNull()
+                .isBetween(BigDecimal.ZERO, new BigDecimal("100"));
         assertThat(result.marginOfSafety()).isNotNull();
         assertThat(result.recommendation()).isNotNull().doesNotStartWith("ERROR");
     }
