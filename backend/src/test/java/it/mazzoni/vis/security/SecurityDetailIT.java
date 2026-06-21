@@ -29,8 +29,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -48,13 +46,15 @@ import static org.mockito.Mockito.doAnswer;
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("security-detail-test")
-@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityDetailIT {
 
-    @Container
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    static {
+        POSTGRES.start();
+    }
 
     static final KeyPair KEY_PAIR;
 
@@ -254,8 +254,8 @@ class SecurityDetailIT {
     }
 
     private void seedTestData() {
-        String today = java.time.LocalDate.now().toString();
-        String now = java.time.LocalDateTime.now().toString();
+        java.sql.Date today = java.sql.Date.valueOf(java.time.LocalDate.now());
+        java.sql.Timestamp now = java.sql.Timestamp.valueOf(java.time.LocalDateTime.now());
 
         // Securities
         jdbc.update("""
@@ -270,7 +270,9 @@ class SecurityDetailIT {
         // Annual fundamental snapshots for AAPL (5 years; most recent with report_date = today for stale check)
         for (int i = 0; i < 5; i++) {
             int year = 2025 - i;
-            String reportDate = (i == 0) ? today : (year + "-09-30");
+            java.sql.Date reportDate = (i == 0)
+                    ? today
+                    : java.sql.Date.valueOf(year + "-09-30");
             jdbc.update("""
                     INSERT INTO fundamental_snapshot(id, security_id, period, fiscal_year, report_date,
                         revenue, net_income, eps, free_cash_flow, total_equity, shares_outstanding)
@@ -349,7 +351,7 @@ class SecurityDetailIT {
 
         // Dividend records for AAPL (4 years — streak=4, cagr3y computable)
         for (int i = 0; i < 4; i++) {
-            String exDate = (2025 - i) + "-08-09";
+            java.sql.Date exDate = java.sql.Date.valueOf((2025 - i) + "-08-09");
             double amount = 1.00 - i * 0.10;
             jdbc.update("""
                     INSERT INTO dividend_record(id, security_id, ex_dividend_date, amount, currency)

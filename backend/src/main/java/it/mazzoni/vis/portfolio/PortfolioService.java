@@ -21,6 +21,7 @@ import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -58,6 +59,7 @@ public class PortfolioService {
         this.valuationResultRepository = valuationResultRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<PortfolioSummaryResponse> listPortfolios(Authentication auth) {
         User user = resolveUser(auth);
         return portfolioRepository.findByUserOrderByCreatedAtDesc(user)

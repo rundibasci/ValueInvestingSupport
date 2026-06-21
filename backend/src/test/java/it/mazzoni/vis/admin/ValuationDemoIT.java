@@ -6,6 +6,7 @@ import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
+import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
@@ -91,6 +92,7 @@ class ValuationDemoIT {
     @Autowired SecurityRepository securityRepository;
     @Autowired FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Autowired PriceQuoteRepository priceQuoteRepository;
+    @Autowired RatioSnapshotRepository ratioSnapshotRepository;
     @Autowired ValuationResultRepository valuationResultRepository;
 
     final Map<String, String> tokenStore = new ConcurrentHashMap<>();
@@ -100,6 +102,7 @@ class ValuationDemoIT {
     void setUp() {
         valuationResultRepository.deleteAll();
         priceQuoteRepository.deleteAll();
+        ratioSnapshotRepository.deleteAll();
         fundamentalSnapshotRepository.deleteAll();
         securityRepository.deleteAll();
         userRepository.deleteAll();
@@ -125,6 +128,7 @@ class ValuationDemoIT {
     void tearDown() {
         valuationResultRepository.deleteAll();
         priceQuoteRepository.deleteAll();
+        ratioSnapshotRepository.deleteAll();
         fundamentalSnapshotRepository.deleteAll();
         securityRepository.deleteAll();
         userRepository.deleteAll();
