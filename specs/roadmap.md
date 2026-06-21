@@ -425,6 +425,36 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ---
 
+## Group J — Google Account Sign-In
+
+Goal: let a user sign in with a Google account while keeping the platform's existing local JWT, role, ownership, and refresh-token model unchanged. Google is used only to prove identity through OpenID Connect; the platform remains the authorization authority.
+
+### Phase J1: Google OpenID Connect Backend
+- Add Spring Security OAuth2 Client support for Google Authorization Code + OpenID Connect login; use `openid`, `email`, and `profile` scopes only.
+- Expose `GET /oauth2/authorization/google` as the login entry point and configure the callback at `/login/oauth2/code/google`; make callback and authorization paths public while all `/api/**` routes retain their existing JWT protection.
+- Register Google client configuration exclusively through environment variables: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and an allow-listed application redirect URI. Add placeholders and setup guidance to `.env.example`; never commit a client secret.
+- Validate the ID token issuer, audience/client ID, signature, expiry, nonce/state, and `email_verified=true`. Use Google's immutable `sub` claim as the provider identity; do not treat a mutable display name as an identifier.
+- Persist an OAuth identity (`provider=GOOGLE`, `providerSubject`) linked to the existing `User` record, with uniqueness enforced on `(provider, providerSubject)` and normalized unique user email. Add a Flyway migration and repository support.
+- On first successful sign-in, create an `INVESTOR` user only when the verified email is not already registered. For an existing password user with the same verified email, link the Google identity to that user without creating a duplicate. Google sign-in must never grant or change `ADMIN` or `ADVISOR` roles.
+- After successful Google authentication, issue the same RS256 access and refresh tokens used by `POST /auth/login`, then redirect to the configured frontend callback without exposing tokens in query parameters; use the existing httpOnly refresh-cookie pattern and a short-lived, single-use handoff mechanism for the access token.
+- Preserve existing username/password login, refresh, logout, JWT revocation, and demo-profile behavior.
+
+### Phase J2: Google Sign-In UI & Account Lifecycle
+- Add a **Continue with Google** action to the React login page (H2) that starts `/oauth2/authorization/google`, plus clear loading, cancelled-login, denied-consent, and provider-unavailable states.
+- Complete the frontend callback route: consume the one-time handoff, initialize the normal authenticated session, clear callback state from the address bar, and redirect to the originally requested protected route or dashboard.
+- Show the authenticated user's name/email and Google-linked status in account settings; do not display or retain Google access tokens in browser storage.
+- Provide an authenticated unlink action only when the user still has a usable local password credential; block unlinking the sole sign-in method with a clear explanation. Reauthentication may be required for sensitive account-linking changes.
+- Keep logout provider-local: ending a platform session must revoke the platform refresh token and clear its cookies, but must not attempt to sign the user out of Google globally.
+
+### Phase J3: Security, Integration & Operational Validation
+- Unit-test identity resolution and linking: new verified Google user, existing email match, repeat login, unverified email, conflicting provider subject, and role-preservation cases.
+- Integration-test the OAuth callback with a mocked OIDC provider/JWK set: valid login produces the platform JWT/session; invalid issuer, audience, signature, expired token, invalid state/nonce, or unverified email is rejected; callback paths do not weaken `/api/**` authorization.
+- Add browser tests for Google-login initiation, callback success, cancelled/denied login, protected-route return, logout, and unlink safeguards. Continue testing password login and refresh/logout flows unchanged.
+- Add structured security events and metrics for Google sign-in success/failure, account creation/linking, and callback-validation failures, without logging ID tokens, authorization codes, client secrets, or personally sensitive claims.
+- Document Google Cloud Console setup, exact redirect URIs per environment, consent-screen requirements, secret rotation, local-development callback configuration, and incident response for a compromised OAuth client secret.
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Data Source | Deliverable |
@@ -444,6 +474,7 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
 | M8: Frontend MVP | H1–H6 | FMP primary / Yahoo fallback | Full React UI connected to backend |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
+| **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
@@ -454,3 +485,5 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 > **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.
 >
 > **M6.5 is the complete HTML test harness.** A single `full-demo.html` covers every backend endpoint built through Group F — screener, security detail, watchlist, portfolio, simulation, and rebalancing — in addition to all FD1 panels. Stakeholders and developers can exercise the full system from a browser before the React frontend (Group H) is started, and it remains available as a low-friction regression test page throughout H development.
+>
+> **M10 adds identity, not a second authorization system.** Google OpenID Connect verifies the person; the application maps that identity to its own user, roles, ownership rules, RS256 access tokens, and refresh-token lifecycle. This keeps every existing protected API and portfolio boundary consistent regardless of how the user signed in.
