@@ -31,6 +31,7 @@ app:
       quote-refresh:     "0 */15 * * * *"
       dividend-update:   "0 0 6 * * *"
       insider-trading:   "0 0 * * * *"
+      alert-detection:   "0 20 0 * * *"
 
 jwt:
   access-token-expiry-seconds: 900

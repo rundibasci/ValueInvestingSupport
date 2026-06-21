@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface PriceQuoteRepository extends JpaRepository<PriceQuote, UUID> {
     List<PriceQuote> findBySecurityAndQuoteDateBetweenOrderByQuoteDateDesc(Security security, LocalDate from, LocalDate to);
     Optional<PriceQuote> findTopBySecurityOrderByQuoteDateDesc(Security security);
+    List<PriceQuote> findTop2BySecurityOrderByQuoteDateDesc(Security security);
     boolean existsBySecurityAndQuoteDate(Security security, LocalDate quoteDate);
 }
