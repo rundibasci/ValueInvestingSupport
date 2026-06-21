@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyFactory;
@@ -17,6 +18,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 @Profile("!demo")
@@ -29,6 +32,7 @@ public class JwtService {
     private final long accessTokenExpiryMs;
     private final Duration refreshTokenTtl;
     private final StringRedisTemplate redis;
+    private final ConcurrentMap<String, String> localRefreshTokens = new ConcurrentHashMap<>();
 
     public JwtService(JwtProperties props, StringRedisTemplate redis) {
         this.privateKey = parsePrivateKey(props.privateKey());
@@ -51,7 +55,11 @@ public class JwtService {
 
     public String issueRefreshToken(String email) {
         String tokenId = UUID.randomUUID().toString();
-        redis.opsForValue().set(REFRESH_PREFIX + tokenId, email, refreshTokenTtl);
+        try {
+            redis.opsForValue().set(REFRESH_PREFIX + tokenId, email, refreshTokenTtl);
+        } catch (RedisConnectionFailureException ex) {
+            localRefreshTokens.put(tokenId, email);
+        }
         return tokenId;
     }
 
@@ -64,11 +72,19 @@ public class JwtService {
     }
 
     public Optional<String> validateRefreshToken(String tokenId) {
-        return Optional.ofNullable(redis.opsForValue().get(REFRESH_PREFIX + tokenId));
+        try {
+            return Optional.ofNullable(redis.opsForValue().get(REFRESH_PREFIX + tokenId));
+        } catch (RedisConnectionFailureException ex) {
+            return Optional.ofNullable(localRefreshTokens.get(tokenId));
+        }
     }
 
     public void revokeRefreshToken(String tokenId) {
-        redis.delete(REFRESH_PREFIX + tokenId);
+        try {
+            redis.delete(REFRESH_PREFIX + tokenId);
+        } catch (RedisConnectionFailureException ex) {
+            localRefreshTokens.remove(tokenId);
+        }
     }
 
     private static PrivateKey parsePrivateKey(String pem) {

@@ -2,8 +2,6 @@ package it.mazzoni.vis.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.mazzoni.vis.auth.dto.LoginRequest;
-import it.mazzoni.vis.auth.dto.LogoutRequest;
-import it.mazzoni.vis.auth.dto.RefreshRequest;
 import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.UserRepository;
@@ -30,6 +28,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import jakarta.servlet.http.Cookie;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -105,13 +104,14 @@ class AuthIntegrationTest {
     }
 
     @Test
-    void loginWithValidCredentials_returns200WithTokens() throws Exception {
+    void loginWithValidCredentials_returns200WithAccessTokenAndRefreshCookie() throws Exception {
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new LoginRequest("user@example.com", "Password1!"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
+                        result.getResponse().getHeader("Set-Cookie").contains("vis_refresh=")))
                 .andExpect(jsonPath("$.expiresIn").value(900));
     }
 
@@ -159,12 +159,10 @@ class AuthIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new LoginRequest("user@example.com", "Password1!"))))
                 .andReturn();
-        String refreshToken = (String) objectMapper.readValue(
-                loginResult.getResponse().getContentAsString(), Map.class).get("refreshToken");
+        String refreshToken = loginResult.getResponse().getCookie("vis_refresh").getValue();
 
         mockMvc.perform(post("/auth/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new RefreshRequest(refreshToken))))
+                        .cookie(new Cookie("vis_refresh", refreshToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }
@@ -172,9 +170,7 @@ class AuthIntegrationTest {
     @Test
     void refresh_withUnknownToken_returns401() throws Exception {
         mockMvc.perform(post("/auth/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                new RefreshRequest("00000000-0000-0000-0000-000000000000"))))
+                        .cookie(new Cookie("vis_refresh", "00000000-0000-0000-0000-000000000000")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -186,17 +182,17 @@ class AuthIntegrationTest {
                 .andReturn();
         Map<?, ?> tokens = objectMapper.readValue(loginResult.getResponse().getContentAsString(), Map.class);
         String accessToken = (String) tokens.get("accessToken");
-        String refreshToken = (String) tokens.get("refreshToken");
+        String refreshToken = loginResult.getResponse().getCookie("vis_refresh").getValue();
 
         mockMvc.perform(post("/auth/logout")
                         .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LogoutRequest(refreshToken))))
-                .andExpect(status().isNoContent());
+                        .cookie(new Cookie("vis_refresh", refreshToken)))
+                .andExpect(status().isNoContent())
+                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
+                        result.getResponse().getHeader("Set-Cookie").contains("Max-Age=0")));
 
         mockMvc.perform(post("/auth/refresh")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new RefreshRequest(refreshToken))))
+                        .cookie(new Cookie("vis_refresh", refreshToken)))
                 .andExpect(status().isUnauthorized());
     }
 
