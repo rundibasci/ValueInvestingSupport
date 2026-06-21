@@ -151,6 +151,31 @@ market-data:
 | Metrics | Micrometer → Prometheus → Grafana |
 | Health | Spring Boot Actuator `/actuator/health` |
 
+## GCP Distribution
+
+The application is deployed progressively. Cloud Run is the default compute choice: the HTTP API is stateless, while PostgreSQL and Redis retain durable/cache state. Kubernetes is not required for the MVP target.
+
+| Phase | GCP design | Key constraint |
+|---|---|---|
+| **K1 - Stakeholder Cloud Deployment** | Cloud Run service for the Spring Boot API and static demo pages; Cloud SQL for PostgreSQL; Memorystore for Redis; Secret Manager; Cloud Logging/Monitoring. | A single controlled API instance may retain the existing `@Scheduled` jobs temporarily; this is internal-only and must not scale background work. |
+| **K2 - Production-Shaped GCP Platform** | Cloud Run API service; Cloud Run Jobs invoked by Cloud Scheduler; Cloud SQL private connectivity/backups/PITR; Memorystore; Artifact Registry; Secret Manager; Cloud Monitoring; custom HTTPS domain; Terraform-managed environments. | Never run scheduled work in multiple API instances. Jobs must be independently triggerable, idempotent, observable, and retry-safe. |
+| **K3 - Commercial & Compliance Hardening** | K2 plus edge/rate protection, audit controls, security scanning, alerting, restore/failure exercises, data-residency controls, and operational runbooks. | Release depends on verified FMP display rights and GDPR/MiFID II obligations, not infrastructure completion alone. |
+
+### Infrastructure as Code
+
+Terraform becomes the source of truth from K2 onward. It manages resource configuration, IAM, networking, scheduler definitions, monitoring, and Secret Manager **references**. Secret values are created and rotated outside Terraform state and are injected at runtime.
+
+### Runtime Responsibilities
+
+| Component | GCP service | Responsibility |
+|---|---|---|
+| HTTP API | Cloud Run service | Authenticated REST endpoints, React/static content while appropriate, and Actuator health/metrics. |
+| Background work | Cloud Run Jobs + Cloud Scheduler | Ingestion, quote refresh, dividends, insider data, alert detection, and bounded retry execution. |
+| Primary data | Cloud SQL for PostgreSQL | Immutable financial snapshots, portfolios, users, alerts, Flyway migrations, backups, and point-in-time recovery. |
+| Cache/token state | Memorystore for Redis | Market-data caches, computed cache entries, refresh-token lifecycle, and rate-safe cache-first behaviour. |
+| Secrets | Secret Manager | FMP key, JWT key material, SMTP credentials, Google OAuth credentials, and service configuration requiring confidentiality. |
+| Artefacts and telemetry | Artifact Registry; Cloud Logging/Monitoring | Immutable container images, deployment provenance, structured logs, metrics, dashboards, and alerts. |
+
 ## Key Environment Variables
 
 ```

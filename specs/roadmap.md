@@ -455,6 +455,33 @@ Goal: let a user sign in with a Google account while keeping the platform's exis
 
 ---
 
+## Group K - GCP Distribution & Operational Readiness
+
+Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
+
+### Phase K1: Stakeholder Cloud Deployment
+- Add a production container image for the Spring Boot service and deploy the API/demo pages to Cloud Run.
+- Provision a non-production Cloud SQL for PostgreSQL instance and Memorystore for Redis; run Flyway on deployment and verify `/actuator/health` against both managed services.
+- Inject FMP, JWT, and SMTP configuration from Secret Manager; no secret values in images, Terraform state, source control, or logs.
+- Configure a minimum IAM footprint, HTTPS Cloud Run URL, structured logs, basic uptime/health alerting, and documented manual deployment/rollback steps.
+- Keep this environment explicitly internal/stakeholder-only; it is not a commercial production release.
+
+### Phase K2: Production-Shaped GCP Platform
+- Define GCP infrastructure with Terraform: projects/environments, Artifact Registry, Cloud Run, Cloud SQL, Memorystore, Secret Manager references, service accounts, IAM, networking, Scheduler, Monitoring, and DNS/HTTPS resources.
+- Split web traffic from background execution: Cloud Run serves the API; Cloud Run Jobs execute ingestion, quote refresh, dividend/insider updates, and alert detection; Cloud Scheduler triggers each job.
+- Disable in-process `@Scheduled` execution in horizontally scalable API instances. Preserve job idempotency and `JobRunLog` observability.
+- Add CI/CD that builds, tests, publishes an immutable image, plans infrastructure, deploys by environment, applies Flyway safely, and supports rollback.
+- Use private connectivity to Cloud SQL and Memorystore, automated backups/PITR, a custom HTTPS domain, Cloud Monitoring dashboards/alerts, and documented recovery procedures.
+
+### Phase K3: Commercial & Compliance Hardening
+- Confirm and document FMP data-display/redistribution rights before customer-facing release; preserve the rule that raw provider data is not exposed publicly.
+- Complete GDPR data mapping, retention/deletion policy, region/data-residency choice, access-control review, and applicable processor agreements.
+- Add security hardening: least-privilege service accounts, secret rotation, audit logging, rate/edge protection, vulnerability/dependency scanning, and tested incident runbooks.
+- Perform backup restoration and failure exercises for database, Redis/cache degradation, FMP outage fallback, Cloud Run Job retries, and email-delivery failures.
+- Establish release approval evidence for MiFID II disclaimers, privacy, security, availability, monitoring, and operational ownership.
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Data Source | Deliverable |
@@ -475,6 +502,9 @@ Goal: let a user sign in with a Google account while keeping the platform's exis
 | M8: Frontend MVP | H1–H6 | FMP primary / Yahoo fallback | Full React UI connected to backend |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
+| **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
+| **M12: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
+| **M13: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >

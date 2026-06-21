@@ -37,6 +37,16 @@ Every feature must map to one or more steps in this cycle.
 7. **Secrets never in source control** — API keys, passwords, and tokens live exclusively in `.env` (local) or injected environment variables (CI/CD); no credential may appear in any committed file.
 8. **Financial resilience before apparent cheapness** — evaluate leverage, liquidity, interest burden, cash generation, and dividend coverage over time. Show the underlying trend and sector context; never reduce financial health to a universal pass/fail ratio.
 
+## Cloud Distribution Path
+
+The platform will move to GCP in three deliberately progressive phases. Each phase preserves the decision-support boundary, immutable historical records, cache-first market-data behaviour, and safe handling of secrets.
+
+| Phase | Goal | Deployment boundary |
+|---|---|---|
+| **K1 - Stakeholder Cloud Deployment** | Make the working application safely accessible for internal/stakeholder evaluation. | One containerised Spring Boot service on Cloud Run, managed PostgreSQL/Redis, injected secrets, and basic health/log visibility. |
+| **K2 - Production-Shaped GCP Platform** | Make the MVP repeatable, scalable, and operationally safe. | Terraform-managed environments; Cloud Run API separated from Cloud Run Jobs; Cloud Scheduler, private managed data services, CI/CD, backups, monitoring, and a custom HTTPS domain. |
+| **K3 - Commercial & Compliance Hardening** | Prepare a customer-facing service for financial-data, privacy, and continuity obligations. | Security controls and operational evidence, restore drills, least-privilege access, regional/data-residency decisions, incident runbooks, and confirmed FMP/GDPR/MiFID II obligations. |
+
 ## Out of Scope (MVP v1)
 
 - Order execution / brokerage integration
