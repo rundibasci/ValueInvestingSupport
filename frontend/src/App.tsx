@@ -2,10 +2,15 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { SecurityDetailPage } from './pages/SecurityDetailPage'
+import { LoginPage } from './pages/LoginPage'
+import { UserProvisioningPage } from './pages/UserProvisioningPage'
+import { ProtectedRoute } from './auth/ProtectedRoute'
 
 export default function App(): JSX.Element {
   return (
     <Routes>
+      <Route path="login" element={<LoginPage />} />
+      <Route element={<ProtectedRoute />}>
       <Route element={<AppShell />}>
         <Route
           index
@@ -52,7 +57,9 @@ export default function App(): JSX.Element {
             />
           }
         />
+        <Route path="admin/users" element={<UserProvisioningPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
       </Route>
     </Routes>
   )

@@ -22,3 +22,7 @@ body {
 a {
   text-decoration: none;
 }
+
+.login-canvas {
+  background: radial-gradient(circle at 12% 15%, rgba(52, 211, 153, .12), transparent 32%), #020617;
+}

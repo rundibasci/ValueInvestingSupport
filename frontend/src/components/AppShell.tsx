@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
 
 const navigation = [
   { label: 'Overview', to: '/' },
@@ -8,6 +9,7 @@ const navigation = [
 ]
 
 export function AppShell(): JSX.Element {
+  const { session, logout } = useAuth()
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="border-b border-slate-800 bg-slate-950 px-5 py-5 lg:min-h-screen lg:border-b-0 lg:border-r">
@@ -41,7 +43,7 @@ export function AppShell(): JSX.Element {
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-emerald-400">Workspace</p>
             <p className="text-sm text-slate-400">Research before conviction.</p>
           </div>
-          <span className="rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300">Frontend scaffold</span>
+          <div className="flex items-center gap-3"><span className="hidden text-right text-xs text-slate-400 sm:block"><span className="block text-slate-200">{session?.email}</span>{session?.role}</span><button onClick={() => void logout()} className="rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:border-emerald-400 hover:text-white">Sign out</button></div>
         </header>
         <main className="mx-auto w-full max-w-7xl px-5 py-8 lg:px-8">
           <Outlet />
