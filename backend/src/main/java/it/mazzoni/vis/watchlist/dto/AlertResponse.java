@@ -11,7 +11,10 @@ public record AlertResponse(
         String alertType,
         String symbol,
         BigDecimal threshold,
-        LocalDateTime triggeredAt
+        LocalDateTime triggeredAt,
+        String status,
+        String priority,
+        String deliveryStatus
 ) {
     public static AlertResponse from(Alert alert) {
         return new AlertResponse(
@@ -19,7 +22,10 @@ public record AlertResponse(
                 alert.getAlertType().name(),
                 alert.getSymbol(),
                 alert.getThreshold(),
-                alert.getTriggeredAt()
+                alert.getTriggeredAt(),
+                alert.getStatus().name(),
+                alert.getPriority().name(),
+                alert.getDeliveryStatus().name()
         );
     }
 }

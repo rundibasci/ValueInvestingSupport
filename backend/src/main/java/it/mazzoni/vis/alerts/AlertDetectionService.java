@@ -27,17 +27,20 @@ public class AlertDetectionService {
     private final FundamentalSnapshotRepository fundamentals;
     private final RebalanceProposalRepository rebalanceProposals;
     private final AlertRepository alerts;
+    private final AlertDeliveryService alertDeliveryService;
 
     public AlertDetectionService(WatchlistItemRepository watchlistItems, HoldingRepository holdings,
                                  SecurityRepository securities, ValuationResultRepository valuations,
                                  ValueScoreRepository scores, PriceQuoteRepository quotes,
                                  DividendRecordRepository dividends, InsiderTradeRepository insiderTrades,
                                  FundamentalSnapshotRepository fundamentals,
-                                 RebalanceProposalRepository rebalanceProposals, AlertRepository alerts) {
+                                 RebalanceProposalRepository rebalanceProposals, AlertRepository alerts,
+                                 AlertDeliveryService alertDeliveryService) {
         this.watchlistItems = watchlistItems; this.holdings = holdings; this.securities = securities;
         this.valuations = valuations; this.scores = scores; this.quotes = quotes; this.dividends = dividends;
         this.insiderTrades = insiderTrades; this.fundamentals = fundamentals;
         this.rebalanceProposals = rebalanceProposals; this.alerts = alerts;
+        this.alertDeliveryService = alertDeliveryService;
     }
 
     @Transactional
@@ -112,7 +115,16 @@ public class AlertDetectionService {
         if (alerts.existsByUserAndSymbolAndAlertTypeAndTriggeredAtBetween(user, symbol, type, start, start.plusDays(1))) return 0;
         Alert alert = new Alert(); alert.setUser(user); alert.setSymbol(symbol); alert.setAlertType(type);
         alert.setThreshold(threshold); alert.setStatus(AlertStatus.ACTIVE); alert.setTriggeredAt(LocalDateTime.now());
+        alert.setPriority(priorityFor(type));
         alerts.save(alert);
+        alertDeliveryService.deliver(alert);
         return 1;
+    }
+
+    private AlertPriority priorityFor(AlertType type) {
+        return switch (type) {
+            case DIVIDEND_CUT, INSIDER_SELL, EARNINGS_SURPRISE, REBALANCE_NEEDED -> AlertPriority.HIGH;
+            default -> AlertPriority.NORMAL;
+        };
     }
 }
