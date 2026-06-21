@@ -5,6 +5,7 @@ backend/target/
 # Frontend
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
 frontend/*.tsbuildinfo
 frontend/*.log
 
