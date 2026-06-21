@@ -6,6 +6,8 @@ import it.mazzoni.vis.portfolio.dto.HoldingDetailItem;
 import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
 import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
+import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
+import it.mazzoni.vis.portfolio.dto.SimulationRequest;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -29,9 +31,11 @@ import java.util.UUID;
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+    private final PortfolioSimulationService portfolioSimulationService;
 
-    public PortfolioController(PortfolioService portfolioService) {
+    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService) {
         this.portfolioService = portfolioService;
+        this.portfolioSimulationService = portfolioSimulationService;
     }
 
     @GetMapping
@@ -49,6 +53,12 @@ public class PortfolioController {
     @GetMapping("/{id}")
     public PortfolioDetailResponse detail(Authentication auth, @PathVariable UUID id) {
         return portfolioService.getPortfolioDetail(auth, id);
+    }
+
+    @PostMapping("/{id}/simulate")
+    public PortfolioSimulationResponse simulate(Authentication auth, @PathVariable UUID id,
+                                                @Valid @RequestBody SimulationRequest request) {
+        return portfolioSimulationService.simulate(auth, id, request);
     }
 
     @PostMapping("/{id}/holdings")

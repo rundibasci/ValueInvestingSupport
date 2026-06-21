@@ -10,6 +10,8 @@ import it.mazzoni.vis.portfolio.dto.HoldingDetailItem;
 import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
 import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
+import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
+import it.mazzoni.vis.portfolio.dto.SimulationRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +47,9 @@ class PortfolioControllerTest {
     @Mock
     PortfolioService portfolioService;
 
+    @Mock
+    PortfolioSimulationService portfolioSimulationService;
+
     MockMvc mockMvc;
     ObjectMapper objectMapper;
 
@@ -57,7 +62,7 @@ class PortfolioControllerTest {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new PortfolioController(portfolioService))
+                .standaloneSetup(new PortfolioController(portfolioService, portfolioSimulationService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                 .build();
@@ -142,6 +147,14 @@ class PortfolioControllerTest {
 
         mockMvc.perform(get("/api/v1/portfolios/" + portfolioId))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void simulate_invalidBudget_returns400() throws Exception {
+        mockMvc.perform(post("/api/v1/portfolios/" + portfolioId + "/simulate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"budget\":0}"))
+                .andExpect(status().isBadRequest());
     }
 
     // --- POST /api/v1/portfolios/{id}/holdings ---
