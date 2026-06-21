@@ -35,6 +35,7 @@ Every feature must map to one or more steps in this cycle.
 5. **Cache-first for external data, Yahoo Finance as runtime fallback** — FMP API calls are always backed by local DB/Redis; the system must function even if FMP is temporarily unavailable. When FMP cannot be reached (quota exceeded, outage, or API key absent), the `MarketDataClient` abstraction falls back to Yahoo Finance automatically — no API key required, same domain types returned. This fallback applies in every milestone, not only the M0 demo.
 6. **Immutable historical data** — once a fundamental snapshot is ingested, it is never overwritten; corrections append new records.
 7. **Secrets never in source control** — API keys, passwords, and tokens live exclusively in `.env` (local) or injected environment variables (CI/CD); no credential may appear in any committed file.
+8. **Financial resilience before apparent cheapness** — evaluate leverage, liquidity, interest burden, cash generation, and dividend coverage over time. Show the underlying trend and sector context; never reduce financial health to a universal pass/fail ratio.
 
 ## Out of Scope (MVP v1)
 

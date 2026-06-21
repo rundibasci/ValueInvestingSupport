@@ -274,8 +274,11 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 - `GET /api/v1/securities/{symbol}/financials` — 10y annual + 8 quarters + TTM
 - `GET /api/v1/securities/{symbol}/ratios` — 10y ratio history
 
-### Phase E2: Dividends, Insiders & Growth
+### Phase E2: Financial Health, Dividends, Insiders & Growth
+- `GET /api/v1/securities/{symbol}/financial-health` — 10y annual + TTM trend view of revenue, net income, FCF, cash, total debt, short-term debt, long-term debt, net debt, current ratio, quick ratio, interest coverage, debt-to-equity, net-debt-to-EBITDA/FCF where meaningful, and dividend coverage
+- Return metric definitions, data availability, and sector/industry context with the series; the API must not assign universal leverage thresholds or an investment recommendation
 - `GET /api/v1/securities/{symbol}/dividends` — full dividend history + streak + growth CAGR
+- Dividend response includes payout ratios based on earnings and FCF, plus dividend coverage where data is available
 - `GET /api/v1/securities/{symbol}/insiders` — recent insider transactions
 - `GET /api/v1/securities/{symbol}/growth` — CAGR at 3y, 5y, 10y for revenue, FCF, EPS
 - `GET /api/v1/securities/{symbol}/peers` — peer comparison table
@@ -379,6 +382,8 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Overview tab: company profile, sector, country, market cap, management
 - Financials tab: 10y revenue/income/FCF bar charts (Recharts)
 - Ratios tab: PE, ROIC, ROE, debt trend line charts
+- Financial Health tab: synchronized 5–10y charts for debt (total, short-term, long-term and net debt) against revenue, net income and FCF; liquidity and interest-coverage trends; dividend sustainability from earnings/FCF payout and coverage
+- Financial Health tab labels metrics and their data availability, presents sector/industry context, and uses trend-oriented caution indicators rather than universal safe/unsafe leverage ratings
 - Valuation tab: DCF custom form, Fair Value vs price, MoS gauge
 - Dividends tab: dividend history bar chart, streak, payout ratio
 - Growth tab: CAGR table at 3/5/10y
