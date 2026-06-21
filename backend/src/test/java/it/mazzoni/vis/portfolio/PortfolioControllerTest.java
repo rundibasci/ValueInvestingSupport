@@ -12,6 +12,9 @@ import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
 import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
 import it.mazzoni.vis.portfolio.dto.SimulationRequest;
+import it.mazzoni.vis.portfolio.dto.RebalanceProposalResponse;
+import it.mazzoni.vis.portfolio.dto.RebalanceRequest;
+import it.mazzoni.vis.portfolio.dto.RebalanceTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +53,9 @@ class PortfolioControllerTest {
     @Mock
     PortfolioSimulationService portfolioSimulationService;
 
+    @Mock
+    PortfolioRebalanceService portfolioRebalanceService;
+
     MockMvc mockMvc;
     ObjectMapper objectMapper;
 
@@ -62,10 +68,32 @@ class PortfolioControllerTest {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new PortfolioController(portfolioService, portfolioSimulationService))
+                .standaloneSetup(new PortfolioController(portfolioService, portfolioSimulationService, portfolioRebalanceService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                 .build();
+    }
+
+    @Test
+    void saveRebalance_returnsCreatedProposal() throws Exception {
+        UUID proposalId = UUID.randomUUID();
+        RebalanceProposalResponse response = new RebalanceProposalResponse(proposalId, "PENDING", List.of(),
+                BigDecimal.ZERO, BigDecimal.ZERO, LocalDateTime.now(), null, "disclaimer");
+        when(portfolioRebalanceService.create(any(), eq(portfolioId), any(RebalanceRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/portfolios/{id}/rebalance", portfolioId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RebalanceRequest(null,
+                                List.of(new RebalanceTarget("AAPL", new BigDecimal("100"))), null))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PENDING"));
+    }
+
+    @Test
+    void saveRebalance_withoutTargetSource_returns400() throws Exception {
+        mockMvc.perform(post("/api/v1/portfolios/{id}/rebalance", portfolioId)
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest());
     }
 
     // --- GET /api/v1/portfolios ---

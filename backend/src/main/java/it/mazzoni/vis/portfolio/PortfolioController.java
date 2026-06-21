@@ -8,8 +8,11 @@ import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
 import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
 import it.mazzoni.vis.portfolio.dto.SimulationRequest;
+import it.mazzoni.vis.portfolio.dto.RebalanceRequest;
+import it.mazzoni.vis.portfolio.dto.RebalanceProposalResponse;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,10 +35,13 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final PortfolioSimulationService portfolioSimulationService;
+    private final PortfolioRebalanceService portfolioRebalanceService;
 
-    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService) {
+    @Autowired
+    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService, PortfolioRebalanceService portfolioRebalanceService) {
         this.portfolioService = portfolioService;
         this.portfolioSimulationService = portfolioSimulationService;
+        this.portfolioRebalanceService = portfolioRebalanceService;
     }
 
     @GetMapping
@@ -59,6 +65,27 @@ public class PortfolioController {
     public PortfolioSimulationResponse simulate(Authentication auth, @PathVariable UUID id,
                                                 @Valid @RequestBody SimulationRequest request) {
         return portfolioSimulationService.simulate(auth, id, request);
+    }
+
+    /** Retained for existing controller tests; production wiring uses the three-argument constructor. */
+    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService) {
+        this(portfolioService, portfolioSimulationService, null);
+    }
+
+    @PostMapping("/{id}/rebalance")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RebalanceProposalResponse rebalance(Authentication auth, @PathVariable UUID id, @Valid @RequestBody RebalanceRequest request) {
+        return portfolioRebalanceService.create(auth, id, request);
+    }
+
+    @GetMapping("/{id}/rebalances/{rebalanceId}")
+    public RebalanceProposalResponse rebalanceDetail(Authentication auth, @PathVariable UUID id, @PathVariable UUID rebalanceId) {
+        return portfolioRebalanceService.get(auth, id, rebalanceId);
+    }
+
+    @PostMapping("/{id}/rebalances/{rebalanceId}/apply")
+    public RebalanceProposalResponse applyRebalance(Authentication auth, @PathVariable UUID id, @PathVariable UUID rebalanceId) {
+        return portfolioRebalanceService.apply(auth, id, rebalanceId);
     }
 
     @PostMapping("/{id}/holdings")
