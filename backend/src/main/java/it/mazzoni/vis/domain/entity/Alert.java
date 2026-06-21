@@ -31,6 +31,22 @@ public class Alert {
     @Column(nullable = false, length = 20)
     private AlertStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AlertPriority priority = AlertPriority.NORMAL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AlertDeliveryStatus deliveryStatus = AlertDeliveryStatus.PENDING;
+
+    @Column(nullable = false)
+    private int deliveryAttempts;
+
+    private LocalDateTime deliveredAt;
+
+    @Column(length = 500)
+    private String deliveryError;
+
     private LocalDateTime triggeredAt;
 
     private LocalDateTime acknowledgedAt;
@@ -52,6 +68,21 @@ public class Alert {
 
     public AlertStatus getStatus() { return status; }
     public void setStatus(AlertStatus status) { this.status = status; }
+
+    public AlertPriority getPriority() { return priority; }
+    public void setPriority(AlertPriority priority) { this.priority = priority; }
+
+    public AlertDeliveryStatus getDeliveryStatus() { return deliveryStatus; }
+    public void setDeliveryStatus(AlertDeliveryStatus deliveryStatus) { this.deliveryStatus = deliveryStatus; }
+
+    public int getDeliveryAttempts() { return deliveryAttempts; }
+    public void setDeliveryAttempts(int deliveryAttempts) { this.deliveryAttempts = deliveryAttempts; }
+
+    public LocalDateTime getDeliveredAt() { return deliveredAt; }
+    public void setDeliveredAt(LocalDateTime deliveredAt) { this.deliveredAt = deliveredAt; }
+
+    public String getDeliveryError() { return deliveryError; }
+    public void setDeliveryError(String deliveryError) { this.deliveryError = deliveryError; }
 
     public LocalDateTime getTriggeredAt() { return triggeredAt; }
     public void setTriggeredAt(LocalDateTime triggeredAt) { this.triggeredAt = triggeredAt; }

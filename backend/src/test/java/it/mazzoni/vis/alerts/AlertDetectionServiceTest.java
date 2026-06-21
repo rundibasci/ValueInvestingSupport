@@ -24,12 +24,13 @@ class AlertDetectionServiceTest {
     @Mock DividendRecordRepository dividends; @Mock InsiderTradeRepository insiderTrades;
     @Mock FundamentalSnapshotRepository fundamentals; @Mock RebalanceProposalRepository rebalanceProposals;
     @Mock AlertRepository alerts;
+    @Mock AlertDeliveryService alertDeliveryService;
     private AlertDetectionService service;
 
     @BeforeEach
     void setUp() {
         service = new AlertDetectionService(watchlistItems, holdings, securities, valuations, scores, quotes,
-                dividends, insiderTrades, fundamentals, rebalanceProposals, alerts);
+                dividends, insiderTrades, fundamentals, rebalanceProposals, alerts, alertDeliveryService);
         when(holdings.findAll()).thenReturn(List.of());
         when(dividends.findBySecurityOrderByExDividendDateDesc(any())).thenReturn(List.of());
         when(insiderTrades.findBySecurityOrderByTradeDateDesc(any())).thenReturn(List.of());

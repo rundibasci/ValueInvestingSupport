@@ -32,6 +32,10 @@ app:
       dividend-update:   "0 0 6 * * *"
       insider-trading:   "0 0 * * * *"
       alert-detection:   "0 20 0 * * *"
+  alert-email:
+    enabled: ${ALERT_EMAIL_ENABLED:false}
+    from: ${ALERT_EMAIL_FROM:}
+    max-attempts: ${ALERT_EMAIL_MAX_ATTEMPTS:3}
 
 jwt:
   access-token-expiry-seconds: 900

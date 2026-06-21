@@ -176,7 +176,8 @@ class WatchlistControllerTest {
     void listAlerts_returnsActiveAlerts() throws Exception {
         AlertResponse alert = new AlertResponse(
                 UUID.randomUUID(), "MOS_ENTRY", "AAPL",
-                new BigDecimal("15.0"), LocalDateTime.now().minusHours(2));
+                new BigDecimal("15.0"), LocalDateTime.now().minusHours(2),
+                "ACTIVE", "NORMAL", "PENDING");
         when(watchlistService.listActiveAlerts(any())).thenReturn(List.of(alert));
 
         mockMvc.perform(get("/api/v1/watchlist/alerts"))
