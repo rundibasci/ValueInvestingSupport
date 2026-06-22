@@ -5,6 +5,7 @@ import { SecurityDetailPage } from './pages/SecurityDetailPage'
 import { LoginPage } from './pages/LoginPage'
 import { UserProvisioningPage } from './pages/UserProvisioningPage'
 import { ProtectedRoute } from './auth/ProtectedRoute'
+import { ScreenerPage } from './pages/ScreenerPage'
 
 export default function App(): JSX.Element {
   return (
@@ -23,17 +24,7 @@ export default function App(): JSX.Element {
             />
           }
         />
-        <Route
-          path="screener"
-          element={
-            <PlaceholderPage
-              eyebrow="Discover"
-              title="Screener"
-              description="Search for companies that combine financial quality with a meaningful margin of safety."
-              nextPhase="Screener UI (H3) will introduce filters, sortable results, and pagination."
-            />
-          }
-        />
+        <Route path="screener" element={<ScreenerPage />} />
         <Route path="securities/:symbol" element={<SecurityDetailPage />} />
         <Route
           path="portfolio"
