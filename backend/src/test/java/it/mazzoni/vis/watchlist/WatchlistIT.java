@@ -216,6 +216,27 @@ class WatchlistIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
+    @Test
+    void investor_canManageOwnWatchlist() {
+        User investor = new User();
+        investor.setEmail("watchlist-investor@test.com");
+        investor.setPasswordHash(passwordEncoder.encode("Password1!"));
+        investor.setRole(UserRole.INVESTOR);
+        userRepository.save(investor);
+        String investorToken = login("watchlist-investor@test.com");
+
+        ResponseEntity<Map<String, Object>> created = restTemplate.exchange(
+                url("/api/v1/watchlist"), HttpMethod.POST,
+                new HttpEntity<>(new AddWatchlistItemRequest("NVDA", new BigDecimal("12"), null, null), jsonHeaders(investorToken)),
+                new ParameterizedTypeReference<>() {});
+
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        ResponseEntity<List<Map<String, Object>>> investorList = restTemplate.exchange(url("/api/v1/watchlist"), HttpMethod.GET,
+                new HttpEntity<>(bearerHeaders(investorToken)), new ParameterizedTypeReference<>() {});
+        assertThat(investorList.getBody()).extracting(item -> item.get("symbol")).containsExactly("NVDA");
+        assertThat(getList("/api/v1/watchlist").getBody()).isEmpty();
+    }
+
     // --- helpers ---
 
     private ResponseEntity<List<Map<String, Object>>> getList(String path) {
@@ -235,9 +256,13 @@ class WatchlistIT {
     }
 
     private String login() {
+        return login("watchlist-admin@test.com");
+    }
+
+    private String login(String email) {
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 url("/auth/login"), HttpMethod.POST,
-                new HttpEntity<>(new LoginRequest("watchlist-admin@test.com", "Password1!")),
+                new HttpEntity<>(new LoginRequest(email, "Password1!")),
                 new ParameterizedTypeReference<>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return (String) response.getBody().get("accessToken");
