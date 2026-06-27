@@ -9,6 +9,7 @@ import { PortfolioPage } from "./pages/PortfolioPage";
 import { WatchlistPage } from "./pages/WatchlistPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AdminSeedPage } from "./pages/AdminSeedPage";
+import { SecurityReviewPage } from "./pages/SecurityReviewPage";
 
 export default function App(): JSX.Element {
   return (
@@ -18,6 +19,7 @@ export default function App(): JSX.Element {
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="screener" element={<ScreenerPage />} />
+          <Route path="securities/:symbol/review" element={<SecurityReviewPage />} />
           <Route path="securities/:symbol" element={<SecurityDetailPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="watchlist" element={<WatchlistPage />} />
