@@ -10,6 +10,7 @@ import { WatchlistPage } from "./pages/WatchlistPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AdminSeedPage } from "./pages/AdminSeedPage";
 import { SecurityReviewPage } from "./pages/SecurityReviewPage";
+import { SeedUniversePage } from "./pages/SeedUniversePage";
 
 export default function App(): JSX.Element {
   return (
@@ -23,6 +24,7 @@ export default function App(): JSX.Element {
           <Route path="securities/:symbol" element={<SecurityDetailPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="watchlist" element={<WatchlistPage />} />
+          <Route path="seed" element={<SeedUniversePage />} />
           <Route path="admin/seed" element={<AdminSeedPage />} />
           <Route path="admin/users" element={<UserProvisioningPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

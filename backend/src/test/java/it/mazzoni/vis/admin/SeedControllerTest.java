@@ -48,8 +48,9 @@ class SeedControllerTest {
     void seed_withTickersParam_returns200WithResultArray() throws Exception {
         when(seedService.seedTickers(anyList())).thenReturn(List.of(
                 SeedResult.success("AAPL", "Apple Inc.",
+                        "Technology", "NASDAQ", "US", null, new BigDecimal("182.50"),
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE, "FMP")));
+                        null, Recommendation.QUALITY_VALUE, "FMP", java.time.LocalDate.of(2026, 6, 27))));
 
         mockMvc.perform(post("/api/v1/admin/seed").param("tickers", "AAPL"))
                 .andExpect(status().isOk())
@@ -65,8 +66,9 @@ class SeedControllerTest {
     void seed_withoutTickersParam_usesDefaultList() throws Exception {
         when(seedService.seedTickers(List.of("AAPL", "MSFT", "KO", "JNJ"))).thenReturn(
                 List.of(SeedResult.success("AAPL", "Apple Inc.",
+                        "Technology", "NASDAQ", "US", null, new BigDecimal("182.50"),
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE, "FMP")));
+                        null, Recommendation.QUALITY_VALUE, "FMP", java.time.LocalDate.of(2026, 6, 27))));
 
         mockMvc.perform(post("/api/v1/admin/seed"))
                 .andExpect(status().isOk())
@@ -78,8 +80,9 @@ class SeedControllerTest {
         when(seedService.seedTickers(anyList())).thenReturn(List.of(
                 SeedResult.failed("XYZ", "not found"),
                 SeedResult.success("AAPL", "Apple Inc.",
+                        "Technology", "NASDAQ", "US", null, new BigDecimal("182.50"),
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        Recommendation.QUALITY_VALUE, "FMP")));
+                        null, Recommendation.QUALITY_VALUE, "FMP", java.time.LocalDate.of(2026, 6, 27))));
 
         mockMvc.perform(post("/api/v1/admin/seed").param("tickers", "XYZ,AAPL"))
                 .andExpect(status().isOk())

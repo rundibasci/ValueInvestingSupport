@@ -4,12 +4,12 @@ import { useAuth } from '../auth/AuthProvider'
 const navigation = [
   { label: 'Dashboard', to: '/' },
   { label: 'Screener', to: '/screener' },
+  { label: 'Seed Universe', to: '/seed' },
   { label: 'Portfolio', to: '/portfolio' },
   { label: 'Watchlist', to: '/watchlist' },
 ]
 
 const adminNavigation = [
-  { label: 'Seed tickers', to: '/admin/seed' },
   { label: 'Users', to: '/admin/users' },
 ]
 
