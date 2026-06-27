@@ -403,7 +403,7 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Dedicated page/component: `SecurityReviewPage`, separate from `SecurityDetailPage`.
 - Accessible to every authenticated role for any symbol in the shared seeded universe.
 - Entry points from Screener rows, Security Detail header/actions, Watchlist rows, Portfolio holding rows, and Seed result rows.
-- Presents a single focused research packet for one stock, optimized for reading and comparison rather than tab navigation.
+- Presents a single focused research packet for one stock with a compact table-of-contents, jump links, and sticky scroll progress, optimized for reading and comparison rather than tab navigation.
 - Header shows company name, ticker, sector, exchange, country, currency, current price, price date, provider badges, freshness/staleness, and data-source limitations.
 - Data source section shows `FMP`, `Yahoo Finance`, or `Mixed` coverage by category: profile, fundamentals, ratios, quote, dividends, valuation, score, and analyst estimates.
 - Valuation section shows DCF base/low/high, custom DCF assumptions, Graham number, DDM when applicable, composite fair value, margin of safety, recommendation, analyst target range, and MiFID II disclaimer.
@@ -419,7 +419,9 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Dividend section shows dividend yield, dividend history, streak, payout ratio, FCF payout/coverage, dividend CAGR, and dividend sustainability status.
 - Quality and growth section shows ROIC, ROE, gross/operating/net margins when available, revenue/FCF/EPS CAGR at 3y/5y/10y, and peer/sector context.
 - Risk and data-quality section lists unavailable metrics, stale inputs, provider fallbacks, plan restrictions, and model caveats in plain language.
-- Actions: add to watchlist, add to portfolio, open custom DCF controls, refresh/seed symbol if allowed, and return to Screener/Security Detail.
+- Custom DCF controls open inline on the review page.
+- Actions: add to watchlist, add to portfolio (visible but disabled with "coming soon" label until H4B completes), open inline custom DCF controls, refresh/seed symbol if allowed, and return to Screener/Security Detail.
+- Data composition: H4A composes existing H4 endpoints on the frontend; a dedicated backend review endpoint is deferred to Phase H4C.
 - Includes empty, loading, partial-data, stale-data, unavailable, and error states.
 - Acceptance checklist:
   - `/securities/:symbol/review` renders as a standalone page, not a modal or hidden tab.
@@ -428,6 +430,21 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
   - The page displays source coverage and freshness for FMP/Yahoo Finance/Mixed data.
   - The page can be opened from Screener, Security Detail, Watchlist, Portfolio, and Seed results.
   - Non-admin investors can open the page for seeded symbols.
+
+### Phase H4B: Review Page — Portfolio-Add Integration
+- Assess and implement the add-to-portfolio action on the In-Depth Review page.
+- Requires the portfolio CRUD API (F2) and portfolio UI contract (H5) to be available.
+- Replace the disabled "coming soon" add-to-portfolio button with a functional action that adds the symbol to a user-owned portfolio.
+- Reuse the existing portfolio API client and mutation patterns from H5.
+- Validate that adding from the review page does not bypass ownership rules or create duplicate holdings.
+
+### Phase H4C: Review Page — Backend Review Endpoint
+- Implement a dedicated backend endpoint (e.g. `GET /api/v1/securities/{symbol}/review`) that assembles the full single-stock research packet in one call.
+- Replaces the frontend composition of multiple H4 endpoints with a single optimised server-side aggregation.
+- Motivated by latency or fragility observed during H4A frontend composition.
+- Response includes: profile, financials, ratios, financial health, valuation, dividends, growth, peers, score, source coverage, and freshness metadata.
+- Update `SecurityReviewPage` to consume the new endpoint instead of composing individual calls.
+- Preserve all existing research-packet sections, charts, and data-quality labels.
 
 ### Phase H5: Portfolio Builder UI
 - Budget + risk profile + yield target inputs
@@ -572,7 +589,8 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | M6: Portfolio | F1, F2, F3, F4 | FMP primary / Yahoo fallback | Watchlist + Portfolio Builder + Rebalancing |
 | **M6.5: Full-Feature Demo** | PFD1 | FMP primary / Yahoo fallback | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
-| M8: Frontend MVP | H1–H6, H4A, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, and a dedicated in-depth stock review page |
+| M8: Frontend MVP | H1–H6, H4A, H4B, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, in-depth stock review page, and review-page portfolio-add integration |
+| M8.5: Review Endpoint | H4C | FMP primary / Yahoo fallback | Dedicated backend review endpoint replacing frontend endpoint composition on the review page |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |

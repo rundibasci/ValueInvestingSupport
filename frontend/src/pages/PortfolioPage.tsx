@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
 import {
   portfolioApi,
@@ -277,13 +278,21 @@ export function PortfolioPage(): JSX.Element {
                         <td>{percent(holding.weightPercent)}</td>
                         <td>{percent(holding.marginOfSafety)}</td>
                         <td>
-                          <button
-                            type="button"
-                            onClick={() => removeHolding.mutate(holding.id)}
-                            className="text-xs font-semibold text-rose-200 underline"
-                          >
-                            Remove
-                          </button>
+                          <div className="flex flex-wrap gap-3">
+                            <Link
+                              to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
+                              className="text-xs font-semibold text-emerald-200 underline"
+                            >
+                              Review
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => removeHolding.mutate(holding.id)}
+                              className="text-xs font-semibold text-rose-200 underline"
+                            >
+                              Remove
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
