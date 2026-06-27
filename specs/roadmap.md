@@ -191,8 +191,10 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 
 ### Phase Val2: Demo Seed Endpoint & Smoke Test
 - `POST /api/v1/admin/seed` (ADMIN only) — triggers on-demand FMP ingestion for a configurable ticker list (`SEED_TICKERS` env var, default `AAPL,MSFT,KO,JNJ`)
+- Seeded securities are platform-wide reference data: after seeding, every authenticated user can discover the same symbols through search, screener, security detail, watchlist, and portfolio flows, while personal watchlists/portfolios remain user-owned
+- Add named seed packs for common research universes (default value pack, US large cap, dividend candidates) so an admin can seed a useful shared universe without manually typing every ticker
 - For each ticker: fetch company profile → fundamentals → ratios → price quote → run `ValuationService` → persist
-- Response: array of `{ symbol, compositeFairValue, marginOfSafety, recommendation }` per seeded ticker
+- Response: array of `{ symbol, companyName, compositeFairValue, marginOfSafety, recommendation, source, error }` per seeded ticker
 - Integration test `ValuationDemoIT`: login as admin → `POST /api/v1/admin/seed?tickers=AAPL` → `GET /api/v1/securities/AAPL/quick-analysis` → assert `marginOfSafety` non-null and `recommendation` set
 - `scripts/demo.sh`: documented curl sequence (login → seed → analyze → logout) — shareable with stakeholders
 
@@ -262,6 +264,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 - Sort: any field, default `valueScore DESC`
 - `GET /api/v1/screener/presets` — Graham, Dividend, Quality presets
 - `GET /api/v1/screener/sectors` and `/exchanges` from local `security` table
+- Results include market-research context for each symbol: company name, sector, exchange, country when available, and a concise description/profile excerpt so users can research across the seeded market before opening a detail page
 - Performance target: < 500ms for 5000+ rows with typical filters
 
 ---
@@ -269,7 +272,8 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 ## Group E — Security Detail API
 
 ### Phase E1: Company Profile & Financials
-- `GET /api/v1/securities/search?q=` — autocomplete (name + symbol)
+- `GET /api/v1/securities/search?q=` — autocomplete across the shared seeded universe; searches symbol, company name, and description/profile text when available
+- Search response includes symbol, company name, sector, exchange, country when available, and description/profile excerpt so users can research all seeded markets without already knowing the ticker
 - `GET /api/v1/securities/{symbol}` — full profile (company info + latest snapshot)
 - `GET /api/v1/securities/{symbol}/financials` — 10y annual + 8 quarters + TTM
 - `GET /api/v1/securities/{symbol}/ratios` — 10y ratio history
@@ -287,6 +291,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 - `GET /api/v1/securities/{symbol}/valuation` — all models (DCF, Graham, DDM, FMP DCF)
 - Includes Fair Value composite, MoS, scenario range
 - Analyst estimates + price target consensus aggregated
+- Security detail research packet must surface the complete stock-analysis checklist in one navigable experience: DCF, FCF, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, quick ratio when available, and data-unavailable labels when provider coverage is incomplete
 
 ---
 
@@ -321,7 +326,8 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 ### Phase PFD1: Complete Feature Demo Page
 - `full-demo.html` served as Spring Boot static resource (`src/main/resources/static/full-demo.html`)
 - Inherits all panels from FD1 (auth, health, seed, quick analysis, DCF custom valuation, cache eviction, job trigger)
-- **Screener panel** *(any authenticated role)*: filter form (sector, exchange, MoS min/max, score min) → `POST /api/v1/screener` → sortable results table with MoS badges; preset buttons (Graham, Dividend, Quality) → `GET /api/v1/screener/presets`; click row fills Security Detail panel symbol
+- **Seed panel** *(ADMIN only)*: supports ticker CSV and named shared-universe seed packs; seeded securities become discoverable by all authenticated users
+- **Screener panel** *(any authenticated role)*: filter form (sector, exchange, MoS min/max, score min) → `POST /api/v1/screener` → sortable results table with MoS badges and company description/profile excerpt; preset buttons (Graham, Dividend, Quality) → `GET /api/v1/screener/presets`; click row fills Security Detail panel symbol
 - **Security Detail panel** *(any authenticated role)*: symbol input → tabbed sub-panels:
   - Profile & Financials: `GET /api/v1/securities/{symbol}` + `GET /api/v1/securities/{symbol}/financials`
   - Ratios: `GET /api/v1/securities/{symbol}/ratios`
@@ -363,7 +369,7 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ### Phase H1: Frontend Scaffold
 - Vite + React 18 + TypeScript + TailwindCSS project
-- React Router v6 routes: `/`, `/screener`, `/securities/:symbol`, `/portfolio`, `/watchlist`
+- React Router v6 routes: `/`, `/screener`, `/securities/:symbol`, `/securities/:symbol/review`, `/portfolio`, `/watchlist`
 - TanStack Query client setup + auth token interceptor
 - Layout: sidebar nav + main content area + header
 
@@ -374,6 +380,7 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ### Phase H3: Screener UI
 - Filter panel (all screener filters with range sliders + dropdowns)
+- Market-wide research/search experience across the shared seeded universe, including symbol, company name, sector, exchange, country where available, and description/profile excerpt in results
 - Results table: sortable columns, pagination
 - Preset selector (Graham / Dividend / Quality)
 - Click row → navigate to Security Detail
@@ -381,14 +388,46 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 ### Phase H4: Security Detail UI
 - Overview tab: company profile, sector, country, market cap, management
 - Financials tab: 10y revenue/income/FCF bar charts (Recharts)
-- Ratios tab: PE, ROIC, ROE, debt trend line charts
+- Ratios tab: PE, ROIC, ROE, debt trend line charts, current ratio, quick ratio when available, and payout ratio
 - Financial Health tab: synchronized 5–10y charts for debt (total, short-term, long-term and net debt) against revenue, net income and FCF; liquidity and interest-coverage trends; dividend sustainability from earnings/FCF payout and coverage
 - Financial Health tab labels metrics and their data availability, presents sector/industry context, and uses trend-oriented caution indicators rather than universal safe/unsafe leverage ratings
-- Valuation tab: DCF custom form, Fair Value vs price, MoS gauge
-- Dividends tab: dividend history bar chart, streak, payout ratio
+- Valuation tab: DCF custom form, Fair Value vs price, DCF base/low/high, Graham number, FCF basis, MoS gauge, recommendation, and analyst target context when available
+- Dividends tab: dividend history bar chart, streak, payout ratio, dividend yield, and dividend sustainability/coverage
 - Growth tab: CAGR table at 3/5/10y
 - Insider tab: recent trades table
 - Add to Watchlist button
+- Prominent link/button to the separate In-Depth Review page for the same symbol.
+
+### Phase H4A: In-Depth Stock Review Page
+- Dedicated route: `/securities/:symbol/review`.
+- Dedicated page/component: `SecurityReviewPage`, separate from `SecurityDetailPage`.
+- Accessible to every authenticated role for any symbol in the shared seeded universe.
+- Entry points from Screener rows, Security Detail header/actions, Watchlist rows, Portfolio holding rows, and Seed result rows.
+- Presents a single focused research packet for one stock, optimized for reading and comparison rather than tab navigation.
+- Header shows company name, ticker, sector, exchange, country, currency, current price, price date, provider badges, freshness/staleness, and data-source limitations.
+- Data source section shows `FMP`, `Yahoo Finance`, or `Mixed` coverage by category: profile, fundamentals, ratios, quote, dividends, valuation, score, and analyst estimates.
+- Valuation section shows DCF base/low/high, custom DCF assumptions, Graham number, DDM when applicable, composite fair value, margin of safety, recommendation, analyst target range, and MiFID II disclaimer.
+- Cash-generation section shows FCF TTM/latest annual, FCF history, positive-FCF years, FCF growth, FCF margin when available, and DCF eligibility/data gaps.
+- Earnings section shows revenue, net income, EPS, earnings history/trend, earnings growth, and quality notes where data is available.
+- Balance-sheet and debt section shows total debt, cash, net debt, debt-to-equity, current ratio, quick ratio when available, interest coverage when available, and trend charts.
+- Historical graphs section uses Recharts to show:
+  - Earnings history: revenue, net income, EPS, and FCF over annual periods.
+  - Debt history: total debt, cash, net debt, and debt-to-equity over time.
+  - ROI/ROIC history: return on invested capital over time, labelled as ROIC when the API supplies ROIC rather than generic ROI.
+  - ROE history: return on equity over time.
+  - Each chart includes source badge, latest data date, unavailable-series handling, responsive desktop/mobile layout, and readable axis/tooltips.
+- Dividend section shows dividend yield, dividend history, streak, payout ratio, FCF payout/coverage, dividend CAGR, and dividend sustainability status.
+- Quality and growth section shows ROIC, ROE, gross/operating/net margins when available, revenue/FCF/EPS CAGR at 3y/5y/10y, and peer/sector context.
+- Risk and data-quality section lists unavailable metrics, stale inputs, provider fallbacks, plan restrictions, and model caveats in plain language.
+- Actions: add to watchlist, add to portfolio, open custom DCF controls, refresh/seed symbol if allowed, and return to Screener/Security Detail.
+- Includes empty, loading, partial-data, stale-data, unavailable, and error states.
+- Acceptance checklist:
+  - `/securities/:symbol/review` renders as a standalone page, not a modal or hidden tab.
+  - The page displays DCF, FCF, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, quick ratio when available, and unavailable-data labels.
+  - The page includes historical graphs for earnings, debt, ROI/ROIC, and ROE.
+  - The page displays source coverage and freshness for FMP/Yahoo Finance/Mixed data.
+  - The page can be opened from Screener, Security Detail, Watchlist, Portfolio, and Seed results.
+  - Non-admin investors can open the page for seeded symbols.
 
 ### Phase H5: Portfolio Builder UI
 - Budget + risk profile + yield target inputs
@@ -407,6 +446,40 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Top movers in portfolio (% change)
 - Active alerts summary
 - Upcoming earnings + dividend calendar (next 30 days)
+
+### Phase H8: Seed & Shared Universe UI
+- Authenticated `INVESTOR`, `ADVISOR`, and `ADMIN` users can seed symbols into the shared research universe.
+- Requires backend/API authorization support for limited non-admin seeding: investors/advisors can seed custom ticker lists, while admin-only controls remain available for named packs, quota/cost governance, and universe maintenance.
+- The UI must make the scope explicit: seeding creates or refreshes platform-wide securities, fundamentals, ratios, quotes, valuations, and scores; it does not create personal watchlist or portfolio entries.
+- `INVESTOR` and `ADVISOR` users can seed ticker CSV lists for research and then add seeded securities to their own watchlists or portfolios.
+- `ADMIN` users can also seed named packs and perform broader shared-universe maintenance.
+- Supports ticker CSV input for custom lists.
+- Supports named seed packs for common markets or strategies, at minimum: default starter universe, US large-cap quality, dividend candidates, and value shortlist; pack availability can be admin-only if cost/quota controls require it.
+- Shows a pre-submit preview of the symbols that will be seeded, including duplicate removal and normalized uppercase tickers.
+- Shows seed status per symbol after submission: seeded, refreshed, skipped, failed, or unavailable on current data plan.
+- Shows data source per symbol with explicit provider badges: `FMP`, `Yahoo Finance`, or `Mixed`.
+- Shows data source by data category when available: profile, fundamentals, ratios, quote, dividends, valuation, and score.
+- Shows fallback details when Yahoo Finance is used: FMP quota exceeded, FMP unavailable, FMP key missing, provider plan restriction, or symbol not available from FMP.
+- Shows source freshness for seeded data: provider, last refreshed timestamp/date, and stale/unavailable state.
+- Explains source limitations inline: FMP is the production primary source; Yahoo Finance is a fallback and may provide less complete fields for bulk screening, dividends, liquidity, and detailed financial health metrics.
+- Shows result columns per symbol: ticker, company name, sector, exchange, country when available, company description/profile excerpt, current price, fair value, MoS, recommendation, and error detail.
+- Successful seeded rows link directly to Security Detail.
+- Failed rows keep the original ticker visible and show an actionable error message without blocking successful rows.
+- Provides a handoff to Screener for market-wide research after seeding.
+- Provides a handoff to the In-Depth Review page so the user can verify the complete single-stock research packet for a seeded symbol.
+- Confirms seeded securities are discoverable by all authenticated users through search, screener, security detail, watchlist add, and portfolio add flows, while watchlists and portfolios remain user-owned.
+- Includes empty, loading, partial-success, full-success, and failure states.
+- Includes a MiFID II decision-support disclaimer wherever fair value, MoS, recommendation, or score outputs are shown.
+- Acceptance checklist:
+  - Investor can seed a CSV ticker list.
+  - Advisor can seed a CSV ticker list.
+  - Admin can seed a CSV ticker list.
+  - Admin can seed a named pack; investors/advisors can seed named packs only when enabled by quota/cost policy.
+  - Each seeded row shows whether data came from FMP, Yahoo Finance, or mixed provider coverage.
+  - Fallback rows explain why Yahoo Finance was used instead of FMP.
+  - Seeded symbols appear in the market-wide Screener/Search UI with description/profile context.
+  - Any authenticated non-admin user can open a seeded symbol's Security Detail page.
+  - In-Depth Review page exposes DCF, FCF, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, quick ratio when available, and data-unavailable labels.
 
 ---
 
@@ -499,7 +572,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | M6: Portfolio | F1, F2, F3, F4 | FMP primary / Yahoo fallback | Watchlist + Portfolio Builder + Rebalancing |
 | **M6.5: Full-Feature Demo** | PFD1 | FMP primary / Yahoo fallback | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
-| M8: Frontend MVP | H1–H6 | FMP primary / Yahoo fallback | Full React UI connected to backend |
+| M8: Frontend MVP | H1–H6, H4A, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, and a dedicated in-depth stock review page |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |

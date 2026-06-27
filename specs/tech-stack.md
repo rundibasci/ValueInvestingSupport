@@ -17,6 +17,7 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 │  React 18 + TypeScript 5 + TailwindCSS 3               │
 │  Recharts (charts) | TanStack Query (server state)      │
 │  Vite (build) | React Router v6                         │
+│  Shared universe seed UI | Market research UI           │
 └────────────────────────┬────────────────────────────────┘
                          │ REST / JSON
 ┌────────────────────────▼────────────────────────────────┐
@@ -25,6 +26,7 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 │  Spring Security (JWT RS256) | Spring Cache (Redis)      │
 │  Spring Data JPA (Hibernate 6) | Flyway (migrations)    │
 │  Spring Scheduler (batch jobs)                          │
+│  Shared market-universe seed and research APIs           │
 └──────┬─────────────────┬──────────────────┬─────────────┘
        │                 │                  │
 ┌──────▼──────────┐  ┌───▼───────────┐  ┌──▼──────────────────┐
@@ -70,6 +72,14 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | Routing | React Router v6 | File-based routes |
 | Forms | React Hook Form | Screener filters, DCF custom inputs |
 
+### Frontend Product Surfaces
+
+| Surface | Requirement |
+|---|---|
+| Shared universe seeding | Authenticated investors, advisors, and admins can seed ticker CSV lists; admins can also manage named seed packs and broader universe maintenance. Seeded securities become shared reference data discoverable by every authenticated user. |
+| Market-wide research | Screener/search UI works across the seeded universe and shows business context in result rows: symbol, company name, sector, exchange, country when available, and a concise description/profile excerpt. |
+| Single-stock research packet | Dedicated review route `/securities/:symbol/review` exposes DCF, free cash flow, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, quick ratio when available, valuation scenarios, recommendation, source coverage/freshness, and data-availability labels. |
+
 ## Data
 
 | Store | Version | Purpose |
@@ -77,6 +87,13 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | PostgreSQL | 16.x | Primary relational store: securities, fundamentals, portfolios, users, alerts |
 | Redis | 7.x | Cache layer: FMP API responses, computed DCF, screener results |
 | PostgreSQL partitioned | 16.x | `price_quote` table partitioned by month for time-series queries |
+
+### Data Model Notes
+
+- Securities, company profiles, fundamentals, ratios, quotes, valuations, and scores are platform-wide reference data, not duplicated per user.
+- Users own watchlists, portfolios, holdings, alert thresholds, and account/session state.
+- `security.description` / provider profile text should be populated and exposed through search/screener/detail APIs when available.
+- Ratio and financial-health DTOs should expose liquidity and dividend-coverage metrics already present in the data model, including current ratio, quick ratio when available from provider data, payout ratio, debt-to-equity, and dividend yield.
 
 ## External Data Sources
 

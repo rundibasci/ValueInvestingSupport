@@ -11,7 +11,7 @@ Build a software platform that guides financial advisors and self-directed inves
 ## Value Investing Cycle (the system's spine)
 
 ```
-Screening → Fundamental Analysis → Intrinsic Value Estimation
+Market Universe Seeding → Screening / Research → Fundamental Analysis → Intrinsic Value Estimation
     → Margin of Safety Calculation → Recommendation
         → Portfolio Construction → Continuous Monitoring
 ```
@@ -36,6 +36,9 @@ Every feature must map to one or more steps in this cycle.
 6. **Immutable historical data** — once a fundamental snapshot is ingested, it is never overwritten; corrections append new records.
 7. **Secrets never in source control** — API keys, passwords, and tokens live exclusively in `.env` (local) or injected environment variables (CI/CD); no credential may appear in any committed file.
 8. **Financial resilience before apparent cheapness** — evaluate leverage, liquidity, interest burden, cash generation, and dividend coverage over time. Show the underlying trend and sector context; never reduce financial health to a universal pass/fail ratio.
+9. **Shared research universe for every user** — authenticated `INVESTOR`, `ADVISOR`, and `ADMIN` users can seed custom ticker lists into the platform-wide security universe for research. Admins can additionally manage named packs and broader shared-universe maintenance. Once a symbol or market pack is seeded, all authenticated users can discover it through search, screener, watchlist, portfolio, and security-detail flows according to their role and ownership rules.
+10. **Research starts with business understanding** — market-wide search and screener results must include enough company context to decide whether a stock deserves deeper analysis: symbol, company name, sector, exchange, country when available, and a concise business description or profile excerpt.
+11. **Single-stock analysis must be complete enough to act as a research packet** — the application must provide a dedicated in-depth review page for each seeded stock. It must expose DCF, free cash flow, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, liquidity including quick ratio when available, source coverage, freshness, and clear data-availability labels when a provider cannot supply a metric.
 
 ## Cloud Distribution Path
 
