@@ -500,6 +500,39 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ---
 
+## Group HD — Full Demo Assessment
+
+Goal: assess the completed frontend MVP as a full clickable product demo before moving into formal quality and observability work. This group verifies that the application feels coherent end to end, that the newest H8 Seed & Shared Universe UI fits the product, and that visible rough edges are captured or fixed before the Production Ready milestone.
+
+### Phase HD1: Full Demo UI Assessment
+- Run the localstack/full-demo environment and React frontend against deterministic local data.
+- Walk through the complete authenticated user journey: login, dashboard, seed universe, screener, security detail, in-depth review, watchlist, portfolio builder, rebalancing, and alerts.
+- Specifically verify the H8 Seed & Shared Universe UI:
+  - CSV preview, duplicate removal, invalid ticker feedback, and submission states.
+  - Admin named-pack seeding visibility and non-admin hiding behavior.
+  - Source badges, fallback messaging, freshness labels, partial-success rows, failed-row errors, and handoffs to Screener, Security Detail, and In-Depth Review.
+  - Clear explanation that seeding creates shared reference data and does not create personal watchlist or portfolio entries.
+- Assess look and feel across all primary React surfaces:
+  - Visual hierarchy, spacing, density, table readability, forms, badges, buttons, focus states, loading states, empty states, error states, and mobile/desktop responsiveness.
+  - Consistency of navigation labels, route transitions, page headings, action placement, and decision-support disclaimers.
+  - No text overlap, cramped controls, misleading color-only states, or marketing-style pages where an operational workflow is expected.
+- Capture a concise assessment report under `specs/YYYY-MM-DD-full-demo-assessment/` with findings grouped as blockers, polish fixes, accessibility issues, copy issues, and deferred improvements.
+- Fix low-risk visual and copy issues immediately when they are clearly scoped and do not change backend behavior.
+- Defer larger UX or product changes into explicit follow-up roadmap items rather than silently expanding this phase.
+
+### Phase HD2: Demo Polish Pass
+- Apply the scoped polish fixes identified in HD1 across the React frontend and static demo pages where appropriate.
+- Improve local demo readiness: documented startup steps, seeded credentials, demo URLs, known limitations, and a short checklist for stakeholder walkthroughs.
+- Verify that the full demo can be run without live FMP/Yahoo calls or secrets using deterministic localstack data.
+- Run frontend typecheck/build, backend compile/tests where supported by the environment, and `git diff --check`.
+- Acceptance checklist:
+  - A stakeholder can follow the documented local demo flow without command-line knowledge after the server is running.
+  - The newest Seed Universe workflow is visible in the React app and its backend endpoint is represented accurately.
+  - Core pages feel like one product: consistent spacing, labels, actions, badges, disclaimers, and error handling.
+  - Any remaining UX gaps are documented with severity and owner/phase recommendation.
+
+---
+
 ## Group I — Quality & Observability
 
 ### Phase I1: Test Coverage
@@ -591,6 +624,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
 | M8: Frontend MVP | H1–H6, H4A, H4B, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, in-depth stock review page, and review-page portfolio-add integration |
 | M8.5: Review Endpoint | H4C | FMP primary / Yahoo fallback | Dedicated backend review endpoint replacing frontend endpoint composition on the review page |
+| **M8.8: Full Demo Assessment** | HD1, HD2 | FMP primary / Yahoo fallback | End-to-end demo walkthrough, UI/look-and-feel assessment, demo polish, and documented UX gaps before quality hardening |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
@@ -606,5 +640,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.
 >
 > **M6.5 is the complete HTML test harness.** A single `full-demo.html` covers every backend endpoint built through Group F — screener, security detail, watchlist, portfolio, simulation, and rebalancing — in addition to all FD1 panels. Stakeholders and developers can exercise the full system from a browser before the React frontend (Group H) is started, and it remains available as a low-friction regression test page throughout H development.
+>
+> **M8.8 is the product-demo quality gate.** After the React frontend MVP is assembled, the full demo is walked like a stakeholder would use it: not just endpoint correctness, but visual consistency, page flow, copy, accessibility, responsive behavior, and obvious trust-eroding rough edges. It feeds fixes and explicit follow-up work into Quality & Observability rather than burying UX debt.
 >
 > **M10 adds identity, not a second authorization system.** Google OpenID Connect verifies the person; the application maps that identity to its own user, roles, ownership rules, RS256 access tokens, and refresh-token lifecycle. This keeps every existing protected API and portfolio boundary consistent regardless of how the user signed in.
