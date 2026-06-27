@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -15,6 +15,7 @@ import {
   YAxis,
 } from 'recharts'
 import { apiFetch } from '../api/client'
+import { portfolioApi, type Portfolio } from '../api/portfolio'
 import { watchlistApi } from '../api/watchlist'
 
 type Detail = {
@@ -131,16 +132,148 @@ function CoverageGrid({ queries }: { queries: Array<[string, boolean, unknown]> 
   return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{queries.map(([label, ok, error]) => <div key={label} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{label}</span><span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${ok ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'}`}>{ok ? 'Provider metadata unavailable' : 'Unavailable'}</span>{error instanceof Error && <p className="mt-2 text-xs leading-5 text-slate-500">{error.message}</p>}</div>)}</div>
 }
 
-function DisabledAddToPortfolio(): JSX.Element {
-  return (
-    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm leading-6 text-slate-300">Add this symbol to a portfolio from the review page.</p>
-        <span className="rounded-full bg-slate-700 px-3 py-1 text-xs font-semibold text-slate-200">Coming soon</span>
+const maxHoldingQuantity = 1_000_000_000
+
+function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
+  const queryClient = useQueryClient()
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState('')
+  const [quantity, setQuantity] = useState('1')
+  const [validation, setValidation] = useState<string | null>(null)
+  const [addedPortfolioId, setAddedPortfolioId] = useState<string | null>(null)
+  const portfolios = useQuery({ queryKey: ['portfolios'], queryFn: portfolioApi.list })
+  const activePortfolioId = selectedPortfolioId || portfolios.data?.[0]?.id || ''
+  const activePortfolio = portfolios.data?.find((portfolio) => portfolio.id === activePortfolioId)
+  const portfolioDetail = useQuery({
+    queryKey: ['portfolio', activePortfolioId],
+    queryFn: () => portfolioApi.detail(activePortfolioId),
+    enabled: Boolean(activePortfolioId),
+  })
+  const existingHolding = portfolioDetail.data?.holdings.find((holding) => holding.symbol.toUpperCase() === symbol)
+  const alreadyAddedHere = Boolean(existingHolding) || addedPortfolioId === activePortfolioId
+  const parsedQuantity = Number(quantity)
+  const quantityIsValid = Number.isInteger(parsedQuantity) && parsedQuantity > 0 && parsedQuantity <= maxHoldingQuantity
+  const addHolding = useMutation({
+    mutationFn: () => portfolioApi.addHolding(activePortfolioId, { symbol, quantity: parsedQuantity }),
+    onSuccess: () => {
+      setValidation(null)
+      setAddedPortfolioId(activePortfolioId)
+      void queryClient.invalidateQueries({ queryKey: ['portfolios'] })
+      void queryClient.invalidateQueries({ queryKey: ['portfolio', activePortfolioId] })
+    },
+  })
+
+  useEffect(() => {
+    if (!selectedPortfolioId && portfolios.data?.[0]?.id) setSelectedPortfolioId(portfolios.data[0].id)
+  }, [portfolios.data, selectedPortfolioId])
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault()
+    if (!activePortfolioId) {
+      setValidation('Choose a portfolio before adding this holding.')
+      return
+    }
+    if (!quantityIsValid) {
+      setValidation(`Quantity must be a whole number from 1 to ${maxHoldingQuantity.toLocaleString()}.`)
+      return
+    }
+    if (existingHolding) {
+      setValidation(`${symbol} is already in ${activePortfolio?.name || 'this portfolio'}. Open the portfolio to change the existing holding.`)
+      return
+    }
+    setValidation(null)
+    addHolding.mutate()
+  }
+
+  if (portfolios.isLoading) {
+    return (
+      <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+        <p className="text-sm text-slate-400">Loading your portfolios...</p>
       </div>
-      <button disabled className="mt-4 rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 opacity-60">Add to portfolio</button>
-      <p className="mt-3 text-xs leading-5 text-slate-500">H4A keeps this action visible but disabled. The functional portfolio-add flow is reserved for H4B.</p>
-    </div>
+    )
+  }
+
+  if (portfolios.isError) {
+    return (
+      <div className="rounded-lg border border-rose-300/30 bg-rose-400/10 p-4">
+        <p role="alert" className="text-sm text-rose-100">{portfolios.error instanceof Error ? portfolios.error.message : 'Portfolios could not be loaded.'}</p>
+        <button type="button" onClick={() => void portfolios.refetch()} className="mt-3 rounded-lg border border-rose-200/40 px-3 py-2 text-sm font-semibold text-rose-100 hover:bg-rose-200/10">Try again</button>
+      </div>
+    )
+  }
+
+  if (!portfolios.data?.length) {
+    return (
+      <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+        <p className="text-sm leading-6 text-slate-300">Create a portfolio before adding reviewed symbols to a model portfolio.</p>
+        <Link to="/portfolio" className="mt-4 inline-flex rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300">Create portfolio</Link>
+        <p className="mt-3 text-xs leading-5 text-slate-500">Securities are shared research data; portfolios remain user-owned.</p>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={submit} className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+      <p className="text-sm leading-6 text-slate-300">Add {symbol} to one of your model portfolios. This records a holding only; it does not place a trade.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
+        <label className="text-sm font-medium text-slate-200">
+          Portfolio
+          <select
+            value={activePortfolioId}
+            onChange={(event) => {
+              setSelectedPortfolioId(event.target.value)
+              setValidation(null)
+              addHolding.reset()
+            }}
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+          >
+            {portfolios.data.map((portfolio: Portfolio) => (
+              <option key={portfolio.id} value={portfolio.id}>{portfolio.name} ({portfolio.holdingCount} holdings)</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-medium text-slate-200">
+          Quantity
+          <input
+            required
+            type="number"
+            min="1"
+            max={maxHoldingQuantity}
+            step="1"
+            value={quantity}
+            onChange={(event) => {
+              setQuantity(event.target.value)
+              setValidation(null)
+              addHolding.reset()
+            }}
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+          />
+        </label>
+      </div>
+      {portfolioDetail.isLoading && <p className="mt-3 text-xs text-slate-500">Checking existing holdings...</p>}
+      {portfolioDetail.isError && (
+        <p role="alert" className="mt-3 rounded-lg border border-rose-300/30 bg-rose-400/10 p-3 text-sm leading-6 text-rose-100">
+          Portfolio holdings could not be checked. Try again before adding this symbol.
+        </p>
+      )}
+      {existingHolding && (
+        <p role="status" className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">
+          {symbol} is already in {activePortfolio?.name || 'this portfolio'} with quantity {existingHolding.quantity}. Open the portfolio to edit the existing holding.
+        </p>
+      )}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          disabled={addHolding.isPending || portfolioDetail.isFetching || portfolioDetail.isError || !quantityIsValid || alreadyAddedHere}
+          className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {addHolding.isPending ? 'Adding...' : 'Add to portfolio'}
+        </button>
+        <Link to="/portfolio" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">Open Portfolio</Link>
+      </div>
+      {validation && <p role="alert" className="mt-3 text-sm text-rose-200">{validation}</p>}
+      {addHolding.isSuccess && addedPortfolioId === activePortfolioId && <p role="status" className="mt-3 text-sm text-emerald-200">Added {symbol} to {activePortfolio?.name || 'your portfolio'}.</p>}
+      {addHolding.isError && <p role="alert" className="mt-3 text-sm text-rose-200">{addHolding.error instanceof Error ? addHolding.error.message : 'Could not add this holding.'}</p>}
+      <p className="mt-3 text-xs leading-5 text-slate-500">Fair value, margin of safety, and portfolio context are decision-support outputs, not investment advice.</p>
+    </form>
   )
 }
 
@@ -391,7 +524,7 @@ export function SecurityReviewPage(): JSX.Element {
 
         <Section id="actions" title="Next Actions">
           <div className="grid gap-5 lg:grid-cols-2">
-            <Panel title="Add to portfolio"><DisabledAddToPortfolio /></Panel>
+            <Panel title="Add to portfolio"><AddToPortfolio symbol={symbol} /></Panel>
             <Panel title="Continue research">
               <div className="flex flex-wrap gap-3">
                 <Link to={`/securities/${symbol}`} className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Security Detail</Link>

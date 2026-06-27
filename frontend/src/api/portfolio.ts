@@ -81,7 +81,17 @@ export type Rebalance = {
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(path, init);
-  if (!response.ok) throw new Error(`Request failed (${response.status}).`);
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as
+      | { message?: string; detail?: string; error?: string }
+      | null;
+    throw new Error(
+      payload?.message ||
+        payload?.detail ||
+        payload?.error ||
+        `Request failed (${response.status}).`,
+    );
+  }
   return response.json() as Promise<T>;
 }
 const body = (value: unknown): RequestInit => ({
