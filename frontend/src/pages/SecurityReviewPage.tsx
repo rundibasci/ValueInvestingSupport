@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
@@ -15,7 +15,6 @@ import {
   YAxis,
 } from 'recharts'
 import { apiFetch } from '../api/client'
-import { portfolioApi, type Portfolio } from '../api/portfolio'
 import { watchlistApi } from '../api/watchlist'
 
 type Detail = {
@@ -129,33 +128,27 @@ function CagrTable({ growth }: { growth?: Growth }): JSX.Element {
 }
 
 function CoverageGrid({ queries }: { queries: Array<[string, boolean, unknown]> }): JSX.Element {
-  return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{queries.map(([label, ok, error]) => <div key={label} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{label}</span><span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${ok ? 'bg-emerald-400/15 text-emerald-200' : 'bg-amber-300/15 text-amber-100'}`}>{ok ? 'Application API' : 'Unavailable'}</span>{error instanceof Error && <p className="mt-2 text-xs leading-5 text-slate-500">{error.message}</p>}</div>)}</div>
+  return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{queries.map(([label, ok, error]) => <div key={label} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{label}</span><span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${ok ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'}`}>{ok ? 'Provider metadata unavailable' : 'Unavailable'}</span>{error instanceof Error && <p className="mt-2 text-xs leading-5 text-slate-500">{error.message}</p>}</div>)}</div>
 }
 
-function AddToPortfolio({ symbol, currentPrice, currency }: { symbol: string; currentPrice: number | null; currency: string }): JSX.Element {
-  const [portfolioId, setPortfolioId] = useState('')
-  const [quantity, setQuantity] = useState('1')
-  const portfolios = useQuery({ queryKey: ['portfolios', 'review-action'], queryFn: portfolioApi.list, retry: false })
-  const add = useMutation({
-    mutationFn: () => portfolioApi.addHolding(portfolioId, { symbol, quantity: Number(quantity), averageCostBasis: currentPrice ?? undefined, currency }),
-  })
-  const choices: Portfolio[] = portfolios.data || []
+function DisabledAddToPortfolio(): JSX.Element {
   return (
-    <form onSubmit={(event) => { event.preventDefault(); if (portfolioId) add.mutate() }} className="grid gap-3 sm:grid-cols-[1fr_7rem_auto]">
-      <label className="text-sm text-slate-300">Portfolio
-        <select value={portfolioId} onChange={(event) => setPortfolioId(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white">
-          <option value="">{portfolios.isLoading ? 'Loading portfolios...' : 'Choose portfolio'}</option>
-          {choices.map((portfolio) => <option key={portfolio.id} value={portfolio.id}>{portfolio.name}</option>)}
-        </select>
-      </label>
-      <label className="text-sm text-slate-300">Shares
-        <input value={quantity} onChange={(event) => setQuantity(event.target.value)} type="number" min="0.0001" step="0.0001" className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white" />
-      </label>
-      <button disabled={!portfolioId || add.isPending || Number(quantity) <= 0} className="self-end rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{add.isPending ? 'Adding...' : 'Add'}</button>
-      {portfolios.isError && <p role="alert" className="sm:col-span-3 text-sm text-amber-100">Portfolio choices are unavailable right now.</p>}
-      {add.isSuccess && <p role="status" className="sm:col-span-3 text-sm text-emerald-200">Added to the selected portfolio.</p>}
-      {add.isError && <p role="alert" className="sm:col-span-3 text-sm text-rose-200">{add.error instanceof Error ? add.error.message : 'Could not add this holding.'}</p>}
-    </form>
+    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm leading-6 text-slate-300">Add this symbol to a portfolio from the review page.</p>
+        <span className="rounded-full bg-slate-700 px-3 py-1 text-xs font-semibold text-slate-200">Coming soon</span>
+      </div>
+      <button disabled className="mt-4 rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 opacity-60">Add to portfolio</button>
+      <p className="mt-3 text-xs leading-5 text-slate-500">H4A keeps this action visible but disabled. The functional portfolio-add flow is reserved for H4B.</p>
+    </div>
+  )
+}
+
+function ReviewProgress({ progress }: { progress: number }): JSX.Element {
+  return (
+    <div className="h-1 rounded-full bg-slate-800" aria-hidden="true">
+      <div className="h-full rounded-full bg-emerald-400 transition-[width] duration-150" style={{ width: `${progress}%` }} />
+    </div>
   )
 }
 
@@ -181,6 +174,7 @@ function CustomDcf({ symbol, currency }: { symbol: string; currency: string }): 
 export function SecurityReviewPage(): JSX.Element {
   const { symbol: rawSymbol = '' } = useParams()
   const symbol = rawSymbol.trim().toUpperCase()
+  const [scrollProgress, setScrollProgress] = useState(0)
   const detail = useQuery({ queryKey: ['security-review', symbol, 'detail'], enabled: !!symbol, queryFn: () => json<Detail>(`/api/v1/securities/${encodeURIComponent(symbol)}`), retry: false })
   const financials = useQuery({ queryKey: ['security-review', symbol, 'financials'], enabled: !!symbol, queryFn: () => json<Financials>(`/api/v1/securities/${encodeURIComponent(symbol)}/financials`), retry: false })
   const ratios = useQuery({ queryKey: ['security-review', symbol, 'ratios'], enabled: !!symbol, queryFn: () => json<Ratios>(`/api/v1/securities/${encodeURIComponent(symbol)}/ratios`), retry: false })
@@ -190,6 +184,20 @@ export function SecurityReviewPage(): JSX.Element {
   const peers = useQuery({ queryKey: ['security-review', symbol, 'peers'], enabled: !!symbol, queryFn: () => json<Peers>(`/api/v1/securities/${encodeURIComponent(symbol)}/peers`), retry: false })
   const score = useQuery({ queryKey: ['security-review', symbol, 'score'], enabled: !!symbol, queryFn: () => json<Score>(`/api/v1/securities/${encodeURIComponent(symbol)}/score`), retry: false })
   const addWatchlist = useMutation({ mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null }) })
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(scrollable <= 0 ? 0 : Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)))
+    }
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    window.addEventListener('resize', updateProgress)
+    return () => {
+      window.removeEventListener('scroll', updateProgress)
+      window.removeEventListener('resize', updateProgress)
+    }
+  }, [])
 
   const currency = detail.data?.currency || 'USD'
   const annual = useMemo(() => [...(financials.data?.annuals || [])].sort((a, b) => a.fiscalYear - b.fiscalYear).map((item) => ({ label: String(item.fiscalYear), ...item })), [financials.data])
@@ -237,19 +245,20 @@ export function SecurityReviewPage(): JSX.Element {
         {addWatchlist.isError && <p role="alert" className="mt-3 text-sm text-rose-200">{addWatchlist.error instanceof Error ? addWatchlist.error.message : 'Could not add this security to your watchlist.'}</p>}
       </section>
 
-      <nav aria-label="Review sections" className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+      <nav aria-label="Review sections" className="sticky top-0 z-20 rounded-lg border border-slate-800 bg-slate-950/95 p-3 shadow-lg shadow-slate-950/30 backdrop-blur">
+        <ReviewProgress progress={scrollProgress} />
         <div className="flex gap-2 overflow-x-auto">
           {[
             ['source', 'Sources'], ['valuation', 'Valuation'], ['cash', 'Cash generation'], ['earnings', 'Earnings'],
             ['debt', 'Debt'], ['history', 'Graphs'], ['dividends', 'Dividends'], ['quality', 'Quality'], ['risk', 'Risk'],
-          ].map(([id, label]) => <a key={id} href={`#${id}`} className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">{label}</a>)}
+          ].map(([id, label]) => <a key={id} href={`#${id}`} className="mt-3 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">{label}</a>)}
         </div>
       </nav>
 
       <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-5 sm:p-7">
         <Section id="source" title="Source Coverage And Freshness">
           <CoverageGrid queries={sourceQueries} />
-          <DataGap>Provider-level labels such as FMP, Yahoo Finance, or Mixed are not exposed by the current detail endpoints. This page shows application API coverage and keeps provider-specific coverage as an explicit data gap.</DataGap>
+          <DataGap>Provider-level labels such as FMP, Yahoo Finance, or Mixed are not exposed by the current detail endpoints. The review labels provider-specific coverage as unavailable instead of inferring it from successful application API responses.</DataGap>
         </Section>
 
         <Section id="valuation" title="Valuation And Margin Of Safety" aside={<span className="rounded-full bg-amber-300/10 px-3 py-1 text-xs font-semibold text-amber-100">Decision support</span>}>
@@ -382,7 +391,7 @@ export function SecurityReviewPage(): JSX.Element {
 
         <Section id="actions" title="Next Actions">
           <div className="grid gap-5 lg:grid-cols-2">
-            <Panel title="Add to portfolio"><AddToPortfolio symbol={symbol} currentPrice={d.currentPrice} currency={currency} /></Panel>
+            <Panel title="Add to portfolio"><DisabledAddToPortfolio /></Panel>
             <Panel title="Continue research">
               <div className="flex flex-wrap gap-3">
                 <Link to={`/securities/${symbol}`} className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Security Detail</Link>

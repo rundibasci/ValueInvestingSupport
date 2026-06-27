@@ -99,6 +99,9 @@ export function AdminSeedPage(): JSX.Element {
                   <th className="px-4 py-3">Recommendation</th>
                   <th className="px-4 py-3">Source</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">
+                    <span className="sr-only">Review</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
@@ -113,6 +116,9 @@ export function AdminSeedPage(): JSX.Element {
                     <td className="px-4 py-4">{result.recommendation ?? '-'}</td>
                     <td className="px-4 py-4 text-slate-400">{result.source ?? '-'}</td>
                     <td className={`px-4 py-4 ${result.error ? 'text-rose-200' : 'text-emerald-200'}`}>{result.error ?? 'Seeded'}</td>
+                    <td className="px-4 py-4">
+                      {!result.error && <Link className="font-semibold text-emerald-300 hover:text-emerald-200" to={`/securities/${encodeURIComponent(result.symbol)}/review`}>Review</Link>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
