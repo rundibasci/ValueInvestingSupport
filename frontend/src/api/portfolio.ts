@@ -17,7 +17,10 @@ export type Holding = {
   currentPrice: number | null;
   currentValue: number | null;
   weightPercent: number | null;
+  compositeFairValue: number | null;
   marginOfSafety: number | null;
+  recommendation: string | null;
+  addedAt: string;
 };
 export type PortfolioDetail = Portfolio & {
   totalValue: number | null;

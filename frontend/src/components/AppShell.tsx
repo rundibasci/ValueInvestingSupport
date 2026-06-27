@@ -2,10 +2,15 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
 const navigation = [
-  { label: 'Overview', to: '/' },
+  { label: 'Dashboard', to: '/' },
   { label: 'Screener', to: '/screener' },
   { label: 'Portfolio', to: '/portfolio' },
   { label: 'Watchlist', to: '/watchlist' },
+]
+
+const adminNavigation = [
+  { label: 'Seed tickers', to: '/admin/seed' },
+  { label: 'Users', to: '/admin/users' },
 ]
 
 export function AppShell(): JSX.Element {
@@ -36,6 +41,23 @@ export function AppShell(): JSX.Element {
             </NavLink>
           ))}
         </nav>
+        {session?.role === 'ADMIN' && (
+          <nav aria-label="Admin navigation" className="mt-6 flex gap-1 overflow-x-auto border-t border-slate-800 pt-5 lg:flex-col">
+            {adminNavigation.map((item) => (
+              <NavLink
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-2 text-sm font-medium transition ${
+                    isActive ? 'bg-slate-800 text-emerald-300' : 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                  }`
+                }
+                key={item.to}
+                to={item.to}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
       </aside>
       <div className="min-w-0">
         <header className="flex min-h-16 items-center justify-between border-b border-slate-800 bg-slate-950/80 px-5 backdrop-blur lg:px-8">
