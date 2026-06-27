@@ -6,6 +6,7 @@ import it.mazzoni.vis.domain.repository.UserRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ public class DemoDataSeeder {
     }
 
     @EventListener(ApplicationReadyEvent.class)
+    @Order(10)
     public void seed() {
         if (userRepository.existsByEmail("admin@localstack.local")) {
             return;
