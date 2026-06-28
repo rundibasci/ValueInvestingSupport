@@ -1,5 +1,6 @@
 package it.mazzoni.vis.security;
 
+import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -35,8 +38,15 @@ public class RatiosController {
                 .orElseThrow(() -> new SymbolNotFoundException(symbol));
 
         List<RatioSnapshotItem> items = ratioSnapshotRepository
-                .findTop10BySecurityOrderByReportDateDesc(security)
+                .findBySecurity(security)
                 .stream()
+                .sorted(Comparator.comparing(RatioSnapshot::getReportDate).reversed())
+                .collect(LinkedHashMap<Integer, RatioSnapshot>::new,
+                        (byYear, snapshot) -> byYear.putIfAbsent(snapshot.getReportDate().getYear(), snapshot),
+                        LinkedHashMap::putAll)
+                .values()
+                .stream()
+                .limit(10)
                 .map(RatioSnapshotItem::from)
                 .toList();
 

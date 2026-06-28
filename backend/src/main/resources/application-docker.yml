@@ -1,0 +1,36 @@
+market-data:
+  source: ${MARKET_DATA_SOURCE:yahoo}
+
+app:
+  jobs:
+    enabled: false
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/vis}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:vis}
+    password: ${DATABASE_PASSWORD:vis}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

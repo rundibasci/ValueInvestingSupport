@@ -179,53 +179,86 @@ public class LocalStackMarketDataSeeder {
     }
 
     private void seedRatio(Security security, DemoSecurity item) {
-        if (ratios.findTopBySecurityOrderByReportDateDesc(security).isPresent()) {
-            return;
+        LocalDate today = LocalDate.now();
+        List<RatioSnapshot> existingRatios = ratios.findBySecurity(security);
+        for (int offset = 0; offset < 10; offset++) {
+            LocalDate reportDate = offset == 0 ? today : LocalDate.of(today.getYear() - offset, 12, 31);
+            boolean alreadySeeded = existingRatios.stream()
+                    .anyMatch(ratio -> reportDate.equals(ratio.getReportDate()));
+            if (alreadySeeded || ratios.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, reportDate)) {
+                continue;
+            }
+
+            BigDecimal age = BigDecimal.valueOf(offset);
+            RatioSnapshot ratio = new RatioSnapshot();
+            ratio.setSecurity(security);
+            ratio.setPeriod(Period.ANNUAL);
+            ratio.setReportDate(reportDate);
+            ratio.setPeRatio(new BigDecimal("18.50").subtract(age.multiply(new BigDecimal("0.35"))));
+            ratio.setPbRatio(new BigDecimal("4.20").subtract(age.multiply(new BigDecimal("0.08"))));
+            ratio.setRoic(new BigDecimal("17.50").subtract(age.multiply(new BigDecimal("0.45"))));
+            ratio.setRoe(new BigDecimal("24.00").subtract(age.multiply(new BigDecimal("0.55"))));
+            ratio.setDebtToEquity(new BigDecimal("0.68").add(age.multiply(new BigDecimal("0.015"))));
+            ratio.setCurrentRatio(new BigDecimal("1.45").subtract(age.multiply(new BigDecimal("0.015"))));
+            ratio.setDividendYield(decimal(item.dividendYield()).subtract(age.multiply(new BigDecimal("0.03"))));
+            ratio.setGrossMargin(new BigDecimal("58.00").subtract(age.multiply(new BigDecimal("0.25"))));
+            ratio.setOperatingMargin(new BigDecimal("29.00").subtract(age.multiply(new BigDecimal("0.18"))));
+            ratio.setNetMargin(new BigDecimal("22.00").subtract(age.multiply(new BigDecimal("0.14"))));
+            ratios.save(ratio);
         }
-        RatioSnapshot ratio = new RatioSnapshot();
-        ratio.setSecurity(security);
-        ratio.setPeriod(Period.TTM);
-        ratio.setReportDate(LocalDate.now());
-        ratio.setPeRatio(new BigDecimal("18.50"));
-        ratio.setPbRatio(new BigDecimal("4.20"));
-        ratio.setRoic(new BigDecimal("17.50"));
-        ratio.setRoe(new BigDecimal("24.00"));
-        ratio.setDebtToEquity(new BigDecimal("0.68"));
-        ratio.setCurrentRatio(new BigDecimal("1.45"));
-        ratio.setDividendYield(decimal(item.dividendYield()));
-        ratio.setGrossMargin(new BigDecimal("58.00"));
-        ratio.setOperatingMargin(new BigDecimal("29.00"));
-        ratio.setNetMargin(new BigDecimal("22.00"));
-        ratios.save(ratio);
     }
 
     private void seedFundamentals(Security security, DemoSecurity item) {
-        seedFundamentalSnapshot(security, Period.ANNUAL);
-        seedFundamentalSnapshot(security, Period.TTM);
+        LocalDate today = LocalDate.now();
+        for (int offset = 0; offset < 10; offset++) {
+            int fiscalYear = today.getYear() - offset;
+            LocalDate reportDate = offset == 0 ? today : LocalDate.of(fiscalYear, 12, 31);
+            seedFundamentalSnapshot(security, Period.ANNUAL, fiscalYear, null, reportDate, offset);
+        }
+
+        for (int offset = 0; offset < 8; offset++) {
+            LocalDate quarterDate = today.minusMonths(3L * offset);
+            int quarter = ((quarterDate.getMonthValue() - 1) / 3) + 1;
+            seedFundamentalSnapshot(security, Period.QUARTERLY, quarterDate.getYear(), quarter, quarterDate, offset);
+        }
+
+        seedFundamentalSnapshot(security, Period.TTM, today.getYear(), null, today, 0);
     }
 
-    private void seedFundamentalSnapshot(Security security, Period period) {
-        if (fundamentals.findTopBySecurityAndPeriodOrderByReportDateDesc(security, period).isPresent()) {
+    private void seedFundamentalSnapshot(Security security,
+                                         Period period,
+                                         int fiscalYear,
+                                         Integer fiscalQuarter,
+                                         LocalDate reportDate,
+                                         int offset) {
+        if (fundamentals.existsBySecurityAndPeriodAndReportDate(security, period, reportDate)) {
             return;
         }
+
+        BigDecimal scale = BigDecimal.ONE.subtract(BigDecimal.valueOf(offset).multiply(new BigDecimal("0.035")));
+        if (scale.compareTo(new BigDecimal("0.60")) < 0) {
+            scale = new BigDecimal("0.60");
+        }
+
         FundamentalSnapshot snapshot = new FundamentalSnapshot();
         snapshot.setSecurity(security);
         snapshot.setPeriod(period);
-        snapshot.setFiscalYear(LocalDate.now().getYear());
-        snapshot.setReportDate(LocalDate.now());
-        snapshot.setRevenue(new BigDecimal("100000000000.00"));
-        snapshot.setNetIncome(new BigDecimal("18000000000.00"));
-        snapshot.setOperatingIncome(new BigDecimal("24000000000.00"));
-        snapshot.setGrossProfit(new BigDecimal("58000000000.00"));
-        snapshot.setEps(new BigDecimal("6.40"));
-        snapshot.setEpsDiluted(new BigDecimal("6.35"));
-        snapshot.setFreeCashFlow(new BigDecimal("21000000000.00"));
-        snapshot.setOperatingCashFlow(new BigDecimal("26000000000.00"));
-        snapshot.setTotalAssets(new BigDecimal("250000000000.00"));
-        snapshot.setTotalLiabilities(new BigDecimal("140000000000.00"));
-        snapshot.setTotalEquity(new BigDecimal("110000000000.00"));
-        snapshot.setTotalDebt(new BigDecimal("45000000000.00"));
-        snapshot.setCash(new BigDecimal("30000000000.00"));
+        snapshot.setFiscalYear(fiscalYear);
+        snapshot.setFiscalQuarter(fiscalQuarter);
+        snapshot.setReportDate(reportDate);
+        snapshot.setRevenue(scaled("100000000000.00", scale));
+        snapshot.setNetIncome(scaled("18000000000.00", scale));
+        snapshot.setOperatingIncome(scaled("24000000000.00", scale));
+        snapshot.setGrossProfit(scaled("58000000000.00", scale));
+        snapshot.setEps(scaled("6.40", scale));
+        snapshot.setEpsDiluted(scaled("6.35", scale));
+        snapshot.setFreeCashFlow(scaled("21000000000.00", scale));
+        snapshot.setOperatingCashFlow(scaled("26000000000.00", scale));
+        snapshot.setTotalAssets(scaled("250000000000.00", scale));
+        snapshot.setTotalLiabilities(scaled("140000000000.00", scale));
+        snapshot.setTotalEquity(scaled("110000000000.00", scale));
+        snapshot.setTotalDebt(scaled("45000000000.00", scale.add(BigDecimal.valueOf(offset).multiply(new BigDecimal("0.01")))));
+        snapshot.setCash(scaled("30000000000.00", scale));
         snapshot.setSharesOutstanding(4_000_000_000L);
         fundamentals.save(snapshot);
     }
@@ -278,6 +311,10 @@ public class LocalStackMarketDataSeeder {
 
     private static BigDecimal decimal(String value) {
         return new BigDecimal(value);
+    }
+
+    private static BigDecimal scaled(String value, BigDecimal scale) {
+        return new BigDecimal(value).multiply(scale);
     }
 
     private record DemoSecurity(String symbol, String companyName, String exchange, String sector,
