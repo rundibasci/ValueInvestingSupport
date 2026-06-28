@@ -330,7 +330,8 @@ function CustomDcf({ symbol, currency }: { symbol: string; currency: string }): 
       {Object.entries(form).map(([key, value]) => <label key={key} className="text-sm text-slate-300">{key === 'growthY1Y5' ? 'Growth years 1-5' : key === 'growthY6Y10' ? 'Growth years 6-10' : key === 'terminalRate' ? 'Terminal rate' : 'WACC'}<input required type="number" step="0.001" value={value} onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>)}
       <button className="rounded-lg bg-emerald-400 px-4 py-2 font-semibold text-slate-950 sm:col-span-2 disabled:opacity-60" disabled={custom.isPending}>{custom.isPending ? 'Calculating...' : 'Run custom DCF'}</button>
       {custom.isError && <p role="alert" className="sm:col-span-2 text-sm text-rose-200">{custom.error instanceof Error ? custom.error.message : 'Custom valuation could not be calculated.'}</p>}
-      {custom.data && <p className="sm:col-span-2 text-sm text-emerald-200">Custom valuation calculated. Fair value: {money(custom.data.dcfFairValue, currency)}.</p>}
+      {custom.data && custom.data.dcfFairValue != null && <p className="sm:col-span-2 text-sm text-emerald-200">Custom valuation calculated. Fair value: {money(custom.data.dcfFairValue, currency)}.</p>}
+      {custom.data && custom.data.dcfFairValue == null && <p role="status" className="sm:col-span-2 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">DCF is unavailable for this symbol with the current data. The backend fell back to eligible valuation models.</p>}
     </form>
   )
 }
@@ -340,6 +341,7 @@ export function SecurityReviewPage(): JSX.Element {
   const symbol = rawSymbol.trim().toUpperCase()
   const [scrollProgress, setScrollProgress] = useState(0)
   const review = useQuery({ queryKey: ['security-review', symbol], enabled: !!symbol, queryFn: () => json<Review>(`/api/v1/securities/${encodeURIComponent(symbol)}/review`), retry: false })
+  const watchlist = useQuery({ queryKey: ['watchlist'], enabled: !!symbol, queryFn: watchlistApi.list })
   const addWatchlist = useMutation({ mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null }) })
 
   useEffect(() => {
@@ -373,6 +375,7 @@ export function SecurityReviewPage(): JSX.Element {
   const peers = review.data.peers
   const score = review.data.score
   const health = review.data.financialHealth
+  const watchlistItem = watchlist.data?.find((item) => item.symbol.toUpperCase() === symbol)
 
   return (
     <div className="space-y-6">
@@ -391,10 +394,11 @@ export function SecurityReviewPage(): JSX.Element {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap gap-3">
-          <button disabled={addWatchlist.isPending} onClick={() => addWatchlist.mutate()} className="rounded-lg bg-emerald-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:opacity-60">{addWatchlist.isPending ? 'Adding...' : 'Add to watchlist'}</button>
+          <button disabled={addWatchlist.isPending || Boolean(watchlistItem)} onClick={() => addWatchlist.mutate()} className="rounded-lg bg-emerald-400 px-4 py-2.5 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60">{watchlistItem ? 'Already on watchlist' : addWatchlist.isPending ? 'Adding...' : 'Add to watchlist'}</button>
           <Link to={`/securities/${symbol}`} className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-slate-800">Open Security Detail</Link>
           <Link to="/admin/seed" className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-slate-800">Refresh or seed</Link>
         </div>
+        {watchlistItem && <p role="status" className="mt-3 text-sm text-slate-300">{symbol} is already on your watchlist.</p>}
         {addWatchlist.isSuccess && <p role="status" className="mt-3 text-sm text-emerald-200">Added to your watchlist.</p>}
         {addWatchlist.isError && <p role="alert" className="mt-3 text-sm text-rose-200">{addWatchlist.error instanceof Error ? addWatchlist.error.message : 'Could not add this security to your watchlist.'}</p>}
       </section>

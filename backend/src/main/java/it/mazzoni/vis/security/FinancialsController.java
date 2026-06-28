@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 
 @RestController
 @RequestMapping("/api/v1/securities")
@@ -47,6 +48,11 @@ public class FinancialsController {
         }
 
         List<AnnualFinancials> annuals = annualSnapshots.stream()
+                .collect(LinkedHashMap<Integer, FundamentalSnapshot>::new,
+                        (byYear, snapshot) -> byYear.putIfAbsent(snapshot.getFiscalYear(), snapshot),
+                        LinkedHashMap::putAll)
+                .values()
+                .stream()
                 .limit(10)
                 .map(AnnualFinancials::from)
                 .toList();

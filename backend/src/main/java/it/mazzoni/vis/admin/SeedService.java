@@ -142,13 +142,13 @@ public class SeedService {
 
     private void persistFundamentals(Security security, String symbol) {
         LocalDate today = LocalDate.now();
-        if (fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, today)) {
-            return;
-        }
         it.mazzoni.vis.domain.FundamentalSnapshot data = marketDataClient.getFundamentals(symbol);
+        List<BigDecimal> revenueHistory = data.revenueHistory() != null ? data.revenueHistory() : List.of();
+        List<BigDecimal> netIncomeHistory = data.netIncomeHistory() != null ? data.netIncomeHistory() : List.of();
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
+        int historySize = Math.max(1, Math.max(revenueHistory.size(), Math.max(netIncomeHistory.size(), fcfHistory.size())));
         int currentYear = today.getYear();
-        for (int i = 0; i < Math.max(1, fcfHistory.size()); i++) {
+        for (int i = 0; i < historySize; i++) {
             LocalDate reportDate = today.minusYears(i);
             if (fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, reportDate)) {
                 continue;
@@ -168,27 +168,58 @@ public class SeedService {
                     entity.setTotalEquity(data.bookValuePerShare()
                             .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
                 }
-                if (data.revenueHistory() != null && !data.revenueHistory().isEmpty())
-                    entity.setRevenue(data.revenueHistory().get(0));
-                if (data.netIncomeHistory() != null && !data.netIncomeHistory().isEmpty())
-                    entity.setNetIncome(data.netIncomeHistory().get(0));
             }
-            if (!fcfHistory.isEmpty())
-                entity.setFreeCashFlow(fcfHistory.get(i));
+            entity.setRevenue(valueAt(revenueHistory, i));
+            entity.setNetIncome(valueAt(netIncomeHistory, i));
+            entity.setFreeCashFlow(valueAt(fcfHistory, i));
             fundamentalSnapshotRepository.save(entity);
+        }
+
+        if (!fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.TTM, today)) {
+            FundamentalSnapshot ttm = new FundamentalSnapshot();
+            ttm.setSecurity(security);
+            ttm.setPeriod(Period.TTM);
+            ttm.setFiscalYear(currentYear);
+            ttm.setReportDate(today);
+            ttm.setRevenue(valueAt(revenueHistory, 0));
+            ttm.setNetIncome(valueAt(netIncomeHistory, 0));
+            ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
+            ttm.setEps(data.epsTtm());
+            ttm.setEpsDiluted(data.epsTtm());
+            ttm.setSharesOutstanding(data.sharesOutstanding());
+            ttm.setTotalDebt(data.totalDebt());
+            ttm.setCash(data.cash());
+            if (data.bookValuePerShare() != null && data.sharesOutstanding() != null) {
+                ttm.setTotalEquity(data.bookValuePerShare()
+                        .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
+            }
+            fundamentalSnapshotRepository.save(ttm);
         }
     }
 
     private void persistRatios(Security security, String symbol) {
         LocalDate today = LocalDate.now();
-        if (ratioSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.TTM, today)) {
+        it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(symbol);
+        persistRatioSnapshot(security, data, Period.TTM, today);
+
+        for (int i = 0; i < 10; i++) {
+            LocalDate reportDate = i == 0 ? today : LocalDate.of(today.getYear() - i, 12, 31);
+            persistRatioSnapshot(security, data, Period.ANNUAL, reportDate);
+        }
+    }
+
+    private void persistRatioSnapshot(Security security,
+                                      it.mazzoni.vis.domain.RatioSnapshot data,
+                                      Period period,
+                                      LocalDate reportDate) {
+        if (ratioSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, period, reportDate)) {
             return;
         }
-        it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(symbol);
+
         RatioSnapshot entity = new RatioSnapshot();
         entity.setSecurity(security);
-        entity.setPeriod(Period.TTM);
-        entity.setReportDate(today);
+        entity.setPeriod(period);
+        entity.setReportDate(reportDate);
         entity.setPeRatio(data.peRatio());
         entity.setPbRatio(data.priceToBook());
         entity.setRoe(data.roe());
@@ -213,5 +244,9 @@ public class SeedService {
         entity.setQuoteDate(today);
         entity.setClose(quote.price());
         priceQuoteRepository.save(entity);
+    }
+
+    private static BigDecimal valueAt(List<BigDecimal> values, int index) {
+        return index < values.size() ? values.get(index) : null;
     }
 }
