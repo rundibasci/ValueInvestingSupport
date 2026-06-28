@@ -571,10 +571,20 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 
 ### Phase HD4: Beta-Driven Feature Selection And Implementation
 - Review the three HD3 beta-tester reports and extract candidate product improvements, grouped by persona, workflow, severity, expected user value, implementation complexity, and dependency risk.
+- Use `specs/2026-06-28-hd3-beta-tester-personas/extracted-roadmap-requirements.md` as the initial HD4 backlog.
 - Decide which new features should be added before Quality & Observability, explicitly separating:
   - Must-fix usability or trust blockers discovered during beta testing.
   - High-value feature additions that improve portfolio construction, watchlist monitoring, stock discovery, review-page decision support, or source transparency.
   - Deferred ideas that belong in later production-readiness, observability, identity, cloud, or commercial phases.
+- Evaluate these HD3-derived candidate requirements explicitly:
+  - Score availability transparency across seed results, review pages, screener/search rows, and portfolio holdings.
+  - Portfolio concentration warnings in portfolio detail and add-to-portfolio flows.
+  - Watchlist research rationale notes, including explicit "wait for better price" monitoring.
+  - Screener empty-state diagnostics that identify restrictive filters and suggest relaxations.
+  - Cross-symbol comparison for MoS, value score, quality, leverage/liquidity, growth, dividend indicators, and source/data coverage.
+  - Story-versus-fundamentals review support using curated summaries or saved research notes rather than nondeterministic live news in demos.
+  - Data-quality classification that distinguishes provider limitation, stale data, missing seeded history, missing internal computation, and calculation guardrail failure.
+  - Persona replay scripts for repeatable seed, review, portfolio, watchlist, and evidence-capture flows.
 - Create a short feature-selection report under `specs/YYYY-MM-DD-beta-feature-selection/` containing:
   - Candidate feature backlog with rationale.
   - Chosen feature set for implementation.
@@ -585,6 +595,7 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 - Run the local full demo after implementation and re-check the three persona workflows where impacted.
 - Acceptance checklist:
   - HD3 report findings are traceable to accepted, rejected, or deferred decisions.
+  - Each HD3 extracted requirement is marked implemented, deferred to a named phase, or rejected with rationale.
   - Every implemented feature has validation evidence and updated user-facing documentation or demo notes when relevant.
   - No selected feature silently expands into unrelated platform redesign.
   - Any remaining beta-driven gaps are placed into later roadmap phases with a clear reason.
@@ -596,6 +607,8 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 ### Phase I1: Test Coverage
 - Unit tests: all Calculator classes (DCF, Graham, DDM, ValueScore)
 - Integration tests: Screener API, Valuation endpoint, Auth flow
+- Integration tests for any HD4-selected beta-driven workflows, including score/data-quality states, concentration warning thresholds, watchlist rationale persistence, and screener empty-state diagnostics.
+- Deterministic persona replay tests or scripts for the three HD3 user journeys where practical.
 - Test DB: H2 or Testcontainers PostgreSQL
 
 ### Phase I2: Observability

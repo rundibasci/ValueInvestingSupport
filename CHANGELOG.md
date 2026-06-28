@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- HD3: Beta tester persona simulation artifacts for prudent value investor, hedge-fund allocator, and financial journalist workflows, including persona credentials, source summaries, portfolio/watchlist reports, validation evidence, and a persisted PostgreSQL demo dump under `specs/2026-06-28-hd3-beta-tester-personas/`.
+- HD3: Extracted roadmap requirements for score/data-quality transparency, portfolio concentration warnings, watchlist rationale, screener diagnostics, comparison views, story-versus-fundamentals review, and persona replay scripts.
 - H6: Authenticated Watchlist & Alerts UI with responsive security cards, configurable margin-of-safety and fundamental-degradation thresholds, active-alert filtering and acknowledgement, accessible status badges, security-detail links, MiFID II decision-support language, and investor ownership integration coverage; feature specifications under `specs/2026-06-22-h6-watchlist-alerts-ui/`.
 - H5: Authenticated portfolio-builder interface with portfolio creation and holding management, explicit budget/risk/yield and concentration constraints, allocation simulation, sector donut visualisation, proposed-holding save flow, rebalancing proposals, MiFID II decision-support language, and whole-share quantity validation in both the UI and API; feature specifications under `specs/2026-06-22-h5-portfolio-builder-ui/`.
 - H4: Security Detail UI replaces the security-research placeholder with authenticated live-API research tabs for overview, financials, ratios, financial-health trends, valuation/custom DCF, dividends, growth, insiders, and peers; includes Recharts visualisations, Add to Watchlist, safe retryable error popups, clear unavailable-data handling, and MiFID II decision-support language. Feature specifications under `specs/2026-06-22-h4-security-detail-ui/`.
@@ -78,6 +80,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
 
 ### Changed
+- Roadmap, mission, and tech-stack specs now carry HD3 beta findings into HD4 feature selection, Group I validation, and cross-cutting product/data principles.
 - HD2: Demo polish pass stabilizes the INGR review workflow with idempotent current/TTM reseeding, annual ratio history for review charts, field-aware percentage formatting, guarded watchlist and portfolio post-add states, and responsive chart containers.
 - HD2: Added demo-readiness and validation evidence under `specs/2026-06-28-hd2-demo-polish-pass/`, including Docker build/start checks, backend/frontend validation, and authenticated localstack INGR review evidence.
 - Yahoo Finance documented as explicit FMP fallback in mission statement and roadmap
@@ -140,6 +143,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Roadmap: Group Score Full Pipeline Demo (Score1, Score2) inserted between Group Val and Group D as a full-pipeline validation milestone before screener
 
 ### Fixed
+- Seed batch reseeding now runs inside an active transaction, preventing per-symbol delete failures when replacing existing current/TTM localstack data.
 - `DemoAnalysisControllerTest`: added `@Import(SecurityConfig.class)` to restore all 4 passing tests after Spring Security was added to the classpath
 - `FmpMarketDataClientTest`: added `spring.cache.type=none` to prevent cross-test cache pollution introduced by `@Cacheable` on `FmpMarketDataClient`
 - H2 schema validation on `localstack` profile: `CLOB` → `VARCHAR(32767)` for `description` columns in `security` and `portfolio` tables (V2) and `error_message` in `job_run_log` (V3); H2 2.x maps `CLOB` to `Types#CLOB` but JPA `String` fields without `@Lob` expect `Types#VARCHAR`

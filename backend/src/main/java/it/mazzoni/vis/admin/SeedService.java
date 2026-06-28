@@ -67,6 +67,7 @@ public class SeedService {
         this.sourceTracker = sourceTracker;
     }
 
+    @Transactional
     public List<SeedResult> seedTickers(List<String> symbols) {
         List<SeedResult> results = new ArrayList<>();
         for (String symbol : symbols) {
