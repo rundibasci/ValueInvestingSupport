@@ -107,6 +107,54 @@ class SecurityReviewServiceTest {
                 .contains("Advice boundary");
     }
 
+    @Test
+    void getReview_missingScoreAndGuardedDcf_returnsExplicitAvailabilityStates() {
+        Security security = security();
+        FundamentalSnapshot annual = annual(security);
+        RatioSnapshot ratios = ratios(security);
+        PriceQuote quote = quote(security);
+        ValuationResult valuation = valuation(security);
+        valuation.setDcfFairValue(null);
+
+        when(securityRepository.findBySymbol("PG")).thenReturn(Optional.of(security));
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(Optional.of(annual));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(annual));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.QUARTERLY))
+                .thenReturn(List.of());
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(Optional.empty());
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(ratios));
+        when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(any(Security.class))).thenReturn(Optional.of(ratios));
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.of(valuation));
+        when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.empty());
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
+        when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
+        when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+
+        SecurityReviewResponse response = service.getReview("pg");
+
+        assertThat(response.availability()).anySatisfy(item -> {
+            assertThat(item.category()).isEqualTo("Valuation");
+            assertThat(item.state().status().name()).isEqualTo("GUARDRAIL_BLOCKED");
+            assertThat(item.state().reason()).contains("eligibility guardrails");
+        });
+        assertThat(response.availability()).anySatisfy(item -> {
+            assertThat(item.category()).isEqualTo("Score");
+            assertThat(item.state().status().name()).isEqualTo("MISSING_INTERNAL_COMPUTATION");
+            assertThat(item.state().reason()).contains("No persisted value score");
+        });
+        assertThat(response.availability()).anySatisfy(item -> {
+            assertThat(item.category()).isEqualTo("Dividends");
+            assertThat(item.state().status().name()).isEqualTo("PROVIDER_LIMITED");
+        });
+        assertThat(response.dataQualityNotes()).extracting(SecurityReviewResponse.DataQualityNote::category)
+                .contains("Valuation", "Score", "Dividends", "Advice boundary");
+    }
+
     private Security security() {
         Security s = new Security();
         s.setSymbol("AAPL");
