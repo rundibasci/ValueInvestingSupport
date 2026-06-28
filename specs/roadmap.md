@@ -522,6 +522,13 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 
 ### Phase HD2: Demo Polish Pass
 - Apply the scoped polish fixes identified in HD1 across the React frontend and static demo pages where appropriate.
+- Close the open INGR review-page findings from `specs/2026-06-28-full-demo-assessment/ingr-review-bug-notes.md`:
+  - Keep the Docker backend image buildable from a Windows checkout by normalizing/executing the Maven wrapper in the Docker build stage or by enforcing repository line endings.
+  - Make reseeding idempotent for INGR-style review data: no duplicate current-year fundamentals, duplicate current-date ratios, or retained stale current rows after refresh.
+  - Normalize percentage display on the review page so decimal ratios such as dividend yield, payout ratio, ROE, ROIC, margins, and debt ratios render with correct units while already-percent values such as MoS remain correct.
+  - Refresh or update watchlist state after `Add to watchlist` succeeds so the button immediately becomes the guarded `Already on watchlist` state and cannot produce a duplicate `409`.
+  - Clear contradictory portfolio-add state after a successful add so users see either the success state or the existing-holding state, not both at once.
+  - Remove Recharts container sizing warnings on the review page and verify charts remain visible across desktop and mobile layouts.
 - Improve local demo readiness: documented startup steps, seeded credentials, demo URLs, known limitations, and a short checklist for stakeholder walkthroughs.
 - Verify that the full demo can be run without live FMP/Yahoo calls or secrets using deterministic localstack data.
 - Run frontend typecheck/build, backend compile/tests where supported by the environment, and `git diff --check`.
@@ -529,6 +536,10 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
   - A stakeholder can follow the documented local demo flow without command-line knowledge after the server is running.
   - The newest Seed Universe workflow is visible in the React app and its backend endpoint is represented accurately.
   - Core pages feel like one product: consistent spacing, labels, actions, badges, disclaimers, and error handling.
+  - INGR review-page charts do not show duplicate current-year/current-date points after repeated reseeding.
+  - Review-page percentage metrics show correct human percentages with no decimal/percentage-point mixups.
+  - Review-page watchlist and portfolio actions transition to stable post-success states without avoidable duplicate API errors.
+  - The Docker full-demo stack builds and starts on the Windows development checkout.
   - Any remaining UX gaps are documented with severity and owner/phase recommendation.
 
 ---
