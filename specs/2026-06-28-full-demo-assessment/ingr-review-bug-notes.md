@@ -32,6 +32,50 @@
 - **Observed:** For INGR, the backend correctly returned `dcfFairValue: null` because DCF was not eligible, but the UI showed a success-style message with `Fair value: Unavailable`.
 - **Fix:** The UI now distinguishes a calculated DCF from an ineligible DCF and shows a clear status: DCF is unavailable and the backend fell back to eligible valuation models.
 
+### Open - Docker Build Fails On Windows Checkout Without Maven Wrapper Normalization
+
+- **Severity:** Blocker for full Docker demo deployment.
+- **Surface:** `docker compose up --build -d`, backend image build.
+- **Observed:** The backend image failed at `RUN ./mvnw -q -DskipTests dependency:go-offline` with `/bin/sh: 1: ./mvnw: not found`.
+- **Cause:** On this Windows checkout, `backend/mvnw` is present but checked out with CRLF line endings and is not executable inside the Linux build stage.
+- **Mitigation applied in this pass:** `backend/Dockerfile` now normalizes `mvnw` with `sed -i 's/\r$//' mvnw` and applies `chmod +x mvnw` before invoking it. The full Docker stack then built and started successfully.
+
+### Open - Reseeding INGR Creates Duplicate Current-Year Rows
+
+- **Severity:** High data-quality/UI bug.
+- **Surface:** INGR review packet after reseeding in the Docker stack.
+- **Observed:** After `POST /api/v1/admin/seed?tickers=INGR`, `/api/v1/securities/INGR/review` returned duplicate annual fundamentals for fiscal year 2026 and duplicate ratio rows for `2026-06-28`; it also retained a stale `2026-06-20` ratio row. The UI chart axes render repeated `2026` labels.
+- **Evidence:** Annual fundamentals returned `2026, 2026, 2025, 2024, 2023`. Ratio date counts included `2026-06-28 x2` and `2026-06-20 x1`.
+- **Likely cause:** Seed persistence appends refreshed TTM/current rows without deduplicating or replacing existing rows for the same security/date or same fiscal period.
+
+### Open - Percentage Metrics Are Scaled Inconsistently
+
+- **Severity:** High presentation bug.
+- **Surface:** Dividends, quality, and health metric cards on `/securities/INGR/review`.
+- **Observed:** Decimal ratios are rendered without multiplying by 100. Examples: dividend yield `0.0325` renders as `0.03%` instead of `3.25%`; payout ratio `0.3135` renders as `0.31%` instead of `31.35%`; ROE `0.1619` renders as `0.16%` instead of `16.19%`.
+- **Cause:** `SecurityReviewPage.percent` appends `%` directly to the raw value. Some backend fields are decimals, while others such as margin of safety and peer ROIC are already percentage points, so the UI needs field-aware formatting or normalized API units.
+
+### Open - Watchlist Button Still Allows Duplicate Add After A Successful Add
+
+- **Severity:** Polish/UX bug with avoidable API error.
+- **Surface:** Header action `Add to watchlist`.
+- **Observed:** Starting with INGR absent from the watchlist, pressing `Add to watchlist` adds it successfully, but the button stays enabled and still says `Add to watchlist`. Pressing it again calls `POST /api/v1/watchlist` and shows `Request failed (409).`
+- **Cause:** The add-watchlist mutation does not invalidate or update the `watchlist` query on success, and the disabled state depends only on the stale `watchlistItem`.
+
+### Open - Portfolio Add Shows Contradictory Success And Existing-Holding States
+
+- **Severity:** Polish/UX bug.
+- **Surface:** `Add to portfolio` panel.
+- **Observed:** After adding INGR to `Localstack Value Portfolio`, the panel can show both `INGR is already in Localstack Value Portfolio with quantity 1...` and `Added INGR to Localstack Value Portfolio.` The button becomes disabled after the detail refetch, but the success message remains alongside the existing-holding warning.
+- **Cause:** `AddToPortfolio` keeps `addHolding.isSuccess` active after the portfolio-detail refetch detects the newly existing holding.
+
+### Open - Chart Container Warnings During Review Rendering
+
+- **Severity:** Low/medium visual reliability bug.
+- **Surface:** Recharts graphs on `/securities/INGR/review`.
+- **Observed:** Headless Chrome logged repeated warnings: `The width(-1) and height(-1) of chart should be greater than 0`.
+- **Risk:** Some charts may render blank or flicker in narrow/hidden layouts if `ResponsiveContainer` measures before its parent has a stable size.
+
 ## Link And Button Check
 
 - `Back to screener` -> `/screener`: SPA route served successfully.
