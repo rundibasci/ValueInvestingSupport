@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- HD4: Beta-driven trust features for structured score/data-quality availability, portfolio concentration warnings, watchlist research rationale, and review/screener/portfolio UI surfacing; includes watchlist rationale persistence via Flyway V11 and targeted backend/frontend validation.
+- HD4: Agent 1 prudent-value validation journal and roadmap Group L for conservative research workflow hardening, covering the 10-stock replay pack, conservative portfolio review evidence, availability-state examples, and follow-up workflow enhancements.
 - HD3: Beta tester persona simulation artifacts for prudent value investor, hedge-fund allocator, and financial journalist workflows, including persona credentials, source summaries, portfolio/watchlist reports, validation evidence, and a persisted PostgreSQL demo dump under `specs/2026-06-28-hd3-beta-tester-personas/`.
 - HD3: Extracted roadmap requirements for score/data-quality transparency, portfolio concentration warnings, watchlist rationale, screener diagnostics, comparison views, story-versus-fundamentals review, and persona replay scripts.
 - H6: Authenticated Watchlist & Alerts UI with responsive security cards, configurable margin-of-safety and fundamental-degradation thresholds, active-alert filtering and acknowledgement, accessible status badges, security-detail links, MiFID II decision-support language, and investor ownership integration coverage; feature specifications under `specs/2026-06-22-h6-watchlist-alerts-ui/`.
