@@ -676,6 +676,48 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 
 ---
 
+## Group L - Conservative Research Workflow Hardening
+
+Goal: turn the HD3 Agent 1 prudent-value validation journal into repeatable product features and demo evidence. This group strengthens conservative investor workflows around 10-stock validation portfolios, "good business, wrong price" watchlists, score/data-quality confidence, and concentration-aware portfolio construction. It preserves the decision-support boundary: the platform documents research reasoning and risk signals, but does not recommend trades.
+
+Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-validation-journal.md`.
+
+### Phase L1: Prudent Persona Replay Pack
+- Add a deterministic replay script or documented workflow for the Agent 1 10-symbol set: `BRK.B,JNJ,PG,KO,PEP,WMT,MSFT,ADP,UNP,XOM`.
+- Seed the symbols, open each review packet, and capture score availability, valuation availability, source/freshness status, MoS, recommendation, and data-quality notes.
+- Create a 10-position equal-weight validation portfolio and verify that no single holding breaches the holding concentration threshold.
+- Add an oversized KO or JNJ scenario to confirm holding concentration warnings appear.
+- Add PG, KO, JNJ, and MSFT to the watchlist with rationale notes and confirm persistence after reload.
+- Store replay output under the relevant spec/demo evidence folder; do not describe the model as investable.
+
+### Phase L2: Conservative Portfolio Review Pack
+- Add a portfolio review surface or report section that summarizes conservative validation evidence: holding weights, sector weights, MoS, score availability, valuation availability, data-quality blockers, and watchlist rationale coverage.
+- Flag incomplete validation when any holding is missing current price, sector, score status, or valuation status.
+- Show conflicts between business quality and negative margin of safety, especially for defensive or high-quality symbols.
+- Keep all copy factual and decision-support oriented; avoid buy/sell language.
+- Include a printable or exportable journal-style summary suitable for stakeholder review.
+
+### Phase L3: Availability Status Examples And Diagnostics
+- Create deterministic demo fixtures or seeded examples for every availability state: `AVAILABLE`, `STALE`, `PENDING`, `PROVIDER_LIMITED`, `MISSING_SEEDED_HISTORY`, `MISSING_INTERNAL_COMPUTATION`, and `GUARDRAIL_BLOCKED`.
+- Ensure review, screener rows, portfolio holdings, and watchlist-adjacent flows render each state consistently.
+- Add tests for status mapping and UI rendering where practical.
+- Document how each status should be interpreted by conservative users without turning the interpretation into investment advice.
+- Feed any remaining gaps into Group I quality coverage and observability metrics.
+
+### Phase L4: Conservative Workflow Enhancements
+- Add a conservative research preset that combines positive MoS, score availability, dividend coverage, leverage/liquidity resilience, and data completeness.
+- Add screener empty-state diagnostics for conservative filters, identifying which criteria likely eliminated candidates and suggesting relaxations while preserving the current criteria.
+- Add selected-symbol comparison for the Agent 1 workflow: MoS, value score, quality, leverage/liquidity, growth, dividend indicators, and source/data coverage.
+- Add saved research-note support beyond watchlist rationale only if the concise rationale field proves too small during replay.
+- Acceptance checklist:
+  - The Agent 1 journal findings are traceable to implemented features, deterministic replay evidence, or explicitly deferred follow-ups.
+  - The 10-stock validation portfolio can be recreated from seeded/local data and produces concentration/data-quality evidence.
+  - Watchlist rationale supports "wait for better price" and data-quality-gap workflows.
+  - Every availability status has at least one deterministic example or a documented reason why it cannot yet be produced.
+  - The feature set does not present the 10-stock model as personalised investment advice.
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Data Source | Deliverable |
@@ -701,6 +743,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
 | **M12: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M13: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
+| **M14: Conservative Workflow Hardening** | L1-L4 | FMP primary / Yahoo fallback | Agent 1 prudent-value replay pack, 10-stock validation portfolio evidence, conservative review diagnostics, availability-state examples, and workflow enhancements |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >

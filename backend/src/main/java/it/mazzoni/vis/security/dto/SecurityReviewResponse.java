@@ -1,5 +1,6 @@
 package it.mazzoni.vis.security.dto;
 
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
 
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ public record SecurityReviewResponse(
         FinancialHealth financialHealth,
         List<SourceCoverageItem> sourceCoverage,
         List<FreshnessItem> freshness,
+        List<AvailabilityItem> availability,
         List<DataQualityNote> dataQualityNotes
 ) {
     public record FinancialHealth(
@@ -49,6 +51,11 @@ public record SecurityReviewResponse(
             LocalDate dataAsOf,
             String status,
             String message
+    ) {}
+
+    public record AvailabilityItem(
+            String category,
+            AvailabilityResponse state
     ) {}
 
     public record DataQualityNote(

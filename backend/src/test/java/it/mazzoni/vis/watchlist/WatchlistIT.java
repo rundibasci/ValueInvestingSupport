@@ -129,7 +129,8 @@ class WatchlistIT {
     @Test
     void fullCrudFlow_works() {
         // Add AAPL
-        AddWatchlistItemRequest addAapl = new AddWatchlistItemRequest("AAPL", null, null, null);
+        AddWatchlistItemRequest addAapl = new AddWatchlistItemRequest("AAPL", null, null, null,
+                "WAIT_FOR_BETTER_PRICE", "Monitor for a better entry price.");
         ResponseEntity<Map<String, Object>> created = post("/api/v1/watchlist", addAapl);
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(created.getBody().get("symbol")).isEqualTo("AAPL");
@@ -153,7 +154,8 @@ class WatchlistIT {
 
         // Update thresholds
         UpdateWatchlistThresholdRequest update =
-                new UpdateWatchlistThresholdRequest(new BigDecimal("10.0"), new BigDecimal("25.0"), null);
+                new UpdateWatchlistThresholdRequest(new BigDecimal("10.0"), new BigDecimal("25.0"), null,
+                        "VALUATION_CONCERN", "MoS needs to improve.");
         ResponseEntity<Map<String, Object>> updated = restTemplate.exchange(
                 url("/api/v1/watchlist/" + aaplId), HttpMethod.PUT,
                 new HttpEntity<>(update, jsonHeaders(adminToken)),
@@ -164,7 +166,8 @@ class WatchlistIT {
 
         // Add MSFT with fundamentalDegradeThreshold
         AddWatchlistItemRequest addMsft =
-                new AddWatchlistItemRequest("MSFT", null, null, new BigDecimal("70.0"));
+                new AddWatchlistItemRequest("MSFT", null, null, new BigDecimal("70.0"),
+                        "DATA_QUALITY_GAP", "Watch for fundamental degradation.");
         ResponseEntity<Map<String, Object>> msft = post("/api/v1/watchlist", addMsft);
         assertThat(msft.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(((Number) msft.getBody().get("fundamentalDegradeThreshold")).doubleValue()).isEqualTo(70.0);
@@ -227,7 +230,8 @@ class WatchlistIT {
 
         ResponseEntity<Map<String, Object>> created = restTemplate.exchange(
                 url("/api/v1/watchlist"), HttpMethod.POST,
-                new HttpEntity<>(new AddWatchlistItemRequest("NVDA", new BigDecimal("12"), null, null), jsonHeaders(investorToken)),
+                new HttpEntity<>(new AddWatchlistItemRequest("NVDA", new BigDecimal("12"), null, null,
+                        "NARRATIVE_CATALYST", "Track narrative against fundamentals."), jsonHeaders(investorToken)),
                 new ParameterizedTypeReference<>() {});
 
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);

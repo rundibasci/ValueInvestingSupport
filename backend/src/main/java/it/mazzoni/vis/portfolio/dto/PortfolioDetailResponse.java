@@ -12,6 +12,7 @@ public record PortfolioDetailResponse(
         BigDecimal totalValue,
         BigDecimal weightedMoS,
         List<HoldingDetailItem> holdings,
+        List<ConcentrationWarning> concentrationWarnings,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

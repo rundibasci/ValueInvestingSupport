@@ -1,5 +1,6 @@
 package it.mazzoni.vis.security;
 
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.Period;
@@ -141,6 +142,7 @@ public class SecurityReviewService {
                 financialHealth,
                 sourceCoverage(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends, peers),
                 freshness(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),
+                availability(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),
                 dataQualityNotes(financialHealth, valuation, latestValuation, latestScore, dividends)
         );
     }
@@ -323,7 +325,7 @@ public class SecurityReviewService {
         return new SecurityReviewResponse.SourceCoverageItem(
                 category,
                 normalizedProvider,
-                "UNAVAILABLE",
+                "MISSING_SEEDED_HISTORY",
                 "No local data is available for this category."
         );
     }
@@ -350,7 +352,7 @@ public class SecurityReviewService {
 
     private SecurityReviewResponse.FreshnessItem freshness(String category, LocalDate date) {
         if (date == null) {
-            return new SecurityReviewResponse.FreshnessItem(category, null, "UNAVAILABLE", "No local date is available.");
+            return new SecurityReviewResponse.FreshnessItem(category, null, "MISSING_SEEDED_HISTORY", "No local date is available.");
         }
         boolean stale = date.isBefore(LocalDate.now().minusDays(STALE_DAYS));
         return new SecurityReviewResponse.FreshnessItem(
@@ -359,6 +361,48 @@ public class SecurityReviewService {
                 stale ? "STALE" : "FRESH",
                 stale ? "This category is older than the configured freshness guard." : "Local data is within the freshness guard."
         );
+    }
+
+    private List<SecurityReviewResponse.AvailabilityItem> availability(FundamentalSnapshot annual,
+                                                                        RatioSnapshot ratios,
+                                                                        PriceQuote price,
+                                                                        ValuationResult valuation,
+                                                                        ValueScore score,
+                                                                        DividendsResponse dividends) {
+        return List.of(
+                availability("Fundamentals", annual != null, annual != null ? annual.getReportDate() : null, "No seeded fundamental history is available."),
+                availability("Ratios", ratios != null, ratios != null ? ratios.getReportDate() : null, "No seeded ratio history is available."),
+                availability("Quote", price != null, price != null ? price.getQuoteDate() : null, "No local quote is available."),
+                valuationAvailability(valuation),
+                score != null
+                        ? new SecurityReviewResponse.AvailabilityItem("Score", AvailabilityResponse.available(score.getScoreDate()))
+                        : new SecurityReviewResponse.AvailabilityItem("Score", AvailabilityResponse.missingComputation("No persisted value score is available.")),
+                dividends.history().isEmpty()
+                        ? new SecurityReviewResponse.AvailabilityItem("Dividends", AvailabilityResponse.providerLimited("Dividend history is unavailable from the current local data."))
+                        : new SecurityReviewResponse.AvailabilityItem("Dividends", AvailabilityResponse.available(dividends.history().get(0).exDividendDate()))
+        );
+    }
+
+    private SecurityReviewResponse.AvailabilityItem availability(String category, boolean present, LocalDate date, String missingReason) {
+        return new SecurityReviewResponse.AvailabilityItem(
+                category,
+                present ? AvailabilityResponse.available(date) : new AvailabilityResponse(it.mazzoni.vis.common.AvailabilityStatus.MISSING_SEEDED_HISTORY, missingReason, null)
+        );
+    }
+
+    private SecurityReviewResponse.AvailabilityItem valuationAvailability(ValuationResult valuation) {
+        if (valuation == null) {
+            return new SecurityReviewResponse.AvailabilityItem("Valuation",
+                    AvailabilityResponse.missingComputation("No persisted valuation result is available."));
+        }
+        if (valuation.getDcfFairValue() == null) {
+            return new SecurityReviewResponse.AvailabilityItem("Valuation",
+                    new AvailabilityResponse(it.mazzoni.vis.common.AvailabilityStatus.GUARDRAIL_BLOCKED,
+                            "DCF is unavailable because eligibility guardrails were not met; other valuation components may still be available.",
+                            valuation.getValuationDate()));
+        }
+        return new SecurityReviewResponse.AvailabilityItem("Valuation",
+                AvailabilityResponse.available(valuation.getValuationDate()));
     }
 
     private List<SecurityReviewResponse.DataQualityNote> dataQualityNotes(SecurityReviewResponse.FinancialHealth health,

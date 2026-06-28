@@ -54,6 +54,28 @@ function ErrorNotice({ error }: { error: unknown }): JSX.Element | null {
   ) : null;
 }
 
+function ConcentrationWarnings({
+  warnings,
+}: {
+  warnings?: { type: string; key: string; weightPercent: number | null; thresholdPercent: number | null; message: string }[];
+}): JSX.Element | null {
+  if (!warnings?.length) return null;
+  return (
+    <div className="mt-5 space-y-2">
+      {warnings.map((warning) => (
+        <p
+          key={`${warning.type}-${warning.key}`}
+          className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100"
+        >
+          {warning.message}
+          {warning.weightPercent != null &&
+            ` Current weight: ${percent(warning.weightPercent)}.`}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export function PortfolioPage(): JSX.Element {
   const client = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
@@ -308,6 +330,7 @@ export function PortfolioPage(): JSX.Element {
                 </p>
               )
             )}
+            <ConcentrationWarnings warnings={detail.data?.concentrationWarnings} />
             {activeId && (
               <form
                 className="mt-5 flex flex-wrap items-end gap-3 border-t border-slate-800 pt-5"

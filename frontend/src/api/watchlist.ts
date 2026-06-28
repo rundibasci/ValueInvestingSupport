@@ -6,10 +6,12 @@ export type WatchlistItem = {
   mosAlertMin: number | null
   mosAlertMax: number | null
   fundamentalDegradeThreshold: number | null
+  monitoringReason: string | null
+  rationaleNote: string | null
   addedAt: string
 }
 
-export type WatchlistThresholds = Pick<WatchlistItem, 'mosAlertMin' | 'mosAlertMax' | 'fundamentalDegradeThreshold'>
+export type WatchlistThresholds = Pick<WatchlistItem, 'mosAlertMin' | 'mosAlertMax' | 'fundamentalDegradeThreshold' | 'monitoringReason' | 'rationaleNote'>
 
 export type Alert = {
   id: string

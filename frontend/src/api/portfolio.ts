@@ -11,6 +11,7 @@ export type Portfolio = {
 export type Holding = {
   id: string;
   symbol: string;
+  sector: string | null;
   quantity: number;
   averageCostBasis: number | null;
   currency: string | null;
@@ -20,12 +21,21 @@ export type Holding = {
   compositeFairValue: number | null;
   marginOfSafety: number | null;
   recommendation: string | null;
+  valueStatus: string;
   addedAt: string;
+};
+export type ConcentrationWarning = {
+  type: string;
+  key: string;
+  weightPercent: number | null;
+  thresholdPercent: number | null;
+  message: string;
 };
 export type PortfolioDetail = Portfolio & {
   totalValue: number | null;
   weightedMoS: number | null;
   holdings: Holding[];
+  concentrationWarnings: ConcentrationWarning[];
 };
 export type SimulationInput = {
   budget: number;

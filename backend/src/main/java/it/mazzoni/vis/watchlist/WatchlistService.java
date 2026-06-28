@@ -2,6 +2,7 @@ package it.mazzoni.vis.watchlist;
 
 import it.mazzoni.vis.domain.entity.Alert;
 import it.mazzoni.vis.domain.entity.AlertStatus;
+import it.mazzoni.vis.domain.entity.MonitoringReason;
 import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.Watchlist;
 import it.mazzoni.vis.domain.entity.WatchlistItem;
@@ -64,6 +65,8 @@ public class WatchlistService {
         item.setMosAlertMin(request.mosAlertMin());
         item.setMosAlertMax(request.mosAlertMax());
         item.setFundamentalDegradeThreshold(request.fundamentalDegradeThreshold());
+        item.setMonitoringReason(parseReason(request.monitoringReason()));
+        item.setRationaleNote(normalizeNote(request.rationaleNote()));
 
         return WatchlistItemResponse.from(watchlistItemRepository.save(item));
     }
@@ -78,6 +81,8 @@ public class WatchlistService {
         item.setMosAlertMin(request.mosAlertMin());
         item.setMosAlertMax(request.mosAlertMax());
         item.setFundamentalDegradeThreshold(request.fundamentalDegradeThreshold());
+        item.setMonitoringReason(parseReason(request.monitoringReason()));
+        item.setRationaleNote(normalizeNote(request.rationaleNote()));
 
         return WatchlistItemResponse.from(watchlistItemRepository.save(item));
     }
@@ -108,5 +113,25 @@ public class WatchlistService {
             wl.setName("My Watchlist");
             return watchlistRepository.save(wl);
         });
+    }
+
+    private MonitoringReason parseReason(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return MonitoringReason.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Unknown monitoring reason: " + value);
+        }
+    }
+
+    private String normalizeNote(String note) {
+        if (note == null) {
+            return null;
+        }
+        String trimmed = note.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

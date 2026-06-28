@@ -93,9 +93,11 @@ class WatchlistControllerTest {
         mockMvc.perform(post("/api/v1/watchlist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new AddWatchlistItemRequest("AAPL", null, null, null))))
+                                new AddWatchlistItemRequest("AAPL", null, null, null,
+                                        "WAIT_FOR_BETTER_PRICE", "Wait for a wider margin of safety."))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
+                .andExpect(jsonPath("$.monitoringReason").value("WAIT_FOR_BETTER_PRICE"))
                 .andExpect(jsonPath("$.id").value(itemId.toString()));
     }
 
@@ -104,7 +106,7 @@ class WatchlistControllerTest {
         mockMvc.perform(post("/api/v1/watchlist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new AddWatchlistItemRequest("", null, null, null))))
+                                new AddWatchlistItemRequest("", null, null, null, null, null))))
                 .andExpect(status().isBadRequest());
     }
 
@@ -117,7 +119,7 @@ class WatchlistControllerTest {
         mockMvc.perform(post("/api/v1/watchlist")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new AddWatchlistItemRequest("AAPL", null, null, null))))
+                                new AddWatchlistItemRequest("AAPL", null, null, null, null, null))))
                 .andExpect(status().isConflict());
     }
 
@@ -133,7 +135,8 @@ class WatchlistControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new UpdateWatchlistThresholdRequest(
-                                        new BigDecimal("15.0"), new BigDecimal("25.0"), null))))
+                                        new BigDecimal("15.0"), new BigDecimal("25.0"), null,
+                                        "VALUATION_CONCERN", "Valuation is close to fair value."))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
                 .andExpect(jsonPath("$.mosAlertMin").value(15.0))
@@ -200,6 +203,7 @@ class WatchlistControllerTest {
     // --- helpers ---
 
     private WatchlistItemResponse item(String symbol, BigDecimal min, BigDecimal max) {
-        return new WatchlistItemResponse(itemId, symbol, min, max, null, LocalDateTime.now());
+        return new WatchlistItemResponse(itemId, symbol, min, max, null,
+                "WAIT_FOR_BETTER_PRICE", "Wait for a wider margin of safety.", LocalDateTime.now());
     }
 }

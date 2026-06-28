@@ -49,10 +49,12 @@ type Dividends = { history: Array<{ exDividendDate: string | null; paymentDate: 
 type Metrics = { cagr3y: number | null; cagr5y: number | null; cagr10y: number | null }
 type Growth = { revenue: Metrics; fcf: Metrics; eps: Metrics }
 type Peers = { peers: Array<{ symbol: string; companyName: string; currentPrice: number | null; compositeFairValue: number | null; marginOfSafety: number | null; totalScore: number | null; pe: number | null; roic: number | null }> }
-type Score = { totalScore: number | null; mosScore: number | null; qualityScore: number | null; safetyScore: number | null; growthScore: number | null; dividendScore: number | null; scoreDate: string | null }
+type Score = { totalScore: number | null; mosScore: number | null; qualityScore: number | null; safetyScore: number | null; growthScore: number | null; dividendScore: number | null; scoreDate: string | null; availability: Availability | null }
 type FinancialHealth = { totalDebt: number | null; cash: number | null; netDebt: number | null; debtToEquity: number | null; currentRatio: number | null; quickRatio: number | null; interestCoverage: number | null; payoutRatio: number | null; dividendYield: number | null; grossMargin: number | null; operatingMargin: number | null; netMargin: number | null; dataAsOf: string | null }
 type SourceCoverageItem = { category: string; provider: string | null; status: string; message: string | null }
 type FreshnessItem = { category: string; dataAsOf: string | null; status: string; message: string | null }
+type Availability = { status: string; reason: string; dataAsOf: string | null }
+type AvailabilityItem = { category: string; state: Availability }
 type DataQualityNote = { category: string; severity: string; message: string }
 type Review = {
   symbol: string
@@ -67,6 +69,7 @@ type Review = {
   financialHealth: FinancialHealth
   sourceCoverage: SourceCoverageItem[]
   freshness: FreshnessItem[]
+  availability: AvailabilityItem[]
   dataQualityNotes: DataQualityNote[]
 }
 
@@ -118,6 +121,14 @@ function DataGap({ children }: { children: ReactNode }): JSX.Element {
   return <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">{children}</p>
 }
 
+function AvailabilityBadge({ state }: { state?: Availability | null }): JSX.Element {
+  const status = state?.status || 'MISSING_INTERNAL_COMPUTATION'
+  const ok = status === 'AVAILABLE'
+  const warn = status === 'STALE' || status === 'GUARDRAIL_BLOCKED'
+  const classes = ok ? 'bg-emerald-300/15 text-emerald-100' : warn ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{status.replace(/_/g, ' ').toLowerCase()}</span>
+}
+
 function Chart({ data, lines, bar = false, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; summary: string }): JSX.Element {
   if (!data.length) return <DataGap>No historical series is available for this chart.</DataGap>
   const Component = bar ? BarChart : LineChart
@@ -166,7 +177,23 @@ function CoverageGrid({ coverage, freshness }: { coverage: SourceCoverageItem[];
 
 const maxHoldingQuantity = 1_000_000_000
 
-function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
+function prospectiveWarnings(detail: Awaited<ReturnType<typeof portfolioApi.detail>> | undefined, symbol: string, quantity: number, currentPrice: number | null, sector: string | null): string[] {
+  if (!detail || currentPrice == null || !Number.isFinite(quantity) || quantity <= 0) return []
+  const addedValue = currentPrice * quantity
+  const existingTotal = detail.totalValue ?? detail.holdings.reduce((sum, holding) => sum + (holding.currentValue ?? 0), 0)
+  const nextTotal = existingTotal + addedValue
+  if (nextTotal <= 0) return []
+  const existingSameSymbol = detail.holdings.find((holding) => holding.symbol.toUpperCase() === symbol)?.currentValue ?? 0
+  const symbolWeight = ((existingSameSymbol + addedValue) / nextTotal) * 100
+  const sectorWeight = sector ? (detail.holdings.filter((holding) => holding.sector === sector).reduce((sum, holding) => sum + (holding.currentValue ?? 0), 0) + addedValue) / nextTotal * 100 : null
+  const warnings: string[] = []
+  if (symbolWeight > 20) warnings.push(`${symbol} would represent ${symbolWeight.toFixed(1)}% of this model portfolio after adding it.`)
+  if (sector && sectorWeight != null && sectorWeight > 35) warnings.push(`${sector} exposure would reach ${sectorWeight.toFixed(1)}% after adding this holding.`)
+  if (detail.holdings.some((holding) => holding.currentValue == null)) warnings.push('Some existing holdings are missing prices, so concentration is only partially calculated.')
+  return warnings
+}
+
+function AddToPortfolio({ symbol, currentPrice, sector }: { symbol: string; currentPrice: number | null; sector: string | null }): JSX.Element {
   const queryClient = useQueryClient()
   const [selectedPortfolioId, setSelectedPortfolioId] = useState('')
   const [quantity, setQuantity] = useState('1')
@@ -184,6 +211,7 @@ function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
   const alreadyAddedHere = Boolean(existingHolding) || addedPortfolioId === activePortfolioId
   const parsedQuantity = Number(quantity)
   const quantityIsValid = Number.isInteger(parsedQuantity) && parsedQuantity > 0 && parsedQuantity <= maxHoldingQuantity
+  const warnings = prospectiveWarnings(portfolioDetail.data, symbol, parsedQuantity, currentPrice, sector)
   const addHolding = useMutation({
     mutationFn: () => portfolioApi.addHolding(activePortfolioId, { symbol, quantity: parsedQuantity }),
     onSuccess: () => {
@@ -293,6 +321,7 @@ function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
           {symbol} is already in {activePortfolio?.name || 'this portfolio'} with quantity {existingHolding.quantity}. Open the portfolio to edit the existing holding.
         </p>
       )}
+      {warnings.map((warning) => <p key={warning} role="status" className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">{warning}</p>)}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           disabled={addHolding.isPending || portfolioDetail.isFetching || portfolioDetail.isError || !quantityIsValid || alreadyAddedHere}
@@ -346,7 +375,7 @@ export function SecurityReviewPage(): JSX.Element {
   const watchlist = useQuery({ queryKey: ['watchlist'], enabled: !!symbol, queryFn: watchlistApi.list })
   const queryClient = useQueryClient()
   const addWatchlist = useMutation({
-    mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null }),
+    mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null, monitoringReason: 'WAIT_FOR_BETTER_PRICE', rationaleNote: 'Added from the review page for continued monitoring.' }),
     onSuccess: (item) => {
       queryClient.setQueryData(['watchlist'], (current: Awaited<ReturnType<typeof watchlistApi.list>> | undefined) => {
         const items = current || []
@@ -428,6 +457,7 @@ export function SecurityReviewPage(): JSX.Element {
       <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-5 sm:p-7">
         <Section id="source" title="Source Coverage And Freshness">
           <CoverageGrid coverage={review.data.sourceCoverage} freshness={review.data.freshness} />
+          {review.data.availability.length > 0 && <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{review.data.availability.map((item) => <div key={item.category} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{item.category}</span><div className="mt-2"><AvailabilityBadge state={item.state} /></div><p className="mt-2 text-xs leading-5 text-slate-500">{item.state.reason}</p></div>)}</div>}
           <DataGap>Provider labels are shown where the backend has stored provider metadata. Otherwise the endpoint reports application data availability without inferring a provider.</DataGap>
         </Section>
 
@@ -541,7 +571,7 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="Gross margin" value={ratioPercent(health.grossMargin ?? (ratioData.at(-1)?.grossMargin as number | null | undefined))} />
                 <Metric label="Operating margin" value={ratioPercent(health.operatingMargin)} />
                 <Metric label="Net margin" value={ratioPercent(health.netMargin)} />
-                <Metric label="Value score" value={number(score?.totalScore)} note={score?.scoreDate ? `Score date: ${date(score.scoreDate)}` : undefined} />
+                <Metric label="Value score" value={number(score?.totalScore)} note={score?.availability ? score.availability.reason : score?.scoreDate ? `Score date: ${date(score.scoreDate)}` : undefined} />
               </dl>
               <CagrTable growth={growth} />
             </Panel>
@@ -565,7 +595,7 @@ export function SecurityReviewPage(): JSX.Element {
 
         <Section id="actions" title="Next Actions">
           <div className="grid gap-5 lg:grid-cols-2">
-            <Panel title="Add to portfolio"><AddToPortfolio symbol={symbol} /></Panel>
+            <Panel title="Add to portfolio"><AddToPortfolio symbol={symbol} currentPrice={d.currentPrice} sector={d.sector} /></Panel>
             <Panel title="Continue research">
               <div className="flex flex-wrap gap-3">
                 <Link to={`/securities/${symbol}`} className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Security Detail</Link>

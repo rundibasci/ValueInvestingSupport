@@ -1,5 +1,6 @@
 package it.mazzoni.vis.screener;
 
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
@@ -219,7 +220,9 @@ public class ScreenerService {
                 t.get("growthScore", BigDecimal.class),
                 t.get("dividendScore", BigDecimal.class),
                 rec != null ? rec.name() : null,
-                t.get("scoreDate", LocalDate.class)
+                t.get("scoreDate", LocalDate.class),
+                AvailabilityResponse.available(t.get("scoreDate", LocalDate.class)),
+                AvailabilityResponse.available(null)
         );
     }
 }
