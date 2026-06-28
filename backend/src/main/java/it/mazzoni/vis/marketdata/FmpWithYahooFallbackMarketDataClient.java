@@ -13,6 +13,7 @@ import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
+import it.mazzoni.vis.observability.ObservabilitySupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,16 +41,22 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     private final YahooFinanceClient yahooClient;
     private final YahooFinanceAdapter yahooAdapter;
     private final SourceTracker sourceTracker;
+    private final MarketDataStatusTracker statusTracker;
+    private final ObservabilitySupport observability;
 
     public FmpWithYahooFallbackMarketDataClient(
             @Qualifier("fmpMarketDataClient") MarketDataClient fmpClient,
             YahooFinanceClient yahooClient,
             YahooFinanceAdapter yahooAdapter,
-            SourceTracker sourceTracker) {
+            SourceTracker sourceTracker,
+            MarketDataStatusTracker statusTracker,
+            ObservabilitySupport observability) {
         this.fmpClient = fmpClient;
         this.yahooClient = yahooClient;
         this.yahooAdapter = yahooAdapter;
         this.sourceTracker = sourceTracker;
+        this.statusTracker = statusTracker;
+        this.observability = observability;
     }
 
     @Override
@@ -58,10 +65,11 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         try {
             CompanyProfile result = fmpClient.getProfile(symbol);
             sourceTracker.record("FMP");
+            statusTracker.recordSuccess("fmp");
             return result;
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
-            log.info("FMP plan restriction for profile [{}], falling back to Yahoo", symbol);
+            recordFallback("profile", e);
         }
         CompanyProfile result = yahooProfile(symbol);
         sourceTracker.record("Yahoo");
@@ -74,16 +82,18 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         try {
             FundamentalSnapshot result = fmpClient.getFundamentals(symbol);
             sourceTracker.record("FMP");
+            statusTracker.recordSuccess("fmp");
             return result;
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
-            log.info("FMP plan restriction for fundamentals [{}], falling back to Yahoo", symbol);
+            recordFallback("fundamentals", e);
         }
         try {
             QuoteSummaryResponse qsr = yahooClient.getQuoteSummary(symbol);
             ChartResponse cr = yahooClient.getChart(symbol);
             FundamentalSnapshot result = yahooAdapter.toFundamentalSnapshot(symbol, qsr, cr);
             sourceTracker.record("Yahoo");
+            statusTracker.recordFallback("PLAN_RESTRICTION");
             return result;
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -98,15 +108,17 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         try {
             RatioSnapshot result = fmpClient.getRatios(symbol);
             sourceTracker.record("FMP");
+            statusTracker.recordSuccess("fmp");
             return result;
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
-            log.info("FMP plan restriction for ratios [{}], falling back to Yahoo", symbol);
+            recordFallback("ratios", e);
         }
         try {
             QuoteSummaryResponse qsr = yahooClient.getQuoteSummary(symbol);
             RatioSnapshot result = yahooAdapter.toRatioSnapshot(symbol, qsr);
             sourceTracker.record("Yahoo");
+            statusTracker.recordFallback("PLAN_RESTRICTION");
             return result;
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -121,15 +133,17 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         try {
             MarketPriceQuote result = fmpClient.getQuote(symbol);
             sourceTracker.record("FMP");
+            statusTracker.recordSuccess("fmp");
             return result;
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
-            log.info("FMP plan restriction for quote [{}], falling back to Yahoo", symbol);
+            recordFallback("quote", e);
         }
         try {
             ChartResponse cr = yahooClient.getChart(symbol);
             MarketPriceQuote result = yahooAdapter.toPriceQuote(symbol, cr);
             sourceTracker.record("Yahoo");
+            statusTracker.recordFallback("PLAN_RESTRICTION");
             return result;
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -162,11 +176,20 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         try {
             QuoteSummaryResponse qsr = yahooClient.getQuoteSummary(symbol);
             ChartResponse cr = yahooClient.getChart(symbol);
+            statusTracker.recordFallback("PLAN_RESTRICTION");
             return yahooAdapter.toCompanyProfile(symbol, qsr, cr);
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
         } catch (MarketDataUnavailableException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
         }
+    }
+
+    private void recordFallback(String operation, MarketDataException e) {
+        String reason = e.getErrorCode().name();
+        log.info("market_data_fallback provider=fmp fallbackProvider=yahoo operation={} reason={}", operation, reason);
+        observability.count("vis.marketdata.fallback",
+                observability.tags("provider", "fmp", "operation", operation, "fallback", "yahoo", "error", reason));
+        statusTracker.recordFallback(reason);
     }
 }

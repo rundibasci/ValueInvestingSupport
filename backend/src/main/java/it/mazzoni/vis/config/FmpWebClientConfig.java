@@ -22,12 +22,12 @@ public class FmpWebClientConfig {
     private String apiKey;
 
     @Bean
-    public WebClient fmpWebClient() {
+    public WebClient fmpWebClient(WebClient.Builder builder) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
                 .responseTimeout(Duration.ofSeconds(15));
 
-        return WebClient.builder()
+        return builder
                 .baseUrl(baseUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader("apikey", apiKey)

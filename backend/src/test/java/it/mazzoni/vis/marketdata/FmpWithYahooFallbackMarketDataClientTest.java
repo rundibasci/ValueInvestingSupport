@@ -9,6 +9,8 @@ import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.observability.ObservabilitySupport;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,13 @@ class FmpWithYahooFallbackMarketDataClientTest {
 
     @BeforeEach
     void setUp() {
-        client = new FmpWithYahooFallbackMarketDataClient(fmpClient, yahooClient, yahooAdapter, sourceTracker);
+        client = new FmpWithYahooFallbackMarketDataClient(
+                fmpClient,
+                yahooClient,
+                yahooAdapter,
+                sourceTracker,
+                new MarketDataStatusTracker(),
+                new ObservabilitySupport(new SimpleMeterRegistry()));
     }
 
     // --- shared stubs ---

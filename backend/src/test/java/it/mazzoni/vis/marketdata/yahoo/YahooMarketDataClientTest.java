@@ -10,6 +10,7 @@ import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.MarketDataStatusTracker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +31,7 @@ class YahooMarketDataClientTest {
 
     @Mock YahooFinanceClient yahooFinanceClient;
     @Mock YahooFinanceAdapter adapter;
+    @Mock MarketDataStatusTracker statusTracker;
     @InjectMocks YahooMarketDataClient client;
 
     private static final String SYMBOL = "AAPL";

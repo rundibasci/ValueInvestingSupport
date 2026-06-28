@@ -17,12 +17,12 @@ public class YahooFinanceWebClientConfig {
     private String baseUrl;
 
     @Bean
-    public WebClient yahooFinanceWebClient() {
+    public WebClient yahooFinanceWebClient(WebClient.Builder builder) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5_000)
                 .responseTimeout(Duration.ofSeconds(10));
 
-        return WebClient.builder()
+        return builder
                 .baseUrl(baseUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader("User-Agent",
