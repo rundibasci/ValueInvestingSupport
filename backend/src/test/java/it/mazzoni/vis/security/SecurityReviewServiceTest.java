@@ -80,7 +80,8 @@ class SecurityReviewServiceTest {
                 .thenReturn(List.of());
         when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
                 .thenReturn(Optional.empty());
-        when(ratioSnapshotRepository.findTop10BySecurityOrderByReportDateDesc(security)).thenReturn(List.of(ratios));
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(ratios));
         when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(any(Security.class))).thenReturn(Optional.of(ratios));
         when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.of(valuation));

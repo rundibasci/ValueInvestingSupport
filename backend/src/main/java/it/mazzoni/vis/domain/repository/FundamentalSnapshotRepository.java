@@ -14,4 +14,6 @@ public interface FundamentalSnapshotRepository extends JpaRepository<Fundamental
     Optional<FundamentalSnapshot> findTopBySecurityAndPeriodOrderByReportDateDesc(Security security, Period period);
     List<FundamentalSnapshot> findBySecurity(Security security);
     boolean existsBySecurityAndPeriodAndReportDate(Security security, Period period, LocalDate reportDate);
+    long deleteBySecurityAndPeriod(Security security, Period period);
+    long deleteBySecurityAndPeriodAndFiscalYear(Security security, Period period, Integer fiscalYear);
 }

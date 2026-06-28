@@ -52,7 +52,7 @@ class RatiosControllerTest {
     void ratios_knownSymbol_returns200WithList() throws Exception {
         Security s = security("AAPL");
         when(securityRepository.findBySymbol("AAPL")).thenReturn(Optional.of(s));
-        when(ratioSnapshotRepository.findTop10BySecurityOrderByReportDateDesc(s))
+        when(ratioSnapshotRepository.findBySecurity(s))
                 .thenReturn(List.of(ratioSnapshot(LocalDate.of(2025, 9, 30)),
                         ratioSnapshot(LocalDate.of(2024, 9, 30))));
 
@@ -75,7 +75,7 @@ class RatiosControllerTest {
     void ratios_noRatioData_returns200WithEmptyList() throws Exception {
         Security s = security("KO");
         when(securityRepository.findBySymbol("KO")).thenReturn(Optional.of(s));
-        when(ratioSnapshotRepository.findTop10BySecurityOrderByReportDateDesc(s)).thenReturn(List.of());
+        when(ratioSnapshotRepository.findBySecurity(s)).thenReturn(List.of());
 
         mockMvc.perform(get("/api/v1/securities/KO/ratios"))
                 .andExpect(status().isOk())

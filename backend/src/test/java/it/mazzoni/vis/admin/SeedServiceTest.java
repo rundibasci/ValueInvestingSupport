@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -125,16 +126,34 @@ class SeedServiceTest {
     }
 
     @Test
-    void seedTickers_fundamentalsAlreadyTodaySkipsInsert() {
+    void seedTickers_existingCurrentFundamentalsReplacesCurrentRows() {
         stubFmpData("AAPL", "Apple Inc.");
         stubValuation("AAPL", new BigDecimal("200.00"), new BigDecimal("10.00"), Recommendation.QUALITY_VALUE);
-        when(fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
-                any(), eq(Period.ANNUAL), eq(LocalDate.now()))).thenReturn(true);
 
         seedService.seedTickers(List.of("AAPL"));
 
-        verify(fundamentalSnapshotRepository, never()).save(any());
-        verify(marketDataClient, never()).getFundamentals(any());
+        verify(fundamentalSnapshotRepository).deleteBySecurityAndPeriodAndFiscalYear(
+                any(Security.class), eq(Period.ANNUAL), eq(LocalDate.now().getYear()));
+        verify(fundamentalSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.TTM));
+        verify(fundamentalSnapshotRepository, times(2)).save(any());
+        verify(marketDataClient).getFundamentals("AAPL");
+    }
+
+    @Test
+    void seedTickers_existingCurrentRatiosReplacesTtmAndCurrentYearRows() {
+        stubFmpData("AAPL", "Apple Inc.");
+        stubValuation("AAPL", new BigDecimal("200.00"), new BigDecimal("10.00"), Recommendation.QUALITY_VALUE);
+
+        seedService.seedTickers(List.of("AAPL"));
+
+        LocalDate today = LocalDate.now();
+        verify(ratioSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.TTM));
+        verify(ratioSnapshotRepository).deleteBySecurityAndPeriodAndReportDateBetween(
+                any(Security.class),
+                eq(Period.ANNUAL),
+                eq(LocalDate.of(today.getYear(), 1, 1)),
+                eq(LocalDate.of(today.getYear(), 12, 31)));
+        verify(ratioSnapshotRepository, times(11)).save(any());
     }
 
     private void stubFmpData(String symbol, String companyName) {
