@@ -21,6 +21,8 @@ spring:
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 
 app:
+  observability:
+    request-logging-enabled: false
   jobs:
     enabled: true
     exchanges:

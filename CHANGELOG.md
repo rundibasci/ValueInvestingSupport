@@ -6,6 +6,16 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- I2: `ObservabilitySupport` Micrometer helper, `ObservabilityConfig`, and `ObservabilityProperties` (`app.observability.*`) for request-logging toggle and configurable correlation header
+- I2: `RequestCorrelationFilter` — injects/propagates `X-Correlation-ID` via SLF4J MDC, logs method, path, status, duration, and role per request
+- I2: `ServiceMetricsAspect` — AOP latency timers for screener, security-review, valuation, scoring, portfolio, and watchlist services
+- I2: `MarketDataMetricsAspect` — AOP latency timers and error counters for FMP and Yahoo market-data client calls
+- I2: `JobMetrics` — Micrometer counters and timers for ingestion-job start, success, and failure
+- I2: `ObservedCache`, `ObservedCacheManager`, and `ObservedCacheManagerPostProcessor` — decorator wrapping Spring Cache with hit/miss/eviction counters
+- I2: `MarketDataStatusTracker` and `MarketDataHealthIndicator` — Actuator health indicator reporting DEGRADED when FMP falls back to Yahoo
+- I2: `Redaction` utility stripping Bearer tokens and sensitive key-value pairs from log output
+- I2: `logback-spring.xml` — structured JSON logging (Logstash encoder) for prod/docker/local/localstack; plain-text console for dev/test
+- I2: Phase specifications under `specs/2026-06-28-phase-i2-observability/` with plan, requirements, stakeholder observability runbook, and validation evidence
 - I1: Test coverage hardening for structured availability states, score availability JSON, portfolio concentration warning payloads, watchlist rationale persistence, and security-review data-quality/guardrail states; includes focused backend tests and integration assertions.
 - I1: Deterministic Agent 1 prudent-value persona replay script and phase specifications under `specs/2026-06-28-phase-i1-test-coverage/`, with validation evidence for backend tests, touched integration tests, and frontend build.
 - HD4: Beta-driven trust features for structured score/data-quality availability, portfolio concentration warnings, watchlist research rationale, and review/screener/portfolio UI surfacing; includes watchlist rationale persistence via Flyway V11 and targeted backend/frontend validation.
@@ -84,6 +94,11 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
 
 ### Changed
+- I2: `application.yml` extended with `app.observability.*`, `management.tracing.*`, `management.observations.*`, health-status ordering (includes DEGRADED), and `management.metrics.tags.application`
+- I2: `pom.xml` adds Micrometer Tracing, Logstash Logback encoder, and Spring Boot AOP dependencies
+- I2: `FmpWithYahooFallbackMarketDataClient` integrated with `MarketDataStatusTracker` for fallback tracking
+- I2: `JobRunLogger` enhanced with `JobMetrics` for Micrometer counters/timers on job execution
+- I2: WebClient configs enhanced with response-time logging and request-ID propagation
 - Roadmap, mission, and tech-stack specs now carry HD3 beta findings into HD4 feature selection, Group I validation, and cross-cutting product/data principles.
 - HD2: Demo polish pass stabilizes the INGR review workflow with idempotent current/TTM reseeding, annual ratio history for review charts, field-aware percentage formatting, guarded watchlist and portfolio post-add states, and responsive chart containers.
 - HD2: Added demo-readiness and validation evidence under `specs/2026-06-28-hd2-demo-polish-pass/`, including Docker build/start checks, backend/frontend validation, and authenticated localstack INGR review evidence.

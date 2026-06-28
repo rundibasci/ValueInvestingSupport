@@ -12,6 +12,9 @@ market-data:
   source: yahoo
 
 app:
+  observability:
+    request-logging-enabled: ${REQUEST_LOGGING_ENABLED:true}
+    correlation-header: ${CORRELATION_HEADER:X-Correlation-ID}
   cache:
     ttl:
       quote: 15m
@@ -51,3 +54,19 @@ valuation:
     growth-y1-y5: 0.08
     growth-y6-y10: 0.04
     terminal-rate: 0.025
+
+management:
+  tracing:
+    enabled: ${TRACING_ENABLED:true}
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+  observations:
+    annotations:
+      enabled: true
+  endpoint:
+    health:
+      status:
+        order: down,out-of-service,degraded,unknown,up
+  metrics:
+    tags:
+      application: ${spring.application.name}

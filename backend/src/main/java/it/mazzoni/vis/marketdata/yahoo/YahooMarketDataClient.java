@@ -12,6 +12,7 @@ import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.MarketDataStatusTracker;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
@@ -29,11 +30,14 @@ public class YahooMarketDataClient implements MarketDataClient {
 
     private final YahooFinanceClient yahooFinanceClient;
     private final YahooFinanceAdapter adapter;
+    private final MarketDataStatusTracker statusTracker;
 
     public YahooMarketDataClient(YahooFinanceClient yahooFinanceClient,
-                                 YahooFinanceAdapter adapter) {
+                                 YahooFinanceAdapter adapter,
+                                 MarketDataStatusTracker statusTracker) {
         this.yahooFinanceClient = yahooFinanceClient;
         this.adapter = adapter;
+        this.statusTracker = statusTracker;
     }
 
     @Override
@@ -42,6 +46,7 @@ public class YahooMarketDataClient implements MarketDataClient {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
             ChartResponse cr = yahooFinanceClient.getChart(symbol);
+            statusTracker.recordSuccess("yahoo");
             return adapter.toCompanyProfile(symbol, qsr, cr);
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -56,6 +61,7 @@ public class YahooMarketDataClient implements MarketDataClient {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
             ChartResponse cr = yahooFinanceClient.getChart(symbol);
+            statusTracker.recordSuccess("yahoo");
             return adapter.toFundamentalSnapshot(symbol, qsr, cr);
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -69,6 +75,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     public RatioSnapshot getRatios(String symbol) {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
+            statusTracker.recordSuccess("yahoo");
             return adapter.toRatioSnapshot(symbol, qsr);
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
@@ -82,6 +89,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     public MarketPriceQuote getQuote(String symbol) {
         try {
             ChartResponse cr = yahooFinanceClient.getChart(symbol);
+            statusTracker.recordSuccess("yahoo");
             return adapter.toPriceQuote(symbol, cr);
         } catch (SymbolNotFoundException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
