@@ -38,14 +38,16 @@ class UserRepositoryTest {
     }
 
     @Test
-    void rejectsUserWithNullPasswordHash() {
+    void allowsUserWithNullPasswordHash_forOAuthOnlyUsers() {
         User user = new User();
-        user.setEmail("bad@example.com");
-        user.setRole(UserRole.ADVISOR);
-        // passwordHash intentionally left null
+        user.setEmail("oauth-only@example.com");
+        user.setRole(UserRole.INVESTOR);
+        // passwordHash intentionally left null — valid for OAuth-only users
+        repository.saveAndFlush(user);
 
-        assertThatThrownBy(() -> repository.saveAndFlush(user))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        Optional<User> found = repository.findByEmail("oauth-only@example.com");
+        assertThat(found).isPresent();
+        assertThat(found.get().getPasswordHash()).isNull();
     }
 
     @Test

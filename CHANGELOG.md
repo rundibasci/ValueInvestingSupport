@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- J1: Google OpenID Connect backend — Spring Security OAuth2 Client integration for Google sign-in, `OAuthIdentity` entity and Flyway V12 migration, `OAuthAccountResolver` for automatic account linking by verified email, `OAuthLoginSuccessHandler` with single-use handoff code (60s TTL), `GET /auth/oauth2/token` exchange endpoint, conditional `GoogleOAuthConfig` (disabled when credentials absent), nullable `passwordHash` for OAuth-only users, 15 tests across unit and integration; feature specifications under `specs/2026-06-28-j1-google-oidc-backend/`
 - I2: `ObservabilitySupport` Micrometer helper, `ObservabilityConfig`, and `ObservabilityProperties` (`app.observability.*`) for request-logging toggle and configurable correlation header
 - I2: `RequestCorrelationFilter` — injects/propagates `X-Correlation-ID` via SLF4J MDC, logs method, path, status, duration, and role per request
 - I2: `ServiceMetricsAspect` — AOP latency timers for screener, security-review, valuation, scoring, portfolio, and watchlist services
