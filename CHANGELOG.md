@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- I1: Test coverage hardening for structured availability states, score availability JSON, portfolio concentration warning payloads, watchlist rationale persistence, and security-review data-quality/guardrail states; includes focused backend tests and integration assertions.
+- I1: Deterministic Agent 1 prudent-value persona replay script and phase specifications under `specs/2026-06-28-phase-i1-test-coverage/`, with validation evidence for backend tests, touched integration tests, and frontend build.
 - HD4: Beta-driven trust features for structured score/data-quality availability, portfolio concentration warnings, watchlist research rationale, and review/screener/portfolio UI surfacing; includes watchlist rationale persistence via Flyway V11 and targeted backend/frontend validation.
 - HD4: Agent 1 prudent-value validation journal and roadmap Group L for conservative research workflow hardening, covering the 10-stock replay pack, conservative portfolio review evidence, availability-state examples, and follow-up workflow enhancements.
 - HD3: Beta tester persona simulation artifacts for prudent value investor, hedge-fund allocator, and financial journalist workflows, including persona credentials, source summaries, portfolio/watchlist reports, validation evidence, and a persisted PostgreSQL demo dump under `specs/2026-06-28-hd3-beta-tester-personas/`.
