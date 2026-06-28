@@ -79,6 +79,11 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | Shared universe seeding | Authenticated investors, advisors, and admins can seed ticker CSV lists; admins can also manage named seed packs and broader universe maintenance. Seeded securities become shared reference data discoverable by every authenticated user. |
 | Market-wide research | Screener/search UI works across the seeded universe and shows business context in result rows: symbol, company name, sector, exchange, country when available, and a concise description/profile excerpt. |
 | Single-stock research packet | Dedicated review route `/securities/:symbol/review` exposes DCF, free cash flow, Graham number, margin of safety, earnings, debt, dividend sustainability, dividend yield, quick ratio when available, valuation scenarios, recommendation, source coverage/freshness, and data-availability labels. |
+| Score and data-quality transparency | Seed results, review pages, screener/search rows, and portfolio holdings show structured score availability and data-quality states: available, stale, pending, provider-limited, missing seeded history, internal computation missing, or guardrail-blocked. |
+| Portfolio exposure warnings | Portfolio detail and add-to-portfolio flows show holding and sector concentration when data is available. Warnings explain exposure without issuing buy/sell instructions. |
+| Watchlist rationale | Watchlist items support a concise user note and monitoring reason, including "wait for better price", valuation concern, data-quality gap, dividend concern, or narrative catalyst. |
+| Screener diagnostics | Empty screener results explain which filters likely eliminated candidates and provide filter-relaxation suggestions while preserving the user's current criteria. |
+| Cross-symbol comparison | Users can compare selected symbols on MoS, value score, quality, leverage/liquidity, growth, dividend indicators, and source/data coverage, with missing metrics visible per row or cell. |
 
 ## Data
 
@@ -92,8 +97,11 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 
 - Securities, company profiles, fundamentals, ratios, quotes, valuations, and scores are platform-wide reference data, not duplicated per user.
 - Users own watchlists, portfolios, holdings, alert thresholds, and account/session state.
+- Watchlist items may store user-authored rationale notes and monitoring categories; these remain user-owned and are not platform-wide reference data.
 - `security.description` / provider profile text should be populated and exposed through search/screener/detail APIs when available.
 - Ratio and financial-health DTOs should expose liquidity and dividend-coverage metrics already present in the data model, including current ratio, quick ratio when available from provider data, payout ratio, debt-to-equity, and dividend yield.
+- API DTOs that expose scores, valuations, and provider-backed metrics should include structured availability metadata so the frontend can distinguish stale data, provider limitation, missing seeded history, missing internal computation, and calculation guardrail failures without parsing display text.
+- Portfolio read models should include computed holding weights and sector weights when price and sector data are available, enabling concentration warnings without duplicating ownership state.
 
 ## External Data Sources
 
