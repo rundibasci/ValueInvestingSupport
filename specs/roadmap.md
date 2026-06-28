@@ -649,6 +649,132 @@ Goal: let a user sign in with a Google account while keeping the platform's exis
 
 ---
 
+## Group JC — Job Control & Ingestion Testability
+
+Goal: provide admin-level observability and runtime control over ingestion jobs and per-symbol ingestion events. Currently jobs can be triggered on demand but cannot be enabled/disabled individually, their per-symbol outcomes are invisible outside log files, and there is no way to run a scoped partial ingestion (e.g. one symbol, one exchange, or specific data types) for testing. This group fills those gaps so that every subsequent demo and validation phase can verify the data pipeline deterministically.
+
+### Phase JC1: Job Run History & Ingestion Event API
+- `GET /api/v1/admin/jobs` — list all registered jobs with cron expression, enabled/disabled status, and last run summary (status, timestamp, records processed, error count)
+- `GET /api/v1/admin/jobs/{jobName}/history?page=&size=` — paginated `JobRunLog` entries for a job: status, start/end timestamps, records processed, records failed, error messages, data source used (fmp/yahoo/mixed)
+- Add `IngestionEvent` entity persisted during each job run: job run ID, symbol, data type (profile/fundamentals/ratios/quote/dcf/dividend/insider), status (success/skipped/failed), error detail, source (fmp/yahoo), timestamp
+- `GET /api/v1/admin/jobs/{jobName}/events?runId=&symbol=&status=` — queryable per-symbol ingestion event log; filterable by run ID, symbol, and status
+- Flyway migration for `ingestion_event` table with indexes on `(job_run_id)`, `(symbol)`, and `(status)`
+- Unit tests for event persistence and query filters
+
+### Phase JC2: Job Scheduling Runtime Control
+- `PUT /api/v1/admin/jobs/{jobName}/enabled` (body: `{ "enabled": true|false }`) — enable or disable an individual scheduled job at runtime; state persisted to the database so it survives application restarts; disabled jobs skip execution on their next cron trigger and log a `SKIPPED` status
+- `PUT /api/v1/admin/jobs/{jobName}/cron` (body: `{ "cron": "0 0 2 * * *" }`) — update the cron expression for a job at runtime; validated as a legal cron expression before acceptance; change takes effect on the next scheduling cycle
+- Enhance `POST /api/v1/admin/jobs/{jobName}/run` to accept optional scope parameters: `symbols` (CSV), `exchange` (single exchange code), `dataTypes` (CSV of profile/fundamentals/ratios/quote/dcf/dividend/insider); return a `jobRunId` so the caller can poll status and events
+- `GET /api/v1/admin/jobs/runs/{jobRunId}/status` — poll a triggered run: status (RUNNING/SUCCESS/FAILED), symbols processed vs total, elapsed time, error count
+- Update `feature-demo.html` and `full-demo.html` with panels for: job list with enable/disable toggles, job history table, ingestion event browser, and scoped job trigger form
+- Integration tests: disabled job does not fire on cron; cron update changes next execution window; scoped trigger processes only the requested symbols; job run status transitions correctly from RUNNING to SUCCESS/FAILED
+
+---
+
+## Group RD1 — Real Demo: Full Stack with Live Ingestion
+
+Goal: demonstrate the entire platform end to end with real market data ingested on startup from Yahoo Finance (zero cost, no API key required). All features are activated — auth, ingestion, valuation, scoring, screener, security detail, review page, watchlist, portfolio, alerts, dashboard, and the job control from JC. Agent 1 (prudent value investor) walks through every major workflow and captures screenshots as stakeholder-presentable evidence.
+
+### Phase RD1-1: Yahoo Finance Startup Ingestion Profile
+- Create a `realDemo` Spring profile that activates all features with `MARKET_DATA_SOURCE=yahoo`
+- On startup, automatically seed a curated ticker list from `REAL_DEMO_TICKERS` env var (default: `AAPL,MSFT,KO,JNJ,PG,PEP,WMT,BRK-B,UNP,XOM`) using the existing seed pipeline: profile → fundamentals → ratios → quote → valuation → score for each symbol
+- Run a single pass of quote refresh, dividend update, and alert detection after seeding completes so that all data is current at first page load
+- Log ingestion progress to `IngestionEvent` (from JC1) so the startup sequence is observable from the job control UI
+- `docker-compose.realDemo.yml`: PostgreSQL + Redis + Spring Boot with `realDemo` profile; single `docker compose up` starts everything
+- Admin user auto-seeded (same as demo profile); one `INVESTOR` test user auto-seeded for non-admin workflow testing
+- Document startup steps, expected startup time, and known Yahoo Finance coverage limitations in a `scripts/real-demo-guide.md`
+
+### Phase RD1-2: Agent 1 Full Feature Walkthrough & Screenshots
+- Agent 1 (prudent value investor persona from HD3) executes a scripted walkthrough covering every major feature area:
+  - **Auth:** login as admin, login as investor, token refresh, logout
+  - **Dashboard:** verify portfolio summary, top movers, active alerts, upcoming events
+  - **Seed & Universe:** seed additional symbols, verify source badges show Yahoo Finance, verify ingestion events in job control panel
+  - **Job Control:** view job list with cron and enabled status, browse job run history, inspect per-symbol ingestion events, disable a job, re-enable it, trigger a scoped ingestion for a single symbol
+  - **Screener:** apply Graham preset, apply conservative filters, inspect results with MoS badges and company descriptions
+  - **Security Detail:** open AAPL — verify profile, financials, ratios, valuation, dividends, growth, insiders, peers tabs
+  - **In-Depth Review:** open KO review page — verify DCF, FCF, Graham number, MoS, earnings, debt, dividend sustainability, historical charts, source coverage, data-quality labels
+  - **Watchlist:** add JNJ and PG with rationale notes ("wait for better price"), verify alert thresholds, check active alerts
+  - **Portfolio:** create a 5-stock defensive portfolio, run simulation, check concentration warnings, run rebalance
+  - **Custom DCF:** run a custom DCF on MSFT with conservative assumptions, compare to composite valuation
+- Capture a screenshot at each major step; store under `specs/YYYY-MM-DD-rd1-full-demo/screenshots/`
+- Produce a walkthrough report under `specs/YYYY-MM-DD-rd1-full-demo/walkthrough-report.md` with: step, screenshot reference, observed result, pass/fail, and notes on data quality or Yahoo Finance limitations
+- Acceptance checklist:
+  - The platform starts with `docker compose up` and is ready for use within a reasonable time
+  - All 10 seeded symbols have profile, fundamentals, ratios, quote, valuation, and score data from Yahoo Finance
+  - Agent 1 completes the full walkthrough without encountering unrecoverable errors
+  - Job control panels show ingestion history and per-symbol events
+  - Screenshots are stakeholder-presentable evidence of a working product
+  - Yahoo Finance data limitations are documented but do not block the core workflows
+
+---
+
+## Group SC — Seeds Choice & Universe Curation
+
+Goal: replace manual ticker-list entry with a structured stock-selection process that narrows the investable universe to a manageable, high-quality set before analysis. The platform should help users decide *which* stocks to analyze, not just analyze whatever tickers the admin happens to type. This group adds universe filtering criteria, pre-built research universes, and a selection workflow that feeds into the existing seed pipeline.
+
+### Phase SC1: Universe Selection Criteria & Filtering API
+- `POST /api/v1/admin/universe/preview` — accepts filtering criteria and returns a preview of matching symbols *before* seeding:
+  - `exchanges` (list): restrict to specific exchanges (e.g. NYSE, NASDAQ)
+  - `countries` (list): restrict to specific countries
+  - `sectors` (list): include or exclude specific sectors
+  - `marketCapMin` / `marketCapMax`: market cap range filter
+  - `volumeMin`: minimum average trading volume
+  - `maxSymbols`: cap the number of symbols returned (default 100, max 500)
+  - `sortBy`: market cap, volume, or alphabetical
+- Preview response includes: total matches, returned symbols with company name / exchange / sector / market cap when available, and a warning when results are capped
+- The filtering queries the existing FMP stock list endpoint or uses a locally cached symbol directory; does not require each symbol to be fully seeded first
+- `POST /api/v1/admin/universe/seed` — accepts the same criteria and seeds all matching symbols through the existing pipeline (profile → fundamentals → ratios → quote → valuation → score)
+- Add pre-built universe templates accessible via `GET /api/v1/admin/universe/templates`:
+  - `us-blue-chip`: S&P 500 or large-cap US stocks with market cap > $10B
+  - `dividend-aristocrats`: known dividend-growth stocks with 10+ year dividend streaks
+  - `value-candidates`: stocks with P/E < 15, P/B < 1.5, and positive FCF
+  - `defensive-quality`: consumer staples + healthcare + utilities with ROE > 15%
+  - Custom templates configurable via `application.yml`
+- Integration tests for preview filtering, symbol count capping, and template resolution
+
+### Phase SC2: Universe Curation UI & Workflow
+- Add a **Universe Curation** page or panel in the React frontend (accessible to `ADMIN` and optionally `ADVISOR`/`INVESTOR` with restrictions)
+- **Filter builder:** exchange multi-select, country multi-select, sector multi-select, market cap range slider, volume minimum input, max symbols input
+- **Template selector:** dropdown of pre-built templates from SC1; selecting a template pre-fills the filter builder
+- **Preview step:** shows matching symbols in a table (symbol, company name, exchange, sector, market cap) with total count and cap warning; user reviews before committing
+- **Seed action:** button to seed the previewed universe; shows progress with per-symbol status (same as H8 seed UI patterns); links to ingestion events from JC for detailed monitoring
+- **Active universe summary:** shows the current seeded universe size, sector distribution, exchange distribution, and last refresh date
+- **Restriction controls:** allow narrowing an already-seeded universe by marking symbols as excluded from screener results without deleting their data; excluded symbols remain in the database but are filtered out of screener queries and universe counts
+- Acceptance checklist:
+  - An admin can select a template, preview the matching universe, and seed it in a single workflow
+  - The preview accurately reflects filter criteria before any data is ingested
+  - The seeded universe appears immediately in the screener and search after seeding completes
+  - Universe size is manageable: templates and filters prevent accidentally seeding thousands of symbols beyond the data plan capacity
+  - Excluded symbols do not appear in screener results but retain their data for direct access via symbol search
+
+---
+
+## Group RD2 — Real Demo: Curated Universe Validation
+
+Goal: validate the seeds-choice process end to end by having Agent 1 use the SC universe curation workflow to build a focused research universe, then test all platform features against that curated set. This confirms that the filtering, seeding, and analysis pipeline works coherently when the user starts from universe selection rather than manual ticker entry.
+
+### Phase RD2-1: Agent 1 Curated Universe Walkthrough & Screenshots
+- Agent 1 (prudent value investor) executes a scripted walkthrough starting from universe curation:
+  - **Universe Selection:** use the `defensive-quality` template, preview results, narrow by removing sectors with insufficient coverage, seed the curated universe (~20–30 symbols)
+  - **Ingestion Monitoring:** observe seeding progress in the job control panel, verify per-symbol ingestion events, confirm all symbols have profile + fundamentals + quote data from Yahoo Finance
+  - **Screener Research:** apply the conservative research preset (from L4 if available, or manual filters), sort by value score, identify top candidates
+  - **Deep Analysis:** open the top 5 candidates on the in-depth review page; verify valuation, FCF, earnings, debt, dividends, historical charts, and data-quality labels
+  - **Comparison:** compare the top 5 candidates on MoS, value score, quality metrics, and dividend indicators
+  - **Portfolio Construction:** build a 5–8 stock defensive portfolio from the curated universe, run simulation, verify concentration warnings, run rebalance
+  - **Watchlist:** add 3–5 "almost cheap enough" stocks with rationale notes explaining what price or event would trigger purchase
+  - **Dashboard & Alerts:** verify dashboard reflects the new portfolio, check that alerts are configured for watchlist thresholds
+- Capture a screenshot at each major step; store under `specs/YYYY-MM-DD-rd2-curated-demo/screenshots/`
+- Produce a walkthrough report under `specs/YYYY-MM-DD-rd2-curated-demo/walkthrough-report.md` with: step, screenshot reference, observed result, pass/fail, comparison to RD1 findings, and notes on how universe curation improved or changed the research experience
+- Acceptance checklist:
+  - Universe curation workflow produces a focused, manageable research set without manual ticker entry
+  - Agent 1 finds the curated universe more coherent for conservative research than an uncurated manual seed
+  - All platform features work correctly against the curated universe
+  - Data-quality and coverage gaps are documented but do not block core workflows
+  - The walkthrough report is stakeholder-presentable and demonstrates the value of structured universe selection
+  - Comparison with RD1 highlights what improved with universe curation vs. manual seeding
+
+---
+
 ## Group K - GCP Distribution & Operational Readiness
 
 Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
@@ -740,6 +866,10 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 | **M8.8: Full Demo Assessment** | HD1, HD2, HD3, HD4 | FMP primary / Yahoo fallback | End-to-end demo walkthrough, UI/look-and-feel assessment, demo polish, beta persona reports, beta-driven feature implementation, and documented UX gaps before quality hardening |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
+| **M10.5: Job Control** | JC1, JC2 | FMP primary / Yahoo fallback | Job run history, per-symbol ingestion events, runtime enable/disable, cron update, scoped partial ingestion triggers |
+| **M10.6: Real Demo (Full Stack)** | RD1-1, RD1-2 | Yahoo Finance (free) | All features live with real Yahoo Finance data ingested on startup; Agent 1 full walkthrough with screenshots |
+| **M10.7: Universe Curation** | SC1, SC2 | FMP primary / Yahoo fallback | Structured universe selection with filtering criteria, pre-built templates, preview-before-seed, and exclusion controls |
+| **M10.8: Real Demo (Curated)** | RD2-1 | Yahoo Finance (free) | Agent 1 validates curated universe workflow end to end with screenshots; comparison with manual-seed experience |
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
 | **M12: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M13: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
@@ -758,3 +888,11 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 > **M8.8 is the product-demo quality gate.** After the React frontend MVP is assembled, the full demo is walked like a stakeholder would use it: not just endpoint correctness, but visual consistency, page flow, copy, accessibility, responsive behavior, and obvious trust-eroding rough edges. After polish, beta-tester personas exercise the product from distinct investor mindsets and produce portfolio/watchlist reports with improvement recommendations; the best findings are selected, implemented, or explicitly deferred before Quality & Observability. It feeds fixes and explicit follow-up work into Quality & Observability rather than burying UX debt.
 >
 > **M10 adds identity, not a second authorization system.** Google OpenID Connect verifies the person; the application maps that identity to its own user, roles, ownership rules, RS256 access tokens, and refresh-token lifecycle. This keeps every existing protected API and portfolio boundary consistent regardless of how the user signed in.
+>
+> **M10.5 makes the data pipeline testable.** Jobs can be triggered, inspected, enabled/disabled from the UI; per-symbol ingestion events are visible without parsing logs; scoped partial ingestion allows testing one symbol or one data type in isolation. Every subsequent demo phase depends on this control layer.
+>
+> **M10.6 is the first real-data full-stack demo.** Yahoo Finance ingestion runs on startup so the platform is ready to use after `docker compose up`. Agent 1 walks every feature and captures screenshots — stakeholder evidence that the system works end to end with live market data at zero cost.
+>
+> **M10.7 adds structure to stock selection.** Instead of typing ticker CSVs, users filter by exchange, sector, market cap, and quality criteria, preview matches, and seed in one workflow. Pre-built templates (blue-chip, dividend aristocrats, value candidates, defensive quality) give instant starting points. This is a prerequisite for disciplined research — without it, the analysis universe is arbitrary.
+>
+> **M10.8 validates the curated workflow.** Agent 1 repeats the full demo but starts from universe curation instead of manual seeding. The comparison with M10.6 demonstrates that structured selection produces a more coherent research experience.
