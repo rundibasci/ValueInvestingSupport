@@ -844,6 +844,191 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 
 ---
 
+## Group VM — Valuation Model Depth
+
+Goal: strengthen the valuation engine so that its outputs are defensible, transparent, and trustworthy for real investment decisions. Currently the DCF engine accepts WACC without guidance, the composite hides terminal-value dominance, and no alternative conservative model (EPV) exists. This group fills those gaps so every downstream score, recommendation, and MoS is grounded in auditable assumptions.
+
+Source: `specs/value-investor-roadmap-review.md` — items 1.1, 1.2, 1.3, 1.4, 1.5, 1.6.
+
+### Phase VM1: Valuation Engine Backend Enhancements
+- **WACC Calculator:** add `WaccCalculator.compute(symbol) → WaccResult` that derives a defensible default WACC from: risk-free rate (configurable, default 10Y US Treasury yield from provider data or manual override), equity risk premium (configurable, default 5.5%), beta (from FMP or Yahoo), cost of debt (interest expense / total debt), debt/equity ratio, and effective tax rate. Persist `WaccResult` alongside `ValuationResult` so the assumptions are traceable. Fall back to a sector-median WACC when beta or debt data is unavailable.
+- **DCF Sensitivity Engine:** add `DcfSensitivityService.analyze(DcfInput) → DcfSensitivityResult` that computes a sensitivity matrix: fair value across 3–5 WACC values × 3–5 terminal growth rates. Include terminal value as a percentage of total DCF in every `DcfResult`. Flag when terminal value exceeds 70% with a `highTerminalDependence` boolean.
+- **Earnings Power Value:** add `EpvCalculator.calculate(EpvInput) → BigDecimal` — normalized current earnings power (adjusted net income averaged over 5–7 years to smooth cycles), divided by WACC, minus net debt, divided by shares. EPV assumes zero growth; it provides a conservative floor valuation. Add RULE-08 guard: EPV skipped if fewer than 5 years of earnings history.
+- **Owner Earnings:** add `OwnerEarningsCalculator.calculate(netIncome, depreciation, maintenanceCapex) → BigDecimal`. Estimate maintenance capex as a configurable percentage of depreciation (default 70%) when not separately reported. Expose owner earnings on the financials and review endpoints alongside FCF.
+- **Graham Criteria Checklist:** add `GrahamCriteriaService.evaluate(symbol) → GrahamChecklistResult` that tests Graham's original criteria individually: P/E < 15, P/B < 1.5, P/E × P/B < 22.5, current ratio > 2.0, no negative earnings in last 5 years, 10-year earnings stability (no year-over-year decline > 33%), positive EPS growth over 10 years, and dividend record ≥ 10 years. Return each criterion as pass/fail/insufficient-data with the actual value. Persist alongside `ValuationResult`.
+- **Composite Weight Configurability:** make composite weights (DCF/Graham/DDM) configurable per user or per request with validation (weights must sum to 100). Persist user preferences. Auto-reduce DCF weight when `highTerminalDependence` is true (shift excess to Graham/DDM proportionally).
+- Flyway migration for `wacc_result` columns, `graham_checklist_result` columns or table, EPV columns on `valuation_result`, and user composite-weight preferences
+- Unit tests: WACC calculation with known inputs, sensitivity matrix dimensions, EPV with averaged earnings, owner earnings formula, Graham checklist pass/fail per criterion, composite weight rebalancing
+
+### Phase VM2: Valuation Transparency Frontend
+- **DCF Sensitivity Table:** on the review page and valuation tab, display a WACC × terminal growth matrix (color-coded: green where fair value > current price by 15%+, yellow 0–15%, red where overvalued). Show the base-case cell highlighted.
+- **Terminal Value Warning:** when terminal value exceeds 70% of total DCF, display a prominent label: "This valuation depends heavily on long-term assumptions (terminal value = X% of total)." Explain in plain language what this means.
+- **WACC Transparency Panel:** show the computed WACC and every input (risk-free rate, ERP, beta, cost of debt, D/E ratio, tax rate) with source badges. Allow the user to override any input and recompute in real time.
+- **EPV Display:** add EPV to the valuation section on the review page as "Conservative Floor (zero growth)" alongside DCF and Graham. Show the normalized earnings figure and years averaged.
+- **Owner Earnings:** display owner earnings alongside FCF in the cash-generation section of the review page with the maintenance capex assumption shown.
+- **Graham Criteria Checklist:** add a dedicated checklist card on the review page showing each Graham criterion with pass/fail/no-data icons and the actual value. Display "X of Y criteria met" summary.
+- **Composite Weight Controls:** allow the user to adjust DCF/Graham/DDM/EPV weights via sliders on the valuation tab; recompute composite in real time; show how composite fair value changes as weights shift.
+- Acceptance checklist:
+  - WACC is computed with transparent, auditable inputs and can be overridden
+  - Sensitivity table shows fair value across at least 9 WACC × growth combinations
+  - Terminal value percentage is visible and flagged when dominant
+  - EPV provides a zero-growth floor that is visually distinct from DCF
+  - Graham Criteria Checklist shows individual pass/fail, not just the Graham Number
+  - Composite weights can be adjusted and the platform auto-reduces DCF weight when terminal dependence is high
+
+---
+
+## Group SR — Scoring & Risk Intelligence
+
+Goal: make the scoring engine sector-aware, add fundamental risk indicators (Piotroski, Altman, accruals), and prevent overvalued stocks from scoring high. The current fixed-weight formula penalizes non-dividend payers, ignores cyclicality, and allows a stock with negative MoS to still receive a respectable score. This group makes scoring trustworthy across sectors and market conditions.
+
+Source: `specs/value-investor-roadmap-review.md` — items 2.1, 2.2, 2.3, 2.4, 4.4.
+
+### Phase SR1: Scoring & Risk Backend
+- **MoS Gate Rule:** add RULE-09: if margin of safety is negative (stock is overvalued relative to composite fair value), cap total ValueScore at 40 regardless of other sub-scores. A value investing platform must never rank an overvalued stock highly. Persist the gate-applied flag on `ValueScore`.
+- **Sector-Adaptive Weights:** define weight profiles per sector category (at minimum: dividend-paying, non-dividend growth, REIT/utility, financial, cyclical). For non-dividend payers, redistribute the Dividend 10% weight proportionally to Quality and Growth. For REITs, adjust Safety sub-score to use FFO-based metrics instead of standard debt ratios. Weight profiles configurable via `application.yml`. Display which profile was applied.
+- **Piotroski F-Score:** add `PiotroskiService.compute(symbol) → PiotroskiResult` using FMP's Piotroski data when available; compute from fundamentals when FMP data is missing. Return 9-factor score (0–9) with individual factor pass/fail. Persist `PiotroskiResult`. Add `GET /api/v1/securities/{symbol}/piotroski` endpoint. Add F-Score as a screener filter (`piotroskiMin`, `piotroskiMax`).
+- **Altman Z-Score:** add `AltmanZScoreService.compute(symbol) → AltmanResult` implementing the original Z-Score formula for manufacturing (and Z''-Score for non-manufacturing/service). Return score value, zone classification (safe > 2.99, grey 1.81–2.99, distress < 1.81), and individual component values. Persist. Add `GET /api/v1/securities/{symbol}/altman` endpoint. Add Z-Score zone as a screener filter.
+- **Cyclicality Detection:** add `CyclicalityService.assess(symbol) → CyclicalityResult` that analyzes 10-year earnings and revenue volatility. Compute coefficient of variation for revenue and earnings; classify as stable, moderate, or highly cyclical. For highly cyclical stocks, compute normalized earnings (10-year average) and a cycle-adjusted P/E. Flag in `ValuationResult` when valuation is based on peak or trough earnings.
+- **Earnings Quality Ratio:** add `EarningsQualityService.compute(symbol) → EarningsQualityResult` computing: FCF/Net Income ratio (>1.0 = strong, 0.8–1.0 = acceptable, <0.8 = weak), Sloan accruals ratio ((net income − CFO) / total assets), and trend over 5 years. Flag when accruals are rising while FCF/income ratio is falling.
+- Unit tests for MoS gate, each sector weight profile, Piotroski 9 factors, Altman formula (manufacturing and service variants), cyclicality classification thresholds, and accruals calculation
+
+### Phase SR2: Scoring & Risk Frontend
+- **Score Breakdown with Gate:** on the review page and score display, show the MoS gate status. When the gate is active (negative MoS), display: "Score capped at 40 — stock appears overvalued relative to composite fair value" with a distinct visual treatment (e.g., amber border, strikethrough of raw score showing capped score).
+- **Sector Weight Profile Badge:** show which weight profile was applied (e.g., "Non-Dividend Growth Profile: Quality 30, Safety 23, Growth 22, MoS 25") and why. Allow the user to switch profiles manually for comparison.
+- **Piotroski F-Score Card:** add a card on the review page showing the 9-factor breakdown with pass/fail per factor, total score (0–9), and a brief interpretation (strong ≥ 7, moderate 4–6, weak ≤ 3). Add F-Score column to screener results. Add F-Score to the comparison view.
+- **Altman Z-Score Card:** add a card on the review page showing Z-Score value, zone (safe/grey/distress with color coding), component values, and formula variant used. Add zone column to screener results.
+- **Cyclicality Indicator:** on the review page, show cyclicality classification (stable/moderate/highly cyclical) with the coefficient of variation. For cyclical stocks, show normalized earnings alongside reported earnings and flag: "Current earnings may be above/below the 10-year average — consider cycle position before relying on P/E or MoS."
+- **Earnings Quality Section:** on the review page cash-generation section, add FCF/income ratio trend chart, accruals ratio, and quality classification (strong/acceptable/weak). Flag declining quality with a caution indicator.
+- Add Piotroski, Altman zone, cyclicality, and earnings quality to the cross-symbol comparison view
+- Acceptance checklist:
+  - An overvalued stock (negative MoS) never scores above 40
+  - Non-dividend payers are not structurally penalized in the total score
+  - Piotroski F-Score is visible on review page and filterable in screener
+  - Altman Z-Score flags distress risk before the user relies on a low P/E
+  - Cyclical stocks display normalized earnings and cycle-position context
+  - Earnings quality is computed and declining quality triggers a visible caution
+
+---
+
+## Group MA — Moat & Business Quality Analysis
+
+Goal: add competitive advantage assessment and management quality signals so the platform can distinguish businesses worth owning long-term from temporarily cheap stocks. Value investing is about buying great businesses at fair prices — without moat analysis, the platform only addresses the "fair price" half. This group adds ROIC consistency analysis, capital allocation tracking, historical valuation bands, shares outstanding trends, and long-term stability scoring.
+
+Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8.3.
+
+### Phase MA1: Moat & Quality Backend
+- **ROIC Consistency Analysis:** add `MoatAssessmentService.analyze(symbol) → MoatResult` that computes: 10-year ROIC series, ROIC consistency (percentage of years ROIC > estimated WACC), ROIC trend (improving/stable/declining via linear regression slope), average ROIC spread over WACC, and reinvestment rate (capex + R&D − depreciation) / NOPAT. Classify moat strength: wide (ROIC > WACC for 8+ of 10 years with stable/improving trend), narrow (5–7 years), or none (< 5 years). Persist `MoatResult`.
+- **Capital Allocation Tracker:** add `CapitalAllocationService.analyze(symbol) → CapitalAllocationResult` that computes: shares outstanding trend over 10 years (net buyback or dilution percentage), total shareholder yield (dividend yield + net buyback yield), insider ownership percentage (from FMP insider data), acquisition spending as percentage of FCF (when available). Flag: "net diluter" (shares growing > 2% annually), "disciplined capital allocator" (shares flat/declining + dividend growth), or "empire builder" (heavy acquisition spending with declining ROIC).
+- **Historical Valuation Bands:** add `ValuationHistoryService.compute(symbol) → ValuationBandResult` that computes 5-year and 10-year percentile bands for P/E, P/B, EV/EBITDA, and dividend yield. Return current value, median, 25th/75th percentiles, and where today's value sits within the band. Flag when current valuation is above the 75th percentile ("historically expensive") or below the 25th percentile ("historically cheap").
+- **Long-Term Stability Scoring (Graham Stability):** add `StabilityService.assess(symbol) → StabilityResult` that tests: no negative annual EPS in last 10 years, no year-over-year EPS decline > 33%, positive revenue growth over 10 years, positive EPS growth over 10 years, and dividend continuity ≥ 10 years. Return each criterion as pass/fail with actual values. This complements the Graham Criteria Checklist (VM1) with deeper stability focus.
+- Add endpoints: `GET /api/v1/securities/{symbol}/moat`, `GET /api/v1/securities/{symbol}/capital-allocation`, `GET /api/v1/securities/{symbol}/valuation-bands`
+- Include moat, capital allocation, and valuation band data in the review endpoint (`GET /api/v1/securities/{symbol}/review`) response
+- Add moat strength and shares outstanding trend as screener filters
+- Unit tests: ROIC consistency classification, shares outstanding trend calculation, valuation band percentile computation, stability criteria pass/fail
+
+### Phase MA2: Moat & Quality Frontend
+- **Moat Assessment Card:** on the review page, display moat classification (wide/narrow/none) with a badge, 10-year ROIC chart overlaid with estimated WACC line, ROIC consistency percentage, trend direction, and reinvestment rate. Explain in one line what the classification means: "Wide moat: ROIC has exceeded cost of capital in 9 of 10 years with a stable trend."
+- **Capital Allocation Card:** on the review page, display: shares outstanding 10-year chart (normalized to year 1 = 100 for easy visual), net buyback/dilution percentage, total shareholder yield, insider ownership percentage, and capital allocator classification with badge. Chart should make dilution immediately obvious.
+- **Historical Valuation Band Charts:** on the review page valuation section, display P/E and EV/EBITDA over 5–10 years as a band chart (25th–75th percentile shaded, median line, current value dot). Show whether today's valuation is historically cheap, normal, or expensive. Add these charts alongside the existing DCF/Graham/MoS outputs.
+- **Stability Scorecard:** on the review page, add a compact scorecard showing how many stability criteria the stock passes (e.g., "4 of 5 Graham stability criteria met") with individual pass/fail. Link to the Graham Criteria Checklist (VM2) for the full picture.
+- Add moat strength, capital allocator type, and historical valuation position to the cross-symbol comparison view
+- Add moat and shares outstanding trend columns to screener results
+- Acceptance checklist:
+  - ROIC consistency chart clearly shows whether returns exceed cost of capital over time
+  - Shares outstanding trend makes dilution or buyback patterns immediately visible
+  - Historical valuation bands show whether today's price is historically cheap or expensive
+  - Moat classification is visible in screener results for universe-level filtering
+  - Stability criteria are individually visible, not hidden inside a composite score
+  - Capital allocator classification flags empire builders and net diluters
+
+---
+
+## Group PI — Portfolio Intelligence
+
+Goal: add portfolio-level risk metrics, liquidity awareness, benchmark context, and practical rebalancing intelligence so the portfolio construction workflow produces results a real investor can act on. Currently the platform analyzes individual stocks thoroughly but the portfolio is just a list of holdings with weights and constraints — no portfolio-level risk, no liquidity check, no benchmark comparison, no tax or cost awareness in rebalancing.
+
+Source: `specs/value-investor-roadmap-review.md` — items 5.1, 5.2, 5.3, 5.4, 5.5.
+
+### Phase PI1: Portfolio Intelligence Backend
+- **Portfolio Analytics Engine:** add `PortfolioAnalyticsService.analyze(portfolioId) → PortfolioAnalyticsResult` that computes:
+  - Weighted-average MoS, P/E, dividend yield, value score, and Piotroski F-Score across holdings
+  - Sector concentration map: weight per sector with flags when any sector exceeds 40%
+  - Holding concentration: flag positions below 3% as "immaterial" and above 20% as "concentrated"
+  - Weighted moat profile: percentage of portfolio in wide/narrow/no-moat stocks
+  - Quality distribution: portfolio-level average ROIC, ROE, and earnings quality
+  - Persist snapshot for historical tracking
+- **Liquidity Assessment:** add `LiquidityService.assess(symbol, positionValue) → LiquidityResult` that computes: average daily volume × average price = average daily dollar volume; days to liquidate position = position value / (daily dollar volume × participation rate, default 10%); liquidity classification (liquid < 5 days, moderate 5–20 days, illiquid > 20 days). Flag in portfolio analytics when any holding is illiquid.
+- **Benchmark Comparison:** add `BenchmarkService.compare(portfolioId, benchmarkSymbol) → BenchmarkComparison` that computes characteristic comparison (not returns tracking): portfolio weighted P/E vs. benchmark P/E, portfolio yield vs. benchmark yield, portfolio weighted MoS vs. benchmark (if applicable), sector weight difference map. Default benchmark: SPY. Configurable per portfolio.
+- **Rebalancing Intelligence:** enhance `RebalancingService` to:
+  - Distinguish "must rebalance" (constraint breach) from "could rebalance" (drift within tolerance band, configurable default ±3%)
+  - Estimate round-trip transaction cost per trade (configurable cost model: flat fee or percentage, default 0.1%)
+  - Flag short-term vs. long-term holdings based on acquisition date (user-entered or default to holding creation date)
+  - Compute total estimated rebalancing cost and rank trades by urgency
+  - Add a "minimum position size" constraint (configurable, default 3%) — warn but don't block positions below minimum
+- Add endpoint: `GET /api/v1/portfolios/{id}/analytics`
+- Enhance existing `GET /api/v1/portfolios/{id}/rebalance` response with cost estimates, urgency ranking, and holding-period flags
+- Unit tests: weighted-average calculations, liquidity classification thresholds, constraint-breach vs. drift detection, transaction cost estimation
+
+### Phase PI2: Portfolio Intelligence Frontend
+- **Portfolio Analytics Dashboard:** on the portfolio detail page, add an analytics summary section:
+  - Weighted-average metrics row: MoS, P/E, yield, value score, F-Score
+  - Sector allocation donut chart with concentration warnings highlighted in amber/red
+  - Holding concentration bar chart with immaterial (< 3%) and concentrated (> 20%) zones marked
+  - Moat profile pie chart (wide/narrow/none distribution)
+  - Quality distribution mini-chart (ROIC, ROE averages)
+- **Liquidity Column:** add a liquidity indicator to the holdings table: green (liquid), yellow (moderate), red (illiquid) with "days to liquidate" tooltip. Flag illiquid holdings prominently.
+- **Benchmark Comparison Panel:** add a side-by-side comparison panel: portfolio vs. benchmark on P/E, yield, sector weights, and quality metrics. Show the differential clearly (portfolio is cheaper/more expensive, higher/lower yield, more/less concentrated than benchmark).
+- **Smart Rebalancing:** enhance the rebalance UI to show:
+  - Urgency classification per trade: "must" (constraint breach, red) vs. "could" (drift, yellow) vs. "hold" (within tolerance, green)
+  - Estimated transaction cost per trade and total rebalancing cost
+  - Short-term / long-term holding flag per sell recommendation
+  - Position size warnings for holdings below minimum threshold
+  - A "rebalance preview" step before confirming that shows total cost, number of trades, and constraint resolution
+- Acceptance checklist:
+  - Portfolio detail page shows weighted-average MoS, yield, and quality metrics
+  - Sector and holding concentration warnings are visible without opening a separate report
+  - Illiquid holdings are flagged before the user increases position size
+  - Benchmark comparison shows whether the portfolio is cheaper or more expensive than the market
+  - Rebalancing distinguishes urgent constraint breaches from optional drift correction
+  - Transaction cost estimates are visible before executing rebalance
+
+---
+
+## Group PW — Professional Workflow & Compliance
+
+Goal: add the research audit trail, investment checklist framework, data cross-verification, intrinsic value confidence scoring, and ADVISOR role scoping so the platform is suitable for professional use and regulatory defensibility. Currently there is no timestamped record of what the platform showed when a user made a decision, no way for users to apply their own investment criteria, and no verification that provider data is correct.
+
+Source: `specs/value-investor-roadmap-review.md` — items 3.1, 7.1, 7.2, 8.1, 8.2, 8.4.
+
+### Phase PW1: Professional Workflow Backend
+- **Research Decision Audit Trail:** add `ResearchSnapshot` entity that captures a timestamped record when a user takes a portfolio or watchlist action (add holding, add to watchlist, remove holding). Record: user ID, symbol, action type, timestamp, current price, composite fair value, MoS, value score, WACC used, data source active (fmp/yahoo/mixed), Piotroski F-Score, moat classification, and any user-entered rationale. Persist immutably (append-only, never updated or deleted). Add `GET /api/v1/audit/decisions?symbol=&from=&to=` endpoint (user sees own decisions only; admin can query all).
+- **Investment Checklist Framework:** add `InvestmentChecklist` entity with user-defined criteria. Each criterion has: label (e.g., "ROIC > 15% for 5+ years"), type (quantitative with operator/threshold, or qualitative pass/fail), and evaluation method (auto-computed from platform data, or manual user entry). Add CRUD endpoints: `GET/POST/PUT/DELETE /api/v1/checklists`. Add `POST /api/v1/checklists/{id}/evaluate/{symbol}` that auto-fills quantitative criteria from platform data and returns a checklist evaluation with pass/fail/no-data per criterion. Persist checklist evaluations for audit trail.
+- **Intrinsic Value Confidence Score:** add `ValuationConfidenceService.compute(symbol) → ConfidenceResult` that computes a confidence level (high/medium/low) based on: years of historical data available (10+ = high, 5–9 = medium, < 5 = low), DCF scenario spread (high − low) / base (< 20% = high, 20–40% = medium, > 40% = low), number of applicable valuation models (3+ = high, 2 = medium, 1 = low), data source completeness (all fields present = high, some missing = medium, major gaps = low), and earnings consistency (stable = high, moderate variation = medium, volatile = low). Return overall confidence and per-factor breakdown. Include in valuation endpoints and review response.
+- **Data Cross-Verification Flags:** add `DataVerificationService.check(symbol) → VerificationResult` that flags data-quality concerns: fundamental data older than 90 days from expected filing date, shares outstanding discrepancy > 5% between quote and fundamental sources, EPS or revenue changing by more than 50% between consecutive quarters without a corresponding note, and missing or zero values in critical fields (EPS, book value, FCF, shares outstanding). Return flags per field. Include in review endpoint.
+- **ADVISOR Role Scoping:** add documentation and UI copy clarifying that the ADVISOR role provides research and portfolio-modeling capabilities only — the platform does not perform client suitability assessments, best-execution obligations, or regulated investment recommendations. Add a prominent banner on portfolio and rebalancing pages when the user role is ADVISOR: "This tool supports your research process. Suitability assessment, client risk profiling, and regulatory record-keeping remain your responsibility." Persist the disclaimer acknowledgement per session.
+- **Circle of Competence:** add `UserPreferences` fields for preferred sectors and competence-marked industries. Add `GET/PUT /api/v1/preferences/competence` endpoint. When set, screener and universe curation can optionally filter to competence sectors. Display a subtle badge on review pages when a stock is outside the user's marked competence.
+- Flyway migration for `research_snapshot`, `investment_checklist`, `checklist_criterion`, `checklist_evaluation`, `user_preferences` tables
+- Unit tests: audit snapshot immutability, checklist auto-evaluation with known inputs, confidence score computation, data verification flag triggers, competence filter application
+
+### Phase PW2: Professional Workflow Frontend
+- **Research Decision Timeline:** add a "Decision History" section accessible from portfolio detail, watchlist, and a dedicated `/audit` route. Show a chronological timeline of add/remove actions with the platform state at the time of decision: price, fair value, MoS, score, data source, and user rationale. Exportable as CSV for compliance record-keeping.
+- **Investment Checklist Builder:** add a "My Checklist" page where users can create, edit, and manage their investment checklist criteria. On the review page, add an "Apply My Checklist" button that evaluates the current stock against the user's checklist and shows pass/fail per criterion. Auto-computed criteria show the platform value; manual criteria prompt the user for their assessment. Show "X of Y criteria met" summary.
+- **Confidence Badge:** on the review page valuation section, display a confidence badge (high/medium/low with green/yellow/red) next to the composite fair value. Expand to show per-factor breakdown on click. Add confidence level to screener results as an optional column.
+- **Data Verification Warnings:** on the review page, display inline warnings next to any field flagged by the verification service: "Fundamental data may be stale (last update X days ago)", "Shares outstanding differs between sources", or "EPS changed significantly — verify with SEC filing." Warnings are informational, not blocking.
+- **ADVISOR Compliance Banner:** display the regulatory scope disclaimer on portfolio and rebalancing pages for ADVISOR users. Show once per session with an acknowledgement action; don't block workflow but ensure it's seen.
+- **Circle of Competence Indicator:** on the review page header and screener results, show a subtle "outside your marked competence" indicator when a stock's sector is not in the user's competence list. Add competence filter toggle to screener. Add competence sectors editor in user settings.
+- Acceptance checklist:
+  - Every portfolio/watchlist action creates an immutable audit snapshot capturing platform state at decision time
+  - Audit timeline is viewable and exportable for compliance
+  - Users can create custom investment checklists with auto-evaluated and manual criteria
+  - Intrinsic value confidence is visible and explainable next to every fair value output
+  - Stale or suspicious data is flagged before the user relies on it for decisions
+  - ADVISOR users see the regulatory scope disclaimer without workflow disruption
+  - Circle of competence is optional and non-blocking — a nudge, not a gate
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Data Source | Deliverable |
@@ -874,6 +1059,11 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 | **M12: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M13: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
 | **M14: Conservative Workflow Hardening** | L1-L4 | FMP primary / Yahoo fallback | Agent 1 prudent-value replay pack, 10-stock validation portfolio evidence, conservative review diagnostics, availability-state examples, and workflow enhancements |
+| **M15: Valuation Model Depth** | VM1, VM2 | FMP primary / Yahoo fallback | WACC calculator, DCF sensitivity matrix, EPV conservative floor, owner earnings, Graham criteria checklist, composite weight configurability |
+| **M16: Scoring & Risk Intelligence** | SR1, SR2 | FMP primary / Yahoo fallback | MoS gate rule, sector-adaptive score weights, Piotroski F-Score, Altman Z-Score, cyclicality detection, earnings quality ratio |
+| **M17: Moat & Business Quality** | MA1, MA2 | FMP primary / Yahoo fallback | ROIC consistency moat analysis, capital allocation tracking, historical valuation bands, long-term stability scoring |
+| **M18: Portfolio Intelligence** | PI1, PI2 | FMP primary / Yahoo fallback | Portfolio-level analytics, liquidity assessment, benchmark comparison, smart rebalancing with cost/urgency/tax awareness |
+| **M19: Professional Workflow** | PW1, PW2 | FMP primary / Yahoo fallback | Research decision audit trail, investment checklist framework, valuation confidence scoring, data cross-verification, ADVISOR compliance scoping |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
@@ -896,3 +1086,13 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 > **M10.7 adds structure to stock selection.** Instead of typing ticker CSVs, users filter by exchange, sector, market cap, and quality criteria, preview matches, and seed in one workflow. Pre-built templates (blue-chip, dividend aristocrats, value candidates, defensive quality) give instant starting points. This is a prerequisite for disciplined research — without it, the analysis universe is arbitrary.
 >
 > **M10.8 validates the curated workflow.** Agent 1 repeats the full demo but starts from universe curation instead of manual seeding. The comparison with M10.6 demonstrates that structured selection produces a more coherent research experience.
+>
+> **M15 makes the valuation engine defensible.** A DCF without a transparent WACC is a toy. M15 adds computed WACC with auditable inputs, a sensitivity matrix that shows how fragile the estimate is, EPV as a conservative zero-growth floor, Graham's original multi-criteria checklist, and configurable composite weights. After M15, every fair value has traceable assumptions.
+>
+> **M16 makes scoring trustworthy.** An overvalued stock scoring 55/100 is a trust-destroying bug. M16 caps scores for negative-MoS stocks, adapts weights by sector so non-dividend payers aren't penalized, adds Piotroski F-Score and Altman Z-Score for fundamental strength and distress detection, flags cyclicality so users don't mistake peak earnings for fair value, and surfaces earnings quality. After M16, the screener ranking is safe to act on.
+>
+> **M17 addresses the heart of value investing.** Cheap is not the same as good. M17 adds ROIC consistency analysis (the strongest moat signal), capital allocation tracking (buybacks vs. dilution, insider ownership), historical valuation bands (is this P/E historically cheap or expensive for this stock?), and long-term stability scoring. Without this, the platform finds cheap stocks but can't tell the user whether they're worth owning.
+>
+> **M18 makes portfolio construction real-world-ready.** Analyzing stocks individually is necessary but insufficient. M18 adds weighted-average portfolio metrics, sector and holding concentration maps, liquidity assessment (can you actually exit this position?), benchmark comparison (is this portfolio genuinely different from the market?), and rebalancing intelligence with cost estimates, urgency ranking, and holding-period awareness. Without this, portfolio construction is academic.
+>
+> **M19 enables professional use.** Every investment decision should be traceable: what did the platform show, what assumptions were active, and why did the user act? M19 adds an immutable research audit trail, a user-defined investment checklist framework, intrinsic value confidence scoring so users know how reliable the estimate is, data cross-verification flags, and ADVISOR role compliance scoping. This is what separates a research tool from a toy.
