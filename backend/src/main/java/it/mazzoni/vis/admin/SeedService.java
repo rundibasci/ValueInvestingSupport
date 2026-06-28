@@ -148,6 +148,10 @@ public class SeedService {
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
         int historySize = Math.max(1, Math.max(revenueHistory.size(), Math.max(netIncomeHistory.size(), fcfHistory.size())));
         int currentYear = today.getYear();
+
+        fundamentalSnapshotRepository.deleteBySecurityAndPeriodAndFiscalYear(security, Period.ANNUAL, currentYear);
+        fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.TTM);
+
         for (int i = 0; i < historySize; i++) {
             LocalDate reportDate = today.minusYears(i);
             if (fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, reportDate)) {
@@ -175,31 +179,36 @@ public class SeedService {
             fundamentalSnapshotRepository.save(entity);
         }
 
-        if (!fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.TTM, today)) {
-            FundamentalSnapshot ttm = new FundamentalSnapshot();
-            ttm.setSecurity(security);
-            ttm.setPeriod(Period.TTM);
-            ttm.setFiscalYear(currentYear);
-            ttm.setReportDate(today);
-            ttm.setRevenue(valueAt(revenueHistory, 0));
-            ttm.setNetIncome(valueAt(netIncomeHistory, 0));
-            ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
-            ttm.setEps(data.epsTtm());
-            ttm.setEpsDiluted(data.epsTtm());
-            ttm.setSharesOutstanding(data.sharesOutstanding());
-            ttm.setTotalDebt(data.totalDebt());
-            ttm.setCash(data.cash());
-            if (data.bookValuePerShare() != null && data.sharesOutstanding() != null) {
-                ttm.setTotalEquity(data.bookValuePerShare()
-                        .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
-            }
-            fundamentalSnapshotRepository.save(ttm);
+        FundamentalSnapshot ttm = new FundamentalSnapshot();
+        ttm.setSecurity(security);
+        ttm.setPeriod(Period.TTM);
+        ttm.setFiscalYear(currentYear);
+        ttm.setReportDate(today);
+        ttm.setRevenue(valueAt(revenueHistory, 0));
+        ttm.setNetIncome(valueAt(netIncomeHistory, 0));
+        ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
+        ttm.setEps(data.epsTtm());
+        ttm.setEpsDiluted(data.epsTtm());
+        ttm.setSharesOutstanding(data.sharesOutstanding());
+        ttm.setTotalDebt(data.totalDebt());
+        ttm.setCash(data.cash());
+        if (data.bookValuePerShare() != null && data.sharesOutstanding() != null) {
+            ttm.setTotalEquity(data.bookValuePerShare()
+                    .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
         }
+        fundamentalSnapshotRepository.save(ttm);
     }
 
     private void persistRatios(Security security, String symbol) {
         LocalDate today = LocalDate.now();
         it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(symbol);
+        ratioSnapshotRepository.deleteBySecurityAndPeriod(security, Period.TTM);
+        ratioSnapshotRepository.deleteBySecurityAndPeriodAndReportDateBetween(
+                security,
+                Period.ANNUAL,
+                LocalDate.of(today.getYear(), 1, 1),
+                LocalDate.of(today.getYear(), 12, 31));
+
         persistRatioSnapshot(security, data, Period.TTM, today);
 
         for (int i = 0; i < 10; i++) {

@@ -74,7 +74,8 @@ const money = (value: number | null | undefined, currency = 'USD') =>
   value == null ? 'Unavailable' : new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 2, notation: Math.abs(value) >= 1000000 ? 'compact' : 'standard' }).format(value)
 const number = (value: number | null | undefined) => value == null ? 'Unavailable' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value)
 const compact = (value: number | null | undefined) => value == null ? 'Unavailable' : new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, notation: 'compact' }).format(value)
-const percent = (value: number | null | undefined) => value == null ? 'Unavailable' : `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value)}%`
+const percentPoint = (value: number | null | undefined) => value == null ? 'Unavailable' : `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value)}%`
+const ratioPercent = (value: number | null | undefined) => value == null ? 'Unavailable' : `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value * 100)}%`
 const date = (value: string | null | undefined) => value ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(`${value}T00:00:00`)) : 'Unavailable'
 
 class ApiError extends Error {
@@ -123,8 +124,8 @@ function Chart({ data, lines, bar = false, summary }: { data: Array<Record<strin
   return (
     <div>
       <p className="mb-3 text-sm leading-6 text-slate-400">{summary}</p>
-      <div className="h-72 w-full" role="img" aria-label={summary}>
-        <ResponsiveContainer>
+      <div className="min-h-72 h-72 min-w-0 w-full" role="img" aria-label={summary}>
+        <ResponsiveContainer width="100%" height="100%">
           <Component data={data}>
             <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
             <XAxis dataKey="label" stroke="#94a3b8" />
@@ -144,7 +145,7 @@ function Chart({ data, lines, bar = false, summary }: { data: Array<Record<strin
 
 function CagrTable({ growth }: { growth?: Growth }): JSX.Element {
   const rows: Array<[string, Metrics | undefined]> = [['Revenue', growth?.revenue], ['Free cash flow', growth?.fcf], ['EPS', growth?.eps]]
-  return <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-slate-700 text-slate-400"><tr><th className="pb-3">Metric</th><th>3 years</th><th>5 years</th><th>10 years</th></tr></thead><tbody>{rows.map(([label, values]) => <tr key={label} className="border-b border-slate-800"><th className="py-3 font-medium text-white">{label}</th><td>{percent(values?.cagr3y)}</td><td>{percent(values?.cagr5y)}</td><td>{percent(values?.cagr10y)}</td></tr>)}</tbody></table></div>
+  return <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-slate-700 text-slate-400"><tr><th className="pb-3">Metric</th><th>3 years</th><th>5 years</th><th>10 years</th></tr></thead><tbody>{rows.map(([label, values]) => <tr key={label} className="border-b border-slate-800"><th className="py-3 font-medium text-white">{label}</th><td>{percentPoint(values?.cagr3y)}</td><td>{percentPoint(values?.cagr5y)}</td><td>{percentPoint(values?.cagr10y)}</td></tr>)}</tbody></table></div>
 }
 
 function CoverageGrid({ coverage, freshness }: { coverage: SourceCoverageItem[]; freshness: FreshnessItem[] }): JSX.Element {
@@ -253,6 +254,7 @@ function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
             onChange={(event) => {
               setSelectedPortfolioId(event.target.value)
               setValidation(null)
+              setAddedPortfolioId(null)
               addHolding.reset()
             }}
             className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white"
@@ -301,7 +303,7 @@ function AddToPortfolio({ symbol }: { symbol: string }): JSX.Element {
         <Link to="/portfolio" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">Open Portfolio</Link>
       </div>
       {validation && <p role="alert" className="mt-3 text-sm text-rose-200">{validation}</p>}
-      {addHolding.isSuccess && addedPortfolioId === activePortfolioId && <p role="status" className="mt-3 text-sm text-emerald-200">Added {symbol} to {activePortfolio?.name || 'your portfolio'}.</p>}
+      {addHolding.isSuccess && addedPortfolioId === activePortfolioId && !existingHolding && <p role="status" className="mt-3 text-sm text-emerald-200">Added {symbol} to {activePortfolio?.name || 'your portfolio'}.</p>}
       {addHolding.isError && <p role="alert" className="mt-3 text-sm text-rose-200">{addHolding.error instanceof Error ? addHolding.error.message : 'Could not add this holding.'}</p>}
       <p className="mt-3 text-xs leading-5 text-slate-500">Fair value, margin of safety, and portfolio context are decision-support outputs, not investment advice.</p>
     </form>
@@ -342,7 +344,17 @@ export function SecurityReviewPage(): JSX.Element {
   const [scrollProgress, setScrollProgress] = useState(0)
   const review = useQuery({ queryKey: ['security-review', symbol], enabled: !!symbol, queryFn: () => json<Review>(`/api/v1/securities/${encodeURIComponent(symbol)}/review`), retry: false })
   const watchlist = useQuery({ queryKey: ['watchlist'], enabled: !!symbol, queryFn: watchlistApi.list })
-  const addWatchlist = useMutation({ mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null }) })
+  const queryClient = useQueryClient()
+  const addWatchlist = useMutation({
+    mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null }),
+    onSuccess: (item) => {
+      queryClient.setQueryData(['watchlist'], (current: Awaited<ReturnType<typeof watchlistApi.list>> | undefined) => {
+        const items = current || []
+        return items.some((existing) => existing.symbol.toUpperCase() === symbol) ? items : [...items, item]
+      })
+      void queryClient.invalidateQueries({ queryKey: ['watchlist'] })
+    },
+  })
 
   useEffect(() => {
     const updateProgress = () => {
@@ -425,7 +437,7 @@ export function SecurityReviewPage(): JSX.Element {
               <dl className="grid gap-3 sm:grid-cols-2">
                 <Metric label="Market price" value={money(valuation?.currentPrice ?? d.currentPrice, currency)} />
                 <Metric label="Composite fair value" value={money(valuation?.compositeFairValue, currency)} />
-                <Metric label="Margin of safety" value={percent(valuation?.marginOfSafety)} />
+                <Metric label="Margin of safety" value={percentPoint(valuation?.marginOfSafety)} />
                 <Metric label="Recommendation" value={valuation?.recommendation || 'Unavailable'} />
                 <Metric label="DCF base" value={money(valuation?.dcf?.base, currency)} />
                 <Metric label="DCF low / high" value={`${money(valuation?.dcf?.low, currency)} / ${money(valuation?.dcf?.high, currency)}`} />
@@ -447,7 +459,7 @@ export function SecurityReviewPage(): JSX.Element {
               <dl className="grid gap-3 sm:grid-cols-2">
                 <Metric label="TTM free cash flow" value={money(financials.ttm?.fcf ?? d.fcf, currency)} />
                 <Metric label="TTM revenue" value={money(financials.ttm?.revenue ?? d.revenue, currency)} />
-                <Metric label="FCF margin" value={financials.ttm?.fcf != null && financials.ttm.revenue ? percent((financials.ttm.fcf / financials.ttm.revenue) * 100) : 'Unavailable'} />
+                <Metric label="FCF margin" value={financials.ttm?.fcf != null && financials.ttm.revenue ? ratioPercent(financials.ttm.fcf / financials.ttm.revenue) : 'Unavailable'} />
                 <Metric label="Positive FCF years" value={annual.length ? `${annual.filter((item) => typeof item.fcf === 'number' && item.fcf > 0).length} of ${annual.length}` : 'Unavailable'} />
               </dl>
             </Panel>
@@ -480,7 +492,7 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="Total debt" value={money(health.totalDebt, currency)} />
                 <Metric label="Cash" value={money(health.cash, currency)} />
                 <Metric label="Net debt" value={money(health.netDebt, currency)} />
-                <Metric label="Debt / equity" value={percent(health.debtToEquity)} />
+                <Metric label="Debt / equity" value={ratioPercent(health.debtToEquity)} />
                 <Metric label="Current ratio" value={number(health.currentRatio)} />
                 <Metric label="Quick ratio" value={number(health.quickRatio)} note={health.quickRatio == null ? 'Provider data did not supply quick ratio.' : undefined} />
                 <Metric label="Interest coverage" value={number(health.interestCoverage)} note={health.interestCoverage == null ? 'Provider data did not supply interest coverage.' : undefined} />
@@ -506,12 +518,12 @@ export function SecurityReviewPage(): JSX.Element {
           <div className="grid gap-5 lg:grid-cols-2">
             <Panel title="Dividend profile">
               <dl className="grid gap-3 sm:grid-cols-2">
-                <Metric label="Dividend yield" value={percent(d.dividendYield)} />
+                <Metric label="Dividend yield" value={ratioPercent(d.dividendYield)} />
                 <Metric label="Dividend streak" value={`${dividends.streak} years`} />
-                <Metric label="3-year CAGR" value={percent(dividends.cagr3y)} />
-                <Metric label="5-year CAGR" value={percent(dividends.cagr5y)} />
-                <Metric label="10-year CAGR" value={percent(dividends.cagr10y)} />
-                <Metric label="Payout ratio" value={percent(health.payoutRatio)} />
+                <Metric label="3-year CAGR" value={percentPoint(dividends.cagr3y)} />
+                <Metric label="5-year CAGR" value={percentPoint(dividends.cagr5y)} />
+                <Metric label="10-year CAGR" value={percentPoint(dividends.cagr10y)} />
+                <Metric label="Payout ratio" value={ratioPercent(health.payoutRatio)} />
               </dl>
             </Panel>
             <Panel title="Dividend history">
@@ -524,11 +536,11 @@ export function SecurityReviewPage(): JSX.Element {
           <div className="grid gap-5 lg:grid-cols-2">
             <Panel title="Quality and growth">
               <dl className="mb-5 grid gap-3 sm:grid-cols-2">
-                <Metric label="ROIC" value={percent(d.roic)} />
-                <Metric label="ROE" value={percent(ratioData.at(-1)?.roe as number | null | undefined)} />
-                <Metric label="Gross margin" value={percent(health.grossMargin ?? (ratioData.at(-1)?.grossMargin as number | null | undefined))} />
-                <Metric label="Operating margin" value={percent(health.operatingMargin)} />
-                <Metric label="Net margin" value={percent(health.netMargin)} />
+                <Metric label="ROIC" value={ratioPercent(d.roic)} />
+                <Metric label="ROE" value={ratioPercent(ratioData.at(-1)?.roe as number | null | undefined)} />
+                <Metric label="Gross margin" value={ratioPercent(health.grossMargin ?? (ratioData.at(-1)?.grossMargin as number | null | undefined))} />
+                <Metric label="Operating margin" value={ratioPercent(health.operatingMargin)} />
+                <Metric label="Net margin" value={ratioPercent(health.netMargin)} />
                 <Metric label="Value score" value={number(score?.totalScore)} note={score?.scoreDate ? `Score date: ${date(score.scoreDate)}` : undefined} />
               </dl>
               <CagrTable growth={growth} />
@@ -537,7 +549,7 @@ export function SecurityReviewPage(): JSX.Element {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="border-b border-slate-700 text-slate-400"><tr><th className="pb-3">Company</th><th>MoS</th><th>Score</th><th>ROIC</th></tr></thead>
-                  <tbody>{peers.peers.length ? peers.peers.map((peer) => <tr key={peer.symbol} className="border-b border-slate-800"><td className="py-3"><Link className="font-medium text-emerald-300" to={`/securities/${peer.symbol}/review`}>{peer.symbol}</Link><span className="ml-2 text-slate-400">{peer.companyName}</span></td><td>{percent(peer.marginOfSafety)}</td><td>{number(peer.totalScore)}</td><td>{percent(peer.roic)}</td></tr>) : <tr><td colSpan={4} className="py-5 text-slate-400">Peer context is unavailable.</td></tr>}</tbody>
+                  <tbody>{peers.peers.length ? peers.peers.map((peer) => <tr key={peer.symbol} className="border-b border-slate-800"><td className="py-3"><Link className="font-medium text-emerald-300" to={`/securities/${peer.symbol}/review`}>{peer.symbol}</Link><span className="ml-2 text-slate-400">{peer.companyName}</span></td><td>{percentPoint(peer.marginOfSafety)}</td><td>{number(peer.totalScore)}</td><td>{ratioPercent(peer.roic)}</td></tr>) : <tr><td colSpan={4} className="py-5 text-slate-400">Peer context is unavailable.</td></tr>}</tbody>
                 </table>
               </div>
             </Panel>

@@ -107,7 +107,11 @@ public class SecurityReviewService {
                 .findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL);
         List<FundamentalSnapshot> reviewAnnuals = annualSnapshots.stream().limit(10).toList();
         List<FundamentalSnapshot> growthAnnuals = annualSnapshots.stream().limit(11).toList();
-        List<RatioSnapshot> ratioSnapshots = ratioSnapshotRepository.findTop10BySecurityOrderByReportDateDesc(security);
+        List<RatioSnapshot> ratioSnapshots = ratioSnapshotRepository
+                .findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
+                .stream()
+                .limit(10)
+                .toList();
         RatioSnapshot latestRatios = ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security).orElse(null);
         PriceQuote latestPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security).orElse(null);
         ValuationResult latestValuation = valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security).orElse(null);
