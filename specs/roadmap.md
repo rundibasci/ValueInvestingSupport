@@ -542,6 +542,53 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
   - The Docker full-demo stack builds and starts on the Windows development checkout.
   - Any remaining UX gaps are documented with severity and owner/phase recommendation.
 
+### Phase HD3: Beta Tester Persona Simulation
+- Run a structured beta-test pass with three scripted investor personas after HD2 polish is complete.
+- Each beta-tester agent must use the platform as a real evaluator would: discover candidate stocks, seed or open symbols as needed, inspect review/security detail pages, build a model portfolio, create a watchlist, and document platform impressions.
+- Agent 1: Very prudent value investor.
+  - Profile: low-risk, conservative, strictly margin-of-safety driven, skeptical of optimistic model assumptions.
+  - Research source: summarized Seeking Alpha-style article inputs supplied as test fixtures or human-provided summaries; do not depend on scraping paywalled content during automated tests.
+  - Workflow: identify conservative candidates, require strong margin of safety before portfolio inclusion, build a small defensive portfolio, and create a watchlist for stocks that are not cheap enough yet.
+- Agent 2: Hedge-fund asset allocator.
+  - Profile: professional allocator for a large equity hedge fund, focused on high margins, quality, scalability, and portfolio concentration risk.
+  - Research source: Morningstar-style article/analyst-note summaries supplied as fixtures or human-provided notes; use them to select stocks for deeper platform analysis.
+  - Workflow: compare high-margin businesses, review valuation and quality metrics, build a higher-conviction portfolio, and maintain a watchlist for candidates awaiting better valuation or cleaner data.
+- Agent 3: Financial journalist / trend observer.
+  - Profile: market-as-voting-machine user who starts from current news, trends, narratives, and price momentum rather than fundamental value discipline.
+  - Research source: Google News-style headlines or human-curated news summaries; avoid relying on live news access for deterministic validation unless explicitly configured.
+  - Workflow: choose trending stocks from news prompts, test whether the platform helps challenge or validate the narrative, build a news-driven model portfolio, and create a watchlist for fast-moving stories.
+- Each agent produces a report under `specs/YYYY-MM-DD-beta-tester-personas/` containing:
+  - Persona assumptions, source summaries used, and candidate-stock selection rationale.
+  - Final portfolio with holdings, weights or quantities, valuation context, and key risks.
+  - Watchlist with monitoring rationale, target signals, and why each symbol was not added to the portfolio.
+  - Impressions on platform usability, trust, clarity of data gaps, usefulness of review pages, portfolio workflow, and watchlist workflow.
+  - Prioritized improvement recommendations grouped as blockers, product gaps, UX polish, data-quality concerns, and nice-to-have enhancements.
+- Acceptance checklist:
+  - All three reports are reproducible from documented source summaries and seeded demo data.
+  - Each report includes both portfolio and watchlist outputs.
+  - The personas surface different product needs rather than repeating the same value-investor workflow.
+  - Any new bugs or UX issues discovered are added to follow-up roadmap items with severity and recommended owner/phase.
+
+### Phase HD4: Beta-Driven Feature Selection And Implementation
+- Review the three HD3 beta-tester reports and extract candidate product improvements, grouped by persona, workflow, severity, expected user value, implementation complexity, and dependency risk.
+- Decide which new features should be added before Quality & Observability, explicitly separating:
+  - Must-fix usability or trust blockers discovered during beta testing.
+  - High-value feature additions that improve portfolio construction, watchlist monitoring, stock discovery, review-page decision support, or source transparency.
+  - Deferred ideas that belong in later production-readiness, observability, identity, cloud, or commercial phases.
+- Create a short feature-selection report under `specs/YYYY-MM-DD-beta-feature-selection/` containing:
+  - Candidate feature backlog with rationale.
+  - Chosen feature set for implementation.
+  - Rejected or deferred items with reasons.
+  - Acceptance criteria and validation approach for each chosen feature.
+- Implement the selected features as scoped increments, each with frontend, backend, persistence, or documentation changes only where required by the chosen feature.
+- Preserve the decision-support boundary: new features may help research, compare, monitor, and document reasoning, but must not present outputs as personalised investment advice or order recommendations.
+- Run the local full demo after implementation and re-check the three persona workflows where impacted.
+- Acceptance checklist:
+  - HD3 report findings are traceable to accepted, rejected, or deferred decisions.
+  - Every implemented feature has validation evidence and updated user-facing documentation or demo notes when relevant.
+  - No selected feature silently expands into unrelated platform redesign.
+  - Any remaining beta-driven gaps are placed into later roadmap phases with a clear reason.
+
 ---
 
 ## Group I — Quality & Observability
@@ -635,7 +682,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
 | M8: Frontend MVP | H1–H6, H4A, H4B, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, in-depth stock review page, and review-page portfolio-add integration |
 | M8.5: Review Endpoint | H4C | FMP primary / Yahoo fallback | Dedicated backend review endpoint replacing frontend endpoint composition on the review page |
-| **M8.8: Full Demo Assessment** | HD1, HD2 | FMP primary / Yahoo fallback | End-to-end demo walkthrough, UI/look-and-feel assessment, demo polish, and documented UX gaps before quality hardening |
+| **M8.8: Full Demo Assessment** | HD1, HD2, HD3, HD4 | FMP primary / Yahoo fallback | End-to-end demo walkthrough, UI/look-and-feel assessment, demo polish, beta persona reports, beta-driven feature implementation, and documented UX gaps before quality hardening |
 | M9: Production Ready | H7, I1, I2 | FMP primary / Yahoo fallback | Dashboard + tests + observability |
 | **M10: Google Sign-In** | J1, J2, J3 | FMP primary / Yahoo fallback | Google OIDC sign-in issuing the existing platform JWTs, with safe account linking and validated callbacks |
 | **M11: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
@@ -652,6 +699,6 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 >
 > **M6.5 is the complete HTML test harness.** A single `full-demo.html` covers every backend endpoint built through Group F — screener, security detail, watchlist, portfolio, simulation, and rebalancing — in addition to all FD1 panels. Stakeholders and developers can exercise the full system from a browser before the React frontend (Group H) is started, and it remains available as a low-friction regression test page throughout H development.
 >
-> **M8.8 is the product-demo quality gate.** After the React frontend MVP is assembled, the full demo is walked like a stakeholder would use it: not just endpoint correctness, but visual consistency, page flow, copy, accessibility, responsive behavior, and obvious trust-eroding rough edges. It feeds fixes and explicit follow-up work into Quality & Observability rather than burying UX debt.
+> **M8.8 is the product-demo quality gate.** After the React frontend MVP is assembled, the full demo is walked like a stakeholder would use it: not just endpoint correctness, but visual consistency, page flow, copy, accessibility, responsive behavior, and obvious trust-eroding rough edges. After polish, beta-tester personas exercise the product from distinct investor mindsets and produce portfolio/watchlist reports with improvement recommendations; the best findings are selected, implemented, or explicitly deferred before Quality & Observability. It feeds fixes and explicit follow-up work into Quality & Observability rather than burying UX debt.
 >
 > **M10 adds identity, not a second authorization system.** Google OpenID Connect verifies the person; the application maps that identity to its own user, roles, ownership rules, RS256 access tokens, and refresh-token lifecycle. This keeps every existing protected API and portfolio boundary consistent regardless of how the user signed in.
