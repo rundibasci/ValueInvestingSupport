@@ -64,7 +64,10 @@ class ScoreControllerTest {
                 .andExpect(jsonPath("$.totalScore").value(72.50))
                 .andExpect(jsonPath("$.mosScore").value(20.00))
                 .andExpect(jsonPath("$.qualityScore").value(25.00))
-                .andExpect(jsonPath("$.scoreDate").value("2026-06-20"));
+                .andExpect(jsonPath("$.scoreDate").value("2026-06-20"))
+                .andExpect(jsonPath("$.availability.status").value("AVAILABLE"))
+                .andExpect(jsonPath("$.availability.reason").value("Data is available."))
+                .andExpect(jsonPath("$.availability.dataAsOf").value("2026-06-20"));
 
         verify(scoreService, times(1)).getScore("AAPL");
     }

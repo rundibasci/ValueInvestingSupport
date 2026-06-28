@@ -137,6 +137,8 @@ class WatchlistIT {
         assertThat(created.getBody().get("id")).isNotNull();
         assertThat(created.getBody().get("addedAt")).isNotNull();
         assertThat(created.getBody().get("mosAlertMin")).isNull();
+        assertThat(created.getBody().get("monitoringReason")).isEqualTo("WAIT_FOR_BETTER_PRICE");
+        assertThat(created.getBody().get("rationaleNote")).isEqualTo("Monitor for a better entry price.");
 
         String aaplId = (String) created.getBody().get("id");
 
@@ -163,6 +165,8 @@ class WatchlistIT {
         assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(((Number) updated.getBody().get("mosAlertMin")).doubleValue()).isEqualTo(10.0);
         assertThat(((Number) updated.getBody().get("mosAlertMax")).doubleValue()).isEqualTo(25.0);
+        assertThat(updated.getBody().get("monitoringReason")).isEqualTo("VALUATION_CONCERN");
+        assertThat(updated.getBody().get("rationaleNote")).isEqualTo("MoS needs to improve.");
 
         // Add MSFT with fundamentalDegradeThreshold
         AddWatchlistItemRequest addMsft =
@@ -176,6 +180,7 @@ class WatchlistIT {
         ResponseEntity<List<Map<String, Object>>> list2 = getList("/api/v1/watchlist");
         assertThat(list2.getBody()).hasSize(2);
         assertThat(list2.getBody().get(0).get("symbol")).isEqualTo("MSFT");
+        assertThat(list2.getBody().get(1).get("rationaleNote")).isEqualTo("MoS needs to improve.");
 
         // Delete AAPL
         ResponseEntity<Void> deleted = restTemplate.exchange(
@@ -235,9 +240,12 @@ class WatchlistIT {
                 new ParameterizedTypeReference<>() {});
 
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(created.getBody().get("monitoringReason")).isEqualTo("NARRATIVE_CATALYST");
+        assertThat(created.getBody().get("rationaleNote")).isEqualTo("Track narrative against fundamentals.");
         ResponseEntity<List<Map<String, Object>>> investorList = restTemplate.exchange(url("/api/v1/watchlist"), HttpMethod.GET,
                 new HttpEntity<>(bearerHeaders(investorToken)), new ParameterizedTypeReference<>() {});
         assertThat(investorList.getBody()).extracting(item -> item.get("symbol")).containsExactly("NVDA");
+        assertThat(investorList.getBody().get(0).get("rationaleNote")).isEqualTo("Track narrative against fundamentals.");
         assertThat(getList("/api/v1/watchlist").getBody()).isEmpty();
     }
 

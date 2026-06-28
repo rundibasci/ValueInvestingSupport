@@ -98,6 +98,7 @@ class WatchlistControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
                 .andExpect(jsonPath("$.monitoringReason").value("WAIT_FOR_BETTER_PRICE"))
+                .andExpect(jsonPath("$.rationaleNote").value("Wait for a wider margin of safety."))
                 .andExpect(jsonPath("$.id").value(itemId.toString()));
     }
 
@@ -140,7 +141,9 @@ class WatchlistControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
                 .andExpect(jsonPath("$.mosAlertMin").value(15.0))
-                .andExpect(jsonPath("$.mosAlertMax").value(25.0));
+                .andExpect(jsonPath("$.mosAlertMax").value(25.0))
+                .andExpect(jsonPath("$.monitoringReason").value("WAIT_FOR_BETTER_PRICE"))
+                .andExpect(jsonPath("$.rationaleNote").value("Wait for a wider margin of safety."));
     }
 
     @Test

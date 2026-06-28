@@ -208,6 +208,14 @@ class PortfolioIT {
         assertThat(((Number) aaplItem.get("marginOfSafety")).doubleValue()).isEqualTo(16.67);
         assertThat(aaplItem.get("recommendation")).isEqualTo("QUALITY_VALUE");
         assertThat(msftItem.get("currentPrice")).isNull();
+        List<Map<String, Object>> warnings = (List<Map<String, Object>>) detail2.getBody().get("concentrationWarnings");
+        assertThat(warnings).extracting(w -> w.get("type"))
+                .contains("HOLDING", "SECTOR", "DATA_UNAVAILABLE");
+        assertThat(warnings).anySatisfy(w -> {
+            assertThat(w.get("type")).isEqualTo("HOLDING");
+            assertThat(w.get("key")).isEqualTo("AAPL");
+            assertThat(((Number) w.get("thresholdPercent")).doubleValue()).isEqualTo(20.0);
+        });
 
         // Update AAPL holding
         UpdateHoldingRequest updateReq = new UpdateHoldingRequest(new BigDecimal("15"),

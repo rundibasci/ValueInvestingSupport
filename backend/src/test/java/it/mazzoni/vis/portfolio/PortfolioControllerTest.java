@@ -156,7 +156,9 @@ class PortfolioControllerTest {
                 List.of(holding("AAPL", new BigDecimal("10"), new BigDecimal("180.00"),
                         new BigDecimal("100.00"), new BigDecimal("210.00"),
                         new BigDecimal("16.67"), "QUALITY_VALUE")),
-                List.of(),
+                List.of(new it.mazzoni.vis.portfolio.dto.ConcentrationWarning(
+                        "HOLDING", "AAPL", new BigDecimal("100.00"), new BigDecimal("20.00"),
+                        "AAPL is above the model holding concentration threshold.")),
                 LocalDateTime.now(), LocalDateTime.now());
         when(portfolioService.getPortfolioDetail(any(), eq(portfolioId))).thenReturn(detail);
 
@@ -166,7 +168,10 @@ class PortfolioControllerTest {
                 .andExpect(jsonPath("$.totalValue").value(1800.00))
                 .andExpect(jsonPath("$.weightedMoS").value(16.67))
                 .andExpect(jsonPath("$.holdings[0].symbol").value("AAPL"))
-                .andExpect(jsonPath("$.holdings[0].currentPrice").value(180.00));
+                .andExpect(jsonPath("$.holdings[0].currentPrice").value(180.00))
+                .andExpect(jsonPath("$.concentrationWarnings[0].type").value("HOLDING"))
+                .andExpect(jsonPath("$.concentrationWarnings[0].key").value("AAPL"))
+                .andExpect(jsonPath("$.concentrationWarnings[0].thresholdPercent").value(20.00));
     }
 
     @Test
