@@ -78,6 +78,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 - Maven `integration-test` profile with `combine.self="override"` on surefire config to prevent `excludedGroups=integration` from merging; `**/*IT.java` added to surefire includes; run with `mvn test -Pintegration-test`
 
 ### Changed
+- HD2: Demo polish pass stabilizes the INGR review workflow with idempotent current/TTM reseeding, annual ratio history for review charts, field-aware percentage formatting, guarded watchlist and portfolio post-add states, and responsive chart containers.
+- HD2: Added demo-readiness and validation evidence under `specs/2026-06-28-hd2-demo-polish-pass/`, including Docker build/start checks, backend/frontend validation, and authenticated localstack INGR review evidence.
 - Yahoo Finance documented as explicit FMP fallback in mission statement and roadmap
 - H2 Flyway migrations moved from `db/migration/h2/` to `db/migration-h2/` to decouple the H2 migration path from the PostgreSQL path
 - `.gitignore`: added `.env` and `**/application-fmpkey.yml` patterns to prevent accidental credential commit
