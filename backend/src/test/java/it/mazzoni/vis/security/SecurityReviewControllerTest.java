@@ -3,6 +3,7 @@ package it.mazzoni.vis.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.demo.GlobalExceptionHandler;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,8 @@ class SecurityReviewControllerTest {
                 List.of(new SecurityReviewResponse.SourceCoverageItem("Profile", null, "AVAILABLE",
                         "Application data is available.")),
                 List.of(),
+                List.of(new SecurityReviewResponse.AvailabilityItem("Score",
+                        AvailabilityResponse.missingComputation("No persisted value score is available."))),
                 List.of(new SecurityReviewResponse.DataQualityNote("Advice boundary", "INFO",
                         "Decision-support outputs, not investment advice."))
         );

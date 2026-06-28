@@ -7,6 +7,7 @@ import java.util.UUID;
 public record HoldingDetailItem(
         UUID id,
         String symbol,
+        String sector,
         BigDecimal quantity,
         BigDecimal averageCostBasis,
         String currency,
@@ -16,5 +17,6 @@ public record HoldingDetailItem(
         BigDecimal compositeFairValue,
         BigDecimal marginOfSafety,
         String recommendation,
+        String valueStatus,
         LocalDateTime addedAt
 ) {}

@@ -13,6 +13,7 @@ import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.portfolio.dto.AddHoldingRequest;
+import it.mazzoni.vis.portfolio.dto.ConcentrationWarning;
 import it.mazzoni.vis.portfolio.dto.CreatePortfolioRequest;
 import it.mazzoni.vis.portfolio.dto.HoldingDetailItem;
 import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
@@ -44,6 +45,8 @@ public class PortfolioService {
     private final SecurityRepository securityRepository;
     private final PriceQuoteRepository priceQuoteRepository;
     private final ValuationResultRepository valuationResultRepository;
+    private static final BigDecimal HOLDING_CONCENTRATION_THRESHOLD = new BigDecimal("20.00");
+    private static final BigDecimal SECTOR_CONCENTRATION_THRESHOLD = new BigDecimal("35.00");
 
     public PortfolioService(PortfolioRepository portfolioRepository,
                             HoldingRepository holdingRepository,
@@ -87,11 +90,13 @@ public class PortfolioService {
         Map<String, BigDecimal> fairValueMap = new HashMap<>();
         Map<String, BigDecimal> mosMap = new HashMap<>();
         Map<String, String> recMap = new HashMap<>();
+        Map<String, String> sectorMap = new HashMap<>();
 
         for (String symbol : symbols) {
             Optional<Security> secOpt = securityRepository.findBySymbol(symbol);
             if (secOpt.isPresent()) {
                 Security sec = secOpt.get();
+                sectorMap.put(symbol, sec.getSector());
                 priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(sec)
                         .ifPresent(pq -> priceMap.put(symbol, pq.getClose()));
                 valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(sec)
@@ -117,7 +122,7 @@ public class PortfolioService {
         BigDecimal resolvedTotal = anyPriced ? totalValue : null;
 
         List<HoldingDetailItem> items = holdings.stream()
-                .map(h -> buildHoldingItem(h, priceMap, fairValueMap, mosMap, recMap, resolvedTotal))
+                .map(h -> buildHoldingItem(h, priceMap, fairValueMap, mosMap, recMap, sectorMap, resolvedTotal))
                 .toList();
 
         BigDecimal weightedMoS = null;
@@ -134,6 +139,7 @@ public class PortfolioService {
 
         return new PortfolioDetailResponse(portfolio.getId(), portfolio.getName(),
                 portfolio.getDescription(), resolvedTotal, weightedMoS, items,
+                concentrationWarnings(items),
                 portfolio.getCreatedAt(), portfolio.getUpdatedAt());
     }
 
@@ -192,10 +198,12 @@ public class PortfolioService {
         BigDecimal compositeFairValue = null;
         BigDecimal marginOfSafety = null;
         String recommendation = null;
+        String sector = null;
 
         Optional<Security> secOpt = securityRepository.findBySymbol(symbol);
         if (secOpt.isPresent()) {
             Security sec = secOpt.get();
+            sector = sec.getSector();
             currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(sec)
                     .map(PriceQuote::getClose).orElse(null);
             Optional<ValuationResult> vrOpt =
@@ -211,9 +219,13 @@ public class PortfolioService {
         }
 
         BigDecimal currentValue = currentPrice != null ? h.getQuantity().multiply(currentPrice) : null;
-        return new HoldingDetailItem(h.getId(), symbol, h.getQuantity(), h.getAverageCostBasis(),
+        return new HoldingDetailItem(h.getId(), symbol, sector, h.getQuantity(), h.getAverageCostBasis(),
                 h.getCurrency(), currentPrice, currentValue, null,
-                compositeFairValue, marginOfSafety, recommendation, h.getAddedAt());
+                compositeFairValue, marginOfSafety, recommendation,
+                secOpt.isPresent()
+                        ? (compositeFairValue != null ? "AVAILABLE" : "MISSING_INTERNAL_COMPUTATION")
+                        : "MISSING_SEEDED_HISTORY",
+                h.getAddedAt());
     }
 
     private HoldingDetailItem buildHoldingItem(Holding h,
@@ -221,6 +233,7 @@ public class PortfolioService {
                                                Map<String, BigDecimal> fairValueMap,
                                                Map<String, BigDecimal> mosMap,
                                                Map<String, String> recMap,
+                                               Map<String, String> sectorMap,
                                                BigDecimal totalValue) {
         String symbol = h.getSymbol();
         BigDecimal price = priceMap.get(symbol);
@@ -232,8 +245,57 @@ public class PortfolioService {
                     .multiply(BigDecimal.valueOf(100))
                     .setScale(2, RoundingMode.HALF_UP);
         }
-        return new HoldingDetailItem(h.getId(), symbol, h.getQuantity(), h.getAverageCostBasis(),
+        return new HoldingDetailItem(h.getId(), symbol, sectorMap.get(symbol), h.getQuantity(), h.getAverageCostBasis(),
                 h.getCurrency(), price, currentValue, weightPercent,
-                fairValueMap.get(symbol), mosMap.get(symbol), recMap.get(symbol), h.getAddedAt());
+                fairValueMap.get(symbol), mosMap.get(symbol), recMap.get(symbol),
+                fairValueMap.containsKey(symbol) ? "AVAILABLE" : "MISSING_INTERNAL_COMPUTATION",
+                h.getAddedAt());
+    }
+
+    private List<ConcentrationWarning> concentrationWarnings(List<HoldingDetailItem> items) {
+        List<ConcentrationWarning> warnings = new java.util.ArrayList<>();
+        for (HoldingDetailItem item : items) {
+            if (item.weightPercent() != null
+                    && item.weightPercent().compareTo(HOLDING_CONCENTRATION_THRESHOLD) > 0) {
+                warnings.add(new ConcentrationWarning(
+                        "HOLDING",
+                        item.symbol(),
+                        item.weightPercent(),
+                        HOLDING_CONCENTRATION_THRESHOLD,
+                        item.symbol() + " is above the model holding concentration threshold."
+                ));
+            }
+        }
+
+        Map<String, BigDecimal> sectorWeights = items.stream()
+                .filter(i -> i.sector() != null && i.weightPercent() != null)
+                .collect(Collectors.groupingBy(
+                        HoldingDetailItem::sector,
+                        Collectors.mapping(HoldingDetailItem::weightPercent,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                ));
+        sectorWeights.forEach((sector, weight) -> {
+            if (weight.compareTo(SECTOR_CONCENTRATION_THRESHOLD) > 0) {
+                warnings.add(new ConcentrationWarning(
+                        "SECTOR",
+                        sector,
+                        weight.setScale(2, RoundingMode.HALF_UP),
+                        SECTOR_CONCENTRATION_THRESHOLD,
+                        sector + " exposure is above the model sector concentration threshold."
+                ));
+            }
+        });
+
+        boolean missingWeights = items.stream().anyMatch(i -> i.weightPercent() == null);
+        if (missingWeights) {
+            warnings.add(new ConcentrationWarning(
+                    "DATA_UNAVAILABLE",
+                    "Portfolio",
+                    null,
+                    null,
+                    "Some holdings are missing current prices, so concentration cannot be fully calculated."
+            ));
+        }
+        return warnings;
     }
 }

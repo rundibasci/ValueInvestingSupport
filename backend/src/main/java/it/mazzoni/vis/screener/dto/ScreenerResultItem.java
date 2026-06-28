@@ -1,5 +1,7 @@
 package it.mazzoni.vis.screener.dto;
 
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -18,5 +20,7 @@ public record ScreenerResultItem(
         BigDecimal growthScore,
         BigDecimal dividendScore,
         String recommendation,
-        LocalDate scoreDate
+        LocalDate scoreDate,
+        AvailabilityResponse scoreAvailability,
+        AvailabilityResponse valuationAvailability
 ) {}

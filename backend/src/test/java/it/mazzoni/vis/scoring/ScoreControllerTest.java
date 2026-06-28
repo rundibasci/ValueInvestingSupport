@@ -3,6 +3,7 @@ package it.mazzoni.vis.scoring;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.demo.GlobalExceptionHandler;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
@@ -52,7 +53,8 @@ class ScoreControllerTest {
                 new BigDecimal("20.00"), new BigDecimal("25.00"),
                 new BigDecimal("14.00"), new BigDecimal("10.00"),
                 new BigDecimal("0.00"),
-                LocalDate.of(2026, 6, 20));
+                LocalDate.of(2026, 6, 20),
+                AvailabilityResponse.available(LocalDate.of(2026, 6, 20)));
         when(scoreService.getScore("AAPL")).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/securities/AAPL/score"))
@@ -83,7 +85,8 @@ class ScoreControllerTest {
                 new BigDecimal("65.00"),
                 BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-                LocalDate.now());
+                LocalDate.now(),
+                AvailabilityResponse.available(LocalDate.now()));
         when(scoreService.getScore("ko")).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/securities/ko/score"))

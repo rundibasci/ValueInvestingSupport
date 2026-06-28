@@ -12,6 +12,8 @@ public record WatchlistItemResponse(
         BigDecimal mosAlertMin,
         BigDecimal mosAlertMax,
         BigDecimal fundamentalDegradeThreshold,
+        String monitoringReason,
+        String rationaleNote,
         LocalDateTime addedAt
 ) {
     public static WatchlistItemResponse from(WatchlistItem item) {
@@ -21,6 +23,8 @@ public record WatchlistItemResponse(
                 item.getMosAlertMin(),
                 item.getMosAlertMax(),
                 item.getFundamentalDegradeThreshold(),
+                item.getMonitoringReason() != null ? item.getMonitoringReason().name() : null,
+                item.getRationaleNote(),
                 item.getAddedAt()
         );
     }

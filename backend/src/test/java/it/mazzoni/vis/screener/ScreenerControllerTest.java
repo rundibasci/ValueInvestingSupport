@@ -3,6 +3,7 @@ package it.mazzoni.vis.screener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.demo.GlobalExceptionHandler;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.screener.dto.ScreenerRequest;
@@ -59,7 +60,9 @@ class ScreenerControllerTest {
                 new BigDecimal("20.00"), new BigDecimal("25.00"),
                 new BigDecimal("14.00"), new BigDecimal("10.00"),
                 new BigDecimal("0.00"),
-                "QUALITY_VALUE", LocalDate.of(2026, 6, 20));
+                "QUALITY_VALUE", LocalDate.of(2026, 6, 20),
+                AvailabilityResponse.available(LocalDate.of(2026, 6, 20)),
+                AvailabilityResponse.available(LocalDate.of(2026, 6, 20)));
 
         ScreenerResponse response = new ScreenerResponse(List.of(item), 0, 20, 1L, 1);
         when(screenerService.search(any(ScreenerRequest.class))).thenReturn(response);

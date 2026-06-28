@@ -1,5 +1,6 @@
 package it.mazzoni.vis.scoring.dto;
 
+import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.domain.entity.ValueScore;
 
 import java.math.BigDecimal;
@@ -14,7 +15,8 @@ public record ValueScoreResponse(
         BigDecimal safetyScore,
         BigDecimal growthScore,
         BigDecimal dividendScore,
-        LocalDate scoreDate
+        LocalDate scoreDate,
+        AvailabilityResponse availability
 ) {
     public static ValueScoreResponse from(ValueScore score) {
         return new ValueScoreResponse(
@@ -26,7 +28,8 @@ public record ValueScoreResponse(
                 score.getSafetyScore(),
                 score.getGrowthScore(),
                 score.getDividendScore(),
-                score.getScoreDate()
+                score.getScoreDate(),
+                AvailabilityResponse.available(score.getScoreDate())
         );
     }
 }

@@ -29,6 +29,13 @@ public class WatchlistItem {
     @Column(precision = 10, scale = 4)
     private BigDecimal fundamentalDegradeThreshold;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 40)
+    private MonitoringReason monitoringReason;
+
+    @Column(length = 500)
+    private String rationaleNote;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime addedAt;
 
@@ -56,6 +63,14 @@ public class WatchlistItem {
     public void setFundamentalDegradeThreshold(BigDecimal fundamentalDegradeThreshold) {
         this.fundamentalDegradeThreshold = fundamentalDegradeThreshold;
     }
+
+    public MonitoringReason getMonitoringReason() { return monitoringReason; }
+    public void setMonitoringReason(MonitoringReason monitoringReason) {
+        this.monitoringReason = monitoringReason;
+    }
+
+    public String getRationaleNote() { return rationaleNote; }
+    public void setRationaleNote(String rationaleNote) { this.rationaleNote = rationaleNote; }
 
     public LocalDateTime getAddedAt() { return addedAt; }
 }

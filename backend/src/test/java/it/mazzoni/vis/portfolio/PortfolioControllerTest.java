@@ -156,6 +156,7 @@ class PortfolioControllerTest {
                 List.of(holding("AAPL", new BigDecimal("10"), new BigDecimal("180.00"),
                         new BigDecimal("100.00"), new BigDecimal("210.00"),
                         new BigDecimal("16.67"), "QUALITY_VALUE")),
+                List.of(),
                 LocalDateTime.now(), LocalDateTime.now());
         when(portfolioService.getPortfolioDetail(any(), eq(portfolioId))).thenReturn(detail);
 
@@ -290,7 +291,9 @@ class PortfolioControllerTest {
                                       BigDecimal currentPrice, BigDecimal weightPercent,
                                       BigDecimal fairValue, BigDecimal mos, String rec) {
         BigDecimal currentValue = currentPrice != null ? quantity.multiply(currentPrice) : null;
-        return new HoldingDetailItem(holdingId, symbol, quantity, null, "USD",
-                currentPrice, currentValue, weightPercent, fairValue, mos, rec, LocalDateTime.now());
+        return new HoldingDetailItem(holdingId, symbol, "Technology", quantity, null, "USD",
+                currentPrice, currentValue, weightPercent, fairValue, mos, rec,
+                fairValue != null ? "AVAILABLE" : "MISSING_INTERNAL_COMPUTATION",
+                LocalDateTime.now());
     }
 }
