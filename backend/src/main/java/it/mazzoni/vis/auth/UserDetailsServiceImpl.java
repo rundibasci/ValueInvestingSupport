@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.findByEmail(email)
                 .map(u -> new User(
                         u.getEmail(),
-                        u.getPasswordHash(),
+                        u.getPasswordHash() != null ? u.getPasswordHash() : "",
                         u.isActive(), true, true, true,
                         List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole().name()))
                 ))

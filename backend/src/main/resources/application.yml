@@ -44,6 +44,11 @@ jwt:
   access-token-expiry-seconds: 900
   refresh-token-expiry-seconds: 604800
 
+google:
+  oauth2:
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+    frontend-callback: ${GOOGLE_FRONTEND_CALLBACK:http://localhost:5173/auth/oauth2/callback}
+
 valuation:
   weights:
     dcf: 0.60
