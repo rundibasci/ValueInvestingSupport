@@ -1,18 +1,24 @@
 package it.mazzoni.vis.valuation;
 
+import it.mazzoni.vis.config.ValuationEnhancementProperties;
 import it.mazzoni.vis.config.ValuationWeightsProperties;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
+import it.mazzoni.vis.domain.entity.WaccResultEntity;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
+import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
+import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +41,10 @@ public class ValuationService {
     private final PriceQuoteRepository priceQuoteRepository;
     private final ValuationResultRepository valuationResultRepository;
     private final ValuationWeightsProperties weights;
+    private final ValuationEnhancementProperties enhancementProperties;
+    private final GrahamCriteriaService grahamCriteriaService;
+    private final WaccResultRepository waccResultRepository;
+    private final GrahamChecklistItemRepository grahamChecklistItemRepository;
 
     public ValuationService(
             SecurityRepository securityRepository,
@@ -42,13 +52,22 @@ public class ValuationService {
             DividendRecordRepository dividendRecordRepository,
             PriceQuoteRepository priceQuoteRepository,
             ValuationResultRepository valuationResultRepository,
-            ValuationWeightsProperties weights) {
+            ValuationWeightsProperties weights,
+            ValuationEnhancementProperties enhancementProperties,
+            RatioSnapshotRepository ratioSnapshotRepository,
+            WaccResultRepository waccResultRepository,
+            GrahamChecklistItemRepository grahamChecklistItemRepository) {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.dividendRecordRepository = dividendRecordRepository;
         this.priceQuoteRepository = priceQuoteRepository;
         this.valuationResultRepository = valuationResultRepository;
         this.weights = weights;
+        this.enhancementProperties = enhancementProperties;
+        this.grahamCriteriaService = new GrahamCriteriaService(
+                fundamentalSnapshotRepository, ratioSnapshotRepository, dividendRecordRepository);
+        this.waccResultRepository = waccResultRepository;
+        this.grahamChecklistItemRepository = grahamChecklistItemRepository;
     }
 
     public ValuationOutcome calculate(String symbol, ValuationParams params) {
@@ -60,14 +79,24 @@ public class ValuationService {
         BigDecimal bvps = computeBvps(snapshot);
         BigDecimal netDebt = computeNetDebt(snapshot);
         BigDecimal fcfTtm = snapshot.getFreeCashFlow();
-        int fcfYearsPositive = countFcfPositiveYears(security);
+        List<FundamentalSnapshot> annualSnapshots = loadAnnualSnapshots(security);
+        int fcfYearsPositive = countFcfPositiveYears(annualSnapshots);
 
         BigDecimal grahamNumber = runGraham(snapshot.getEpsDiluted(), bvps);
         DcfResult dcfResult = runDcf(fcfTtm, snapshot.getSharesOutstanding(), netDebt, fcfYearsPositive, params);
         BigDecimal ddmFairValue = runDdm(security, params);
+        WaccResult waccResult = computeWacc(snapshot);
+        EpvResult epvResult = runEpv(annualSnapshots, waccResult.wacc(), netDebt, snapshot.getSharesOutstanding());
+        OwnerEarnings ownerEarnings = computeOwnerEarnings(snapshot);
+        GrahamChecklistResult grahamChecklist = grahamCriteriaService.evaluate(security);
 
         BigDecimal dcfFairValue = dcfResult != null ? dcfResult.fairValue() : null;
-        Map<String, BigDecimal> effectiveWeights = buildEffectiveWeights(dcfFairValue, grahamNumber, ddmFairValue, symbol);
+        Map<String, BigDecimal> effectiveWeights = buildEffectiveWeights(
+                dcfFairValue,
+                grahamNumber,
+                ddmFairValue,
+                dcfResult != null && dcfResult.highTerminalDependence(),
+                symbol);
         BigDecimal compositeFairValue = computeComposite(dcfFairValue, grahamNumber, ddmFairValue, effectiveWeights);
 
         BigDecimal currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
@@ -84,16 +113,29 @@ public class ValuationService {
             result.setDcfFairValue(dcfResult.fairValue());
             result.setDcfFairValueLow(dcfResult.fairValueLow());
             result.setDcfFairValueHigh(dcfResult.fairValueHigh());
+            result.setDcfTerminalValuePercentage(dcfResult.terminalValuePercentage());
+            result.setDcfHighTerminalDependence(dcfResult.highTerminalDependence());
         }
         result.setGrahamNumber(grahamNumber);
         result.setDdmFairValue(ddmFairValue);
+        if (epvResult != null) {
+            result.setEpvFairValue(epvResult.fairValue());
+            result.setEpvNormalizedEarnings(epvResult.normalizedEarnings());
+            result.setEpvYearsAveraged(epvResult.yearsAveraged());
+        }
+        result.setOwnerEarnings(ownerEarnings.value());
+        result.setMaintenanceCapexEstimate(ownerEarnings.maintenanceCapex());
         result.setCompositeFairValue(compositeFairValue);
         result.setCurrentPrice(currentPrice);
         result.setMarginOfSafety(mos);
         result.setRecommendation(recommendation);
         result.setSource("fmp");
 
-        return new ValuationOutcome(valuationResultRepository.save(result), effectiveWeights);
+        ValuationResult saved = valuationResultRepository.save(result);
+        persistWacc(saved, waccResult);
+        persistGrahamChecklist(saved, grahamChecklist);
+
+        return new ValuationOutcome(saved, effectiveWeights, waccResult, grahamChecklist);
     }
 
     private FundamentalSnapshot loadSnapshot(Security security) {
@@ -109,9 +151,13 @@ public class ValuationService {
                 .orElseThrow(() -> new ValuationDataUnavailableException(security.getSymbol()));
     }
 
-    private int countFcfPositiveYears(Security security) {
-        return (int) fundamentalSnapshotRepository
-                .findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL)
+    private List<FundamentalSnapshot> loadAnnualSnapshots(Security security) {
+        return fundamentalSnapshotRepository
+                .findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL);
+    }
+
+    private int countFcfPositiveYears(List<FundamentalSnapshot> annualSnapshots) {
+        return (int) annualSnapshots
                 .stream()
                 .limit(3)
                 .filter(s -> s.getFreeCashFlow() != null
@@ -194,6 +240,59 @@ public class ValuationService {
         }
     }
 
+    private WaccResult computeWacc(FundamentalSnapshot snapshot) {
+        BigDecimal equity = snapshot.getTotalEquity();
+        BigDecimal debt = snapshot.getTotalDebt();
+        BigDecimal costOfDebt = null;
+        if (debt != null && debt.compareTo(BigDecimal.ZERO) > 0 && snapshot.getOperatingIncome() != null
+                && snapshot.getNetIncome() != null) {
+            BigDecimal estimatedInterest = snapshot.getOperatingIncome().subtract(snapshot.getNetIncome());
+            if (estimatedInterest.compareTo(BigDecimal.ZERO) > 0) {
+                costOfDebt = estimatedInterest.divide(debt, 6, RoundingMode.HALF_UP);
+            }
+        }
+        WaccInput input = new WaccInput(
+                enhancementProperties.riskFreeRate(),
+                enhancementProperties.equityRiskPremium(),
+                null,
+                costOfDebt,
+                debt,
+                equity,
+                null,
+                enhancementProperties.sectorFallbackWacc());
+        return new WaccCalculator().compute(input);
+    }
+
+    private EpvResult runEpv(
+            List<FundamentalSnapshot> annualSnapshots,
+            BigDecimal wacc,
+            BigDecimal netDebt,
+            Long sharesOutstanding) {
+        if (sharesOutstanding == null || sharesOutstanding <= 0) {
+            return null;
+        }
+        List<BigDecimal> earnings = annualSnapshots.stream()
+                .limit(7)
+                .map(FundamentalSnapshot::getNetIncome)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        return new EpvCalculator().calculate(new EpvInput(
+                earnings, wacc, netDebt, BigDecimal.valueOf(sharesOutstanding))).orElse(null);
+    }
+
+    private OwnerEarnings computeOwnerEarnings(FundamentalSnapshot snapshot) {
+        OwnerEarningsCalculator calculator = new OwnerEarningsCalculator();
+        BigDecimal depreciation = null;
+        if (snapshot.getOperatingCashFlow() != null && snapshot.getNetIncome() != null) {
+            BigDecimal estimate = snapshot.getOperatingCashFlow().subtract(snapshot.getNetIncome());
+            depreciation = estimate.compareTo(BigDecimal.ZERO) > 0 ? estimate : BigDecimal.ZERO;
+        }
+        BigDecimal maintenanceCapex = calculator.estimateMaintenanceCapex(
+                depreciation, enhancementProperties.maintenanceCapexDepreciationRatio());
+        return new OwnerEarnings(calculator.calculate(snapshot.getNetIncome(), depreciation, maintenanceCapex),
+                maintenanceCapex);
+    }
+
     private int countConsecutiveDividendYears(List<DividendRecord> records) {
         int currentYear = LocalDate.now().getYear();
         int consecutive = 0;
@@ -211,11 +310,35 @@ public class ValuationService {
     }
 
     private Map<String, BigDecimal> buildEffectiveWeights(
-            BigDecimal dcf, BigDecimal graham, BigDecimal ddm, String symbol) {
+            BigDecimal dcf, BigDecimal graham, BigDecimal ddm, boolean highTerminalDependence, String symbol) {
         Map<String, BigDecimal> configured = new LinkedHashMap<>();
-        if (dcf != null) configured.put("dcf", weights.dcf());
-        if (graham != null) configured.put("graham", weights.graham());
-        if (ddm != null) configured.put("ddm", weights.ddm());
+        BigDecimal dcfWeight = weights.dcf();
+        BigDecimal grahamWeight = weights.graham();
+        BigDecimal ddmWeight = weights.ddm();
+
+        validateWeights(dcfWeight, grahamWeight, ddmWeight);
+
+        if (highTerminalDependence && dcf != null && dcfWeight.compareTo(enhancementProperties.reducedDcfWeight()) > 0) {
+            BigDecimal shift = dcfWeight.subtract(enhancementProperties.reducedDcfWeight());
+            dcfWeight = enhancementProperties.reducedDcfWeight();
+            BigDecimal redistributionBase = BigDecimal.ZERO;
+            if (graham != null) redistributionBase = redistributionBase.add(grahamWeight);
+            if (ddm != null) redistributionBase = redistributionBase.add(ddmWeight);
+            if (redistributionBase.compareTo(BigDecimal.ZERO) > 0) {
+                if (graham != null) {
+                    grahamWeight = grahamWeight.add(shift.multiply(grahamWeight)
+                            .divide(redistributionBase, 6, RoundingMode.HALF_UP));
+                }
+                if (ddm != null) {
+                    ddmWeight = ddmWeight.add(shift.multiply(ddmWeight)
+                            .divide(redistributionBase, 6, RoundingMode.HALF_UP));
+                }
+            }
+        }
+
+        if (dcf != null) configured.put("dcf", dcfWeight);
+        if (graham != null) configured.put("graham", grahamWeight);
+        if (ddm != null) configured.put("ddm", ddmWeight);
 
         if (configured.isEmpty()) {
             throw new ValuationNotApplicableException(symbol);
@@ -225,12 +348,19 @@ public class ValuationService {
 
         Map<String, BigDecimal> effective = new LinkedHashMap<>();
         effective.put("dcf", dcf != null
-                ? weights.dcf().divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+                ? dcfWeight.divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         effective.put("graham", graham != null
-                ? weights.graham().divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+                ? grahamWeight.divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         effective.put("ddm", ddm != null
-                ? weights.ddm().divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+                ? ddmWeight.divide(total, 6, RoundingMode.HALF_UP) : BigDecimal.ZERO);
         return effective;
+    }
+
+    private void validateWeights(BigDecimal dcf, BigDecimal graham, BigDecimal ddm) {
+        BigDecimal total = dcf.add(graham).add(ddm);
+        if (total.compareTo(BigDecimal.ONE) != 0) {
+            throw new IllegalArgumentException("Composite valuation weights must sum to 1.00");
+        }
     }
 
     private BigDecimal computeComposite(
@@ -250,4 +380,35 @@ public class ValuationService {
         if (mos.compareTo(BigDecimal.ZERO) >= 0) return Recommendation.FAIR_VALUE;
         return Recommendation.OVERVALUED;
     }
+
+    private void persistWacc(ValuationResult valuationResult, WaccResult waccResult) {
+        WaccResultEntity entity = new WaccResultEntity();
+        entity.setValuationResult(valuationResult);
+        entity.setWacc(waccResult.wacc());
+        entity.setRiskFreeRate(waccResult.riskFreeRate());
+        entity.setEquityRiskPremium(waccResult.equityRiskPremium());
+        entity.setBeta(waccResult.beta());
+        entity.setCostOfEquity(waccResult.costOfEquity());
+        entity.setCostOfDebt(waccResult.costOfDebt());
+        entity.setDebtWeight(waccResult.debtWeight());
+        entity.setEquityWeight(waccResult.equityWeight());
+        entity.setEffectiveTaxRate(waccResult.effectiveTaxRate());
+        entity.setFallbackUsed(waccResult.fallbackUsed());
+        entity.setSource(waccResult.source());
+        waccResultRepository.save(entity);
+    }
+
+    private void persistGrahamChecklist(ValuationResult valuationResult, GrahamChecklistResult checklist) {
+        for (GrahamCriterionResult criterion : checklist.criteria()) {
+            GrahamChecklistItem item = new GrahamChecklistItem();
+            item.setValuationResult(valuationResult);
+            item.setCriterionCode(criterion.code());
+            item.setLabel(criterion.label());
+            item.setStatus(criterion.status().name());
+            item.setActualValue(criterion.actualValue());
+            grahamChecklistItemRepository.save(item);
+        }
+    }
+
+    private record OwnerEarnings(BigDecimal value, BigDecimal maintenanceCapex) {}
 }

@@ -29,11 +29,31 @@ public class ValuationResult {
     @Column(precision = 15, scale = 4)
     private BigDecimal dcfFairValueHigh;
 
+    @Column(precision = 10, scale = 4)
+    private BigDecimal dcfTerminalValuePercentage;
+
+    @Column(nullable = false)
+    private boolean dcfHighTerminalDependence;
+
     @Column(precision = 15, scale = 4)
     private BigDecimal grahamNumber;
 
     @Column(precision = 15, scale = 4)
     private BigDecimal ddmFairValue;
+
+    @Column(precision = 15, scale = 4)
+    private BigDecimal epvFairValue;
+
+    @Column(precision = 20, scale = 2)
+    private BigDecimal epvNormalizedEarnings;
+
+    private Integer epvYearsAveraged;
+
+    @Column(precision = 20, scale = 2)
+    private BigDecimal ownerEarnings;
+
+    @Column(precision = 20, scale = 2)
+    private BigDecimal maintenanceCapexEstimate;
 
     @Column(precision = 15, scale = 4)
     private BigDecimal compositeFairValue;
@@ -69,11 +89,40 @@ public class ValuationResult {
     public BigDecimal getDcfFairValueHigh() { return dcfFairValueHigh; }
     public void setDcfFairValueHigh(BigDecimal dcfFairValueHigh) { this.dcfFairValueHigh = dcfFairValueHigh; }
 
+    public BigDecimal getDcfTerminalValuePercentage() { return dcfTerminalValuePercentage; }
+    public void setDcfTerminalValuePercentage(BigDecimal dcfTerminalValuePercentage) {
+        this.dcfTerminalValuePercentage = dcfTerminalValuePercentage;
+    }
+
+    public boolean isDcfHighTerminalDependence() { return dcfHighTerminalDependence; }
+    public void setDcfHighTerminalDependence(boolean dcfHighTerminalDependence) {
+        this.dcfHighTerminalDependence = dcfHighTerminalDependence;
+    }
+
     public BigDecimal getGrahamNumber() { return grahamNumber; }
     public void setGrahamNumber(BigDecimal grahamNumber) { this.grahamNumber = grahamNumber; }
 
     public BigDecimal getDdmFairValue() { return ddmFairValue; }
     public void setDdmFairValue(BigDecimal ddmFairValue) { this.ddmFairValue = ddmFairValue; }
+
+    public BigDecimal getEpvFairValue() { return epvFairValue; }
+    public void setEpvFairValue(BigDecimal epvFairValue) { this.epvFairValue = epvFairValue; }
+
+    public BigDecimal getEpvNormalizedEarnings() { return epvNormalizedEarnings; }
+    public void setEpvNormalizedEarnings(BigDecimal epvNormalizedEarnings) {
+        this.epvNormalizedEarnings = epvNormalizedEarnings;
+    }
+
+    public Integer getEpvYearsAveraged() { return epvYearsAveraged; }
+    public void setEpvYearsAveraged(Integer epvYearsAveraged) { this.epvYearsAveraged = epvYearsAveraged; }
+
+    public BigDecimal getOwnerEarnings() { return ownerEarnings; }
+    public void setOwnerEarnings(BigDecimal ownerEarnings) { this.ownerEarnings = ownerEarnings; }
+
+    public BigDecimal getMaintenanceCapexEstimate() { return maintenanceCapexEstimate; }
+    public void setMaintenanceCapexEstimate(BigDecimal maintenanceCapexEstimate) {
+        this.maintenanceCapexEstimate = maintenanceCapexEstimate;
+    }
 
     public BigDecimal getCompositeFairValue() { return compositeFairValue; }
     public void setCompositeFairValue(BigDecimal compositeFairValue) { this.compositeFairValue = compositeFairValue; }

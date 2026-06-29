@@ -1,5 +1,6 @@
 package it.mazzoni.vis.valuation;
 
+import it.mazzoni.vis.config.ValuationEnhancementProperties;
 import it.mazzoni.vis.config.ValuationWeightsProperties;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
@@ -10,9 +11,12 @@ import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
+import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
+import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,11 +47,21 @@ class ValuationServiceTest {
     @Mock DividendRecordRepository dividendRecordRepository;
     @Mock PriceQuoteRepository priceQuoteRepository;
     @Mock ValuationResultRepository valuationResultRepository;
+    @Mock RatioSnapshotRepository ratioSnapshotRepository;
+    @Mock WaccResultRepository waccResultRepository;
+    @Mock GrahamChecklistItemRepository grahamChecklistItemRepository;
 
     private ValuationService service;
 
     private final ValuationWeightsProperties defaultWeights = new ValuationWeightsProperties(
             new BigDecimal("0.60"), new BigDecimal("0.25"), new BigDecimal("0.15"));
+    private final ValuationEnhancementProperties enhancementProperties = new ValuationEnhancementProperties(
+            new BigDecimal("0.045"),
+            new BigDecimal("0.055"),
+            new BigDecimal("0.09"),
+            new BigDecimal("0.70"),
+            new BigDecimal("70.00"),
+            new BigDecimal("0.40"));
 
     private Security security;
     private FundamentalSnapshot snapshot;
@@ -56,7 +70,9 @@ class ValuationServiceTest {
     void setUp() {
         service = new ValuationService(
                 securityRepository, fundamentalSnapshotRepository, dividendRecordRepository,
-                priceQuoteRepository, valuationResultRepository, defaultWeights);
+                priceQuoteRepository, valuationResultRepository, defaultWeights,
+                enhancementProperties, ratioSnapshotRepository, waccResultRepository,
+                grahamChecklistItemRepository);
 
         security = new Security();
         security.setSymbol("AAPL");

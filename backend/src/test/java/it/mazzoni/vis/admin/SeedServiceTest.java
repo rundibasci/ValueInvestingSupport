@@ -187,6 +187,6 @@ class SeedServiceTest {
         result.setMarginOfSafety(mos);
         result.setRecommendation(rec);
         when(valuationService.calculate(eq(symbol), any()))
-                .thenReturn(new ValuationOutcome(result, Map.of()));
+                .thenReturn(new ValuationOutcome(result, Map.<String, BigDecimal>of()));
     }
 }

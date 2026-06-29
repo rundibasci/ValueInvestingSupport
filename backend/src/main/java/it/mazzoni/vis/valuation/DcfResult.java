@@ -7,5 +7,7 @@ public record DcfResult(
         BigDecimal fairValueLow,
         BigDecimal fairValueHigh,
         BigDecimal enterpriseValue,
+        BigDecimal terminalValuePercentage,
+        boolean highTerminalDependence,
         DcfInput parameters
 ) {}
