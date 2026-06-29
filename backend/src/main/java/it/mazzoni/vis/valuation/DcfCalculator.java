@@ -19,28 +19,41 @@ public class DcfCalculator {
                     "terminalRate (" + input.terminalRate() + ") must be less than wacc (" + input.wacc() + ")");
         }
 
-        BigDecimal enterpriseValue = presentValue(
+        DcfPresentValue enterpriseValue = presentValue(
                 input.fcfTtm(), input.growthY1Y5(), input.growthY6Y10(),
                 input.terminalRate(), input.wacc());
-        BigDecimal fairValue = toPerShare(enterpriseValue, input.netDebt(), input.shares());
+        BigDecimal fairValue = toPerShare(enterpriseValue.totalValue(), input.netDebt(), input.shares());
 
         BigDecimal waccLow = input.wacc().add(new BigDecimal("0.02"));
         BigDecimal fairValueLow = toPerShare(
                 presentValue(input.fcfTtm(), input.growthY1Y5(), input.growthY6Y10(),
-                        input.terminalRate(), waccLow),
+                        input.terminalRate(), waccLow).totalValue(),
                 input.netDebt(), input.shares());
 
         BigDecimal waccHigh = input.wacc().subtract(new BigDecimal("0.01"));
         BigDecimal fairValueHigh = toPerShare(
                 presentValue(input.fcfTtm(), input.growthY1Y5(), input.growthY6Y10(),
-                        input.terminalRate(), waccHigh),
+                        input.terminalRate(), waccHigh).totalValue(),
                 input.netDebt(), input.shares());
 
-        return Optional.of(new DcfResult(fairValue, fairValueLow, fairValueHigh, enterpriseValue, input));
+        BigDecimal terminalPercentage = enterpriseValue.terminalValue()
+                .divide(enterpriseValue.totalValue(), 6, ROUNDING)
+                .multiply(new BigDecimal("100"))
+                .setScale(2, ROUNDING);
+        boolean highTerminalDependence = terminalPercentage.compareTo(new BigDecimal("70.00")) > 0;
+
+        return Optional.of(new DcfResult(
+                fairValue,
+                fairValueLow,
+                fairValueHigh,
+                enterpriseValue.totalValue(),
+                terminalPercentage,
+                highTerminalDependence,
+                input));
     }
 
-    private BigDecimal presentValue(BigDecimal fcfTtm, BigDecimal growthY1Y5, BigDecimal growthY6Y10,
-                                     BigDecimal terminalRate, BigDecimal wacc) {
+    private DcfPresentValue presentValue(BigDecimal fcfTtm, BigDecimal growthY1Y5, BigDecimal growthY6Y10,
+                                         BigDecimal terminalRate, BigDecimal wacc) {
         BigDecimal pv = BigDecimal.ZERO;
         BigDecimal fcf = fcfTtm;
         BigDecimal discountFactor = BigDecimal.ONE;
@@ -62,12 +75,17 @@ public class DcfCalculator {
                 .setScale(INTERNAL_SCALE, ROUNDING);
         BigDecimal denominator = wacc.subtract(terminalRate);
         BigDecimal terminalValue = terminalFcf.divide(denominator, INTERNAL_SCALE, ROUNDING);
-        pv = pv.add(terminalValue.divide(discountFactor, INTERNAL_SCALE, ROUNDING));
+        BigDecimal discountedTerminalValue = terminalValue.divide(discountFactor, INTERNAL_SCALE, ROUNDING);
+        pv = pv.add(discountedTerminalValue);
 
-        return pv.setScale(RESULT_SCALE, ROUNDING);
+        return new DcfPresentValue(
+                pv.setScale(RESULT_SCALE, ROUNDING),
+                discountedTerminalValue.setScale(RESULT_SCALE, ROUNDING));
     }
 
     private BigDecimal toPerShare(BigDecimal enterpriseValue, BigDecimal netDebt, BigDecimal shares) {
         return enterpriseValue.subtract(netDebt).divide(shares, RESULT_SCALE, ROUNDING);
     }
+
+    private record DcfPresentValue(BigDecimal totalValue, BigDecimal terminalValue) {}
 }
