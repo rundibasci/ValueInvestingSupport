@@ -62,7 +62,11 @@ class ScreenerControllerTest {
                 new BigDecimal("0.00"),
                 "QUALITY_VALUE", LocalDate.of(2026, 6, 20),
                 AvailabilityResponse.available(LocalDate.of(2026, 6, 20)),
-                AvailabilityResponse.available(LocalDate.of(2026, 6, 20)));
+                AvailabilityResponse.available(LocalDate.of(2026, 6, 20)),
+                8,
+                "AVAILABLE",
+                "SAFE",
+                "AVAILABLE");
 
         ScreenerResponse response = new ScreenerResponse(List.of(item), 0, 20, 1L, 1);
         when(screenerService.search(any(ScreenerRequest.class))).thenReturn(response);
@@ -73,6 +77,8 @@ class ScreenerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.results[0].symbol").value("KO"))
                 .andExpect(jsonPath("$.results[0].totalScore").value(72.50))
+                .andExpect(jsonPath("$.results[0].piotroskiScore").value(8))
+                .andExpect(jsonPath("$.results[0].altmanZone").value("SAFE"))
                 .andExpect(jsonPath("$.results[0].recommendation").value("QUALITY_VALUE"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.page").value(0))

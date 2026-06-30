@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface PiotroskiResultRepository extends JpaRepository<PiotroskiResult, UUID> {
     Optional<PiotroskiResult> findTopBySecurityOrderByResultDateDesc(Security security);
+    Optional<PiotroskiResult> findTopBySecuritySymbolOrderByResultDateDesc(String symbol);
 }

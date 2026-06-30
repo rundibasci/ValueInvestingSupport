@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface AltmanResultRepository extends JpaRepository<AltmanResult, UUID> {
     Optional<AltmanResult> findTopBySecurityOrderByResultDateDesc(Security security);
+    Optional<AltmanResult> findTopBySecuritySymbolOrderByResultDateDesc(String symbol);
 }
