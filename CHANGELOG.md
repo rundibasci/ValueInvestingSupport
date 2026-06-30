@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- J3: Google Sign-In security and operational validation with sanitized OAuth security events, Micrometer counters for callback/account/handoff outcomes, normalized verified-email linking, and a Google OAuth operations runbook; feature specifications under `specs/2026-06-30-j3-google-sign-in-validation/`.
+- J3: Focused OAuth account-resolution, callback-handler, token-handoff, role-preservation, and authorization-regression tests; validation evidence for focused OAuth tests, full backend Maven suite passing with 314 tests, and frontend production build.
 - J2: Google Sign-In UI and account lifecycle with a React **Continue with Google** login action, OAuth handoff callback route, authenticated account settings page, backend account status/unlink endpoints, and unlink safeguards when Google is the only sign-in method; feature specifications under `specs/2026-06-30-j2-google-sign-in-ui/`.
 - J2: Focused account lifecycle tests plus validation evidence for frontend production build and full backend Maven suite passing with 308 tests.
 - MA2: Moat and business-quality frontend sections on the in-depth review page with moat classification, ROIC versus WACC, capital allocation, normalized shares outstanding, valuation-band visuals, Graham stability criteria, and feature specifications under `specs/2026-06-30-ma2-moat-quality-frontend/`.
