@@ -6,6 +6,10 @@ import it.mazzoni.vis.domain.entity.PiotroskiResult;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.MoatResult;
+import it.mazzoni.vis.domain.entity.MoatStrength;
+import it.mazzoni.vis.domain.entity.CapitalAllocationResult;
+import it.mazzoni.vis.domain.entity.SharesOutstandingTrend;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.AltmanResult;
@@ -84,6 +88,8 @@ public class ScreenerService {
         Root<RatioSnapshot> rs = query.from(RatioSnapshot.class);
         Root<PiotroskiResult> pr = needsPiotroski(request) ? query.from(PiotroskiResult.class) : null;
         Root<AltmanResult> ar = needsAltman(request) ? query.from(AltmanResult.class) : null;
+        Root<MoatResult> mr = needsMoat(request) ? query.from(MoatResult.class) : null;
+        Root<CapitalAllocationResult> car = needsCapitalAllocation(request) ? query.from(CapitalAllocationResult.class) : null;
 
         query.multiselect(
                 sec.get("symbol").alias("symbol"),
@@ -103,7 +109,7 @@ public class ScreenerService {
                 vr.get("recommendation").alias("recommendation")
         );
 
-        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, request);
+        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, mr, car, request);
         query.where(predicates.toArray(new Predicate[0]));
         query.orderBy(sortDesc
                 ? cb.desc(sortExpression(sortField, sec, vs, vr))
@@ -127,9 +133,11 @@ public class ScreenerService {
         Root<RatioSnapshot> rs = query.from(RatioSnapshot.class);
         Root<PiotroskiResult> pr = needsPiotroski(request) ? query.from(PiotroskiResult.class) : null;
         Root<AltmanResult> ar = needsAltman(request) ? query.from(AltmanResult.class) : null;
+        Root<MoatResult> mr = needsMoat(request) ? query.from(MoatResult.class) : null;
+        Root<CapitalAllocationResult> car = needsCapitalAllocation(request) ? query.from(CapitalAllocationResult.class) : null;
 
         query.select(cb.count(sec));
-        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, request);
+        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, mr, car, request);
         query.where(predicates.toArray(new Predicate[0]));
 
         return em.createQuery(query).getSingleResult();
@@ -140,6 +148,7 @@ public class ScreenerService {
             Root<Security> sec, Root<ValueScore> vs,
             Root<ValuationResult> vr, Root<RatioSnapshot> rs,
             Root<PiotroskiResult> pr, Root<AltmanResult> ar,
+            Root<MoatResult> mr, Root<CapitalAllocationResult> car,
             ScreenerRequest request) {
 
         List<Predicate> predicates = new ArrayList<>();
@@ -226,6 +235,25 @@ public class ScreenerService {
             predicates.add(cb.equal(ar.get("resultDate"), maxAltmanDate));
             predicates.add(cb.equal(ar.get("zone"), AltmanZone.valueOf(request.altmanZone().toUpperCase())));
         }
+        if (mr != null) {
+            predicates.add(cb.equal(mr.get("security"), sec));
+            Subquery<LocalDate> maxMoatDate = query.subquery(LocalDate.class);
+            Root<MoatResult> mrMax = maxMoatDate.from(MoatResult.class);
+            maxMoatDate.select(cb.greatest(mrMax.<LocalDate>get("resultDate")))
+                    .where(cb.equal(mrMax.get("security"), sec));
+            predicates.add(cb.equal(mr.get("resultDate"), maxMoatDate));
+            predicates.add(cb.equal(mr.get("moatStrength"), MoatStrength.valueOf(request.moatStrength().toUpperCase())));
+        }
+        if (car != null) {
+            predicates.add(cb.equal(car.get("security"), sec));
+            Subquery<LocalDate> maxCapitalDate = query.subquery(LocalDate.class);
+            Root<CapitalAllocationResult> carMax = maxCapitalDate.from(CapitalAllocationResult.class);
+            maxCapitalDate.select(cb.greatest(carMax.<LocalDate>get("resultDate")))
+                    .where(cb.equal(carMax.get("security"), sec));
+            predicates.add(cb.equal(car.get("resultDate"), maxCapitalDate));
+            predicates.add(cb.equal(car.get("sharesOutstandingTrend"),
+                    SharesOutstandingTrend.valueOf(request.sharesOutstandingTrend().toUpperCase())));
+        }
 
         return predicates;
     }
@@ -236,6 +264,14 @@ public class ScreenerService {
 
     private boolean needsAltman(ScreenerRequest request) {
         return request.altmanZone() != null && !request.altmanZone().isBlank();
+    }
+
+    private boolean needsMoat(ScreenerRequest request) {
+        return request.moatStrength() != null && !request.moatStrength().isBlank();
+    }
+
+    private boolean needsCapitalAllocation(ScreenerRequest request) {
+        return request.sharesOutstandingTrend() != null && !request.sharesOutstandingTrend().isBlank();
     }
 
     @SuppressWarnings("unchecked")

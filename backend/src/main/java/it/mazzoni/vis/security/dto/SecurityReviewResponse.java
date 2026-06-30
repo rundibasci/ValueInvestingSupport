@@ -6,6 +6,9 @@ import it.mazzoni.vis.scoring.dto.CyclicalityResponse;
 import it.mazzoni.vis.scoring.dto.EarningsQualityResponse;
 import it.mazzoni.vis.scoring.dto.PiotroskiResponse;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
+import it.mazzoni.vis.moat.dto.CapitalAllocationResponse;
+import it.mazzoni.vis.moat.dto.MoatResponse;
+import it.mazzoni.vis.moat.dto.ValuationBandsResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,12 +28,40 @@ public record SecurityReviewResponse(
         AltmanResponse altman,
         CyclicalityResponse cyclicality,
         EarningsQualityResponse earningsQuality,
+        MoatResponse moat,
+        CapitalAllocationResponse capitalAllocation,
+        ValuationBandsResponse valuationBands,
         FinancialHealth financialHealth,
         List<SourceCoverageItem> sourceCoverage,
         List<FreshnessItem> freshness,
         List<AvailabilityItem> availability,
         List<DataQualityNote> dataQualityNotes
 ) {
+    public SecurityReviewResponse(
+            String symbol,
+            SecurityDetailResponse detail,
+            FinancialsResponse financials,
+            RatiosHistoryResponse ratios,
+            ValuationDetailResponse valuation,
+            DividendsResponse dividends,
+            GrowthResponse growth,
+            PeersResponse peers,
+            ValueScoreResponse score,
+            PiotroskiResponse piotroski,
+            AltmanResponse altman,
+            CyclicalityResponse cyclicality,
+            EarningsQualityResponse earningsQuality,
+            FinancialHealth financialHealth,
+            List<SourceCoverageItem> sourceCoverage,
+            List<FreshnessItem> freshness,
+            List<AvailabilityItem> availability,
+            List<DataQualityNote> dataQualityNotes
+    ) {
+        this(symbol, detail, financials, ratios, valuation, dividends, growth, peers, score,
+                piotroski, altman, cyclicality, earningsQuality, null, null, null,
+                financialHealth, sourceCoverage, freshness, availability, dataQualityNotes);
+    }
+
     public record FinancialHealth(
             BigDecimal totalDebt,
             BigDecimal cash,

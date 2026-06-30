@@ -2,11 +2,17 @@ package it.mazzoni.vis.security;
 
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
+import it.mazzoni.vis.domain.entity.CapitalAllocationResult;
+import it.mazzoni.vis.domain.entity.CapitalAllocatorClassification;
+import it.mazzoni.vis.domain.entity.MoatResult;
+import it.mazzoni.vis.domain.entity.MoatStrength;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.RoicTrend;
+import it.mazzoni.vis.domain.entity.SharesOutstandingTrend;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.WaccResultEntity;
@@ -20,11 +26,15 @@ import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
+import it.mazzoni.vis.domain.repository.StabilityResultRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.security.domain.AnalystEstimateRepository;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
+import it.mazzoni.vis.moat.CapitalAllocationService;
+import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.ValuationHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +66,11 @@ class SecurityReviewServiceTest {
     @Mock EarningsQualityResultRepository earningsQualityResultRepository;
     @Mock WaccResultRepository waccResultRepository;
     @Mock GrahamChecklistItemRepository grahamChecklistItemRepository;
+    @Mock StabilityResultRepository stabilityResultRepository;
     @Mock AnalystEstimateRepository analystEstimateRepository;
+    @Mock MoatAssessmentService moatAssessmentService;
+    @Mock CapitalAllocationService capitalAllocationService;
+    @Mock ValuationHistoryService valuationHistoryService;
 
     SecurityReviewService service;
 
@@ -76,9 +90,13 @@ class SecurityReviewServiceTest {
                 earningsQualityResultRepository,
                 waccResultRepository,
                 grahamChecklistItemRepository,
+                stabilityResultRepository,
                 analystEstimateRepository,
                 new DividendsService(),
-                new GrowthService()
+                new GrowthService(),
+                moatAssessmentService,
+                capitalAllocationService,
+                valuationHistoryService
         );
     }
 
@@ -116,6 +134,11 @@ class SecurityReviewServiceTest {
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("AAPL")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+        when(moatAssessmentService.analyze(security)).thenReturn(moat(security));
+        when(stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(any(Security.class), any(LocalDate.class)))
+                .thenReturn(List.of());
+        when(capitalAllocationService.analyze(security)).thenReturn(capitalAllocation(security));
+        when(valuationHistoryService.compute(security)).thenReturn(List.of());
 
         SecurityReviewResponse response = service.getReview("aapl");
 
@@ -129,6 +152,9 @@ class SecurityReviewServiceTest {
         assertThat(response.valuation().grahamChecklist()).isNotNull();
         assertThat(response.valuation().grahamChecklist().failed()).isEqualTo(1);
         assertThat(response.score()).isNotNull();
+        assertThat(response.moat()).isNotNull();
+        assertThat(response.capitalAllocation()).isNotNull();
+        assertThat(response.valuationBands()).isNotNull();
         assertThat(response.financialHealth().currentRatio()).isEqualByComparingTo("1.25");
         assertThat(response.sourceCoverage()).extracting(SecurityReviewResponse.SourceCoverageItem::category)
                 .contains("Profile", "Fundamentals", "Ratios", "Quote", "Valuation", "Score");
@@ -171,6 +197,11 @@ class SecurityReviewServiceTest {
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+        when(moatAssessmentService.analyze(security)).thenReturn(moat(security));
+        when(stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(any(Security.class), any(LocalDate.class)))
+                .thenReturn(List.of());
+        when(capitalAllocationService.analyze(security)).thenReturn(capitalAllocation(security));
+        when(valuationHistoryService.compute(security)).thenReturn(List.of());
 
         SecurityReviewResponse response = service.getReview("pg");
 
@@ -289,6 +320,27 @@ class SecurityReviewServiceTest {
         w.setFallbackUsed(true);
         w.setSource("sector-median");
         return w;
+    }
+
+    private MoatResult moat(Security security) {
+        MoatResult result = new MoatResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setMoatStrength(MoatStrength.NARROW);
+        result.setRoicTrend(RoicTrend.STABLE);
+        result.setYearsAnalyzed(10);
+        result.setYearsRoicAboveWacc(7);
+        return result;
+    }
+
+    private CapitalAllocationResult capitalAllocation(Security security) {
+        CapitalAllocationResult result = new CapitalAllocationResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setSharesOutstandingTrend(SharesOutstandingTrend.STABLE);
+        result.setClassification(CapitalAllocatorClassification.STABLE);
+        result.setYearsAnalyzed(10);
+        return result;
     }
 
     private GrahamChecklistItem checklistItem(ValuationResult valuation, String code, String label, String status, String actualValue) {

@@ -21,10 +21,17 @@ import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
+import it.mazzoni.vis.domain.repository.StabilityResultRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.moat.CapitalAllocationService;
+import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.ValuationHistoryService;
+import it.mazzoni.vis.moat.dto.CapitalAllocationResponse;
+import it.mazzoni.vis.moat.dto.MoatResponse;
+import it.mazzoni.vis.moat.dto.ValuationBandsResponse;
 import it.mazzoni.vis.scoring.dto.AltmanResponse;
 import it.mazzoni.vis.scoring.dto.CyclicalityResponse;
 import it.mazzoni.vis.scoring.dto.EarningsQualityResponse;
@@ -88,9 +95,13 @@ public class SecurityReviewService {
     private final EarningsQualityResultRepository earningsQualityResultRepository;
     private final WaccResultRepository waccResultRepository;
     private final GrahamChecklistItemRepository grahamChecklistItemRepository;
+    private final StabilityResultRepository stabilityResultRepository;
     private final AnalystEstimateRepository analystEstimateRepository;
     private final DividendsService dividendsService;
     private final GrowthService growthService;
+    private final MoatAssessmentService moatAssessmentService;
+    private final CapitalAllocationService capitalAllocationService;
+    private final ValuationHistoryService valuationHistoryService;
 
     public SecurityReviewService(SecurityRepository securityRepository,
                                  FundamentalSnapshotRepository fundamentalSnapshotRepository,
@@ -105,9 +116,13 @@ public class SecurityReviewService {
                                  EarningsQualityResultRepository earningsQualityResultRepository,
                                  WaccResultRepository waccResultRepository,
                                  GrahamChecklistItemRepository grahamChecklistItemRepository,
+                                 StabilityResultRepository stabilityResultRepository,
                                  AnalystEstimateRepository analystEstimateRepository,
                                  DividendsService dividendsService,
-                                 GrowthService growthService) {
+                                 GrowthService growthService,
+                                 MoatAssessmentService moatAssessmentService,
+                                 CapitalAllocationService capitalAllocationService,
+                                 ValuationHistoryService valuationHistoryService) {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
@@ -121,12 +136,16 @@ public class SecurityReviewService {
         this.earningsQualityResultRepository = earningsQualityResultRepository;
         this.waccResultRepository = waccResultRepository;
         this.grahamChecklistItemRepository = grahamChecklistItemRepository;
+        this.stabilityResultRepository = stabilityResultRepository;
         this.analystEstimateRepository = analystEstimateRepository;
         this.dividendsService = dividendsService;
         this.growthService = growthService;
+        this.moatAssessmentService = moatAssessmentService;
+        this.capitalAllocationService = capitalAllocationService;
+        this.valuationHistoryService = valuationHistoryService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public SecurityReviewResponse getReview(String symbol) {
         String upper = symbol.toUpperCase();
         Security security = securityRepository.findBySymbol(upper)
@@ -176,6 +195,11 @@ public class SecurityReviewService {
         EarningsQualityResponse earningsQuality = earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)
                 .map(EarningsQualityResponse::from)
                 .orElse(null);
+        var moatResult = moatAssessmentService.analyze(security);
+        MoatResponse moat = MoatResponse.from(moatResult,
+                stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(security, moatResult.getResultDate()));
+        CapitalAllocationResponse capitalAllocation = CapitalAllocationResponse.from(capitalAllocationService.analyze(security));
+        ValuationBandsResponse valuationBands = ValuationBandsResponse.from(upper, valuationHistoryService.compute(security));
         SecurityReviewResponse.FinancialHealth financialHealth = financialHealth(latestAnnual, latestRatios);
 
         return new SecurityReviewResponse(
@@ -192,6 +216,9 @@ public class SecurityReviewService {
                 altman,
                 cyclicality,
                 earningsQuality,
+                moat,
+                capitalAllocation,
+                valuationBands,
                 financialHealth,
                 sourceCoverage(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends, peers),
                 freshness(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),

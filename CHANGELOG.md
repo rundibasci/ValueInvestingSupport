@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- MA1: Moat and business-quality backend with persisted ROIC consistency/moat classification, capital allocation results, historical valuation bands, Graham-style stability criteria, Flyway V15 schema, and feature specifications under `specs/2026-06-30-ma1-moat-quality-backend/`.
+- MA1: Authenticated moat, capital-allocation, and valuation-band endpoints; security review response integration; screener filters for moat strength and shares outstanding trend.
+- MA1: Focused tests for moat classification, shares trend classification, valuation-band percentiles, stability criteria, and full backend Maven suite passing with 304 tests.
 - SR2: Scoring risk frontend surfaces with review-page MoS gate/raw-score/profile context, Piotroski F-Score, Altman Z-Score, cyclicality, and earnings-quality cards; screener Piotroski/Altman filters and columns; review/screener API fields for latest SR1 risk results; feature specifications under `specs/2026-06-30-sr2-scoring-risk-frontend/`.
 - SR2: Validation evidence for `npm run build` and backend Maven suite passing with 298 tests.
 - SR1: Scoring risk backend with RULE-09 negative-margin-of-safety score cap, persisted raw score/gate/profile metadata, configurable sector-adaptive scoring profiles, and expanded score responses.
