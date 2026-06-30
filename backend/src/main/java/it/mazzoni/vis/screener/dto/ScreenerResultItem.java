@@ -26,5 +26,7 @@ public record ScreenerResultItem(
         Integer piotroskiScore,
         String piotroskiAvailabilityStatus,
         String altmanZone,
-        String altmanAvailabilityStatus
+        String altmanAvailabilityStatus,
+        String moatStrength,
+        String sharesOutstandingTrend
 ) {}

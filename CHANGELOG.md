@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- MA2: Moat and business-quality frontend sections on the in-depth review page with moat classification, ROIC versus WACC, capital allocation, normalized shares outstanding, valuation-band visuals, Graham stability criteria, and feature specifications under `specs/2026-06-30-ma2-moat-quality-frontend/`.
+- MA2: Screener filters and result columns for moat strength and shares outstanding trend, with backend response support and contract coverage; frontend build and backend Maven suite passing with 304 tests.
 - MA1: Moat and business-quality backend with persisted ROIC consistency/moat classification, capital allocation results, historical valuation bands, Graham-style stability criteria, Flyway V15 schema, and feature specifications under `specs/2026-06-30-ma1-moat-quality-backend/`.
 - MA1: Authenticated moat, capital-allocation, and valuation-band endpoints; security review response integration; screener filters for moat strength and shares outstanding trend.
 - MA1: Focused tests for moat classification, shares trend classification, valuation-band percentiles, stability criteria, and full backend Maven suite passing with 304 tests.

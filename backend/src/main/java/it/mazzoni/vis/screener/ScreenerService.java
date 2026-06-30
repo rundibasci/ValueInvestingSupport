@@ -15,6 +15,8 @@ import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.AltmanResult;
 import it.mazzoni.vis.domain.entity.AltmanZone;
 import it.mazzoni.vis.domain.repository.AltmanResultRepository;
+import it.mazzoni.vis.domain.repository.CapitalAllocationResultRepository;
+import it.mazzoni.vis.domain.repository.MoatResultRepository;
 import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.screener.dto.ScreenerRequest;
 import it.mazzoni.vis.screener.dto.ScreenerResponse;
@@ -52,11 +54,17 @@ public class ScreenerService {
 
     private final PiotroskiResultRepository piotroskiResultRepository;
     private final AltmanResultRepository altmanResultRepository;
+    private final MoatResultRepository moatResultRepository;
+    private final CapitalAllocationResultRepository capitalAllocationResultRepository;
 
     public ScreenerService(PiotroskiResultRepository piotroskiResultRepository,
-                           AltmanResultRepository altmanResultRepository) {
+                           AltmanResultRepository altmanResultRepository,
+                           MoatResultRepository moatResultRepository,
+                           CapitalAllocationResultRepository capitalAllocationResultRepository) {
         this.piotroskiResultRepository = piotroskiResultRepository;
         this.altmanResultRepository = altmanResultRepository;
+        this.moatResultRepository = moatResultRepository;
+        this.capitalAllocationResultRepository = capitalAllocationResultRepository;
     }
 
     public ScreenerResponse search(ScreenerRequest request) {
@@ -294,6 +302,8 @@ public class ScreenerService {
         String symbol = t.get("symbol", String.class);
         PiotroskiResult piotroski = piotroskiResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
         AltmanResult altman = altmanResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
+        MoatResult moat = moatResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
+        CapitalAllocationResult capitalAllocation = capitalAllocationResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
         return new ScreenerResultItem(
                 symbol,
                 t.get("companyName", String.class),
@@ -315,7 +325,9 @@ public class ScreenerService {
                 piotroski != null ? piotroski.getTotalScore() : null,
                 piotroski != null ? piotroski.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION",
                 altman != null ? altman.getZone().name() : null,
-                altman != null ? altman.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION"
+                altman != null ? altman.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION",
+                moat != null ? moat.getMoatStrength().name() : null,
+                capitalAllocation != null ? capitalAllocation.getSharesOutstandingTrend().name() : null
         );
     }
 }
