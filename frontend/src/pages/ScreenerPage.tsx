@@ -19,6 +19,8 @@ type Filters = {
   piotroskiMin: string
   piotroskiMax: string
   altmanZone: string
+  moatStrength: string
+  sharesOutstandingTrend: string
 }
 type QueryState = Filters & { sortField: SortField; sortDirection: SortDirection; page: number; pageSize: number }
 type Result = {
@@ -37,6 +39,8 @@ type Result = {
   piotroskiAvailabilityStatus: string | null
   altmanZone: string | null
   altmanAvailabilityStatus: string | null
+  moatStrength: string | null
+  sharesOutstandingTrend: string | null
 }
 type Response = { results: Result[]; page: number; pageSize: number; totalElements: number; totalPages: number }
 type Presets = Record<string, Partial<QueryState>>
@@ -54,6 +58,8 @@ const emptyFilters: Filters = {
   piotroskiMin: '',
   piotroskiMax: '',
   altmanZone: '',
+  moatStrength: '',
+  sharesOutstandingTrend: '',
 }
 const initialQuery: QueryState = { ...emptyFilters, sortField: 'totalScore', sortDirection: 'DESC', page: 0, pageSize: 20 }
 const numericFields: Array<keyof Filters> = [
@@ -113,6 +119,12 @@ function zoneClass(zone: string | null | undefined): string {
   if (zone === 'SAFE') return 'bg-emerald-300/15 text-emerald-100'
   if (zone === 'GREY') return 'bg-amber-300/15 text-amber-100'
   if (zone === 'DISTRESS') return 'bg-rose-400/15 text-rose-100'
+  return 'bg-slate-700 text-slate-200'
+}
+
+function qualityClass(value: string | null | undefined): string {
+  if (value === 'WIDE' || value === 'NARROW' || value === 'NET_BUYBACK' || value === 'STABLE') return 'bg-emerald-300/15 text-emerald-100'
+  if (value === 'NONE' || value === 'NET_DILUTER') return 'bg-rose-400/15 text-rose-100'
   return 'bg-slate-700 text-slate-200'
 }
 
@@ -232,6 +244,8 @@ export function ScreenerPage(): JSX.Element {
             <Field label="Min. Piotroski F-Score" value={filters.piotroskiMin} onChange={(value) => update('piotroskiMin', value)} placeholder="0-9" />
             <Field label="Max. Piotroski F-Score" value={filters.piotroskiMax} onChange={(value) => update('piotroskiMax', value)} placeholder="0-9" />
             <label className="block text-sm font-medium text-slate-200">Altman zone<select value={filters.altmanZone} onChange={(event) => update('altmanZone', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any zone</option><option value="SAFE">Safe</option><option value="GREY">Grey</option><option value="DISTRESS">Distress</option></select></label>
+            <label className="block text-sm font-medium text-slate-200">Moat strength<select value={filters.moatStrength} onChange={(event) => update('moatStrength', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any moat</option><option value="WIDE">Wide</option><option value="NARROW">Narrow</option><option value="NONE">None</option><option value="INSUFFICIENT_DATA">Insufficient data</option></select></label>
+            <label className="block text-sm font-medium text-slate-200">Shares trend<select value={filters.sharesOutstandingTrend} onChange={(event) => update('sharesOutstandingTrend', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any trend</option><option value="NET_BUYBACK">Net buyback</option><option value="STABLE">Stable</option><option value="NET_DILUTER">Net diluter</option><option value="INSUFFICIENT_DATA">Insufficient data</option></select></label>
           </div>
           {error && <p role="alert" className="rounded-lg border border-rose-300/30 bg-rose-400/10 px-3 py-2 text-sm text-rose-100">{error}</p>}
           {(sectors.isError || exchanges.isError) && <p role="alert" className="text-sm text-amber-200">Some filter choices could not be loaded; you can still run a screen.</p>}
@@ -259,9 +273,9 @@ export function ScreenerPage(): JSX.Element {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-[1320px] w-full border-collapse text-sm">
+              <table className="min-w-[1500px] w-full border-collapse text-sm">
                 <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
-                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
+                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   {results.data?.results.map((item) => (
@@ -275,6 +289,8 @@ export function ScreenerPage(): JSX.Element {
                       <td className="px-4 py-4"><span className="block font-medium text-white">{formatNumber(item.totalScore)}</span><span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${availabilityClass(item.scoreAvailability?.status)}`}>{statusText(item.scoreAvailability?.status)}</span></td>
                       <td className="px-4 py-4"><span className="block font-medium text-white">{item.piotroskiScore == null ? '-' : `${item.piotroskiScore}/9`}</span><span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${availabilityClass(item.piotroskiAvailabilityStatus)}`}>{statusText(item.piotroskiAvailabilityStatus)}</span></td>
                       <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${zoneClass(item.altmanZone)}`}>{item.altmanZone?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
+                      <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${qualityClass(item.moatStrength)}`}>{item.moatStrength?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
+                      <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${qualityClass(item.sharesOutstandingTrend)}`}>{item.sharesOutstandingTrend?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
                       <td className="px-4 py-4">{item.recommendation ?? '-'}</td>
                       <td className="px-4 py-4 text-slate-400">{item.scoreDate ?? '-'}</td>
                       <td className="px-4 py-4"><button type="button" onClick={(event) => { event.stopPropagation(); navigate(`/securities/${item.symbol}/review`) }} className="rounded-md border border-emerald-400/30 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10">Review</button></td>

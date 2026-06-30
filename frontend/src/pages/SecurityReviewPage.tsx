@@ -40,7 +40,7 @@ type Detail = {
   dividendYield: number | null
   dataAsOf: string | null
 }
-type Annual = { fiscalYear: number; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null; bvps: number | null }
+type Annual = { fiscalYear: number; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null; bvps: number | null; sharesOutstanding: number | null }
 type Financials = { annuals: Annual[]; quarters: Array<{ period: string; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null }>; ttm: { revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null } | null }
 type RatioItem = { date: string; pe: number | null; roic: number | null; roe: number | null; debtToEquity: number | null; grossMargin: number | null; dividendYield: number | null }
 type Ratios = { ratios: RatioItem[] }
@@ -58,6 +58,11 @@ type Piotroski = { totalScore: number; factors: Record<string, boolean>; resultD
 type Altman = { score: number | null; zone: string | null; formulaVariant: string | null; workingCapitalToAssets: number | null; retainedEarningsToAssets: number | null; ebitToAssets: number | null; marketValueEquityToLiabilities: number | null; salesToAssets: number | null; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
 type Cyclicality = { classification: string | null; revenueCoefficient: number | null; earningsCoefficient: number | null; normalizedEarnings: number | null; cycleAdjustedPe: number | null; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
 type EarningsQuality = { fcfToNetIncome: number | null; sloanAccrualsRatio: number | null; classification: string | null; deteriorating: boolean; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
+type StabilityCriterion = { criterionCode: string; label: string; status: string; actualValue: number | null; message: string | null }
+type Moat = { symbol: string; resultDate: string | null; moatStrength: string | null; roicTrend: string | null; yearsAnalyzed: number | null; yearsRoicAboveWacc: number | null; roicConsistencyPercentage: number | null; averageRoic: number | null; estimatedWacc: number | null; averageRoicSpread: number | null; trendSlope: number | null; reinvestmentRate: number | null; availabilityMessage: string | null; stabilityCriteria: StabilityCriterion[] }
+type CapitalAllocation = { symbol: string; resultDate: string | null; sharesOutstandingTrend: string | null; classification: string | null; yearsAnalyzed: number | null; sharesChangePercentage: number | null; sharesCagr: number | null; dividendYield: number | null; netBuybackYield: number | null; totalShareholderYield: number | null; insiderOwnershipPercentage: number | null; acquisitionSpendToFcf: number | null; availabilityMessage: string | null }
+type ValuationBandItem = { metric: string; yearsAnalyzed: number | null; currentValue: number | null; medianValue: number | null; percentile25: number | null; percentile75: number | null; currentPercentile: number | null; position: string | null; availabilityMessage: string | null }
+type ValuationBands = { symbol: string; resultDate: string | null; bands: ValuationBandItem[] }
 type FinancialHealth = { totalDebt: number | null; cash: number | null; netDebt: number | null; debtToEquity: number | null; currentRatio: number | null; quickRatio: number | null; interestCoverage: number | null; payoutRatio: number | null; dividendYield: number | null; grossMargin: number | null; operatingMargin: number | null; netMargin: number | null; dataAsOf: string | null }
 type SourceCoverageItem = { category: string; provider: string | null; status: string; message: string | null }
 type FreshnessItem = { category: string; dataAsOf: string | null; status: string; message: string | null }
@@ -78,6 +83,9 @@ type Review = {
   altman: Altman | null
   cyclicality: Cyclicality | null
   earningsQuality: EarningsQuality | null
+  moat: Moat | null
+  capitalAllocation: CapitalAllocation | null
+  valuationBands: ValuationBands | null
   financialHealth: FinancialHealth
   sourceCoverage: SourceCoverageItem[]
   freshness: FreshnessItem[]
@@ -147,6 +155,79 @@ function StatusPill({ value }: { value: string | null | undefined }): JSX.Elemen
   const warn = normalized === 'STALE' || normalized === 'GREY' || normalized === 'MODERATE' || normalized === 'ACCEPTABLE'
   const classes = ok ? 'bg-emerald-300/15 text-emerald-100' : warn ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{normalized.replace(/_/g, ' ').toLowerCase()}</span>
+}
+
+function QualityBadge({ value }: { value: string | null | undefined }): JSX.Element {
+  const normalized = value || 'INSUFFICIENT_DATA'
+  const favorable = ['WIDE', 'NARROW', 'IMPROVING', 'STABLE', 'NET_BUYBACK', 'DISCIPLINED_ALLOCATOR', 'HISTORICALLY_CHEAP', 'CHEAP', 'PASS']
+  const caution = ['NONE', 'DECLINING', 'NET_DILUTER', 'EMPIRE_BUILDER', 'HISTORICALLY_EXPENSIVE', 'EXPENSIVE', 'FAIL']
+  const classes = favorable.includes(normalized)
+    ? 'bg-emerald-300/15 text-emerald-100'
+    : caution.includes(normalized)
+      ? 'bg-rose-400/15 text-rose-100'
+      : 'bg-amber-300/15 text-amber-100'
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{normalized.replace(/_/g, ' ').toLowerCase()}</span>
+}
+
+const percentFromRatio = (value: number | null | undefined) => {
+  if (value == null) return null
+  return Math.abs(value) <= 1 ? value * 100 : value
+}
+
+function PercentTrendChart({ data, lines, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; summary: string }): JSX.Element {
+  const visible = data.filter((item) => lines.some(([key]) => typeof item[key] === 'number'))
+  if (!visible.length) return <DataGap>No historical series is available for this chart.</DataGap>
+  return (
+    <div>
+      <p className="mb-3 text-sm leading-6 text-slate-400">{summary}</p>
+      <div className="h-72 min-h-72 min-w-0 w-full" role="img" aria-label={summary}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={visible}>
+            <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+            <XAxis dataKey="label" stroke="#94a3b8" />
+            <YAxis stroke="#94a3b8" tickFormatter={(v) => `${number(Number(v))}%`} width={72} />
+            <Tooltip formatter={(v) => `${number(Number(v))}%`} contentStyle={{ background: '#0f172a', border: '1px solid #334155', color: '#e2e8f0' }} />
+            <Legend />
+            {lines.map(([key, label], index) => <Line key={key} type="monotone" dataKey={key} name={label} stroke={['#34d399', '#fbbf24', '#60a5fa'][index]} strokeWidth={2} dot={false} connectNulls />)}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+function ValuationBandMiniChart({ band }: { band: ValuationBandItem }): JSX.Element {
+  const values = [band.percentile25, band.percentile75, band.medianValue, band.currentValue].filter((value): value is number => value != null)
+  if (values.length < 3 || band.percentile25 == null || band.percentile75 == null || band.medianValue == null || band.currentValue == null) {
+    return <DataGap>{band.availabilityMessage || `${band.metric} historical band is unavailable.`}</DataGap>
+  }
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min || 1
+  const pct = (value: number) => `${Math.max(0, Math.min(100, ((value - min) / span) * 100))}%`
+  return (
+    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 className="font-semibold text-white">{band.metric}</h4>
+          <p className="mt-1 text-xs text-slate-500">{band.yearsAnalyzed ?? 0} years analyzed</p>
+        </div>
+        <QualityBadge value={band.position} />
+      </div>
+      <div className="relative mt-5 h-10">
+        <div className="absolute left-0 right-0 top-4 h-2 rounded-full bg-slate-800" />
+        <div className="absolute top-3 h-4 rounded-full bg-emerald-300/25" style={{ left: pct(band.percentile25), right: `calc(100% - ${pct(band.percentile75)})` }} />
+        <span className="absolute top-0 h-10 w-0.5 bg-slate-300" style={{ left: pct(band.medianValue) }} title="Median" />
+        <span className="absolute top-1 h-8 w-8 -translate-x-1/2 rounded-full border-2 border-amber-200 bg-amber-300 shadow-lg shadow-amber-950/30" style={{ left: pct(band.currentValue) }} title="Current value" />
+      </div>
+      <dl className="mt-3 grid gap-2 text-xs text-slate-400 sm:grid-cols-4">
+        <div><dt>25th</dt><dd className="font-medium text-slate-200">{number(band.percentile25)}</dd></div>
+        <div><dt>Median</dt><dd className="font-medium text-slate-200">{number(band.medianValue)}</dd></div>
+        <div><dt>75th</dt><dd className="font-medium text-slate-200">{number(band.percentile75)}</dd></div>
+        <div><dt>Current</dt><dd className="font-medium text-slate-200">{number(band.currentValue)}</dd></div>
+      </dl>
+    </div>
+  )
 }
 
 const factorLabels: Record<string, string> = {
@@ -229,6 +310,110 @@ function RiskIntelligence({ review, currency }: { review: Review; currency: stri
           </div>
         ) : <DataGap>Earnings-quality metrics are unavailable. Cash conversion and accruals cannot be classified from the current local data.</DataGap>}
       </Panel>
+    </div>
+  )
+}
+
+function BusinessQuality({ review, annual, ratioData }: { review: Review; annual: Array<Annual & { label: string }>; ratioData: Array<RatioItem & { label: string }> }): JSX.Element {
+  const moat = review.moat
+  const capital = review.capitalAllocation
+  const bands = review.valuationBands?.bands || []
+  const bandByMetric = (name: string) => bands.find((band) => band.metric.toUpperCase().replace(/[^A-Z0-9]/g, '').includes(name))
+  const peBand = bandByMetric('PE')
+  const evEbitdaBand = bandByMetric('EVEBITDA')
+  const stability = moat?.stabilityCriteria || []
+  const stabilityPassed = stability.filter((criterion) => criterion.status === 'PASS').length
+  const roicChart = ratioData.map((item) => ({
+    label: item.label,
+    roic: percentFromRatio(item.roic),
+    wacc: percentFromRatio(moat?.estimatedWacc),
+  }))
+  const firstShares = annual.find((item) => typeof item.sharesOutstanding === 'number' && item.sharesOutstanding > 0)?.sharesOutstanding
+  const sharesData = firstShares
+    ? annual.map((item) => ({
+      label: item.label,
+      sharesIndex: item.sharesOutstanding == null ? null : (item.sharesOutstanding / firstShares) * 100,
+    }))
+    : []
+  const moatText = moat?.moatStrength && moat?.yearsRoicAboveWacc != null && moat?.yearsAnalyzed
+    ? `${moat.moatStrength.replace(/_/g, ' ').toLowerCase()} moat: ROIC exceeded estimated cost of capital in ${moat.yearsRoicAboveWacc} of ${moat.yearsAnalyzed} years with a ${moat.roicTrend?.replace(/_/g, ' ').toLowerCase() || 'unavailable'} trend.`
+    : 'Moat classification is unavailable because the current local history is incomplete.'
+
+  return (
+    <div className="space-y-5">
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel title="Moat assessment">
+          {moat ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <QualityBadge value={moat.moatStrength} />
+                  <p className="mt-3 text-sm leading-6 text-slate-300">{moatText}</p>
+                </div>
+                <QualityBadge value={moat.roicTrend} />
+              </div>
+              <dl className="grid gap-3 sm:grid-cols-2">
+                <Metric label="ROIC consistency" value={percentPoint(moat.roicConsistencyPercentage)} />
+                <Metric label="Average ROIC spread" value={ratioPercent(moat.averageRoicSpread)} />
+                <Metric label="Reinvestment rate" value={ratioPercent(moat.reinvestmentRate)} />
+                <Metric label="Years analyzed" value={moat.yearsAnalyzed == null ? 'Unavailable' : String(moat.yearsAnalyzed)} />
+              </dl>
+              <PercentTrendChart data={roicChart} lines={[['roic', 'ROIC'], ['wacc', 'Estimated WACC']]} summary="ROIC history from stored ratios compared with the MA1 estimated cost of capital." />
+              {moat.availabilityMessage && <p className="text-xs leading-5 text-slate-500">{moat.availabilityMessage}</p>}
+            </div>
+          ) : <DataGap>Moat assessment is unavailable. Recompute or seed MA1 business-quality data for this symbol.</DataGap>}
+        </Panel>
+
+        <Panel title="Capital allocation">
+          {capital ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <QualityBadge value={capital.classification} />
+                <QualityBadge value={capital.sharesOutstandingTrend} />
+              </div>
+              <dl className="grid gap-3 sm:grid-cols-2">
+                <Metric label="Shares change" value={percentPoint(capital.sharesChangePercentage)} />
+                <Metric label="Shares CAGR" value={ratioPercent(capital.sharesCagr)} />
+                <Metric label="Total shareholder yield" value={ratioPercent(capital.totalShareholderYield)} />
+                <Metric label="Insider ownership" value={capital.insiderOwnershipPercentage == null ? 'Unavailable' : percentPoint(capital.insiderOwnershipPercentage)} note={capital.insiderOwnershipPercentage == null ? 'Provider data did not supply insider ownership.' : undefined} />
+              </dl>
+              <Chart data={sharesData} lines={[['sharesIndex', 'Shares outstanding index']]} summary="Shares outstanding normalized to 100 in the first available annual period. Rising values indicate dilution; falling values indicate net buybacks." />
+              {capital.availabilityMessage && <p className="text-xs leading-5 text-slate-500">{capital.availabilityMessage}</p>}
+            </div>
+          ) : <DataGap>Capital allocation assessment is unavailable. Shares trend and allocator classification cannot be shown from current local data.</DataGap>}
+        </Panel>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel title="Historical valuation bands">
+          <div className="space-y-4">
+            {peBand ? <ValuationBandMiniChart band={peBand} /> : <DataGap>P/E historical valuation band is unavailable.</DataGap>}
+            {evEbitdaBand ? <ValuationBandMiniChart band={evEbitdaBand} /> : <DataGap>EV/EBITDA historical valuation band is unavailable.</DataGap>}
+          </div>
+        </Panel>
+
+        <Panel title="Graham stability scorecard">
+          {stability.length ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-2xl font-semibold text-white">{stabilityPassed}<span className="text-base text-slate-400"> of {stability.length}</span></p>
+                <a className="text-sm font-semibold text-emerald-300 underline" href="#valuation">Graham checklist</a>
+              </div>
+              <div className="space-y-2">
+                {stability.map((criterion) => (
+                  <div key={criterion.criterionCode} className="flex flex-col justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2 text-sm sm:flex-row sm:items-center">
+                    <div>
+                      <p className="font-medium text-slate-200">{criterion.label}</p>
+                      <p className="mt-1 text-xs text-slate-500">{criterion.message || `Actual value: ${number(criterion.actualValue)}`}</p>
+                    </div>
+                    <QualityBadge value={criterion.status} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : <DataGap>Stability criteria are unavailable. The current review cannot show individual Graham stability pass/fail evidence.</DataGap>}
+        </Panel>
+      </div>
     </div>
   )
 }
@@ -659,7 +844,7 @@ export function SecurityReviewPage(): JSX.Element {
         <div className="flex gap-2 overflow-x-auto">
           {[
             ['source', 'Sources'], ['valuation', 'Valuation'], ['cash', 'Cash generation'], ['earnings', 'Earnings'],
-            ['debt', 'Debt'], ['history', 'Graphs'], ['dividends', 'Dividends'], ['quality', 'Quality'], ['risk', 'Risk'],
+            ['business-quality', 'Moat'], ['debt', 'Debt'], ['history', 'Graphs'], ['dividends', 'Dividends'], ['quality', 'Quality'], ['risk', 'Risk'],
           ].map(([id, label]) => <a key={id} href={`#${id}`} className="mt-3 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">{label}</a>)}
         </div>
       </nav>
@@ -710,6 +895,10 @@ export function SecurityReviewPage(): JSX.Element {
               <GrahamChecklistPanel checklist={valuation?.grahamChecklist} />
             </Panel>
           </div>
+        </Section>
+
+        <Section id="business-quality" title="Moat And Business Quality">
+          <BusinessQuality review={review.data} annual={annual} ratioData={ratioData} />
         </Section>
 
         <Section id="cash" title="Cash Generation">

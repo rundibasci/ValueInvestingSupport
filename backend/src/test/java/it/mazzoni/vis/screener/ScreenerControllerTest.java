@@ -66,7 +66,9 @@ class ScreenerControllerTest {
                 8,
                 "AVAILABLE",
                 "SAFE",
-                "AVAILABLE");
+                "AVAILABLE",
+                "WIDE",
+                "NET_BUYBACK");
 
         ScreenerResponse response = new ScreenerResponse(List.of(item), 0, 20, 1L, 1);
         when(screenerService.search(any(ScreenerRequest.class))).thenReturn(response);
@@ -79,6 +81,8 @@ class ScreenerControllerTest {
                 .andExpect(jsonPath("$.results[0].totalScore").value(72.50))
                 .andExpect(jsonPath("$.results[0].piotroskiScore").value(8))
                 .andExpect(jsonPath("$.results[0].altmanZone").value("SAFE"))
+                .andExpect(jsonPath("$.results[0].moatStrength").value("WIDE"))
+                .andExpect(jsonPath("$.results[0].sharesOutstandingTrend").value("NET_BUYBACK"))
                 .andExpect(jsonPath("$.results[0].recommendation").value("QUALITY_VALUE"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.page").value(0))
