@@ -32,19 +32,22 @@ public class DividendUpdateJob {
     private final WatchlistItemRepository watchlistItemRepository;
     private final HoldingRepository holdingRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public DividendUpdateJob(MarketDataClient marketDataClient,
                               SecurityRepository securityRepository,
                               DividendRecordRepository dividendRepository,
                               WatchlistItemRepository watchlistItemRepository,
                               HoldingRepository holdingRepository,
-                              JobRunLogger jobRunLogger) {
+                              JobRunLogger jobRunLogger,
+                              IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.dividendRepository = dividendRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.holdingRepository = holdingRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.dividend-update}")
@@ -61,11 +64,15 @@ public class DividendUpdateJob {
         int count = 0;
         for (String symbol : symbols) {
             Optional<Security> secOpt = securityRepository.findBySymbol(symbol.toUpperCase());
-            if (secOpt.isEmpty()) continue;
+            if (secOpt.isEmpty()) {
+                eventRecorder.skipped(symbol, "dividend", "security not found");
+                continue;
+            }
             Security security = secOpt.get();
 
             try {
                 List<FmpDividendEntry> entries = marketDataClient.getDividendHistory(symbol);
+                int inserted = 0;
                 for (FmpDividendEntry entry : entries) {
                     if (entry.date() == null || entry.dividend() == null) continue;
                     LocalDate exDate = LocalDate.parse(entry.date());
@@ -81,9 +88,16 @@ public class DividendUpdateJob {
                     }
                     dividendRepository.save(record);
                     count++;
+                    inserted++;
+                }
+                if (inserted > 0) {
+                    eventRecorder.success(symbol, "dividend");
+                } else {
+                    eventRecorder.skipped(symbol, "dividend", "no new dividend records");
                 }
             } catch (MarketDataException e) {
                 log.debug("Dividend update skipped for {}: {}", symbol, e.getMessage());
+                eventRecorder.failed(symbol, "dividend", e);
             }
         }
         return count;

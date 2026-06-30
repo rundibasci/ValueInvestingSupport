@@ -25,15 +25,18 @@ public class BulkFundamentalsSyncJob {
     private final SecurityRepository securityRepository;
     private final FundamentalSnapshotRepository snapshotRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public BulkFundamentalsSyncJob(MarketDataClient marketDataClient,
                                     SecurityRepository securityRepository,
                                     FundamentalSnapshotRepository snapshotRepository,
-                                    JobRunLogger jobRunLogger) {
+                                    JobRunLogger jobRunLogger,
+                                    IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.snapshotRepository = snapshotRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.bulk-fundamentals}")
@@ -49,15 +52,18 @@ public class BulkFundamentalsSyncJob {
 
         for (Security security : securities) {
             if (snapshotRepository.existsBySecurityAndPeriodAndReportDate(security, Period.ANNUAL, today)) {
+                eventRecorder.skipped(security.getSymbol(), "fundamentals", "already ingested for report date");
                 continue;
             }
             try {
                 it.mazzoni.vis.domain.FundamentalSnapshot data = marketDataClient.getFundamentals(security.getSymbol());
                 FundamentalSnapshot entity = toEntity(security, data, today);
                 snapshotRepository.save(entity);
+                eventRecorder.success(security.getSymbol(), "fundamentals");
                 count++;
             } catch (MarketDataException e) {
                 log.debug("Fundamentals skipped for {}: {}", security.getSymbol(), e.getMessage());
+                eventRecorder.failed(security.getSymbol(), "fundamentals", e);
             }
         }
         return count;

@@ -27,15 +27,18 @@ public class BulkDcfSyncJob {
     private final SecurityRepository securityRepository;
     private final ValuationResultRepository valuationRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public BulkDcfSyncJob(MarketDataClient marketDataClient,
                            SecurityRepository securityRepository,
                            ValuationResultRepository valuationRepository,
-                           JobRunLogger jobRunLogger) {
+                           JobRunLogger jobRunLogger,
+                           IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.valuationRepository = valuationRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.bulk-dcf}")
@@ -51,11 +54,15 @@ public class BulkDcfSyncJob {
 
         for (Security security : securities) {
             if (valuationRepository.existsBySecurityAndValuationDateAndSource(security, today, SOURCE)) {
+                eventRecorder.skipped(security.getSymbol(), "dcf", "already ingested for valuation date");
                 continue;
             }
             try {
                 Optional<BigDecimal> dcf = marketDataClient.getFmpDcf(security.getSymbol());
-                if (dcf.isEmpty()) continue;
+                if (dcf.isEmpty()) {
+                    eventRecorder.skipped(security.getSymbol(), "dcf", "provider returned no DCF value");
+                    continue;
+                }
 
                 ValuationResult result = new ValuationResult();
                 result.setSecurity(security);
@@ -63,9 +70,11 @@ public class BulkDcfSyncJob {
                 result.setDcfFairValue(dcf.get());
                 result.setSource(SOURCE);
                 valuationRepository.save(result);
+                eventRecorder.success(security.getSymbol(), "dcf");
                 count++;
             } catch (MarketDataException e) {
                 log.debug("DCF skipped for {}: {}", security.getSymbol(), e.getMessage());
+                eventRecorder.failed(security.getSymbol(), "dcf", e);
             }
         }
         return count;
