@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- SR1: Scoring risk backend with RULE-09 negative-margin-of-safety score cap, persisted raw score/gate/profile metadata, configurable sector-adaptive scoring profiles, and expanded score responses.
+- SR1: Persisted Piotroski F-Score, Altman Z-Score, cyclicality, and earnings-quality risk results with authenticated security endpoints, screener filters for Piotroski range and Altman zone, Flyway V14 schema, and SR1 feature specifications.
+- SR1: Backend validation coverage for risk formulas, score gate/profile behavior, screener risk filters, seed exception handling, and the full Maven suite passing with 298 tests.
 - VM2: Valuation transparency frontend on the in-depth review page with DCF sensitivity matrix, terminal-value warning, WACC input panel, EPV conservative floor, owner earnings, Graham criteria checklist, and local composite-weight preview.
 - VM2: Review API exposure for persisted VM1 transparency data, including WACC rows, Graham checklist items, terminal dependence, EPV, owner earnings, and derived DCF sensitivity data; feature specifications under `specs/2026-06-30-vm2-valuation-transparency-frontend/`.
 - VM1: Valuation engine backend enhancements — WACC calculator with auditable fallback metadata, DCF terminal-value dependence, DCF sensitivity matrix service, EPV zero-growth floor, owner earnings, Graham criteria checklist, composite-weight validation/rebalancing, Flyway V13 persistence, and feature specifications under `specs/2026-06-30-vm1-valuation-engine-backend-enhancements/`.

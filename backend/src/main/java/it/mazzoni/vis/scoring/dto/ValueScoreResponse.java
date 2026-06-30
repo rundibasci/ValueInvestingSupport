@@ -15,6 +15,9 @@ public record ValueScoreResponse(
         BigDecimal safetyScore,
         BigDecimal growthScore,
         BigDecimal dividendScore,
+        BigDecimal rawTotalScore,
+        boolean mosGateApplied,
+        String weightProfile,
         LocalDate scoreDate,
         AvailabilityResponse availability
 ) {
@@ -28,6 +31,9 @@ public record ValueScoreResponse(
                 score.getSafetyScore(),
                 score.getGrowthScore(),
                 score.getDividendScore(),
+                score.getRawTotalScore(),
+                score.isMosGateApplied(),
+                score.getWeightProfile(),
                 score.getScoreDate(),
                 AvailabilityResponse.available(score.getScoreDate())
         );

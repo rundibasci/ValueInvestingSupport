@@ -147,6 +147,7 @@ class ScreenerIT {
                 null, null, null, null,
                 new BigDecimal("80"),
                 null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = callScreener(req);
@@ -159,6 +160,7 @@ class ScreenerIT {
         ScreenerRequest req = new ScreenerRequest(
                 "Technology", null, null, null, null,
                 null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = callScreener(req);
@@ -174,6 +176,7 @@ class ScreenerIT {
                 null,
                 new BigDecimal("10"), new BigDecimal("1.0"),
                 null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = callScreener(req);
@@ -186,9 +189,11 @@ class ScreenerIT {
     void screen_pagination_correctResultsPerPage() {
         ScreenerRequest page0 = new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 10);
         ScreenerRequest page1 = new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 1, 10);
 
         ScreenerResponse r0 = callScreener(page0);
@@ -248,6 +253,7 @@ class ScreenerIT {
     private ScreenerRequest emptyRequest() {
         return new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
     }
 

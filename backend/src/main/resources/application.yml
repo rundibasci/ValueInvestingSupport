@@ -67,6 +67,40 @@ valuation:
     high-terminal-dependence-threshold: 70.00
     reduced-dcf-weight: 0.40
 
+scoring:
+  risk:
+    weight-profiles:
+      dividend-paying:
+        mos: 30
+        quality: 25
+        safety: 20
+        growth: 15
+        dividend: 10
+      non-dividend-growth:
+        mos: 30
+        quality: 30
+        safety: 20
+        growth: 20
+        dividend: 0
+      reit-utility:
+        mos: 30
+        quality: 20
+        safety: 30
+        growth: 10
+        dividend: 10
+      financial:
+        mos: 30
+        quality: 25
+        safety: 25
+        growth: 10
+        dividend: 10
+      cyclical:
+        mos: 30
+        quality: 20
+        safety: 25
+        growth: 15
+        dividend: 10
+
 management:
   tracing:
     enabled: ${TRACING_ENABLED:true}

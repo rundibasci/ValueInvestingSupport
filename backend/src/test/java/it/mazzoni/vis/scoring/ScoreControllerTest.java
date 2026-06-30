@@ -53,6 +53,9 @@ class ScoreControllerTest {
                 new BigDecimal("20.00"), new BigDecimal("25.00"),
                 new BigDecimal("14.00"), new BigDecimal("10.00"),
                 new BigDecimal("0.00"),
+                new BigDecimal("72.50"),
+                false,
+                "dividend-paying",
                 LocalDate.of(2026, 6, 20),
                 AvailabilityResponse.available(LocalDate.of(2026, 6, 20)));
         when(scoreService.getScore("AAPL")).thenReturn(response);
@@ -88,6 +91,9 @@ class ScoreControllerTest {
                 new BigDecimal("65.00"),
                 BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                false,
+                "dividend-paying",
                 LocalDate.now(),
                 AvailabilityResponse.available(LocalDate.now()));
         when(scoreService.getScore("ko")).thenReturn(response);

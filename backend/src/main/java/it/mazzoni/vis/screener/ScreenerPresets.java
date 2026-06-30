@@ -14,6 +14,7 @@ public final class ScreenerPresets {
             null,
             new BigDecimal("10"), new BigDecimal("1.0"),
             null, null,
+            null, null, null,
             "totalScore", "DESC", 0, 20
     );
 
@@ -23,6 +24,7 @@ public final class ScreenerPresets {
             null,
             null, null,
             new BigDecimal("2.0"), null,
+            null, null, null,
             "totalScore", "DESC", 0, 20
     );
 
@@ -32,6 +34,7 @@ public final class ScreenerPresets {
             new BigDecimal("60"),
             new BigDecimal("15"), new BigDecimal("1.5"),
             null, null,
+            null, null, null,
             "totalScore", "DESC", 0, 20
     );
 }

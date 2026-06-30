@@ -38,6 +38,15 @@ public class ValueScore {
     @Column(precision = 5, scale = 2)
     private BigDecimal totalScore;
 
+    @Column(precision = 5, scale = 2)
+    private BigDecimal rawTotalScore;
+
+    @Column(nullable = false)
+    private boolean mosGateApplied;
+
+    @Column(length = 50)
+    private String weightProfile;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -64,4 +73,13 @@ public class ValueScore {
 
     public BigDecimal getTotalScore() { return totalScore; }
     public void setTotalScore(BigDecimal totalScore) { this.totalScore = totalScore; }
+
+    public BigDecimal getRawTotalScore() { return rawTotalScore; }
+    public void setRawTotalScore(BigDecimal rawTotalScore) { this.rawTotalScore = rawTotalScore; }
+
+    public boolean isMosGateApplied() { return mosGateApplied; }
+    public void setMosGateApplied(boolean mosGateApplied) { this.mosGateApplied = mosGateApplied; }
+
+    public String getWeightProfile() { return weightProfile; }
+    public void setWeightProfile(String weightProfile) { this.weightProfile = weightProfile; }
 }
