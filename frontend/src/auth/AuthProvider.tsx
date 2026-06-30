@@ -9,6 +9,7 @@ type AuthContextValue = {
   ready: boolean
   message: string | null
   login: (email: string, password: string) => Promise<void>
+  completeOAuthLogin: (accessToken: string) => void
   logout: () => Promise<void>
 }
 
@@ -74,12 +75,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     setMessage(null)
   }, [])
 
+  const completeOAuthLogin = useCallback((token: string) => {
+    const nextSession = readSession(token)
+    if (!nextSession) throw new Error('The server returned an invalid session.')
+    setAccessToken(token)
+    setSession(nextSession)
+    setMessage(null)
+  }, [])
+
   const logout = useCallback(async () => {
     await authFetch('/auth/logout', { method: 'POST' })
     clear()
   }, [clear])
 
-  const value = useMemo(() => ({ session, ready, message, login, logout }), [session, ready, message, login, logout])
+  const value = useMemo(
+    () => ({ session, ready, message, login, completeOAuthLogin, logout }),
+    [session, ready, message, login, completeOAuthLogin, logout],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

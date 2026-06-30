@@ -7,6 +7,7 @@ const navigation = [
   { label: 'Seed Universe', to: '/seed' },
   { label: 'Portfolio', to: '/portfolio' },
   { label: 'Watchlist', to: '/watchlist' },
+  { label: 'Account', to: '/account' },
 ]
 
 const adminNavigation = [
