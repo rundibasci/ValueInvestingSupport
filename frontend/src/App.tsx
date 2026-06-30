@@ -11,14 +11,18 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { AdminSeedPage } from "./pages/AdminSeedPage";
 import { SecurityReviewPage } from "./pages/SecurityReviewPage";
 import { SeedUniversePage } from "./pages/SeedUniversePage";
+import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
+import { AccountPage } from "./pages/AccountPage";
 
 export default function App(): JSX.Element {
   return (
     <Routes>
       <Route path="login" element={<LoginPage />} />
+      <Route path="auth/oauth2/callback" element={<OAuthCallbackPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
+          <Route path="account" element={<AccountPage />} />
           <Route path="screener" element={<ScreenerPage />} />
           <Route path="securities/:symbol/review" element={<SecurityReviewPage />} />
           <Route path="securities/:symbol" element={<SecurityDetailPage />} />
