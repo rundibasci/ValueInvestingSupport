@@ -1,5 +1,6 @@
 package it.mazzoni.vis.scoring;
 
+import it.mazzoni.vis.config.ScoringRiskProperties;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.Period;
@@ -40,6 +41,7 @@ class ValueScoreServiceTest {
     @Mock FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Mock DividendRecordRepository dividendRecordRepository;
     @Mock ValueScoreRepository valueScoreRepository;
+    @Mock ScoringRiskProperties scoringRiskProperties;
 
     ValueScoreService service;
     Security security;
@@ -48,11 +50,19 @@ class ValueScoreServiceTest {
     void setUp() {
         service = new ValueScoreService(securityRepository, valuationResultRepository,
                 ratioSnapshotRepository, fundamentalSnapshotRepository,
-                dividendRecordRepository, valueScoreRepository);
+                dividendRecordRepository, valueScoreRepository, scoringRiskProperties);
         security = new Security();
         security.setSymbol("AAPL");
+        security.setSector("Technology");
         Mockito.lenient().when(securityRepository.findBySymbol("AAPL")).thenReturn(Optional.of(security));
         Mockito.lenient().when(valueScoreRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Mockito.lenient().when(scoringRiskProperties.profile(Mockito.anyString())).thenAnswer(inv -> switch ((String) inv.getArgument(0)) {
+            case "non-dividend-growth" -> new ScoringRiskProperties.WeightProfile(new BigDecimal("30"), new BigDecimal("30"), new BigDecimal("20"), new BigDecimal("20"), BigDecimal.ZERO);
+            case "reit-utility" -> new ScoringRiskProperties.WeightProfile(new BigDecimal("30"), new BigDecimal("20"), new BigDecimal("30"), new BigDecimal("10"), new BigDecimal("10"));
+            case "financial" -> new ScoringRiskProperties.WeightProfile(new BigDecimal("30"), new BigDecimal("25"), new BigDecimal("25"), new BigDecimal("10"), new BigDecimal("10"));
+            case "cyclical" -> new ScoringRiskProperties.WeightProfile(new BigDecimal("30"), new BigDecimal("20"), new BigDecimal("25"), new BigDecimal("15"), new BigDecimal("10"));
+            default -> new ScoringRiskProperties.WeightProfile(new BigDecimal("30"), new BigDecimal("25"), new BigDecimal("20"), new BigDecimal("15"), new BigDecimal("10"));
+        });
     }
 
     @Test
@@ -90,6 +100,9 @@ class ValueScoreServiceTest {
         assertThat(result.getGrowthScore()).isEqualByComparingTo(new BigDecimal("10"));
         assertThat(result.getDividendScore()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.getTotalScore()).isEqualByComparingTo(new BigDecimal("69"));
+        assertThat(result.getRawTotalScore()).isEqualByComparingTo(new BigDecimal("69"));
+        assertThat(result.isMosGateApplied()).isFalse();
+        assertThat(result.getWeightProfile()).isEqualTo("dividend-paying");
     }
 
     @Test
@@ -113,7 +126,7 @@ class ValueScoreServiceTest {
 
         ValueScore result = service.compute("AAPL");
 
-        assertThat(result.getQualityScore()).isEqualByComparingTo(new BigDecimal("18"));
+        assertThat(result.getQualityScore()).isEqualByComparingTo(new BigDecimal("21.60"));
         assertThat(result.getSafetyScore()).isEqualByComparingTo(new BigDecimal("20"));
     }
 
@@ -190,8 +203,36 @@ class ValueScoreServiceTest {
         assertThat(result.getMosScore()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.getQualityScore()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.getSafetyScore()).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(result.getGrowthScore()).isEqualByComparingTo(new BigDecimal("15")); // +20% growth
+        assertThat(result.getGrowthScore()).isEqualByComparingTo(new BigDecimal("20.00")); // +20% growth, non-dividend profile
         assertThat(result.getDividendScore()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void compute_negativeMarginOfSafety_capsTotalScoreAt40() {
+        ValuationResult valuation = new ValuationResult();
+        valuation.setMarginOfSafety(new BigDecimal("-10"));
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security))
+                .thenReturn(Optional.of(valuation));
+
+        RatioSnapshot ratio = new RatioSnapshot();
+        ratio.setRoic(new BigDecimal("0.18"));
+        ratio.setDebtToEquity(new BigDecimal("0.3"));
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(List.of(ratio));
+
+        FundamentalSnapshot year1 = new FundamentalSnapshot();
+        year1.setRevenue(new BigDecimal("120"));
+        FundamentalSnapshot year2 = new FundamentalSnapshot();
+        year2.setRevenue(new BigDecimal("100"));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(
+                security, Period.ANNUAL)).thenReturn(List.of(year1, year2));
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
+
+        ValueScore result = service.compute("AAPL");
+
+        assertThat(result.getRawTotalScore()).isGreaterThan(new BigDecimal("40"));
+        assertThat(result.getTotalScore()).isEqualByComparingTo(new BigDecimal("40"));
+        assertThat(result.isMosGateApplied()).isTrue();
     }
 
     @Test

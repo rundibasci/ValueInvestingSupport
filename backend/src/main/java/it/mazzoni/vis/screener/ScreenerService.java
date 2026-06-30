@@ -2,11 +2,14 @@ package it.mazzoni.vis.screener;
 
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.domain.entity.Period;
+import it.mazzoni.vis.domain.entity.PiotroskiResult;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.entity.AltmanResult;
+import it.mazzoni.vis.domain.entity.AltmanZone;
 import it.mazzoni.vis.screener.dto.ScreenerRequest;
 import it.mazzoni.vis.screener.dto.ScreenerResponse;
 import it.mazzoni.vis.screener.dto.ScreenerResultItem;
@@ -68,6 +71,8 @@ public class ScreenerService {
         Root<ValueScore> vs = query.from(ValueScore.class);
         Root<ValuationResult> vr = query.from(ValuationResult.class);
         Root<RatioSnapshot> rs = query.from(RatioSnapshot.class);
+        Root<PiotroskiResult> pr = needsPiotroski(request) ? query.from(PiotroskiResult.class) : null;
+        Root<AltmanResult> ar = needsAltman(request) ? query.from(AltmanResult.class) : null;
 
         query.multiselect(
                 sec.get("symbol").alias("symbol"),
@@ -87,7 +92,7 @@ public class ScreenerService {
                 vr.get("recommendation").alias("recommendation")
         );
 
-        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, request);
+        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, request);
         query.where(predicates.toArray(new Predicate[0]));
         query.orderBy(sortDesc
                 ? cb.desc(sortExpression(sortField, sec, vs, vr))
@@ -109,9 +114,11 @@ public class ScreenerService {
         Root<ValueScore> vs = query.from(ValueScore.class);
         Root<ValuationResult> vr = query.from(ValuationResult.class);
         Root<RatioSnapshot> rs = query.from(RatioSnapshot.class);
+        Root<PiotroskiResult> pr = needsPiotroski(request) ? query.from(PiotroskiResult.class) : null;
+        Root<AltmanResult> ar = needsAltman(request) ? query.from(AltmanResult.class) : null;
 
         query.select(cb.count(sec));
-        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, request);
+        List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, request);
         query.where(predicates.toArray(new Predicate[0]));
 
         return em.createQuery(query).getSingleResult();
@@ -121,6 +128,7 @@ public class ScreenerService {
             CriteriaBuilder cb, CriteriaQuery<?> query,
             Root<Security> sec, Root<ValueScore> vs,
             Root<ValuationResult> vr, Root<RatioSnapshot> rs,
+            Root<PiotroskiResult> pr, Root<AltmanResult> ar,
             ScreenerRequest request) {
 
         List<Predicate> predicates = new ArrayList<>();
@@ -184,8 +192,39 @@ public class ScreenerService {
             predicates.add(cb.greaterThanOrEqualTo(rs.get("dividendYield"), yieldDecimal));
         }
         // minRevenueGrowth is not applied in the query (requires self-join on FundamentalSnapshot)
+        if (pr != null) {
+            predicates.add(cb.equal(pr.get("security"), sec));
+            Subquery<LocalDate> maxPiotroskiDate = query.subquery(LocalDate.class);
+            Root<PiotroskiResult> prMax = maxPiotroskiDate.from(PiotroskiResult.class);
+            maxPiotroskiDate.select(cb.greatest(prMax.<LocalDate>get("resultDate")))
+                    .where(cb.equal(prMax.get("security"), sec));
+            predicates.add(cb.equal(pr.get("resultDate"), maxPiotroskiDate));
+            if (request.piotroskiMin() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(pr.get("totalScore"), request.piotroskiMin()));
+            }
+            if (request.piotroskiMax() != null) {
+                predicates.add(cb.lessThanOrEqualTo(pr.get("totalScore"), request.piotroskiMax()));
+            }
+        }
+        if (ar != null) {
+            predicates.add(cb.equal(ar.get("security"), sec));
+            Subquery<LocalDate> maxAltmanDate = query.subquery(LocalDate.class);
+            Root<AltmanResult> arMax = maxAltmanDate.from(AltmanResult.class);
+            maxAltmanDate.select(cb.greatest(arMax.<LocalDate>get("resultDate")))
+                    .where(cb.equal(arMax.get("security"), sec));
+            predicates.add(cb.equal(ar.get("resultDate"), maxAltmanDate));
+            predicates.add(cb.equal(ar.get("zone"), AltmanZone.valueOf(request.altmanZone().toUpperCase())));
+        }
 
         return predicates;
+    }
+
+    private boolean needsPiotroski(ScreenerRequest request) {
+        return request.piotroskiMin() != null || request.piotroskiMax() != null;
+    }
+
+    private boolean needsAltman(ScreenerRequest request) {
+        return request.altmanZone() != null && !request.altmanZone().isBlank();
     }
 
     @SuppressWarnings("unchecked")

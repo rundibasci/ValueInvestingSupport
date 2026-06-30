@@ -49,12 +49,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MarketDataException.class)
     public org.springframework.http.ResponseEntity<Map<String, String>> handleMarketDataException(
             MarketDataException ex) {
-        HttpStatus status = switch (ex.getErrorCode()) {
-            case NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case SERVICE_UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
-            case INVALID_SYMBOL -> HttpStatus.BAD_REQUEST;
-            case PLAN_RESTRICTION -> HttpStatus.PAYMENT_REQUIRED;
-        };
+        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+        if (ex.getErrorCode() == MarketDataException.ErrorCode.NOT_FOUND) {
+            status = HttpStatus.NOT_FOUND;
+        } else if (ex.getErrorCode() == MarketDataException.ErrorCode.INVALID_SYMBOL) {
+            status = HttpStatus.BAD_REQUEST;
+        } else if (ex.getErrorCode() == MarketDataException.ErrorCode.PLAN_RESTRICTION) {
+            status = HttpStatus.PAYMENT_REQUIRED;
+        }
         return org.springframework.http.ResponseEntity.status(status)
                 .body(Map.of("error", ex.getMessage()));
     }

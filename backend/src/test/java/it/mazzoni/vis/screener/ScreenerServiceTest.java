@@ -7,6 +7,11 @@ import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.entity.PiotroskiResult;
+import it.mazzoni.vis.domain.entity.AltmanResult;
+import it.mazzoni.vis.domain.entity.AltmanFormulaVariant;
+import it.mazzoni.vis.domain.entity.AltmanZone;
+import it.mazzoni.vis.domain.entity.RiskAvailabilityStatus;
 import it.mazzoni.vis.screener.dto.ScreenerRequest;
 import it.mazzoni.vis.screener.dto.ScreenerResponse;
 import jakarta.persistence.EntityManager;
@@ -63,6 +68,7 @@ class ScreenerServiceTest {
         ScreenerRequest req = new ScreenerRequest(
                 "Technology", null, null, null, null,
                 null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = screenerService.search(req);
@@ -76,6 +82,7 @@ class ScreenerServiceTest {
                 null, null, null, null,
                 new BigDecimal("50"),
                 null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = screenerService.search(req);
@@ -90,6 +97,7 @@ class ScreenerServiceTest {
                 null, null,
                 new BigDecimal("15"), null,
                 null, null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = screenerService.search(req);
@@ -106,6 +114,7 @@ class ScreenerServiceTest {
                 null, null, null, null, null,
                 null, new BigDecimal("2.0"),
                 null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
 
         ScreenerResponse result = screenerService.search(req);
@@ -124,9 +133,11 @@ class ScreenerServiceTest {
     void search_pagination_respectsPageSizeAndPage() {
         ScreenerRequest page0 = new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "symbol", "ASC", 0, 2);
         ScreenerRequest page1 = new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "symbol", "ASC", 1, 2);
 
         ScreenerResponse r0 = screenerService.search(page0);
@@ -144,6 +155,7 @@ class ScreenerServiceTest {
     private ScreenerRequest emptyRequest() {
         return new ScreenerRequest(
                 null, null, null, null, null, null, null, null, null,
+                null, null, null,
                 "totalScore", "DESC", 0, 20);
     }
 
@@ -193,6 +205,21 @@ class ScreenerServiceTest {
         vs.setDividendScore(BigDecimal.ZERO);
         vs.setTotalScore(totalScore);
         em.persist(vs);
+
+        PiotroskiResult pr = new PiotroskiResult();
+        pr.setSecurity(sec);
+        pr.setResultDate(LocalDate.now());
+        pr.setTotalScore("AAPL".equals(symbol) ? 8 : "KO".equals(symbol) ? 6 : 3);
+        pr.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        em.persist(pr);
+
+        AltmanResult ar = new AltmanResult();
+        ar.setSecurity(sec);
+        ar.setResultDate(LocalDate.now());
+        ar.setZone("XOM".equals(symbol) ? AltmanZone.GREY : AltmanZone.SAFE);
+        ar.setFormulaVariant(AltmanFormulaVariant.NON_MANUFACTURING);
+        ar.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        em.persist(ar);
 
         // FundamentalSnapshot not required for screener query (only for scoring)
         FundamentalSnapshot fs = new FundamentalSnapshot();

@@ -7,6 +7,7 @@ import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.config.ScoringRiskProperties;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
@@ -32,6 +33,7 @@ public class ValueScoreService {
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
     private final DividendRecordRepository dividendRecordRepository;
     private final ValueScoreRepository valueScoreRepository;
+    private final ScoringRiskProperties scoringRiskProperties;
 
     public ValueScoreService(
             SecurityRepository securityRepository,
@@ -39,13 +41,15 @@ public class ValueScoreService {
             RatioSnapshotRepository ratioSnapshotRepository,
             FundamentalSnapshotRepository fundamentalSnapshotRepository,
             DividendRecordRepository dividendRecordRepository,
-            ValueScoreRepository valueScoreRepository) {
+            ValueScoreRepository valueScoreRepository,
+            ScoringRiskProperties scoringRiskProperties) {
         this.securityRepository = securityRepository;
         this.valuationResultRepository = valuationResultRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.dividendRecordRepository = dividendRecordRepository;
         this.valueScoreRepository = valueScoreRepository;
+        this.scoringRiskProperties = scoringRiskProperties;
     }
 
     public ValueScore compute(String symbol) {
@@ -66,13 +70,21 @@ public class ValueScoreService {
         List<DividendRecord> dividends = dividendRecordRepository
                 .findBySecurityOrderByExDividendDateDesc(security);
 
-        BigDecimal mosScore      = computeMosScore(valuation);
-        BigDecimal qualityScore  = computeQualityScore(ratio);
-        BigDecimal safetyScore   = computeSafetyScore(ratio);
-        BigDecimal growthScore   = computeGrowthScore(annuals);
-        BigDecimal dividendScore = computeDividendScore(ratio, dividends);
-        BigDecimal totalScore    = mosScore.add(qualityScore).add(safetyScore)
+        String weightProfileKey = determineWeightProfile(security, ratio, dividends);
+        ScoringRiskProperties.WeightProfile profile = scoringRiskProperties.profile(weightProfileKey);
+
+        BigDecimal mosScore      = scaleScore(computeMosScore(valuation), new BigDecimal("30"), profile.mos());
+        BigDecimal qualityScore  = scaleScore(computeQualityScore(ratio), new BigDecimal("25"), profile.quality());
+        BigDecimal safetyScore   = scaleScore(computeSafetyScore(ratio), new BigDecimal("20"), profile.safety());
+        BigDecimal growthScore   = scaleScore(computeGrowthScore(annuals), new BigDecimal("15"), profile.growth());
+        BigDecimal dividendScore = scaleScore(computeDividendScore(ratio, dividends), new BigDecimal("10"), profile.dividend());
+        BigDecimal rawTotalScore = mosScore.add(qualityScore).add(safetyScore)
                 .add(growthScore).add(dividendScore);
+        boolean gateApplied = valuation != null
+                && valuation.getMarginOfSafety() != null
+                && valuation.getMarginOfSafety().compareTo(BigDecimal.ZERO) < 0
+                && rawTotalScore.compareTo(new BigDecimal("40")) > 0;
+        BigDecimal totalScore = gateApplied ? new BigDecimal("40") : rawTotalScore;
 
         ValueScore entity = new ValueScore();
         entity.setSecurity(security);
@@ -83,7 +95,34 @@ public class ValueScoreService {
         entity.setGrowthScore(growthScore);
         entity.setDividendScore(dividendScore);
         entity.setTotalScore(totalScore);
+        entity.setRawTotalScore(rawTotalScore);
+        entity.setMosGateApplied(gateApplied);
+        entity.setWeightProfile(weightProfileKey);
         return valueScoreRepository.save(entity);
+    }
+
+    private String determineWeightProfile(Security security, RatioSnapshot ratio, List<DividendRecord> dividends) {
+        String sector = security.getSector() != null ? security.getSector().toLowerCase() : "";
+        if (sector.contains("real estate") || sector.contains("reit") || sector.contains("utilit")) {
+            return "reit-utility";
+        }
+        if (sector.contains("financial")) {
+            return "financial";
+        }
+        if (sector.contains("cyclical") || sector.contains("basic material") || sector.contains("energy")) {
+            return "cyclical";
+        }
+        boolean paysDividend = (ratio != null && ratio.getDividendYield() != null
+                && ratio.getDividendYield().compareTo(BigDecimal.ZERO) > 0)
+                || !dividends.isEmpty();
+        return paysDividend ? "dividend-paying" : "non-dividend-growth";
+    }
+
+    private BigDecimal scaleScore(BigDecimal score, BigDecimal originalMax, BigDecimal targetMax) {
+        if (score == null || targetMax == null || targetMax.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return score.multiply(targetMax).divide(originalMax, 2, RoundingMode.HALF_UP);
     }
 
     // MoS sub-score (0–30): based on marginOfSafety percentage from latest ValuationResult

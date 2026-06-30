@@ -90,6 +90,7 @@ class ScreenerControllerTest {
                 new BigDecimal("60"),
                 new BigDecimal("10"), new BigDecimal("1.0"),
                 null, null,
+                7, null, "SAFE",
                 "totalScore", "DESC", 0, 20));
 
         mockMvc.perform(post("/api/v1/screener")
