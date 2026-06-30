@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- VM2: Valuation transparency frontend on the in-depth review page with DCF sensitivity matrix, terminal-value warning, WACC input panel, EPV conservative floor, owner earnings, Graham criteria checklist, and local composite-weight preview.
+- VM2: Review API exposure for persisted VM1 transparency data, including WACC rows, Graham checklist items, terminal dependence, EPV, owner earnings, and derived DCF sensitivity data; feature specifications under `specs/2026-06-30-vm2-valuation-transparency-frontend/`.
 - VM1: Valuation engine backend enhancements — WACC calculator with auditable fallback metadata, DCF terminal-value dependence, DCF sensitivity matrix service, EPV zero-growth floor, owner earnings, Graham criteria checklist, composite-weight validation/rebalancing, Flyway V13 persistence, and feature specifications under `specs/2026-06-30-vm1-valuation-engine-backend-enhancements/`.
 - VM1: Focused valuation tests for WACC, DCF sensitivity, EPV RULE-08 behavior, owner earnings, and extended valuation-service persistence; backend Maven suite passes with 292 tests.
 - J1: Google OpenID Connect backend — Spring Security OAuth2 Client integration for Google sign-in, `OAuthIdentity` entity and Flyway V12 migration, `OAuthAccountResolver` for automatic account linking by verified email, `OAuthLoginSuccessHandler` with single-use handoff code (60s TTL), `GET /auth/oauth2/token` exchange endpoint, conditional `GoogleOAuthConfig` (disabled when credentials absent), nullable `passwordHash` for OAuth-only users, 15 tests across unit and integration; feature specifications under `specs/2026-06-28-j1-google-oidc-backend/`

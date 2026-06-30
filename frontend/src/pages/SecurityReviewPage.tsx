@@ -44,7 +44,11 @@ type Annual = { fiscalYear: number; revenue: number | null; netIncome: number | 
 type Financials = { annuals: Annual[]; quarters: Array<{ period: string; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null }>; ttm: { revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null } | null }
 type RatioItem = { date: string; pe: number | null; roic: number | null; roe: number | null; debtToEquity: number | null; grossMargin: number | null; dividendYield: number | null }
 type Ratios = { ratios: RatioItem[] }
-type Valuation = { currentPrice: number | null; dcf: { base: number | null; low: number | null; high: number | null } | null; grahamNumber: number | null; ddmValue: number | null; compositeFairValue: number | null; marginOfSafety: number | null; mosLow: number | null; mosHigh: number | null; recommendation: string | null; analystEstimates: { priceTargetMean: number | null; priceTargetLow: number | null; priceTargetHigh: number | null; analystCount: number; consensus: string | null } | null; dataAsOf: string | null; disclaimer: string }
+type DcfSensitivityCell = { wacc: number; terminalRate: number; fairValue: number | null; terminalValuePercentage: number | null; highTerminalDependence: boolean }
+type DcfSensitivity = { waccValues: number[]; terminalRateValues: number[]; cells: DcfSensitivityCell[]; baseWacc: number | null; baseTerminalRate: number | null }
+type WaccDetail = { wacc: number | null; riskFreeRate: number | null; equityRiskPremium: number | null; beta: number | null; costOfEquity: number | null; costOfDebt: number | null; debtWeight: number | null; equityWeight: number | null; effectiveTaxRate: number | null; fallbackUsed: boolean; source: string | null }
+type GrahamChecklist = { passed: number; failed: number; insufficient: number; criteria: Array<{ code: string; label: string; status: string; actualValue: number | null }> }
+type Valuation = { currentPrice: number | null; dcf: { base: number | null; low: number | null; high: number | null } | null; dcfTerminalValuePercentage: number | null; dcfHighTerminalDependence: boolean; sensitivity: DcfSensitivity | null; grahamNumber: number | null; ddmValue: number | null; epv: { fairValue: number | null; normalizedEarnings: number | null; yearsAveraged: number | null } | null; ownerEarnings: { value: number | null; maintenanceCapexEstimate: number | null } | null; compositeFairValue: number | null; marginOfSafety: number | null; mosLow: number | null; mosHigh: number | null; recommendation: string | null; analystEstimates: { priceTargetMean: number | null; priceTargetLow: number | null; priceTargetHigh: number | null; analystCount: number; consensus: string | null } | null; wacc: WaccDetail | null; grahamChecklist: GrahamChecklist | null; dataAsOf: string | null; disclaimer: string }
 type Dividends = { history: Array<{ exDividendDate: string | null; paymentDate: string | null; amount: number | null; currency: string | null }>; streak: number; cagr3y: number | null; cagr5y: number | null; cagr10y: number | null }
 type Metrics = { cagr3y: number | null; cagr5y: number | null; cagr10y: number | null }
 type Growth = { revenue: Metrics; fcf: Metrics; eps: Metrics }
@@ -367,6 +371,112 @@ function CustomDcf({ symbol, currency }: { symbol: string; currency: string }): 
   )
 }
 
+function SensitivityTable({ valuation, currentPrice, currency }: { valuation: Valuation | null; currentPrice: number | null; currency: string }): JSX.Element {
+  const sensitivity = valuation?.sensitivity
+  if (!sensitivity || !sensitivity.cells.length) return <DataGap>DCF sensitivity is unavailable until the backend has enough positive free-cash-flow history and WACC inputs for this symbol.</DataGap>
+  const cellByKey = new Map(sensitivity.cells.map((cell) => [`${cell.wacc}:${cell.terminalRate}`, cell]))
+  const mosClass = (fairValue: number | null | undefined) => {
+    if (fairValue == null || currentPrice == null || currentPrice === 0) return 'bg-slate-950 text-slate-500'
+    const mos = ((fairValue - currentPrice) / currentPrice) * 100
+    if (mos >= 15) return 'bg-emerald-400/15 text-emerald-100'
+    if (mos >= 0) return 'bg-amber-300/15 text-amber-100'
+    return 'bg-rose-400/15 text-rose-100'
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[34rem] border-separate border-spacing-1 text-center text-sm">
+        <caption className="mb-3 text-left text-sm leading-6 text-slate-400">Fair value per share across WACC and terminal growth assumptions. Green cells imply at least 15% margin of safety versus current price.</caption>
+        <thead>
+          <tr>
+            <th className="rounded-md bg-slate-950 p-2 text-left text-slate-400">WACC / terminal</th>
+            {sensitivity.terminalRateValues.map((terminalRate) => <th key={terminalRate} className="rounded-md bg-slate-950 p-2 text-slate-300">{ratioPercent(terminalRate)}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {sensitivity.waccValues.map((wacc) => (
+            <tr key={wacc}>
+              <th className="rounded-md bg-slate-950 p-2 text-left font-medium text-slate-300">{ratioPercent(wacc)}</th>
+              {sensitivity.terminalRateValues.map((terminalRate) => {
+                const cell = cellByKey.get(`${wacc}:${terminalRate}`)
+                const isBase = wacc === sensitivity.baseWacc && terminalRate === sensitivity.baseTerminalRate
+                return (
+                  <td key={`${wacc}-${terminalRate}`} className={`rounded-md p-2 ${mosClass(cell?.fairValue)} ${isBase ? 'outline outline-2 outline-emerald-300' : ''}`}>
+                    <span className="block font-semibold">{money(cell?.fairValue, currency)}</span>
+                    <span className="text-xs opacity-80">TV {percentPoint(cell?.terminalValuePercentage)}</span>
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function WaccPanel({ wacc }: { wacc: WaccDetail | null | undefined }): JSX.Element {
+  if (!wacc) return <DataGap>WACC inputs are unavailable for this valuation. Re-run valuation after VM1 data is present.</DataGap>
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2">
+      <Metric label="Computed WACC" value={ratioPercent(wacc.wacc)} note={wacc.fallbackUsed ? `Fallback source: ${wacc.source || 'configured fallback'}` : `Source: ${wacc.source || 'stored inputs'}`} />
+      <Metric label="Risk-free rate" value={ratioPercent(wacc.riskFreeRate)} />
+      <Metric label="Equity risk premium" value={ratioPercent(wacc.equityRiskPremium)} />
+      <Metric label="Beta" value={number(wacc.beta)} />
+      <Metric label="Cost of equity" value={ratioPercent(wacc.costOfEquity)} />
+      <Metric label="Cost of debt" value={ratioPercent(wacc.costOfDebt)} />
+      <Metric label="Debt weight" value={ratioPercent(wacc.debtWeight)} />
+      <Metric label="Equity weight" value={ratioPercent(wacc.equityWeight)} />
+      <Metric label="Effective tax rate" value={ratioPercent(wacc.effectiveTaxRate)} />
+    </dl>
+  )
+}
+
+function GrahamChecklistPanel({ checklist }: { checklist: GrahamChecklist | null | undefined }): JSX.Element {
+  if (!checklist) return <DataGap>Graham checklist results are unavailable for this valuation.</DataGap>
+  const statusClass = (status: string) => status === 'PASS' ? 'text-emerald-200' : status === 'FAIL' ? 'text-rose-200' : 'text-slate-400'
+  return (
+    <div>
+      <p className="mb-4 text-sm text-slate-300">{checklist.passed} of {checklist.criteria.length} criteria met. {checklist.insufficient} criteria lack enough data.</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-slate-700 text-slate-400"><tr><th className="pb-3">Criterion</th><th>Status</th><th>Actual</th></tr></thead>
+          <tbody>{checklist.criteria.map((item) => <tr key={item.code} className="border-b border-slate-800"><td className="py-3 text-slate-200">{item.label}</td><td className={statusClass(item.status)}>{item.status.replace(/_/g, ' ').toLowerCase()}</td><td>{number(item.actualValue)}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function CompositeWeights({ valuation, currency }: { valuation: Valuation | null; currency: string }): JSX.Element {
+  const [weights, setWeights] = useState({ dcf: 55, graham: 20, ddm: 10, epv: 15 })
+  const entries: Array<[keyof typeof weights, string, number | null | undefined]> = [
+    ['dcf', 'DCF', valuation?.dcf?.base],
+    ['graham', 'Graham', valuation?.grahamNumber],
+    ['ddm', 'DDM', valuation?.ddmValue],
+    ['epv', 'EPV', valuation?.epv?.fairValue],
+  ]
+  const total = Object.values(weights).reduce((sum, value) => sum + value, 0)
+  const adjustedTotal = total || 1
+  const composite = entries.reduce((sum, [key, , value]) => value == null ? sum : sum + value * (weights[key] / adjustedTotal), 0)
+  const update = (key: keyof typeof weights, value: number) => setWeights((current) => ({ ...current, [key]: value }))
+  return (
+    <div>
+      <div className="grid gap-3">
+        {entries.map(([key, label, value]) => (
+          <label key={key} className="grid gap-2 text-sm text-slate-300">
+            <span className="flex items-center justify-between gap-3"><span>{label}</span><span>{weights[key]}% · {money(value, currency)}</span></span>
+            <input type="range" min="0" max="100" value={weights[key]} onChange={(event) => update(key, Number(event.target.value))} className="w-full accent-emerald-400" />
+          </label>
+        ))}
+      </div>
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Metric label="Weight total" value={`${total}%`} note={total === 100 ? 'Weights sum to 100.' : 'Preview normalizes the current weights.'} />
+        <Metric label="Preview composite" value={money(composite || null, currency)} />
+      </dl>
+    </div>
+  )
+}
+
 export function SecurityReviewPage(): JSX.Element {
   const { symbol: rawSymbol = '' } = useParams()
   const symbol = rawSymbol.trim().toUpperCase()
@@ -471,14 +581,33 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="Recommendation" value={valuation?.recommendation || 'Unavailable'} />
                 <Metric label="DCF base" value={money(valuation?.dcf?.base, currency)} />
                 <Metric label="DCF low / high" value={`${money(valuation?.dcf?.low, currency)} / ${money(valuation?.dcf?.high, currency)}`} />
+                <Metric label="Terminal value share" value={percentPoint(valuation?.dcfTerminalValuePercentage)} />
                 <Metric label="Graham number" value={money(valuation?.grahamNumber, currency)} />
                 <Metric label="DDM" value={money(valuation?.ddmValue, currency)} />
+                <Metric label="EPV floor" value={money(valuation?.epv?.fairValue, currency)} />
               </dl>
+              {valuation?.dcfHighTerminalDependence && (
+                <p role="status" className="mt-4 rounded-lg border border-amber-300/30 bg-amber-300/10 p-3 text-sm leading-6 text-amber-100">
+                  This valuation depends heavily on long-term assumptions. Terminal value is {percentPoint(valuation.dcfTerminalValuePercentage)} of total DCF.
+                </p>
+              )}
               {valuation?.analystEstimates ? <p className="mt-4 text-sm leading-6 text-slate-400">Analyst target range: {money(valuation.analystEstimates.priceTargetLow, currency)} to {money(valuation.analystEstimates.priceTargetHigh, currency)}. Mean target {money(valuation.analystEstimates.priceTargetMean, currency)} from {valuation.analystEstimates.analystCount} estimates.</p> : <DataGap>Analyst target range is unavailable for this symbol.</DataGap>}
               <p className="mt-4 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">{valuation?.disclaimer || 'This is a decision-support tool, not investment advice (MiFID II).'}</p>
             </Panel>
             <Panel title="Custom DCF">
               <CustomDcf symbol={symbol} currency={currency} />
+            </Panel>
+            <Panel title="DCF sensitivity">
+              <SensitivityTable valuation={valuation} currentPrice={valuation?.currentPrice ?? d.currentPrice} currency={currency} />
+            </Panel>
+            <Panel title="WACC transparency">
+              <WaccPanel wacc={valuation?.wacc} />
+            </Panel>
+            <Panel title="Composite weight preview">
+              <CompositeWeights valuation={valuation} currency={currency} />
+            </Panel>
+            <Panel title="Graham criteria checklist">
+              <GrahamChecklistPanel checklist={valuation?.grahamChecklist} />
             </Panel>
           </div>
         </Section>
@@ -491,6 +620,9 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="TTM revenue" value={money(financials.ttm?.revenue ?? d.revenue, currency)} />
                 <Metric label="FCF margin" value={financials.ttm?.fcf != null && financials.ttm.revenue ? ratioPercent(financials.ttm.fcf / financials.ttm.revenue) : 'Unavailable'} />
                 <Metric label="Positive FCF years" value={annual.length ? `${annual.filter((item) => typeof item.fcf === 'number' && item.fcf > 0).length} of ${annual.length}` : 'Unavailable'} />
+                <Metric label="Owner earnings" value={money(valuation?.ownerEarnings?.value, currency)} />
+                <Metric label="Maintenance capex estimate" value={money(valuation?.ownerEarnings?.maintenanceCapexEstimate, currency)} />
+                <Metric label="EPV normalized earnings" value={money(valuation?.epv?.normalizedEarnings, currency)} note={valuation?.epv?.yearsAveraged ? `${valuation.epv.yearsAveraged} years averaged` : undefined} />
               </dl>
             </Panel>
             <Panel title="FCF history">

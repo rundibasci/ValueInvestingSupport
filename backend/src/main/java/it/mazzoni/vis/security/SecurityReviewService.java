@@ -3,19 +3,23 @@ package it.mazzoni.vis.security;
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.entity.WaccResultEntity;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
+import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
 import it.mazzoni.vis.security.domain.AnalystEstimate;
@@ -36,6 +40,10 @@ import it.mazzoni.vis.security.dto.SecurityDetailResponse;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
 import it.mazzoni.vis.security.dto.TtmFinancials;
 import it.mazzoni.vis.security.dto.ValuationDetailResponse;
+import it.mazzoni.vis.valuation.DcfInput;
+import it.mazzoni.vis.valuation.DcfSensitivityCell;
+import it.mazzoni.vis.valuation.DcfSensitivityResult;
+import it.mazzoni.vis.valuation.DcfSensitivityService;
 import it.mazzoni.vis.valuation.MarginOfSafetyCalculator;
 import it.mazzoni.vis.valuation.StaleDataException;
 import it.mazzoni.vis.valuation.ValuationDataUnavailableException;
@@ -55,6 +63,9 @@ import java.util.stream.Collectors;
 public class SecurityReviewService {
 
     private static final int STALE_DAYS = 7;
+    private static final BigDecimal DEFAULT_GROWTH_Y1_Y5 = new BigDecimal("0.06");
+    private static final BigDecimal DEFAULT_GROWTH_Y6_Y10 = new BigDecimal("0.04");
+    private static final BigDecimal DEFAULT_TERMINAL_RATE = new BigDecimal("0.025");
 
     private final SecurityRepository securityRepository;
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
@@ -63,6 +74,8 @@ public class SecurityReviewService {
     private final ValuationResultRepository valuationResultRepository;
     private final DividendRecordRepository dividendRecordRepository;
     private final ValueScoreRepository valueScoreRepository;
+    private final WaccResultRepository waccResultRepository;
+    private final GrahamChecklistItemRepository grahamChecklistItemRepository;
     private final AnalystEstimateRepository analystEstimateRepository;
     private final DividendsService dividendsService;
     private final GrowthService growthService;
@@ -74,6 +87,8 @@ public class SecurityReviewService {
                                  ValuationResultRepository valuationResultRepository,
                                  DividendRecordRepository dividendRecordRepository,
                                  ValueScoreRepository valueScoreRepository,
+                                 WaccResultRepository waccResultRepository,
+                                 GrahamChecklistItemRepository grahamChecklistItemRepository,
                                  AnalystEstimateRepository analystEstimateRepository,
                                  DividendsService dividendsService,
                                  GrowthService growthService) {
@@ -84,6 +99,8 @@ public class SecurityReviewService {
         this.valuationResultRepository = valuationResultRepository;
         this.dividendRecordRepository = dividendRecordRepository;
         this.valueScoreRepository = valueScoreRepository;
+        this.waccResultRepository = waccResultRepository;
+        this.grahamChecklistItemRepository = grahamChecklistItemRepository;
         this.analystEstimateRepository = analystEstimateRepository;
         this.dividendsService = dividendsService;
         this.growthService = growthService;
@@ -122,7 +139,7 @@ public class SecurityReviewService {
         SecurityDetailResponse detail = SecurityDetailResponse.from(security, latestAnnual, latestRatios, latestPrice);
         FinancialsResponse financials = financials(upper, reviewAnnuals);
         RatiosHistoryResponse ratios = new RatiosHistoryResponse(upper, ratioSnapshots.stream().map(RatioSnapshotItem::from).toList());
-        ValuationDetailResponse valuation = latestValuation != null ? valuation(security, latestValuation, upper) : null;
+        ValuationDetailResponse valuation = latestValuation != null ? valuation(security, latestValuation, upper, latestAnnual, reviewAnnuals) : null;
         DividendsResponse dividends = dividends(upper, dividendRecords);
         GrowthResponse growth = growthService.compute(upper, growthAnnuals);
         PeersResponse peers = peers(security);
@@ -175,22 +192,122 @@ public class SecurityReviewService {
         );
     }
 
-    private ValuationDetailResponse valuation(Security security, ValuationResult result, String symbol) {
+    private ValuationDetailResponse valuation(Security security,
+                                              ValuationResult result,
+                                              String symbol,
+                                              FundamentalSnapshot latestAnnual,
+                                              List<FundamentalSnapshot> annualSnapshots) {
+        WaccResultEntity wacc = waccResultRepository.findByValuationResult(result).orElse(null);
+        List<GrahamChecklistItem> checklist = grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(result);
         return new ValuationDetailResponse(
                 security.getSymbol(),
                 security.getCompanyName(),
                 result.getCurrentPrice(),
                 new DcfScenarios(result.getDcfFairValue(), result.getDcfFairValueLow(), result.getDcfFairValueHigh()),
+                result.getDcfTerminalValuePercentage(),
+                result.isDcfHighTerminalDependence(),
+                sensitivity(result, latestAnnual, annualSnapshots, wacc),
                 result.getGrahamNumber(),
                 result.getDdmFairValue(),
+                result.getEpvFairValue() != null
+                        ? new ValuationDetailResponse.EpvDetail(result.getEpvFairValue(), result.getEpvNormalizedEarnings(), result.getEpvYearsAveraged())
+                        : null,
+                result.getOwnerEarnings() != null
+                        ? new ValuationDetailResponse.OwnerEarningsDetail(result.getOwnerEarnings(), result.getMaintenanceCapexEstimate())
+                        : null,
                 result.getCompositeFairValue(),
                 result.getMarginOfSafety(),
                 computeMos(result.getDcfFairValueLow(), result.getCurrentPrice()),
                 computeMos(result.getDcfFairValueHigh(), result.getCurrentPrice()),
                 result.getRecommendation() != null ? result.getRecommendation().name() : null,
                 buildAnalystEstimates(symbol),
+                waccDetail(wacc),
+                grahamChecklist(checklist),
                 result.getValuationDate(),
                 ValuationDetailResponse.MIFID_DISCLAIMER
+        );
+    }
+
+    private ValuationDetailResponse.WaccDetail waccDetail(WaccResultEntity wacc) {
+        if (wacc == null) return null;
+        return new ValuationDetailResponse.WaccDetail(
+                wacc.getWacc(),
+                wacc.getRiskFreeRate(),
+                wacc.getEquityRiskPremium(),
+                wacc.getBeta(),
+                wacc.getCostOfEquity(),
+                wacc.getCostOfDebt(),
+                wacc.getDebtWeight(),
+                wacc.getEquityWeight(),
+                wacc.getEffectiveTaxRate(),
+                wacc.isFallbackUsed(),
+                wacc.getSource()
+        );
+    }
+
+    private ValuationDetailResponse.GrahamChecklistDetail grahamChecklist(List<GrahamChecklistItem> items) {
+        if (items.isEmpty()) return null;
+        int passed = (int) items.stream().filter(item -> "PASS".equals(item.getStatus())).count();
+        int failed = (int) items.stream().filter(item -> "FAIL".equals(item.getStatus())).count();
+        int insufficient = items.size() - passed - failed;
+        return new ValuationDetailResponse.GrahamChecklistDetail(
+                passed,
+                failed,
+                insufficient,
+                items.stream()
+                        .map(item -> new ValuationDetailResponse.GrahamChecklistCriterion(
+                                item.getCriterionCode(),
+                                item.getLabel(),
+                                item.getStatus(),
+                                item.getActualValue()))
+                        .toList()
+        );
+    }
+
+    private ValuationDetailResponse.DcfSensitivity sensitivity(ValuationResult result,
+                                                               FundamentalSnapshot latestAnnual,
+                                                               List<FundamentalSnapshot> annualSnapshots,
+                                                               WaccResultEntity wacc) {
+        if (result.getDcfFairValue() == null || latestAnnual.getFreeCashFlow() == null
+                || latestAnnual.getSharesOutstanding() == null || latestAnnual.getSharesOutstanding() <= 0
+                || wacc == null || wacc.getWacc() == null) {
+            return null;
+        }
+        BigDecimal netDebt = latestAnnual.getTotalDebt() != null && latestAnnual.getCash() != null
+                ? latestAnnual.getTotalDebt().subtract(latestAnnual.getCash())
+                : BigDecimal.ZERO;
+        int positiveFcfYears = (int) annualSnapshots.stream()
+                .filter(snapshot -> snapshot.getFreeCashFlow() != null && snapshot.getFreeCashFlow().compareTo(BigDecimal.ZERO) > 0)
+                .count();
+        DcfInput input = new DcfInput(
+                latestAnnual.getFreeCashFlow(),
+                DEFAULT_GROWTH_Y1_Y5,
+                DEFAULT_GROWTH_Y6_Y10,
+                DEFAULT_TERMINAL_RATE,
+                wacc.getWacc(),
+                BigDecimal.valueOf(latestAnnual.getSharesOutstanding()),
+                netDebt,
+                positiveFcfYears
+        );
+        DcfSensitivityResult sensitivity = new DcfSensitivityService().analyze(input);
+        return new ValuationDetailResponse.DcfSensitivity(
+                sensitivity.waccValues(),
+                sensitivity.terminalRateValues(),
+                sensitivity.cells().stream()
+                        .map(this::sensitivityCell)
+                        .toList(),
+                wacc.getWacc(),
+                DEFAULT_TERMINAL_RATE
+        );
+    }
+
+    private ValuationDetailResponse.DcfSensitivityCell sensitivityCell(DcfSensitivityCell cell) {
+        return new ValuationDetailResponse.DcfSensitivityCell(
+                cell.wacc(),
+                cell.terminalRate(),
+                cell.fairValue(),
+                cell.terminalValuePercentage(),
+                cell.highTerminalDependence()
         );
     }
 

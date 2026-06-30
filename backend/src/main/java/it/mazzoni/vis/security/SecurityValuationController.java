@@ -68,14 +68,25 @@ public class SecurityValuationController {
                 security.getCompanyName(),
                 result.getCurrentPrice(),
                 dcf,
+                result.getDcfTerminalValuePercentage(),
+                result.isDcfHighTerminalDependence(),
+                null,
                 result.getGrahamNumber(),
                 result.getDdmFairValue(),
+                result.getEpvFairValue() != null
+                        ? new ValuationDetailResponse.EpvDetail(result.getEpvFairValue(), result.getEpvNormalizedEarnings(), result.getEpvYearsAveraged())
+                        : null,
+                result.getOwnerEarnings() != null
+                        ? new ValuationDetailResponse.OwnerEarningsDetail(result.getOwnerEarnings(), result.getMaintenanceCapexEstimate())
+                        : null,
                 result.getCompositeFairValue(),
                 result.getMarginOfSafety(),
                 mosLow,
                 mosHigh,
                 result.getRecommendation() != null ? result.getRecommendation().name() : null,
                 analystEstimates,
+                null,
+                null,
                 result.getValuationDate(),
                 ValuationDetailResponse.MIFID_DISCLAIMER
         ));

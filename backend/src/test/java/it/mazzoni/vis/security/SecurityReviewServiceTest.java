@@ -1,6 +1,7 @@
 package it.mazzoni.vis.security;
 
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
@@ -8,13 +9,16 @@ import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.entity.WaccResultEntity;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
+import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.security.domain.AnalystEstimateRepository;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +46,8 @@ class SecurityReviewServiceTest {
     @Mock ValuationResultRepository valuationResultRepository;
     @Mock DividendRecordRepository dividendRecordRepository;
     @Mock ValueScoreRepository valueScoreRepository;
+    @Mock WaccResultRepository waccResultRepository;
+    @Mock GrahamChecklistItemRepository grahamChecklistItemRepository;
     @Mock AnalystEstimateRepository analystEstimateRepository;
 
     SecurityReviewService service;
@@ -56,6 +62,8 @@ class SecurityReviewServiceTest {
                 valuationResultRepository,
                 dividendRecordRepository,
                 valueScoreRepository,
+                waccResultRepository,
+                grahamChecklistItemRepository,
                 analystEstimateRepository,
                 new DividendsService(),
                 new GrowthService()
@@ -85,6 +93,9 @@ class SecurityReviewServiceTest {
         when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(any(Security.class))).thenReturn(Optional.of(ratios));
         when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.of(valuation));
+        when(waccResultRepository.findByValuationResult(valuation)).thenReturn(Optional.of(wacc(valuation)));
+        when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation))
+                .thenReturn(List.of(checklistItem(valuation, "PE_RATIO", "P/E < 15", "FAIL", "20.00")));
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.of(score));
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("AAPL")).thenReturn(List.of());
@@ -97,6 +108,10 @@ class SecurityReviewServiceTest {
         assertThat(response.financials().annuals()).hasSize(1);
         assertThat(response.ratios().ratios()).hasSize(1);
         assertThat(response.valuation()).isNotNull();
+        assertThat(response.valuation().wacc()).isNotNull();
+        assertThat(response.valuation().wacc().fallbackUsed()).isTrue();
+        assertThat(response.valuation().grahamChecklist()).isNotNull();
+        assertThat(response.valuation().grahamChecklist().failed()).isEqualTo(1);
         assertThat(response.score()).isNotNull();
         assertThat(response.financialHealth().currentRatio()).isEqualByComparingTo("1.25");
         assertThat(response.sourceCoverage()).extracting(SecurityReviewResponse.SourceCoverageItem::category)
@@ -130,6 +145,8 @@ class SecurityReviewServiceTest {
         when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(any(Security.class))).thenReturn(Optional.of(ratios));
         when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.of(valuation));
+        when(waccResultRepository.findByValuationResult(valuation)).thenReturn(Optional.empty());
+        when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation)).thenReturn(List.of());
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.empty());
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
@@ -214,7 +231,14 @@ class SecurityReviewServiceTest {
         v.setDcfFairValue(new BigDecimal("210.00"));
         v.setDcfFairValueLow(new BigDecimal("190.00"));
         v.setDcfFairValueHigh(new BigDecimal("230.00"));
+        v.setDcfTerminalValuePercentage(new BigDecimal("72.00"));
+        v.setDcfHighTerminalDependence(true);
         v.setGrahamNumber(new BigDecimal("160.00"));
+        v.setEpvFairValue(new BigDecimal("150.00"));
+        v.setEpvNormalizedEarnings(new BigDecimal("12000.00"));
+        v.setEpvYearsAveraged(5);
+        v.setOwnerEarnings(new BigDecimal("175.00"));
+        v.setMaintenanceCapexEstimate(new BigDecimal("25.00"));
         v.setCompositeFairValue(new BigDecimal("205.00"));
         v.setMarginOfSafety(new BigDecimal("13.89"));
         v.setRecommendation(Recommendation.QUALITY_VALUE);
@@ -228,5 +252,32 @@ class SecurityReviewServiceTest {
         s.setScoreDate(LocalDate.now());
         s.setTotalScore(new BigDecimal("72.50"));
         return s;
+    }
+
+    private WaccResultEntity wacc(ValuationResult valuation) {
+        WaccResultEntity w = new WaccResultEntity();
+        w.setValuationResult(valuation);
+        w.setWacc(new BigDecimal("0.090000"));
+        w.setRiskFreeRate(new BigDecimal("0.040000"));
+        w.setEquityRiskPremium(new BigDecimal("0.055000"));
+        w.setBeta(new BigDecimal("1.000000"));
+        w.setCostOfEquity(new BigDecimal("0.095000"));
+        w.setCostOfDebt(new BigDecimal("0.050000"));
+        w.setDebtWeight(new BigDecimal("0.200000"));
+        w.setEquityWeight(new BigDecimal("0.800000"));
+        w.setEffectiveTaxRate(new BigDecimal("0.210000"));
+        w.setFallbackUsed(true);
+        w.setSource("sector-median");
+        return w;
+    }
+
+    private GrahamChecklistItem checklistItem(ValuationResult valuation, String code, String label, String status, String actualValue) {
+        GrahamChecklistItem item = new GrahamChecklistItem();
+        item.setValuationResult(valuation);
+        item.setCriterionCode(code);
+        item.setLabel(label);
+        item.setStatus(status);
+        item.setActualValue(new BigDecimal(actualValue));
+        return item;
     }
 }
