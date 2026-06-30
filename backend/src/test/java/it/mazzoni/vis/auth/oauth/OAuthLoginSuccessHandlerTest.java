@@ -1,5 +1,6 @@
 package it.mazzoni.vis.auth.oauth;
 
+import it.mazzoni.vis.auth.JwtService;
 import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.OAuthIdentityRepository;
@@ -8,15 +9,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -30,10 +35,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(properties = "google.oauth2.frontend-callback=http://localhost:5173/auth/oauth2/callback")
 @ActiveProfiles("test")
-class OAuthAccountLinkingIntegrationTest {
+class OAuthLoginSuccessHandlerTest {
 
     static final KeyPair KEY_PAIR;
 
@@ -60,6 +64,12 @@ class OAuthAccountLinkingIntegrationTest {
     StringRedisTemplate redisTemplate;
 
     @Autowired
+    OAuthLoginSuccessHandler successHandler;
+
+    @Autowired
+    JwtService jwtService;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -67,9 +77,6 @@ class OAuthAccountLinkingIntegrationTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
-    @Autowired
-    OAuthAccountResolver resolver;
 
     final Map<String, String> store = new ConcurrentHashMap<>();
 
@@ -91,69 +98,71 @@ class OAuthAccountLinkingIntegrationTest {
     }
 
     @Test
-    void newGoogleUser_createsUserAndOAuthIdentity() {
-        User user = resolver.resolve("sub-new-1", "brand-new@example.com", "Brand New");
+    void verifiedGoogleCallbackIssuesPlatformSessionAndRedirectHandoff() throws Exception {
+        OidcUser oidcUser = oidcUser("google-sub-success", "oauth-user@example.com", true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
+        successHandler.onAuthenticationSuccess(
+                new MockHttpServletRequest(),
+                response,
+                new TestingAuthenticationToken(oidcUser, null));
+
+        assertEquals(302, response.getStatus());
+        assertTrue(response.getRedirectedUrl().startsWith("http://localhost:5173/auth/oauth2/callback?code="));
+        assertTrue(response.getHeader(HttpHeaders.SET_COOKIE).contains("vis_refresh="));
+        assertTrue(response.getHeader(HttpHeaders.SET_COOKIE).contains("HttpOnly"));
         assertEquals(1, userRepository.count());
         assertEquals(1, oauthRepository.count());
-        assertEquals(UserRole.INVESTOR, user.getRole());
-        assertNull(user.getPasswordHash());
 
-        var identity = oauthRepository.findByProviderAndProviderSubject("GOOGLE", "sub-new-1");
-        assertTrue(identity.isPresent());
-        assertEquals(user.getId(), identity.get().getUser().getId());
+        String code = response.getRedirectedUrl().substring(response.getRedirectedUrl().indexOf("code=") + 5);
+        String accessToken = store.get("oauth_handoff:" + code);
+        assertNotNull(accessToken);
+        assertEquals("oauth-user@example.com", jwtService.validateAccessToken(accessToken).getSubject());
     }
 
     @Test
-    void existingPasswordUser_linksGoogleIdentity() {
-        User existing = new User();
-        existing.setEmail("existing@example.com");
-        existing.setPasswordHash(passwordEncoder.encode("Password1!"));
-        existing.setRole(UserRole.INVESTOR);
-        userRepository.save(existing);
+    void unverifiedGoogleEmailIsRejectedWithoutAccountCreation() throws Exception {
+        OidcUser oidcUser = oidcUser("google-sub-unverified", "unverified@example.com", false);
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-        User resolved = resolver.resolve("sub-existing-1", "existing@example.com", "Existing");
+        successHandler.onAuthenticationSuccess(
+                new MockHttpServletRequest(),
+                response,
+                new TestingAuthenticationToken(oidcUser, null));
 
-        assertEquals(existing.getId(), resolved.getId());
-        assertEquals(1, userRepository.count());
-        assertEquals(1, oauthRepository.count());
-        assertNotNull(resolved.getPasswordHash());
+        assertEquals(403, response.getStatus());
+        assertEquals(0, userRepository.count());
+        assertEquals(0, oauthRepository.count());
+        assertTrue(store.isEmpty());
     }
 
     @Test
-    void repeatLogin_noDuplicateRecords() {
-        resolver.resolve("sub-repeat-1", "repeat@example.com", "Repeat");
-        resolver.resolve("sub-repeat-1", "repeat@example.com", "Repeat");
-
-        assertEquals(1, userRepository.count());
-        assertEquals(1, oauthRepository.count());
-    }
-
-    @Test
-    void existingAdmin_rolePreservedAfterLinking() {
+    void existingElevatedUserKeepsRoleAfterGoogleCallback() throws Exception {
         User admin = new User();
         admin.setEmail("admin@example.com");
         admin.setPasswordHash(passwordEncoder.encode("AdminPass1!"));
         admin.setRole(UserRole.ADMIN);
         userRepository.save(admin);
 
-        User resolved = resolver.resolve("sub-admin-1", "admin@example.com", "Admin");
+        OidcUser oidcUser = oidcUser("google-sub-admin-callback", "admin@example.com", true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
+        successHandler.onAuthenticationSuccess(
+                new MockHttpServletRequest(),
+                response,
+                new TestingAuthenticationToken(oidcUser, null));
+
+        User resolved = userRepository.findByEmail("admin@example.com").orElseThrow();
         assertEquals(UserRole.ADMIN, resolved.getRole());
         assertEquals(admin.getId(), resolved.getId());
     }
 
-    @Test
-    void existingAdvisor_rolePreservedAfterLinking() {
-        User advisor = new User();
-        advisor.setEmail("advisor@example.com");
-        advisor.setPasswordHash(passwordEncoder.encode("AdvisorPass1!"));
-        advisor.setRole(UserRole.ADVISOR);
-        userRepository.save(advisor);
-
-        User resolved = resolver.resolve("sub-advisor-1", "advisor@example.com", "Advisor");
-
-        assertEquals(UserRole.ADVISOR, resolved.getRole());
-        assertEquals(advisor.getId(), resolved.getId());
+    private OidcUser oidcUser(String subject, String email, boolean verified) {
+        OidcUser oidcUser = Mockito.mock(OidcUser.class);
+        Mockito.when(oidcUser.getSubject()).thenReturn(subject);
+        Mockito.when(oidcUser.getEmail()).thenReturn(email);
+        Mockito.when(oidcUser.getEmailVerified()).thenReturn(verified);
+        Mockito.when(oidcUser.getFullName()).thenReturn("OAuth User");
+        return oidcUser;
     }
 }

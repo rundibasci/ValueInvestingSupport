@@ -5,6 +5,7 @@ import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.OAuthIdentityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,10 @@ class OAuthAccountResolverTest {
     void setUp() {
         oauthRepository.deleteAll();
         userRepository.deleteAll();
-        resolver = new OAuthAccountResolver(oauthRepository, userRepository);
+        resolver = new OAuthAccountResolver(
+                oauthRepository,
+                userRepository,
+                new OAuthSecurityEventService(new SimpleMeterRegistry()));
     }
 
     @Test
@@ -73,6 +77,25 @@ class OAuthAccountResolverTest {
         assertEquals(first.getId(), second.getId());
         assertEquals(1, userRepository.count());
         assertEquals(1, oauthRepository.count());
+    }
+
+    @Test
+    void repeatProviderSubjectWithDifferentEmail_keepsOriginalLinkedUser() {
+        User first = resolver.resolve("google-sub-conflict", "first@example.com", "First User");
+        User second = resolver.resolve("google-sub-conflict", "second@example.com", "Second User");
+
+        assertEquals(first.getId(), second.getId());
+        assertEquals("first@example.com", second.getEmail());
+        assertEquals(1, userRepository.count());
+        assertEquals(1, oauthRepository.count());
+    }
+
+    @Test
+    void emailIsNormalizedBeforeCreateOrLink() {
+        User user = resolver.resolve("google-sub-normalized", "  Mixed.Case@Example.COM ", "Mixed User");
+
+        assertEquals("mixed.case@example.com", user.getEmail());
+        assertTrue(oauthRepository.findByProviderAndProviderEmail("GOOGLE", "mixed.case@example.com").isPresent());
     }
 
     @Test

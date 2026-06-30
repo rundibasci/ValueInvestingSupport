@@ -32,16 +32,19 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final OAuthAccountResolver accountResolver;
     private final JwtService jwtService;
     private final StringRedisTemplate redis;
+    private final OAuthSecurityEventService securityEvents;
     private final String frontendCallbackUrl;
     private final ConcurrentMap<String, String> localHandoffStore = new ConcurrentHashMap<>();
 
     public OAuthLoginSuccessHandler(OAuthAccountResolver accountResolver,
                                     JwtService jwtService,
                                     StringRedisTemplate redis,
+                                    OAuthSecurityEventService securityEvents,
                                     @Value("${google.oauth2.frontend-callback:http://localhost:5173/auth/oauth2/callback}") String frontendCallbackUrl) {
         this.accountResolver = accountResolver;
         this.jwtService = jwtService;
         this.redis = redis;
+        this.securityEvents = securityEvents;
         this.frontendCallbackUrl = frontendCallbackUrl;
     }
 
@@ -53,6 +56,7 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Boolean emailVerified = oidcUser.getEmailVerified();
         if (emailVerified == null || !emailVerified) {
+            securityEvents.recordCallbackRejected("unverified_email");
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Email not verified by Google");
             return;
         }
@@ -78,6 +82,7 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
+        securityEvents.recordCallbackSuccess();
         response.sendRedirect(frontendCallbackUrl + "?code=" + handoffCode);
     }
 

@@ -8,6 +8,8 @@ import it.mazzoni.vis.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class OAuthAccountResolver {
 
@@ -15,26 +17,35 @@ public class OAuthAccountResolver {
 
     private final OAuthIdentityRepository oauthRepo;
     private final UserRepository userRepo;
+    private final OAuthSecurityEventService securityEvents;
 
-    public OAuthAccountResolver(OAuthIdentityRepository oauthRepo, UserRepository userRepo) {
+    public OAuthAccountResolver(OAuthIdentityRepository oauthRepo,
+                                UserRepository userRepo,
+                                OAuthSecurityEventService securityEvents) {
         this.oauthRepo = oauthRepo;
         this.userRepo = userRepo;
+        this.securityEvents = securityEvents;
     }
 
     @Transactional
     public User resolve(String providerSubject, String verifiedEmail, String displayName) {
         if (verifiedEmail == null || verifiedEmail.isBlank()) {
+            securityEvents.recordResolutionRejected("missing_verified_email");
             throw new IllegalArgumentException("Verified email is required for Google sign-in");
         }
 
+        String normalizedEmail = verifiedEmail.trim().toLowerCase();
         return oauthRepo.findByProviderAndProviderSubject(PROVIDER_GOOGLE, providerSubject)
-                .map(OAuthIdentity::getUser)
-                .orElseGet(() -> linkOrCreate(providerSubject, verifiedEmail));
+                .map(identity -> {
+                    securityEvents.recordIdentityReused();
+                    return identity.getUser();
+                })
+                .orElseGet(() -> linkOrCreate(providerSubject, normalizedEmail));
     }
 
     private User linkOrCreate(String providerSubject, String verifiedEmail) {
-        User user = userRepo.findByEmail(verifiedEmail)
-                .orElseGet(() -> createUser(verifiedEmail));
+        Optional<User> existing = userRepo.findByEmail(verifiedEmail);
+        User user = existing.orElseGet(() -> createUser(verifiedEmail));
 
         OAuthIdentity identity = new OAuthIdentity();
         identity.setUser(user);
@@ -42,6 +53,9 @@ public class OAuthAccountResolver {
         identity.setProviderSubject(providerSubject);
         identity.setProviderEmail(verifiedEmail);
         oauthRepo.save(identity);
+        if (existing.isPresent()) {
+            securityEvents.recordAccountLinked();
+        }
 
         return user;
     }
@@ -51,6 +65,7 @@ public class OAuthAccountResolver {
         user.setEmail(email);
         user.setPasswordHash(null);
         user.setRole(UserRole.INVESTOR);
+        securityEvents.recordAccountCreated();
         return userRepo.save(user);
     }
 }
