@@ -25,15 +25,18 @@ public class BulkRatiosSyncJob {
     private final SecurityRepository securityRepository;
     private final RatioSnapshotRepository ratioRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public BulkRatiosSyncJob(MarketDataClient marketDataClient,
                                SecurityRepository securityRepository,
                                RatioSnapshotRepository ratioRepository,
-                               JobRunLogger jobRunLogger) {
+                               JobRunLogger jobRunLogger,
+                               IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.ratioRepository = ratioRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.bulk-ratios}")
@@ -49,15 +52,18 @@ public class BulkRatiosSyncJob {
 
         for (Security security : securities) {
             if (ratioRepository.existsBySecurityAndPeriodAndReportDate(security, Period.TTM, today)) {
+                eventRecorder.skipped(security.getSymbol(), "ratios", "already ingested for report date");
                 continue;
             }
             try {
                 it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(security.getSymbol());
                 RatioSnapshot entity = toEntity(security, data, today);
                 ratioRepository.save(entity);
+                eventRecorder.success(security.getSymbol(), "ratios");
                 count++;
             } catch (MarketDataException e) {
                 log.debug("Ratios skipped for {}: {}", security.getSymbol(), e.getMessage());
+                eventRecorder.failed(security.getSymbol(), "ratios", e);
             }
         }
         return count;

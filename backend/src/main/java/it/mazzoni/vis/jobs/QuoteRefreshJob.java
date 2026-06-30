@@ -31,19 +31,22 @@ public class QuoteRefreshJob {
     private final WatchlistItemRepository watchlistItemRepository;
     private final HoldingRepository holdingRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public QuoteRefreshJob(MarketDataClient marketDataClient,
                             SecurityRepository securityRepository,
                             PriceQuoteRepository priceQuoteRepository,
                             WatchlistItemRepository watchlistItemRepository,
                             HoldingRepository holdingRepository,
-                            JobRunLogger jobRunLogger) {
+                            JobRunLogger jobRunLogger,
+                            IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.priceQuoteRepository = priceQuoteRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.holdingRepository = holdingRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.quote-refresh}")
@@ -62,23 +65,34 @@ public class QuoteRefreshJob {
 
         for (String symbol : symbols) {
             Optional<Security> secOpt = securityRepository.findBySymbol(symbol.toUpperCase());
-            if (secOpt.isEmpty()) continue;
+            if (secOpt.isEmpty()) {
+                eventRecorder.skipped(symbol, "quote", "security not found");
+                continue;
+            }
             Security security = secOpt.get();
 
-            if (priceQuoteRepository.existsBySecurityAndQuoteDate(security, today)) continue;
+            if (priceQuoteRepository.existsBySecurityAndQuoteDate(security, today)) {
+                eventRecorder.skipped(symbol, "quote", "already ingested for quote date");
+                continue;
+            }
 
             try {
                 MarketPriceQuote quote = marketDataClient.getQuote(symbol);
-                if (quote.price() == null) continue;
+                if (quote.price() == null) {
+                    eventRecorder.skipped(symbol, "quote", "provider returned no price");
+                    continue;
+                }
 
                 PriceQuote entity = new PriceQuote();
                 entity.setSecurity(security);
                 entity.setQuoteDate(today);
                 entity.setClose(quote.price());
                 priceQuoteRepository.save(entity);
+                eventRecorder.success(symbol, "quote");
                 count++;
             } catch (MarketDataException e) {
                 log.debug("Quote skipped for {}: {}", symbol, e.getMessage());
+                eventRecorder.failed(symbol, "quote", e);
             }
         }
         return count;

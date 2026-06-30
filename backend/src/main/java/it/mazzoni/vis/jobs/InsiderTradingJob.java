@@ -33,19 +33,22 @@ public class InsiderTradingJob {
     private final WatchlistItemRepository watchlistItemRepository;
     private final HoldingRepository holdingRepository;
     private final JobRunLogger jobRunLogger;
+    private final IngestionEventRecorder eventRecorder;
 
     public InsiderTradingJob(MarketDataClient marketDataClient,
                               SecurityRepository securityRepository,
                               InsiderTradeRepository insiderTradeRepository,
                               WatchlistItemRepository watchlistItemRepository,
                               HoldingRepository holdingRepository,
-                              JobRunLogger jobRunLogger) {
+                              JobRunLogger jobRunLogger,
+                              IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.insiderTradeRepository = insiderTradeRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.holdingRepository = holdingRepository;
         this.jobRunLogger = jobRunLogger;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.insider-trading}")
@@ -62,11 +65,15 @@ public class InsiderTradingJob {
         int count = 0;
         for (String symbol : symbols) {
             Optional<Security> secOpt = securityRepository.findBySymbol(symbol.toUpperCase());
-            if (secOpt.isEmpty()) continue;
+            if (secOpt.isEmpty()) {
+                eventRecorder.skipped(symbol, "insider", "security not found");
+                continue;
+            }
             Security security = secOpt.get();
 
             try {
                 List<FmpInsiderTradingEntry> entries = marketDataClient.getInsiderTransactions(symbol);
+                int inserted = 0;
                 for (FmpInsiderTradingEntry entry : entries) {
                     if (entry.transactionDate() == null || entry.reportingName() == null) continue;
                     LocalDate tradeDate = LocalDate.parse(entry.transactionDate());
@@ -83,9 +90,16 @@ public class InsiderTradingJob {
                     trade.setPricePerShare(entry.price());
                     insiderTradeRepository.save(trade);
                     count++;
+                    inserted++;
+                }
+                if (inserted > 0) {
+                    eventRecorder.success(symbol, "insider");
+                } else {
+                    eventRecorder.skipped(symbol, "insider", "no new insider trade records");
                 }
             } catch (MarketDataException e) {
                 log.debug("Insider trading skipped for {}: {}", symbol, e.getMessage());
+                eventRecorder.failed(symbol, "insider", e);
             }
         }
         return count;

@@ -24,15 +24,18 @@ public class BulkProfileSyncJob {
     private final SecurityRepository securityRepository;
     private final JobRunLogger jobRunLogger;
     private final JobsProperties jobsProperties;
+    private final IngestionEventRecorder eventRecorder;
 
     public BulkProfileSyncJob(MarketDataClient marketDataClient,
                                SecurityRepository securityRepository,
                                JobRunLogger jobRunLogger,
-                               JobsProperties jobsProperties) {
+                               JobsProperties jobsProperties,
+                               IngestionEventRecorder eventRecorder) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
         this.jobRunLogger = jobRunLogger;
         this.jobsProperties = jobsProperties;
+        this.eventRecorder = eventRecorder;
     }
 
     @Scheduled(cron = "${app.jobs.cron.bulk-profile}")
@@ -64,6 +67,7 @@ public class BulkProfileSyncJob {
 
         security.setExchange(entry.exchangeShortName());
 
+        boolean profileLoaded = false;
         try {
             CompanyProfile profile = marketDataClient.getProfile(entry.symbol());
             security.setCompanyName(profile.companyName() != null ? profile.companyName() : security.getCompanyName());
@@ -71,10 +75,15 @@ public class BulkProfileSyncJob {
             security.setCountry(profile.country());
             security.setCurrency(profile.currency());
             if (profile.marketCap() != null) security.setMarketCap(profile.marketCap());
+            profileLoaded = true;
         } catch (MarketDataException e) {
             log.debug("Profile fetch skipped for {}: {}", entry.symbol(), e.getMessage());
+            eventRecorder.failed(entry.symbol(), "profile", e);
         }
 
         securityRepository.save(security);
+        if (profileLoaded) {
+            eventRecorder.success(entry.symbol(), "profile");
+        }
     }
 }
