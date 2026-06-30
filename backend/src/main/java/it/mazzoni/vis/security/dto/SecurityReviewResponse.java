@@ -1,6 +1,10 @@
 package it.mazzoni.vis.security.dto;
 
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
+import it.mazzoni.vis.scoring.dto.AltmanResponse;
+import it.mazzoni.vis.scoring.dto.CyclicalityResponse;
+import it.mazzoni.vis.scoring.dto.EarningsQualityResponse;
+import it.mazzoni.vis.scoring.dto.PiotroskiResponse;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
 
 import java.math.BigDecimal;
@@ -17,6 +21,10 @@ public record SecurityReviewResponse(
         GrowthResponse growth,
         PeersResponse peers,
         ValueScoreResponse score,
+        PiotroskiResponse piotroski,
+        AltmanResponse altman,
+        CyclicalityResponse cyclicality,
+        EarningsQualityResponse earningsQuality,
         FinancialHealth financialHealth,
         List<SourceCoverageItem> sourceCoverage,
         List<FreshnessItem> freshness,

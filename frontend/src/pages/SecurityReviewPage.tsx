@@ -53,7 +53,11 @@ type Dividends = { history: Array<{ exDividendDate: string | null; paymentDate: 
 type Metrics = { cagr3y: number | null; cagr5y: number | null; cagr10y: number | null }
 type Growth = { revenue: Metrics; fcf: Metrics; eps: Metrics }
 type Peers = { peers: Array<{ symbol: string; companyName: string; currentPrice: number | null; compositeFairValue: number | null; marginOfSafety: number | null; totalScore: number | null; pe: number | null; roic: number | null }> }
-type Score = { totalScore: number | null; mosScore: number | null; qualityScore: number | null; safetyScore: number | null; growthScore: number | null; dividendScore: number | null; scoreDate: string | null; availability: Availability | null }
+type Score = { totalScore: number | null; mosScore: number | null; qualityScore: number | null; safetyScore: number | null; growthScore: number | null; dividendScore: number | null; rawTotalScore: number | null; mosGateApplied: boolean; weightProfile: string | null; scoreDate: string | null; availability: Availability | null }
+type Piotroski = { totalScore: number; factors: Record<string, boolean>; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
+type Altman = { score: number | null; zone: string | null; formulaVariant: string | null; workingCapitalToAssets: number | null; retainedEarningsToAssets: number | null; ebitToAssets: number | null; marketValueEquityToLiabilities: number | null; salesToAssets: number | null; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
+type Cyclicality = { classification: string | null; revenueCoefficient: number | null; earningsCoefficient: number | null; normalizedEarnings: number | null; cycleAdjustedPe: number | null; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
+type EarningsQuality = { fcfToNetIncome: number | null; sloanAccrualsRatio: number | null; classification: string | null; deteriorating: boolean; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
 type FinancialHealth = { totalDebt: number | null; cash: number | null; netDebt: number | null; debtToEquity: number | null; currentRatio: number | null; quickRatio: number | null; interestCoverage: number | null; payoutRatio: number | null; dividendYield: number | null; grossMargin: number | null; operatingMargin: number | null; netMargin: number | null; dataAsOf: string | null }
 type SourceCoverageItem = { category: string; provider: string | null; status: string; message: string | null }
 type FreshnessItem = { category: string; dataAsOf: string | null; status: string; message: string | null }
@@ -70,6 +74,10 @@ type Review = {
   growth: Growth
   peers: Peers
   score: Score | null
+  piotroski: Piotroski | null
+  altman: Altman | null
+  cyclicality: Cyclicality | null
+  earningsQuality: EarningsQuality | null
   financialHealth: FinancialHealth
   sourceCoverage: SourceCoverageItem[]
   freshness: FreshnessItem[]
@@ -131,6 +139,98 @@ function AvailabilityBadge({ state }: { state?: Availability | null }): JSX.Elem
   const warn = status === 'STALE' || status === 'GUARDRAIL_BLOCKED'
   const classes = ok ? 'bg-emerald-300/15 text-emerald-100' : warn ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{status.replace(/_/g, ' ').toLowerCase()}</span>
+}
+
+function StatusPill({ value }: { value: string | null | undefined }): JSX.Element {
+  const normalized = value || 'MISSING_INTERNAL_COMPUTATION'
+  const ok = normalized === 'AVAILABLE' || normalized === 'SAFE' || normalized === 'STRONG' || normalized === 'STABLE'
+  const warn = normalized === 'STALE' || normalized === 'GREY' || normalized === 'MODERATE' || normalized === 'ACCEPTABLE'
+  const classes = ok ? 'bg-emerald-300/15 text-emerald-100' : warn ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{normalized.replace(/_/g, ' ').toLowerCase()}</span>
+}
+
+const factorLabels: Record<string, string> = {
+  positiveNetIncome: 'Positive net income',
+  positiveOperatingCashFlow: 'Positive operating cash flow',
+  improvingRoa: 'Improving ROA',
+  cashFlowQuality: 'Cash flow quality',
+  lowerLeverage: 'Lower leverage',
+  improvingCurrentRatio: 'Improving current ratio',
+  noShareDilution: 'No share dilution',
+  improvingGrossMargin: 'Improving gross margin',
+  improvingAssetTurnover: 'Improving asset turnover',
+}
+
+function RiskIntelligence({ review, currency }: { review: Review; currency: string }): JSX.Element {
+  const piotroski = review.piotroski
+  const altman = review.altman
+  const cyclicality = review.cyclicality
+  const earningsQuality = review.earningsQuality
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      <Panel title="Piotroski F-Score">
+        {piotroski ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div><p className="text-3xl font-semibold text-white">{piotroski.totalScore}<span className="text-base text-slate-400"> / 9</span></p><p className="mt-1 text-sm text-slate-400">Strong &gt;= 7, moderate 4-6, weak &lt;= 3.</p></div>
+              <StatusPill value={piotroski.availabilityStatus} />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {Object.entries(piotroski.factors).map(([key, passed]) => (
+                <div key={key} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2 text-sm">
+                  <span className="text-slate-300">{factorLabels[key] || key}</span>
+                  <span className={passed ? 'font-semibold text-emerald-200' : 'font-semibold text-rose-200'}>{passed ? 'Pass' : 'Fail'}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs leading-5 text-slate-500">{piotroski.availabilityMessage || `Result date: ${date(piotroski.resultDate)}`}</p>
+          </div>
+        ) : <DataGap>Piotroski result is unavailable. Seed or recompute scoring data for this symbol.</DataGap>}
+      </Panel>
+      <Panel title="Altman Z-Score">
+        {altman ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3"><Metric label="Z-score" value={number(altman.score)} /><StatusPill value={altman.zone} /></div>
+            <dl className="grid gap-3 sm:grid-cols-2">
+              <Metric label="Formula variant" value={altman.formulaVariant?.replace(/_/g, ' ') || 'Unavailable'} />
+              <Metric label="Working capital / assets" value={ratioPercent(altman.workingCapitalToAssets)} />
+              <Metric label="Retained earnings / assets" value={ratioPercent(altman.retainedEarningsToAssets)} />
+              <Metric label="EBIT / assets" value={ratioPercent(altman.ebitToAssets)} />
+              <Metric label="Market equity / liabilities" value={ratioPercent(altman.marketValueEquityToLiabilities)} />
+              <Metric label="Sales / assets" value={ratioPercent(altman.salesToAssets)} />
+            </dl>
+            <p className="text-xs leading-5 text-slate-500">{altman.availabilityMessage || `Result date: ${date(altman.resultDate)}`}</p>
+          </div>
+        ) : <DataGap>Altman Z-Score is unavailable. Distress-zone classification cannot be shown from the current local data.</DataGap>}
+      </Panel>
+      <Panel title="Cyclicality">
+        {cyclicality ? (
+          <dl className="grid gap-3 sm:grid-cols-2">
+            <Metric label="Classification" value={cyclicality.classification?.replace(/_/g, ' ') || 'Unavailable'} />
+            <Metric label="Years analyzed" value={cyclicality.yearsAnalyzed ? String(cyclicality.yearsAnalyzed) : 'Unavailable'} />
+            <Metric label="Revenue volatility" value={ratioPercent(cyclicality.revenueCoefficient)} />
+            <Metric label="Earnings volatility" value={ratioPercent(cyclicality.earningsCoefficient)} />
+            <Metric label="Normalized earnings" value={money(cyclicality.normalizedEarnings, currency)} />
+            <Metric label="Cycle-adjusted P/E" value={number(cyclicality.cycleAdjustedPe)} />
+          </dl>
+        ) : <DataGap>Cyclicality assessment is unavailable. The current review cannot distinguish stable versus cycle-sensitive earnings.</DataGap>}
+      </Panel>
+      <Panel title="Earnings Quality">
+        {earningsQuality ? (
+          <div className="space-y-4">
+            <dl className="grid gap-3 sm:grid-cols-2">
+              <Metric label="Classification" value={earningsQuality.classification?.replace(/_/g, ' ') || 'Unavailable'} />
+              <Metric label="FCF / net income" value={ratioPercent(earningsQuality.fcfToNetIncome)} />
+              <Metric label="Sloan accruals ratio" value={ratioPercent(earningsQuality.sloanAccrualsRatio)} />
+              <Metric label="Years analyzed" value={earningsQuality.yearsAnalyzed ? String(earningsQuality.yearsAnalyzed) : 'Unavailable'} />
+            </dl>
+            {earningsQuality.deteriorating && <p className="rounded-lg border border-amber-300/30 bg-amber-300/10 p-3 text-sm leading-6 text-amber-100">Earnings quality is deteriorating: accruals are rising while cash conversion is weakening.</p>}
+          </div>
+        ) : <DataGap>Earnings-quality metrics are unavailable. Cash conversion and accruals cannot be classified from the current local data.</DataGap>}
+      </Panel>
+    </div>
+  )
 }
 
 function Chart({ data, lines, bar = false, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; summary: string }): JSX.Element {
@@ -704,7 +804,10 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="Operating margin" value={ratioPercent(health.operatingMargin)} />
                 <Metric label="Net margin" value={ratioPercent(health.netMargin)} />
                 <Metric label="Value score" value={number(score?.totalScore)} note={score?.availability ? score.availability.reason : score?.scoreDate ? `Score date: ${date(score.scoreDate)}` : undefined} />
+                <Metric label="Raw score" value={number(score?.rawTotalScore)} note={score?.mosGateApplied ? 'Raw score before the MoS gate cap.' : undefined} />
+                <Metric label="Weight profile" value={score?.weightProfile?.replace(/_/g, ' ') || 'Unavailable'} />
               </dl>
+              {score?.mosGateApplied && <p className="mb-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-3 text-sm leading-6 text-amber-100">Score capped at 40 because this stock appears overvalued relative to composite fair value. Raw score: {number(score.rawTotalScore)}; capped score: {number(score.totalScore)}.</p>}
               <CagrTable growth={growth} />
             </Panel>
             <Panel title="Peer context">
@@ -719,9 +822,12 @@ export function SecurityReviewPage(): JSX.Element {
         </Section>
 
         <Section id="risk" title="Risk And Data Quality Caveats">
-          <div className="space-y-3">
-            {review.data.dataQualityNotes.map((note) => <DataGap key={`${note.category}-${note.message}`}>{note.category}: {note.message}</DataGap>)}
-            <DataGap>Valuation outputs are model estimates based on available local data. They are not personalised investment advice, order recommendations, or a guarantee of intrinsic value.</DataGap>
+          <div className="space-y-5">
+            <RiskIntelligence review={review.data} currency={currency} />
+            <div className="space-y-3">
+              {review.data.dataQualityNotes.map((note) => <DataGap key={`${note.category}-${note.message}`}>{note.category}: {note.message}</DataGap>)}
+              <DataGap>Valuation outputs are model estimates based on available local data. They are not personalised investment advice, order recommendations, or a guarantee of intrinsic value.</DataGap>
+            </div>
           </div>
         </Section>
 

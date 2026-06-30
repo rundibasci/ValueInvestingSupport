@@ -10,6 +10,8 @@ import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.AltmanResult;
 import it.mazzoni.vis.domain.entity.AltmanZone;
+import it.mazzoni.vis.domain.repository.AltmanResultRepository;
+import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.screener.dto.ScreenerRequest;
 import it.mazzoni.vis.screener.dto.ScreenerResponse;
 import it.mazzoni.vis.screener.dto.ScreenerResultItem;
@@ -43,6 +45,15 @@ public class ScreenerService {
 
     @PersistenceContext
     private EntityManager em;
+
+    private final PiotroskiResultRepository piotroskiResultRepository;
+    private final AltmanResultRepository altmanResultRepository;
+
+    public ScreenerService(PiotroskiResultRepository piotroskiResultRepository,
+                           AltmanResultRepository altmanResultRepository) {
+        this.piotroskiResultRepository = piotroskiResultRepository;
+        this.altmanResultRepository = altmanResultRepository;
+    }
 
     public ScreenerResponse search(ScreenerRequest request) {
         int page = request.page() != null ? Math.max(request.page(), 0) : 0;
@@ -244,8 +255,11 @@ public class ScreenerService {
 
     private ScreenerResultItem toItem(Tuple t) {
         Recommendation rec = t.get("recommendation", Recommendation.class);
+        String symbol = t.get("symbol", String.class);
+        PiotroskiResult piotroski = piotroskiResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
+        AltmanResult altman = altmanResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
         return new ScreenerResultItem(
-                t.get("symbol", String.class),
+                symbol,
                 t.get("companyName", String.class),
                 t.get("sector", String.class),
                 t.get("exchange", String.class),
@@ -261,7 +275,11 @@ public class ScreenerService {
                 rec != null ? rec.name() : null,
                 t.get("scoreDate", LocalDate.class),
                 AvailabilityResponse.available(t.get("scoreDate", LocalDate.class)),
-                AvailabilityResponse.available(null)
+                AvailabilityResponse.available(null),
+                piotroski != null ? piotroski.getTotalScore() : null,
+                piotroski != null ? piotroski.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION",
+                altman != null ? altman.getZone().name() : null,
+                altman != null ? altman.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION"
         );
     }
 }

@@ -22,5 +22,9 @@ public record ScreenerResultItem(
         String recommendation,
         LocalDate scoreDate,
         AvailabilityResponse scoreAvailability,
-        AvailabilityResponse valuationAvailability
+        AvailabilityResponse valuationAvailability,
+        Integer piotroskiScore,
+        String piotroskiAvailabilityStatus,
+        String altmanZone,
+        String altmanAvailabilityStatus
 ) {}

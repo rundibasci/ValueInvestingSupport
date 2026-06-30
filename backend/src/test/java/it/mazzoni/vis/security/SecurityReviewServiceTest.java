@@ -11,8 +11,12 @@ import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.WaccResultEntity;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
+import it.mazzoni.vis.domain.repository.AltmanResultRepository;
+import it.mazzoni.vis.domain.repository.CyclicalityResultRepository;
+import it.mazzoni.vis.domain.repository.EarningsQualityResultRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
+import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
@@ -46,6 +50,10 @@ class SecurityReviewServiceTest {
     @Mock ValuationResultRepository valuationResultRepository;
     @Mock DividendRecordRepository dividendRecordRepository;
     @Mock ValueScoreRepository valueScoreRepository;
+    @Mock PiotroskiResultRepository piotroskiResultRepository;
+    @Mock AltmanResultRepository altmanResultRepository;
+    @Mock CyclicalityResultRepository cyclicalityResultRepository;
+    @Mock EarningsQualityResultRepository earningsQualityResultRepository;
     @Mock WaccResultRepository waccResultRepository;
     @Mock GrahamChecklistItemRepository grahamChecklistItemRepository;
     @Mock AnalystEstimateRepository analystEstimateRepository;
@@ -62,6 +70,10 @@ class SecurityReviewServiceTest {
                 valuationResultRepository,
                 dividendRecordRepository,
                 valueScoreRepository,
+                piotroskiResultRepository,
+                altmanResultRepository,
+                cyclicalityResultRepository,
+                earningsQualityResultRepository,
                 waccResultRepository,
                 grahamChecklistItemRepository,
                 analystEstimateRepository,
@@ -97,6 +109,10 @@ class SecurityReviewServiceTest {
         when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation))
                 .thenReturn(List.of(checklistItem(valuation, "PE_RATIO", "P/E < 15", "FAIL", "20.00")));
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.of(score));
+        when(piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("AAPL")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
@@ -148,6 +164,10 @@ class SecurityReviewServiceTest {
         when(waccResultRepository.findByValuationResult(valuation)).thenReturn(Optional.empty());
         when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation)).thenReturn(List.of());
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.empty());
+        when(piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());

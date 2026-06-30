@@ -11,9 +11,13 @@ import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.WaccResultEntity;
+import it.mazzoni.vis.domain.repository.AltmanResultRepository;
+import it.mazzoni.vis.domain.repository.CyclicalityResultRepository;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
+import it.mazzoni.vis.domain.repository.EarningsQualityResultRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.GrahamChecklistItemRepository;
+import it.mazzoni.vis.domain.repository.PiotroskiResultRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
@@ -21,6 +25,10 @@ import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.scoring.dto.AltmanResponse;
+import it.mazzoni.vis.scoring.dto.CyclicalityResponse;
+import it.mazzoni.vis.scoring.dto.EarningsQualityResponse;
+import it.mazzoni.vis.scoring.dto.PiotroskiResponse;
 import it.mazzoni.vis.scoring.dto.ValueScoreResponse;
 import it.mazzoni.vis.security.domain.AnalystEstimate;
 import it.mazzoni.vis.security.domain.AnalystEstimateRepository;
@@ -74,6 +82,10 @@ public class SecurityReviewService {
     private final ValuationResultRepository valuationResultRepository;
     private final DividendRecordRepository dividendRecordRepository;
     private final ValueScoreRepository valueScoreRepository;
+    private final PiotroskiResultRepository piotroskiResultRepository;
+    private final AltmanResultRepository altmanResultRepository;
+    private final CyclicalityResultRepository cyclicalityResultRepository;
+    private final EarningsQualityResultRepository earningsQualityResultRepository;
     private final WaccResultRepository waccResultRepository;
     private final GrahamChecklistItemRepository grahamChecklistItemRepository;
     private final AnalystEstimateRepository analystEstimateRepository;
@@ -87,6 +99,10 @@ public class SecurityReviewService {
                                  ValuationResultRepository valuationResultRepository,
                                  DividendRecordRepository dividendRecordRepository,
                                  ValueScoreRepository valueScoreRepository,
+                                 PiotroskiResultRepository piotroskiResultRepository,
+                                 AltmanResultRepository altmanResultRepository,
+                                 CyclicalityResultRepository cyclicalityResultRepository,
+                                 EarningsQualityResultRepository earningsQualityResultRepository,
                                  WaccResultRepository waccResultRepository,
                                  GrahamChecklistItemRepository grahamChecklistItemRepository,
                                  AnalystEstimateRepository analystEstimateRepository,
@@ -99,6 +115,10 @@ public class SecurityReviewService {
         this.valuationResultRepository = valuationResultRepository;
         this.dividendRecordRepository = dividendRecordRepository;
         this.valueScoreRepository = valueScoreRepository;
+        this.piotroskiResultRepository = piotroskiResultRepository;
+        this.altmanResultRepository = altmanResultRepository;
+        this.cyclicalityResultRepository = cyclicalityResultRepository;
+        this.earningsQualityResultRepository = earningsQualityResultRepository;
         this.waccResultRepository = waccResultRepository;
         this.grahamChecklistItemRepository = grahamChecklistItemRepository;
         this.analystEstimateRepository = analystEstimateRepository;
@@ -144,6 +164,18 @@ public class SecurityReviewService {
         GrowthResponse growth = growthService.compute(upper, growthAnnuals);
         PeersResponse peers = peers(security);
         ValueScoreResponse score = latestScore != null ? ValueScoreResponse.from(latestScore) : null;
+        PiotroskiResponse piotroski = piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)
+                .map(PiotroskiResponse::from)
+                .orElse(null);
+        AltmanResponse altman = altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)
+                .map(AltmanResponse::from)
+                .orElse(null);
+        CyclicalityResponse cyclicality = cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)
+                .map(CyclicalityResponse::from)
+                .orElse(null);
+        EarningsQualityResponse earningsQuality = earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)
+                .map(EarningsQualityResponse::from)
+                .orElse(null);
         SecurityReviewResponse.FinancialHealth financialHealth = financialHealth(latestAnnual, latestRatios);
 
         return new SecurityReviewResponse(
@@ -156,6 +188,10 @@ public class SecurityReviewService {
                 growth,
                 peers,
                 score,
+                piotroski,
+                altman,
+                cyclicality,
+                earningsQuality,
                 financialHealth,
                 sourceCoverage(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends, peers),
                 freshness(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),

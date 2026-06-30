@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- SR2: Scoring risk frontend surfaces with review-page MoS gate/raw-score/profile context, Piotroski F-Score, Altman Z-Score, cyclicality, and earnings-quality cards; screener Piotroski/Altman filters and columns; review/screener API fields for latest SR1 risk results; feature specifications under `specs/2026-06-30-sr2-scoring-risk-frontend/`.
+- SR2: Validation evidence for `npm run build` and backend Maven suite passing with 298 tests.
 - SR1: Scoring risk backend with RULE-09 negative-margin-of-safety score cap, persisted raw score/gate/profile metadata, configurable sector-adaptive scoring profiles, and expanded score responses.
 - SR1: Persisted Piotroski F-Score, Altman Z-Score, cyclicality, and earnings-quality risk results with authenticated security endpoints, screener filters for Piotroski range and Altman zone, Flyway V14 schema, and SR1 feature specifications.
 - SR1: Backend validation coverage for risk formulas, score gate/profile behavior, screener risk filters, seed exception handling, and the full Maven suite passing with 298 tests.
