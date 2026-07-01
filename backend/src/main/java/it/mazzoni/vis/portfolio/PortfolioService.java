@@ -12,6 +12,7 @@ import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
+import it.mazzoni.vis.professional.ResearchDecisionAuditService;
 import it.mazzoni.vis.portfolio.dto.AddHoldingRequest;
 import it.mazzoni.vis.portfolio.dto.ConcentrationWarning;
 import it.mazzoni.vis.portfolio.dto.CreatePortfolioRequest;
@@ -20,6 +21,7 @@ import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
 import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ public class PortfolioService {
     private final SecurityRepository securityRepository;
     private final PriceQuoteRepository priceQuoteRepository;
     private final ValuationResultRepository valuationResultRepository;
+    private final ResearchDecisionAuditService auditService;
     private static final BigDecimal HOLDING_CONCENTRATION_THRESHOLD = new BigDecimal("20.00");
     private static final BigDecimal SECTOR_CONCENTRATION_THRESHOLD = new BigDecimal("35.00");
 
@@ -54,12 +57,25 @@ public class PortfolioService {
                             SecurityRepository securityRepository,
                             PriceQuoteRepository priceQuoteRepository,
                             ValuationResultRepository valuationResultRepository) {
+        this(portfolioRepository, holdingRepository, userRepository, securityRepository,
+                priceQuoteRepository, valuationResultRepository, null);
+    }
+
+    @Autowired
+    public PortfolioService(PortfolioRepository portfolioRepository,
+                            HoldingRepository holdingRepository,
+                            UserRepository userRepository,
+                            SecurityRepository securityRepository,
+                            PriceQuoteRepository priceQuoteRepository,
+                            ValuationResultRepository valuationResultRepository,
+                            ResearchDecisionAuditService auditService) {
         this.portfolioRepository = portfolioRepository;
         this.holdingRepository = holdingRepository;
         this.userRepository = userRepository;
         this.securityRepository = securityRepository;
         this.priceQuoteRepository = priceQuoteRepository;
         this.valuationResultRepository = valuationResultRepository;
+        this.auditService = auditService;
     }
 
     @Transactional(readOnly = true)
@@ -154,7 +170,9 @@ public class PortfolioService {
         h.setAverageCostBasis(req.averageCostBasis());
         h.setCurrency(req.currency());
 
-        return enrichSingle(holdingRepository.save(h));
+        Holding saved = holdingRepository.save(h);
+        captureAudit(user, saved.getSymbol(), "ADD_HOLDING", null);
+        return enrichSingle(saved);
     }
 
     public HoldingDetailItem updateHolding(Authentication auth, UUID portfolioId, UUID holdingId,
@@ -178,7 +196,9 @@ public class PortfolioService {
         Holding h = holdingRepository.findByIdAndPortfolio(holdingId, portfolio)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Holding not found: " + holdingId));
+        String symbol = h.getSymbol();
         holdingRepository.delete(h);
+        captureAudit(user, symbol, "REMOVE_HOLDING", null);
     }
 
     private User resolveUser(Authentication auth) {
@@ -190,6 +210,12 @@ public class PortfolioService {
         return portfolioRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Portfolio not found: " + id));
+    }
+
+    private void captureAudit(User user, String symbol, String actionType, String rationale) {
+        if (auditService != null) {
+            auditService.capture(user, symbol, actionType, rationale);
+        }
     }
 
     private HoldingDetailItem enrichSingle(Holding h) {
