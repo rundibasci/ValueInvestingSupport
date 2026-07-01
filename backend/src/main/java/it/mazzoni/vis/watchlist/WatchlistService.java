@@ -10,11 +10,13 @@ import it.mazzoni.vis.domain.repository.AlertRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.WatchlistItemRepository;
 import it.mazzoni.vis.domain.repository.WatchlistRepository;
+import it.mazzoni.vis.professional.ResearchDecisionAuditService;
 import it.mazzoni.vis.watchlist.dto.AddWatchlistItemRequest;
 import it.mazzoni.vis.watchlist.dto.AlertResponse;
 import it.mazzoni.vis.watchlist.dto.UpdateWatchlistThresholdRequest;
 import it.mazzoni.vis.watchlist.dto.WatchlistItemResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,15 +31,26 @@ public class WatchlistService {
     private final WatchlistItemRepository watchlistItemRepository;
     private final UserRepository userRepository;
     private final AlertRepository alertRepository;
+    private final ResearchDecisionAuditService auditService;
 
     public WatchlistService(WatchlistRepository watchlistRepository,
                             WatchlistItemRepository watchlistItemRepository,
                             UserRepository userRepository,
                             AlertRepository alertRepository) {
+        this(watchlistRepository, watchlistItemRepository, userRepository, alertRepository, null);
+    }
+
+    @Autowired
+    public WatchlistService(WatchlistRepository watchlistRepository,
+                            WatchlistItemRepository watchlistItemRepository,
+                            UserRepository userRepository,
+                            AlertRepository alertRepository,
+                            ResearchDecisionAuditService auditService) {
         this.watchlistRepository = watchlistRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.userRepository = userRepository;
         this.alertRepository = alertRepository;
+        this.auditService = auditService;
     }
 
     public List<WatchlistItemResponse> list(Authentication auth) {
@@ -68,7 +81,9 @@ public class WatchlistService {
         item.setMonitoringReason(parseReason(request.monitoringReason()));
         item.setRationaleNote(normalizeNote(request.rationaleNote()));
 
-        return WatchlistItemResponse.from(watchlistItemRepository.save(item));
+        WatchlistItem saved = watchlistItemRepository.save(item);
+        captureAudit(user, symbol, "ADD_WATCHLIST", saved.getRationaleNote());
+        return WatchlistItemResponse.from(saved);
     }
 
     public WatchlistItemResponse updateThresholds(Authentication auth, UUID id,
@@ -92,7 +107,10 @@ public class WatchlistService {
         WatchlistItem item = watchlistItemRepository.findByIdAndWatchlist_User(id, user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Watchlist item not found: " + id));
+        String symbol = item.getSymbol();
+        String rationale = item.getRationaleNote();
         watchlistItemRepository.delete(item);
+        captureAudit(user, symbol, "REMOVE_WATCHLIST", rationale);
     }
 
     public List<AlertResponse> listActiveAlerts(Authentication auth) {
@@ -113,6 +131,12 @@ public class WatchlistService {
             wl.setName("My Watchlist");
             return watchlistRepository.save(wl);
         });
+    }
+
+    private void captureAudit(User user, String symbol, String actionType, String rationale) {
+        if (auditService != null) {
+            auditService.capture(user, symbol, actionType, rationale);
+        }
     }
 
     private MonitoringReason parseReason(String value) {
