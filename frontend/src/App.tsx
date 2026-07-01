@@ -13,6 +13,8 @@ import { SecurityReviewPage } from "./pages/SecurityReviewPage";
 import { SeedUniversePage } from "./pages/SeedUniversePage";
 import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { AccountPage } from "./pages/AccountPage";
+import { AuditPage } from "./pages/AuditPage";
+import { ChecklistPage } from "./pages/ChecklistPage";
 
 export default function App(): JSX.Element {
   return (
@@ -23,6 +25,8 @@ export default function App(): JSX.Element {
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="account" element={<AccountPage />} />
+          <Route path="audit" element={<AuditPage />} />
+          <Route path="checklists" element={<ChecklistPage />} />
           <Route path="screener" element={<ScreenerPage />} />
           <Route path="securities/:symbol/review" element={<SecurityReviewPage />} />
           <Route path="securities/:symbol" element={<SecurityDetailPage />} />

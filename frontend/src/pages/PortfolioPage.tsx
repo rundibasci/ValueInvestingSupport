@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
+import { professionalApi } from "../api/professional";
+import { useAuth } from "../auth/AuthProvider";
 import {
   portfolioApi,
   type BenchmarkComparison,
@@ -471,6 +473,7 @@ function AnalyticsDashboard({
 }
 
 export function PortfolioPage(): JSX.Element {
+  const { session } = useAuth();
   const client = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -488,6 +491,16 @@ export function PortfolioPage(): JSX.Element {
   const portfolios = useQuery({
     queryKey: ["portfolios"],
     queryFn: portfolioApi.list,
+  });
+  const advisorAcknowledgement = useQuery({
+    queryKey: ["advisor-acknowledgement"],
+    queryFn: professionalApi.advisorAcknowledgement,
+    enabled: session?.role === "ADVISOR",
+  });
+  const acknowledgeAdvisor = useMutation({
+    mutationFn: professionalApi.acknowledgeAdvisor,
+    onSuccess: () =>
+      void client.invalidateQueries({ queryKey: ["advisor-acknowledgement"] }),
   });
   const activeId = selected ?? portfolios.data?.[0]?.id ?? null;
   const detail = useQuery({
@@ -590,6 +603,26 @@ export function PortfolioPage(): JSX.Element {
 
   return (
     <div className="space-y-6">
+      {session?.role === "ADVISOR" &&
+        advisorAcknowledgement.data &&
+        !advisorAcknowledgement.data.acknowledged && (
+          <section className="rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5 text-amber-50">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <p className="max-w-4xl text-sm leading-6">
+                {advisorAcknowledgement.data.disclaimer ||
+                  "This tool supports your research process. Suitability assessment, client risk profiling, and regulatory record-keeping remain your responsibility."}
+              </p>
+              <button
+                type="button"
+                disabled={acknowledgeAdvisor.isPending}
+                onClick={() => acknowledgeAdvisor.mutate()}
+                className="rounded-lg border border-amber-100/50 px-4 py-2 text-sm font-semibold text-amber-50 hover:bg-amber-100/10 disabled:opacity-50"
+              >
+                Acknowledge
+              </button>
+            </div>
+          </section>
+        )}
       <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">
           Construct

@@ -7,6 +7,8 @@ const navigation = [
   { label: 'Seed Universe', to: '/seed' },
   { label: 'Portfolio', to: '/portfolio' },
   { label: 'Watchlist', to: '/watchlist' },
+  { label: 'Decision History', to: '/audit' },
+  { label: 'Checklists', to: '/checklists' },
   { label: 'Account', to: '/account' },
 ]
 
