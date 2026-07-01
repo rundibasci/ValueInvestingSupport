@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- PI1: Portfolio intelligence backend with `GET /api/v1/portfolios/{id}/analytics`, weighted valuation/quality metrics, sector and holding concentration diagnostics, moat profile, liquidity assessment, SPY benchmark characteristic comparison, Flyway V18 analytics snapshots, and feature specifications under `specs/2026-07-01-pi1-portfolio-intelligence-backend/`.
+- PI1: Additive rebalance intelligence fields for urgency, estimated transaction costs, holding-period classification, and minimum-position warnings, plus focused analytics/liquidity/rebalance tests and full backend Maven suite passing with 326 tests.
 - JC2: Persisted job runtime controls with admin enable/disable endpoints, cron override validation, pollable scoped manual runs, `SKIPPED` run-log status, and Flyway V17 `job_runtime_setting` persistence; feature specifications under `specs/2026-07-01-jc2-job-scheduling-runtime-control/`.
 - JC2: Job-control panels in `feature-demo.html` and `full-demo.html`, focused job admin/logger tests, and full backend Maven suite passing with 323 tests.
 - JC1: Admin job observability API with registered job summaries, paginated run history, filtered per-symbol ingestion events, Flyway V16 `ingestion_event` persistence, and feature specifications under `specs/2026-06-30-jc1-job-run-history-ingestion-event-api/`.

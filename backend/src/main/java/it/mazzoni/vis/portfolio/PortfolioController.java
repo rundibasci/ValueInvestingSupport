@@ -10,6 +10,7 @@ import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
 import it.mazzoni.vis.portfolio.dto.SimulationRequest;
 import it.mazzoni.vis.portfolio.dto.RebalanceRequest;
 import it.mazzoni.vis.portfolio.dto.RebalanceProposalResponse;
+import it.mazzoni.vis.portfolio.dto.PortfolioAnalyticsResponse;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +37,21 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
     private final PortfolioSimulationService portfolioSimulationService;
     private final PortfolioRebalanceService portfolioRebalanceService;
+    private final PortfolioAnalyticsService portfolioAnalyticsService;
 
     @Autowired
-    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService, PortfolioRebalanceService portfolioRebalanceService) {
+    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService,
+                               PortfolioRebalanceService portfolioRebalanceService,
+                               PortfolioAnalyticsService portfolioAnalyticsService) {
         this.portfolioService = portfolioService;
         this.portfolioSimulationService = portfolioSimulationService;
         this.portfolioRebalanceService = portfolioRebalanceService;
+        this.portfolioAnalyticsService = portfolioAnalyticsService;
+    }
+
+    public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService,
+                               PortfolioRebalanceService portfolioRebalanceService) {
+        this(portfolioService, portfolioSimulationService, portfolioRebalanceService, null);
     }
 
     @GetMapping
@@ -61,6 +71,11 @@ public class PortfolioController {
         return portfolioService.getPortfolioDetail(auth, id);
     }
 
+    @GetMapping("/{id}/analytics")
+    public PortfolioAnalyticsResponse analytics(Authentication auth, @PathVariable UUID id) {
+        return portfolioAnalyticsService.analyze(auth, id);
+    }
+
     @PostMapping("/{id}/simulate")
     public PortfolioSimulationResponse simulate(Authentication auth, @PathVariable UUID id,
                                                 @Valid @RequestBody SimulationRequest request) {
@@ -69,7 +84,7 @@ public class PortfolioController {
 
     /** Retained for existing controller tests; production wiring uses the three-argument constructor. */
     public PortfolioController(PortfolioService portfolioService, PortfolioSimulationService portfolioSimulationService) {
-        this(portfolioService, portfolioSimulationService, null);
+        this(portfolioService, portfolioSimulationService, null, null);
     }
 
     @PostMapping("/{id}/rebalance")

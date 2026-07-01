@@ -43,6 +43,9 @@ import java.util.UUID;
 public class PortfolioRebalanceService {
 
     private static final String DISCLAIMER = "This is a decision-support tool, not investment advice (MiFID II).";
+    private static final BigDecimal DRIFT_TOLERANCE_PERCENT = new BigDecimal("3.00");
+    private static final BigDecimal TRANSACTION_COST_RATE = new BigDecimal("0.001");
+    private static final BigDecimal MINIMUM_POSITION_PERCENT = new BigDecimal("3.00");
 
     private final PortfolioRepository portfolios;
     private final HoldingRepository holdings;
@@ -233,15 +236,67 @@ public class PortfolioRebalanceService {
                 .map(RebalanceLineResponse::estimatedTradeValue).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal sells = lines.stream().filter(line -> "SELL".equals(line.side()))
                 .map(RebalanceLineResponse::estimatedTradeValue).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCost = lines.stream().map(RebalanceLineResponse::estimatedTransactionCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new RebalanceProposalResponse(proposal.getId(), proposal.getStatus(), lines, money(buys), money(sells),
+                money(totalCost),
                 proposal.getCreatedAt(), proposal.getAppliedAt(), DISCLAIMER);
     }
 
     private RebalanceLineResponse lineResponse(RebalanceLine line) {
         BigDecimal delta = line.getTargetQuantity().subtract(line.getCurrentQuantity());
         String side = delta.signum() > 0 ? "BUY" : delta.signum() < 0 ? "SELL" : "HOLD";
+        BigDecimal tradeValue = money(delta.abs().multiply(line.getCapturedPrice()));
+        BigDecimal cost = money(tradeValue.multiply(TRANSACTION_COST_RATE));
+        String urgency = urgency(line);
+        String holdingPeriod = holdingPeriod(line);
+        String positionSizeWarning = positionSizeWarning(line);
         return new RebalanceLineResponse(line.getSymbol(), money(line.getCapturedPrice()), line.getCurrentQuantity(),
-                line.getTargetQuantity(), delta, money(delta.abs().multiply(line.getCapturedPrice())), side);
+                line.getTargetQuantity(), delta, tradeValue, side, urgency, cost, holdingPeriod, positionSizeWarning);
+    }
+
+    private String urgency(RebalanceLine line) {
+        BigDecimal currentValue = line.getCurrentQuantity().multiply(line.getCapturedPrice());
+        BigDecimal targetValue = line.getTargetQuantity().multiply(line.getCapturedPrice());
+        if (currentValue.signum() == 0 && targetValue.signum() == 0) {
+            return "HOLD";
+        }
+        BigDecimal basis = currentValue.max(targetValue);
+        if (basis.signum() == 0) {
+            return "HOLD";
+        }
+        BigDecimal driftPercent = targetValue.subtract(currentValue).abs()
+                .divide(basis, 6, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+        if (line.getTargetQuantity().signum() == 0 || line.getCurrentQuantity().signum() == 0) {
+            return "MUST";
+        }
+        return driftPercent.compareTo(DRIFT_TOLERANCE_PERCENT) > 0 ? "COULD" : "HOLD";
+    }
+
+    private String holdingPeriod(RebalanceLine line) {
+        if (line.getCurrentQuantity().signum() <= 0 || line.getTargetQuantity().compareTo(line.getCurrentQuantity()) >= 0) {
+            return "NOT_SELL";
+        }
+        List<Holding> matching = holdings.findByPortfolioAndSymbol(line.getProposal().getPortfolio(), line.getSymbol());
+        return matching.stream()
+                .map(Holding::getAddedAt)
+                .filter(java.util.Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .map(addedAt -> addedAt.plusYears(1).isAfter(LocalDateTime.now()) ? "SHORT_TERM" : "LONG_TERM")
+                .orElse("UNKNOWN");
+    }
+
+    private String positionSizeWarning(RebalanceLine line) {
+        BigDecimal total = currentValue(line.getProposal().getPortfolio());
+        BigDecimal targetValue = line.getTargetQuantity().multiply(line.getCapturedPrice());
+        if (targetValue.signum() <= 0 || total.signum() <= 0) {
+            return null;
+        }
+        BigDecimal targetWeight = targetValue.divide(total, 6, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        return targetWeight.compareTo(MINIMUM_POSITION_PERCENT) < 0
+                ? "Target position is below the 3% minimum-position review threshold."
+                : null;
     }
 
     private BigDecimal money(BigDecimal value) {
