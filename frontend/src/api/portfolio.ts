@@ -37,6 +37,67 @@ export type PortfolioDetail = Portfolio & {
   holdings: Holding[];
   concentrationWarnings: ConcentrationWarning[];
 };
+export type WeightedMetrics = {
+  marginOfSafety: number | null;
+  peRatio: number | null;
+  dividendYield: number | null;
+  valueScore: number | null;
+  piotroskiFScore: number | null;
+};
+export type HoldingConcentration = {
+  symbol: string;
+  weightPercent: number | null;
+  status: string;
+};
+export type MoatProfile = {
+  widePercent: number | null;
+  narrowPercent: number | null;
+  nonePercent: number | null;
+  unknownPercent: number | null;
+};
+export type QualityDistribution = {
+  averageRoic: number | null;
+  averageRoe: number | null;
+  earningsQualityPercent: Record<string, number>;
+};
+export type LiquidityResult = {
+  symbol: string;
+  averageDailyDollarVolume: number | null;
+  daysToLiquidate: number | null;
+  classification: string;
+  availabilityStatus: string;
+};
+export type BenchmarkComparison = {
+  benchmarkSymbol: string;
+  portfolioPeRatio: number | null;
+  benchmarkPeRatio: number | null;
+  portfolioDividendYield: number | null;
+  benchmarkDividendYield: number | null;
+  portfolioMarginOfSafety: number | null;
+  benchmarkMarginOfSafety: number | null;
+  sectorWeightDifference: Record<string, number>;
+  availabilityStatus: string;
+};
+export type AnalyticsWarning = {
+  type: string;
+  key: string;
+  message: string;
+};
+export type PortfolioAnalytics = {
+  portfolioId: string;
+  totalMarketValue: number | null;
+  weightedMetrics: WeightedMetrics;
+  sectorWeights: Record<string, number>;
+  sectorConcentrationFlags: string[];
+  holdingConcentration: HoldingConcentration[];
+  moatProfile: MoatProfile;
+  qualityDistribution: QualityDistribution;
+  liquidity: LiquidityResult[];
+  benchmarkComparison: BenchmarkComparison;
+  warnings: AnalyticsWarning[];
+  snapshotId: string;
+  capturedAt: string;
+};
 export type SimulationInput = {
   budget: number;
   maxStockPercent?: number;
@@ -77,6 +138,7 @@ export type Rebalance = {
   status: string;
   estimatedBuyValue: number;
   estimatedSellValue: number;
+  totalEstimatedTransactionCost: number;
   disclaimer: string;
   lines: {
     symbol: string;
@@ -86,6 +148,10 @@ export type Rebalance = {
     deltaQuantity: number;
     estimatedTradeValue: number;
     side: string;
+    urgency: string;
+    estimatedTransactionCost: number;
+    holdingPeriod: string;
+    positionSizeWarning: string | null;
   }[];
 };
 
@@ -113,6 +179,8 @@ const body = (value: unknown): RequestInit => ({
 export const portfolioApi = {
   list: () => json<Portfolio[]>("/api/v1/portfolios"),
   detail: (id: string) => json<PortfolioDetail>(`/api/v1/portfolios/${id}`),
+  analytics: (id: string) =>
+    json<PortfolioAnalytics>(`/api/v1/portfolios/${id}/analytics`),
   create: (name: string, description: string) =>
     json<Portfolio>(
       "/api/v1/portfolios",

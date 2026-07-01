@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- PI2: Portfolio intelligence frontend on the portfolio page with PI1 analytics API types, weighted metric tiles, sector allocation chart, holding concentration bars, moat profile, quality distribution, liquidity indicators, benchmark comparison, analytics warnings, and smart rebalance urgency/cost/holding-period fields.
+- PI2: Feature specifications under `specs/2026-07-01-pi2-portfolio-intelligence-frontend/`, with frontend typecheck and production build validation passing.
 - PI1: Portfolio intelligence backend with `GET /api/v1/portfolios/{id}/analytics`, weighted valuation/quality metrics, sector and holding concentration diagnostics, moat profile, liquidity assessment, SPY benchmark characteristic comparison, Flyway V18 analytics snapshots, and feature specifications under `specs/2026-07-01-pi1-portfolio-intelligence-backend/`.
 - PI1: Additive rebalance intelligence fields for urgency, estimated transaction costs, holding-period classification, and minimum-position warnings, plus focused analytics/liquidity/rebalance tests and full backend Maven suite passing with 326 tests.
 - JC2: Persisted job runtime controls with admin enable/disable endpoints, cron override validation, pollable scoped manual runs, `SKIPPED` run-log status, and Flyway V17 `job_runtime_setting` persistence; feature specifications under `specs/2026-07-01-jc2-job-scheduling-runtime-control/`.
