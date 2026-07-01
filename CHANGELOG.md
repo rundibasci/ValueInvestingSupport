@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- SC2: Universe Curation React workflow with SC1 template loading, criteria filter builder, preview table, capped warning display, active workflow summary, criteria-based seed action, and per-symbol seed result handoff links.
+- SC2: Feature specifications under `specs/2026-07-02-sc2-universe-curation-ui/`, with frontend typecheck and production build validation passing.
 - SC1: Universe selection API with admin templates, criteria-based preview, criteria-based seed execution through the existing seed pipeline, capped preview warnings, and optional FMP stock-list metadata for country, sector, market cap, price, and volume.
 - SC1: Feature specifications under `specs/2026-07-01-sc1-universe-selection-api/`, with focused universe-selection tests and full backend Maven suite passing with 338 tests.
 - PW2: Professional workflow frontend with decision-history timeline and CSV export, checklist builder/evaluation workflow, valuation confidence and data-verification panels on stock review pages, screener/review competence indicators, account competence editing, and ADVISOR portfolio acknowledgement banner.

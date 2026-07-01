@@ -15,6 +15,7 @@ import { OAuthCallbackPage } from "./pages/OAuthCallbackPage";
 import { AccountPage } from "./pages/AccountPage";
 import { AuditPage } from "./pages/AuditPage";
 import { ChecklistPage } from "./pages/ChecklistPage";
+import { UniverseCurationPage } from "./pages/UniverseCurationPage";
 
 export default function App(): JSX.Element {
   return (
@@ -33,6 +34,7 @@ export default function App(): JSX.Element {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="seed" element={<SeedUniversePage />} />
+          <Route path="universe-curation" element={<UniverseCurationPage />} />
           <Route path="admin/seed" element={<AdminSeedPage />} />
           <Route path="admin/users" element={<UserProvisioningPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
