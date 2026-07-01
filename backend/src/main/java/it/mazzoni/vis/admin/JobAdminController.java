@@ -8,21 +8,26 @@ import it.mazzoni.vis.jobs.DividendUpdateJob;
 import it.mazzoni.vis.jobs.InsiderTradingJob;
 import it.mazzoni.vis.jobs.QuoteRefreshJob;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/v1/admin/jobs")
+@Validated
 public class JobAdminController {
 
     private final Map<String, JobDefinition> jobRegistry;
@@ -38,13 +43,13 @@ public class JobAdminController {
                                JobAdminService jobAdminService) {
         this.jobAdminService = jobAdminService;
         this.jobRegistry = new LinkedHashMap<>();
-        register("bulk-profile-sync", "bulk-profile", bulkProfileSyncJob::run);
-        register("bulk-fundamentals-sync", "bulk-fundamentals", bulkFundamentalsSyncJob::run);
-        register("bulk-ratios-sync", "bulk-ratios", bulkRatiosSyncJob::run);
-        register("bulk-dcf-sync", "bulk-dcf", bulkDcfSyncJob::run);
-        register("quote-refresh", "quote-refresh", quoteRefreshJob::run);
-        register("dividend-update", "dividend-update", dividendUpdateJob::run);
-        register("insider-trading", "insider-trading", insiderTradingJob::run);
+        register("bulk-profile-sync", "bulk-profile", bulkProfileSyncJob::execute);
+        register("bulk-fundamentals-sync", "bulk-fundamentals", bulkFundamentalsSyncJob::execute);
+        register("bulk-ratios-sync", "bulk-ratios", bulkRatiosSyncJob::execute);
+        register("bulk-dcf-sync", "bulk-dcf", bulkDcfSyncJob::execute);
+        register("quote-refresh", "quote-refresh", quoteRefreshJob::execute);
+        register("dividend-update", "dividend-update", dividendUpdateJob::execute);
+        register("insider-trading", "insider-trading", insiderTradingJob::execute);
     }
 
     @GetMapping
@@ -76,17 +81,46 @@ public class JobAdminController {
     }
 
     @PostMapping("/{jobName}/run")
-    ResponseEntity<Map<String, String>> runJob(@PathVariable String jobName) {
+    ResponseEntity<JobTriggerResponse> runJob(@PathVariable String jobName,
+                                              @RequestBody(required = false) JobRunRequest request) {
         JobDefinition job = jobRegistry.get(jobName);
         if (job == null) {
             return ResponseEntity.notFound().build();
         }
-        CompletableFuture.runAsync(job.runner());
-        return ResponseEntity.accepted()
-                .body(Map.of("jobName", jobName, "status", "triggered"));
+        return ResponseEntity.accepted().body(jobAdminService.trigger(job, request));
     }
 
-    private void register(String jobName, String cronKey, Runnable runner) {
+    @PutMapping("/{jobName}/enabled")
+    ResponseEntity<JobSummaryResponse> updateEnabled(@PathVariable String jobName,
+                                                     @Valid @RequestBody JobEnabledRequest request) {
+        if (!jobRegistry.containsKey(jobName)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(jobAdminService.updateEnabled(jobRegistry.get(jobName), request.enabled()));
+    }
+
+    @PutMapping("/{jobName}/cron")
+    ResponseEntity<JobSummaryResponse> updateCron(@PathVariable String jobName,
+                                                  @Valid @RequestBody JobCronRequest request) {
+        if (!jobRegistry.containsKey(jobName)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(jobAdminService.updateCron(jobRegistry.get(jobName), request.cron()));
+    }
+
+    @GetMapping("/runs/{jobRunId}/status")
+    ResponseEntity<JobRunStatusResponse> runStatus(@PathVariable UUID jobRunId) {
+        return jobAdminService.runStatus(jobRunId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+
+    private void register(String jobName, String cronKey, java.util.function.Supplier<Integer> runner) {
         jobRegistry.put(jobName, new JobDefinition(jobName, cronKey, runner));
     }
 }

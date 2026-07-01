@@ -44,4 +44,16 @@ class JobLogWriter {
             log.setErrorMessage(errorMessage);
         });
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    JobRunLog skipped(String jobName, String reason) {
+        JobRunLog log = new JobRunLog();
+        log.setJobName(jobName);
+        log.setStartedAt(LocalDateTime.now());
+        log.setCompletedAt(LocalDateTime.now());
+        log.setStatus("SKIPPED");
+        log.setRecordsProcessed(0);
+        log.setErrorMessage(reason);
+        return repository.save(log);
+    }
 }

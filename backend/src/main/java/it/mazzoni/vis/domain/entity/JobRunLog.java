@@ -28,6 +28,15 @@ public class JobRunLog {
     @Column(columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Column(length = 1000)
+    private String scopeSymbols;
+
+    @Column(length = 40)
+    private String scopeExchange;
+
+    @Column(length = 400)
+    private String scopeDataTypes;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -48,4 +57,13 @@ public class JobRunLog {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public String getScopeSymbols() { return scopeSymbols; }
+    public void setScopeSymbols(String scopeSymbols) { this.scopeSymbols = scopeSymbols; }
+
+    public String getScopeExchange() { return scopeExchange; }
+    public void setScopeExchange(String scopeExchange) { this.scopeExchange = scopeExchange; }
+
+    public String getScopeDataTypes() { return scopeDataTypes; }
+    public void setScopeDataTypes(String scopeDataTypes) { this.scopeDataTypes = scopeDataTypes; }
 }
