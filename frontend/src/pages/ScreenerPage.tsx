@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api/client'
+import { professionalApi } from '../api/professional'
 
 type SortField = 'totalScore' | 'marginOfSafety' | 'symbol' | 'companyName' | 'sector' | 'exchange'
 type SortDirection = 'ASC' | 'DESC'
@@ -149,6 +150,7 @@ export function ScreenerPage(): JSX.Element {
   const sectors = useQuery({ queryKey: ['screener', 'sectors'], queryFn: () => getJson<string[]>('/api/v1/screener/sectors') })
   const exchanges = useQuery({ queryKey: ['screener', 'exchanges'], queryFn: () => getJson<string[]>('/api/v1/screener/exchanges') })
   const presets = useQuery({ queryKey: ['screener', 'presets'], queryFn: () => getJson<Presets>('/api/v1/screener/presets') })
+  const competence = useQuery({ queryKey: ['competence-preferences'], queryFn: professionalApi.competence, retry: false })
   const results = useQuery({
     queryKey: ['screener', 'results', query],
     queryFn: () => getJson<Response>('/api/v1/screener', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serialise(query)) }),
@@ -226,6 +228,7 @@ export function ScreenerPage(): JSX.Element {
           <div>
             <h2 id="filter-heading" className="text-lg font-semibold text-white">Screen criteria</h2>
             <p className="mt-1 text-sm text-slate-400">Apply your own discipline or begin with a research preset.</p>
+            {competence.data?.preferredSectors.length ? <p className="mt-2 text-xs text-amber-100">Rows outside your marked sectors are labelled in the results table.</p> : null}
           </div>
           <div className="flex flex-wrap gap-2">{['graham', 'dividend', 'quality'].map((preset) => <button key={preset} type="button" disabled={presets.isLoading || !presets.data?.[preset]} onClick={() => usePreset(preset)} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium capitalize text-emerald-200 transition hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50">{preset}</button>)}</div>
         </div>
@@ -275,13 +278,14 @@ export function ScreenerPage(): JSX.Element {
             <div className="overflow-x-auto">
               <table className="min-w-[1500px] w-full border-collapse text-sm">
                 <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
-                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
+                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}<th className="whitespace-nowrap px-4 py-3 text-left">Competence</th>{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   {results.data?.results.map((item) => (
                     <tr key={item.symbol} tabIndex={0} onClick={() => navigate(`/securities/${item.symbol}`)} onKeyDown={(event) => rowKeyDown(event, item.symbol)} className="cursor-pointer text-slate-200 outline-none transition hover:bg-slate-800/70 focus:bg-slate-800/70 focus:ring-2 focus:ring-inset focus:ring-emerald-400">
                       <td className="px-4 py-4"><span className="block font-semibold text-white">{item.companyName}</span><span className="text-xs font-medium text-emerald-300">{item.symbol}</span></td>
                       <td className="px-4 py-4">{item.sector ?? '-'}</td>
+                      <td className="px-4 py-4">{item.sector && competence.data?.preferredSectors.length ? <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${competence.data.preferredSectors.includes(item.sector) ? 'bg-emerald-300/15 text-emerald-100' : 'bg-amber-300/15 text-amber-100'}`}>{competence.data.preferredSectors.includes(item.sector) ? 'inside' : 'outside'}</span> : '-'}</td>
                       <td className="px-4 py-4">{item.exchange ?? '-'}</td>
                       <td className="px-4 py-4">{formatNumber(item.currentPrice, { style: 'currency', currency: 'USD' })}</td>
                       <td className="px-4 py-4">{formatNumber(item.compositeFairValue, { style: 'currency', currency: 'USD' })}</td>

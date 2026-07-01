@@ -16,6 +16,7 @@ import {
 } from 'recharts'
 import { apiFetch } from '../api/client'
 import { portfolioApi, type Portfolio } from '../api/portfolio'
+import { professionalApi, type ChecklistEvaluation, type Confidence, type Verification } from '../api/professional'
 import { watchlistApi } from '../api/watchlist'
 
 type Detail = {
@@ -139,6 +140,91 @@ function Metric({ label, value, note }: { label: string; value: string; note?: s
 
 function DataGap({ children }: { children: ReactNode }): JSX.Element {
   return <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">{children}</p>
+}
+
+function professionalLevelClass(level: string | null | undefined): string {
+  const normalized = (level || '').toUpperCase()
+  if (normalized === 'HIGH' || normalized === 'PASS') return 'bg-emerald-300/15 text-emerald-100'
+  if (normalized === 'LOW' || normalized === 'FAIL' || normalized === 'CRITICAL') return 'bg-rose-400/15 text-rose-100'
+  return 'bg-amber-300/15 text-amber-100'
+}
+
+function ProfessionalReviewPanel({
+  symbol,
+  sector,
+  confidence,
+  verification,
+  checklists,
+}: {
+  symbol: string
+  sector: string | null
+  confidence?: Confidence
+  verification?: Verification
+  checklists?: Array<{ id: string; name: string }>
+}): JSX.Element {
+  const [selectedChecklist, setSelectedChecklist] = useState('')
+  const [evaluation, setEvaluation] = useState<ChecklistEvaluation | null>(null)
+  const evaluate = useMutation({
+    mutationFn: () => professionalApi.evaluateChecklist(selectedChecklist, symbol),
+    onSuccess: setEvaluation,
+  })
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-3">
+      <Panel title="Confidence">
+        {confidence ? (
+          <div className="space-y-3">
+            <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${professionalLevelClass(confidence.overallLevel)}`}>
+              {confidence.overallLevel.toLowerCase()} confidence
+            </span>
+            {confidence.factors.map((factor) => (
+              <div key={factor.name} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium text-white">{factor.name}</p>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${professionalLevelClass(factor.level)}`}>{factor.level.toLowerCase()}</span>
+                </div>
+                <p className="mt-1 text-sm leading-5 text-slate-400">{factor.message}</p>
+              </div>
+            ))}
+          </div>
+        ) : <DataGap>Valuation confidence is unavailable for this symbol.</DataGap>}
+      </Panel>
+      <Panel title="Verification warnings">
+        {verification?.flags.length ? (
+          <div className="space-y-2">
+            {verification.flags.map((flag) => (
+              <p key={`${flag.field}-${flag.message}`} className={`rounded-lg p-3 text-sm leading-6 ${professionalLevelClass(flag.severity)}`}>
+                <span className="font-semibold">{flag.field}:</span> {flag.message}
+              </p>
+            ))}
+          </div>
+        ) : <DataGap>No cross-verification warnings are currently reported. This does not replace source filing review.</DataGap>}
+      </Panel>
+      <Panel title="Checklist evaluation">
+        {checklists?.length ? (
+          <div className="space-y-3">
+            <select value={selectedChecklist} onChange={(event) => { setSelectedChecklist(event.target.value); setEvaluation(null) }} className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
+              <option value="">Choose checklist</option>
+              {checklists.map((checklist) => <option key={checklist.id} value={checklist.id}>{checklist.name}</option>)}
+            </select>
+            <button type="button" disabled={!selectedChecklist || evaluate.isPending} onClick={() => evaluate.mutate()} className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{evaluate.isPending ? 'Evaluating...' : 'Apply checklist'}</button>
+            {evaluation && (
+              <div className="space-y-2">
+                <p className="text-sm text-slate-300">{evaluation.items.filter((item) => item.status === 'PASS').length} of {evaluation.items.length} criteria met.</p>
+                {evaluation.items.map((item) => (
+                  <div key={item.label} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-sm">
+                    <div className="flex items-center justify-between gap-2"><span className="text-white">{item.label}</span><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${professionalLevelClass(item.status)}`}>{item.status.toLowerCase()}</span></div>
+                    <p className="mt-1 text-slate-400">{item.message || (item.actualValue == null ? 'Manual or unavailable criterion.' : `Actual value: ${number(item.actualValue)}`)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : <DataGap>Create a checklist from the Checklists page before evaluating this symbol.</DataGap>}
+      </Panel>
+      {sector && <p className="lg:col-span-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-sm text-slate-400">Circle-of-competence indicators use your saved sectors. Current sector: {sector}.</p>}
+    </div>
+  )
 }
 
 function AvailabilityBadge({ state }: { state?: Availability | null }): JSX.Element {
@@ -768,6 +854,10 @@ export function SecurityReviewPage(): JSX.Element {
   const [scrollProgress, setScrollProgress] = useState(0)
   const review = useQuery({ queryKey: ['security-review', symbol], enabled: !!symbol, queryFn: () => json<Review>(`/api/v1/securities/${encodeURIComponent(symbol)}/review`), retry: false })
   const watchlist = useQuery({ queryKey: ['watchlist'], enabled: !!symbol, queryFn: watchlistApi.list })
+  const confidence = useQuery({ queryKey: ['professional-confidence', symbol], enabled: !!symbol, queryFn: () => professionalApi.confidence(symbol), retry: false })
+  const verification = useQuery({ queryKey: ['professional-verification', symbol], enabled: !!symbol, queryFn: () => professionalApi.verification(symbol), retry: false })
+  const checklists = useQuery({ queryKey: ['checklists'], queryFn: professionalApi.checklists, retry: false })
+  const competence = useQuery({ queryKey: ['competence-preferences'], queryFn: professionalApi.competence, retry: false })
   const queryClient = useQueryClient()
   const addWatchlist = useMutation({
     mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null, monitoringReason: 'WAIT_FOR_BETTER_PRICE', rationaleNote: 'Added from the review page for continued monitoring.' }),
@@ -812,6 +902,7 @@ export function SecurityReviewPage(): JSX.Element {
   const score = review.data.score
   const health = review.data.financialHealth
   const watchlistItem = watchlist.data?.find((item) => item.symbol.toUpperCase() === symbol)
+  const outsideCompetence = Boolean(d.sector && competence.data?.preferredSectors.length && !competence.data.preferredSectors.includes(d.sector))
 
   return (
     <div className="space-y-6">
@@ -822,6 +913,7 @@ export function SecurityReviewPage(): JSX.Element {
             <p className="mt-5 text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">In-depth stock review</p>
             <h1 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">{d.companyName} <span className="text-slate-400">({d.symbol})</span></h1>
             <p className="mt-2 text-sm text-slate-400">{[d.sector, d.exchange, d.country, d.currency].filter(Boolean).join(' · ') || 'Profile context unavailable'}</p>
+            {outsideCompetence && <p className="mt-3 inline-flex rounded-full bg-amber-300/15 px-3 py-1 text-xs font-semibold text-amber-100">Outside your marked competence sectors</p>}
             <p className="mt-4 max-w-3xl leading-7 text-slate-300">{d.description || 'Business description is unavailable from the current provider data.'}</p>
           </div>
           <div className="grid min-w-[16rem] gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -844,7 +936,7 @@ export function SecurityReviewPage(): JSX.Element {
         <div className="flex gap-2 overflow-x-auto">
           {[
             ['source', 'Sources'], ['valuation', 'Valuation'], ['cash', 'Cash generation'], ['earnings', 'Earnings'],
-            ['business-quality', 'Moat'], ['debt', 'Debt'], ['history', 'Graphs'], ['dividends', 'Dividends'], ['quality', 'Quality'], ['risk', 'Risk'],
+            ['professional', 'Workflow'], ['business-quality', 'Moat'], ['debt', 'Debt'], ['history', 'Graphs'], ['dividends', 'Dividends'], ['quality', 'Quality'], ['risk', 'Risk'],
           ].map(([id, label]) => <a key={id} href={`#${id}`} className="mt-3 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">{label}</a>)}
         </div>
       </nav>
@@ -895,6 +987,10 @@ export function SecurityReviewPage(): JSX.Element {
               <GrahamChecklistPanel checklist={valuation?.grahamChecklist} />
             </Panel>
           </div>
+        </Section>
+
+        <Section id="professional" title="Professional Workflow">
+          <ProfessionalReviewPanel symbol={symbol} sector={d.sector} confidence={confidence.data} verification={verification.data} checklists={checklists.data} />
         </Section>
 
         <Section id="business-quality" title="Moat And Business Quality">

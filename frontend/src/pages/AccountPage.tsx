@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../api/client'
+import { professionalApi } from '../api/professional'
 
 type AccountResponse = {
   email: string
@@ -14,6 +15,9 @@ export function AccountPage(): JSX.Element {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [unlinking, setUnlinking] = useState(false)
+  const [preferredSectors, setPreferredSectors] = useState('')
+  const [competenceIndustries, setCompetenceIndustries] = useState('')
+  const [savingCompetence, setSavingCompetence] = useState(false)
 
   async function loadAccount(): Promise<void> {
     setLoading(true)
@@ -25,6 +29,11 @@ export function AccountPage(): JSX.Element {
       return
     }
     setAccount((await response.json()) as AccountResponse)
+    const competence = await professionalApi.competence().catch(() => null)
+    if (competence) {
+      setPreferredSectors(competence.preferredSectors.join(', '))
+      setCompetenceIndustries(competence.competenceIndustries.join(', '))
+    }
     setLoading(false)
   }
 
@@ -46,6 +55,23 @@ export function AccountPage(): JSX.Element {
     setAccount((await response.json()) as AccountResponse)
     setMessage('Google sign-in has been unlinked from this platform account.')
     setUnlinking(false)
+  }
+
+  async function saveCompetence(): Promise<void> {
+    setSavingCompetence(true)
+    setMessage(null)
+    setError(null)
+    try {
+      await professionalApi.updateCompetence({
+        preferredSectors: preferredSectors.split(',').map((item) => item.trim()).filter(Boolean),
+        competenceIndustries: competenceIndustries.split(',').map((item) => item.trim()).filter(Boolean),
+      })
+      setMessage('Circle of competence preferences have been updated.')
+    } catch {
+      setError('Circle of competence preferences could not be saved.')
+    } finally {
+      setSavingCompetence(false)
+    }
   }
 
   return (
@@ -109,6 +135,30 @@ export function AccountPage(): JSX.Element {
                   Google cannot be unlinked because no local password is available for this account.
                 </p>
               )}
+            </div>
+
+            <div className="border-t border-slate-800 pt-5">
+              <h2 className="text-lg font-semibold text-white">Circle of competence</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                Mark sectors and industries where you have enough business understanding to prioritize research.
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-medium text-slate-200">
+                  Preferred sectors
+                  <input value={preferredSectors} onChange={(event) => setPreferredSectors(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400" placeholder="Consumer Defensive, Healthcare" />
+                </label>
+                <label className="text-sm font-medium text-slate-200">
+                  Competence industries
+                  <input value={competenceIndustries} onChange={(event) => setCompetenceIndustries(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400" placeholder="Beverages, Household Products" />
+                </label>
+              </div>
+              <button
+                className="mt-4 rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50"
+                disabled={savingCompetence}
+                onClick={() => void saveCompetence()}
+              >
+                {savingCompetence ? 'Saving...' : 'Save competence'}
+              </button>
             </div>
           </div>
         )}

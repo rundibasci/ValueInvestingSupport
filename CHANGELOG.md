@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- PW2: Professional workflow frontend with decision-history timeline and CSV export, checklist builder/evaluation workflow, valuation confidence and data-verification panels on stock review pages, screener/review competence indicators, account competence editing, and ADVISOR portfolio acknowledgement banner.
+- PW2: Feature specifications under `specs/2026-07-01-pw2-professional-workflow-frontend/`, with frontend typecheck and production build validation passing.
 - PW1: Professional workflow backend with immutable research decision snapshots for portfolio/watchlist add-remove actions, checklist CRUD and symbol evaluation, valuation confidence scoring, data verification flags, circle-of-competence preferences, ADVISOR acknowledgement state, and Flyway V19 persistence.
 - PW1: Feature specifications under `specs/2026-07-01-pw1-professional-workflow-backend/`, focused professional service tests, and full backend Maven suite passing with 331 tests.
 - PI2: Portfolio intelligence frontend on the portfolio page with PI1 analytics API types, weighted metric tiles, sector allocation chart, holding concentration bars, moat profile, quality distribution, liquidity indicators, benchmark comparison, analytics warnings, and smart rebalance urgency/cost/holding-period fields.
