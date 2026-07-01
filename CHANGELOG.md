@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- SC1: Universe selection API with admin templates, criteria-based preview, criteria-based seed execution through the existing seed pipeline, capped preview warnings, and optional FMP stock-list metadata for country, sector, market cap, price, and volume.
+- SC1: Feature specifications under `specs/2026-07-01-sc1-universe-selection-api/`, with focused universe-selection tests and full backend Maven suite passing with 338 tests.
 - PW2: Professional workflow frontend with decision-history timeline and CSV export, checklist builder/evaluation workflow, valuation confidence and data-verification panels on stock review pages, screener/review competence indicators, account competence editing, and ADVISOR portfolio acknowledgement banner.
 - PW2: Feature specifications under `specs/2026-07-01-pw2-professional-workflow-frontend/`, with frontend typecheck and production build validation passing.
 - PW1: Professional workflow backend with immutable research decision snapshots for portfolio/watchlist add-remove actions, checklist CRUD and symbol evaluation, valuation confidence scoring, data verification flags, circle-of-competence preferences, ADVISOR acknowledgement state, and Flyway V19 persistence.
