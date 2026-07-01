@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
 import {
   portfolioApi,
+  type BenchmarkComparison,
+  type HoldingConcentration,
+  type LiquidityResult,
   type Portfolio,
+  type PortfolioAnalytics,
   type Simulation,
   type SimulationInput,
 } from "../api/portfolio";
@@ -43,6 +47,50 @@ function money(value: number | null | undefined): string {
 function percent(value: number | null | undefined): string {
   return value == null ? "—" : `${Number(value).toFixed(1)}%`;
 }
+function ratio(value: number | null | undefined): string {
+  return value == null ? "N/A" : Number(value).toFixed(1);
+}
+function compactMoney(value: number | null | undefined): string {
+  return value == null
+    ? "N/A"
+    : new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(value);
+}
+function label(value: string | null | undefined): string {
+  return value
+    ? value
+        .toLowerCase()
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ")
+    : "Unavailable";
+}
+function statusClass(status: string | null | undefined): string {
+  const normalized = status?.toLowerCase() ?? "";
+  if (
+    normalized.includes("illiquid") ||
+    normalized.includes("concentrated") ||
+    normalized.includes("must")
+  )
+    return "border-rose-300/30 bg-rose-400/10 text-rose-100";
+  if (
+    normalized.includes("moderate") ||
+    normalized.includes("immaterial") ||
+    normalized.includes("could")
+  )
+    return "border-amber-300/30 bg-amber-300/10 text-amber-100";
+  if (
+    normalized.includes("liquid") ||
+    normalized.includes("normal") ||
+    normalized.includes("hold")
+  )
+    return "border-emerald-300/30 bg-emerald-400/10 text-emerald-100";
+  return "border-slate-600 bg-slate-800/80 text-slate-200";
+}
 function ErrorNotice({ error }: { error: unknown }): JSX.Element | null {
   return error instanceof Error ? (
     <p
@@ -76,6 +124,352 @@ function ConcentrationWarnings({
   );
 }
 
+function StatusChip({ value }: { value: string | null | undefined }): JSX.Element {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass(value)}`}
+    >
+      {label(value)}
+    </span>
+  );
+}
+
+function MetricTile({
+  labelText,
+  value,
+  helper,
+}: {
+  labelText: string;
+  value: string;
+  helper?: string;
+}): JSX.Element {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+      <p className="text-xs uppercase text-slate-500">{labelText}</p>
+      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+      {helper && <p className="mt-1 text-xs text-slate-400">{helper}</p>}
+    </div>
+  );
+}
+
+function ProgressBar({
+  labelText,
+  value,
+  tone,
+}: {
+  labelText: string;
+  value: number | null | undefined;
+  tone?: "emerald" | "amber" | "rose" | "blue";
+}): JSX.Element {
+  const width = Math.max(0, Math.min(100, Number(value ?? 0)));
+  const color =
+    tone === "rose"
+      ? "bg-rose-400"
+      : tone === "amber"
+        ? "bg-amber-300"
+        : tone === "blue"
+          ? "bg-sky-400"
+          : "bg-emerald-400";
+  return (
+    <div>
+      <div className="flex justify-between gap-3 text-xs text-slate-400">
+        <span className="truncate">{labelText}</span>
+        <span>{percent(value)}</span>
+      </div>
+      <div className="mt-1 h-2 rounded-full bg-slate-800">
+        <div
+          className={`h-2 rounded-full ${color}`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function LiquidityCell({
+  liquidity,
+}: {
+  liquidity: LiquidityResult | undefined;
+}): JSX.Element {
+  if (!liquidity) return <span className="text-slate-500">N/A</span>;
+  return (
+    <div className="space-y-1">
+      <StatusChip value={liquidity.classification} />
+      <p className="text-xs text-slate-400">
+        {liquidity.daysToLiquidate == null
+          ? label(liquidity.availabilityStatus)
+          : `${ratio(liquidity.daysToLiquidate)} days`}
+      </p>
+      {liquidity.averageDailyDollarVolume != null && (
+        <p className="text-xs text-slate-500">
+          ADV {compactMoney(liquidity.averageDailyDollarVolume)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function BenchmarkPanel({
+  benchmark,
+}: {
+  benchmark: BenchmarkComparison;
+}): JSX.Element {
+  const rows = [
+    {
+      name: "P/E",
+      portfolio: ratio(benchmark.portfolioPeRatio),
+      benchmark: ratio(benchmark.benchmarkPeRatio),
+    },
+    {
+      name: "Dividend yield",
+      portfolio: percent(benchmark.portfolioDividendYield),
+      benchmark: percent(benchmark.benchmarkDividendYield),
+    },
+    {
+      name: "MoS",
+      portfolio: percent(benchmark.portfolioMarginOfSafety),
+      benchmark: percent(benchmark.benchmarkMarginOfSafety),
+    },
+  ];
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-semibold text-white">Benchmark comparison</h3>
+        <StatusChip value={benchmark.availabilityStatus} />
+      </div>
+      <p className="mt-1 text-xs text-slate-400">
+        Compared with {benchmark.benchmarkSymbol || "default benchmark"}.
+      </p>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[24rem] text-left text-sm">
+          <thead className="text-xs uppercase text-slate-500">
+            <tr>
+              <th>Metric</th>
+              <th>Portfolio</th>
+              <th>Benchmark</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800">
+            {rows.map((row) => (
+              <tr key={row.name}>
+                <td className="py-2 text-slate-300">{row.name}</td>
+                <td>{row.portfolio}</td>
+                <td>{row.benchmark}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {Object.keys(benchmark.sectorWeightDifference ?? {}).length > 0 && (
+        <div className="mt-4 space-y-2">
+          <p className="text-xs uppercase text-slate-500">Sector difference</p>
+          {Object.entries(benchmark.sectorWeightDifference).map(
+            ([sector, value]) => (
+              <ProgressBar
+                key={sector}
+                labelText={`${sector} ${Number(value) >= 0 ? "over" : "under"}`}
+                value={Math.abs(Number(value))}
+                tone={Number(value) >= 0 ? "amber" : "blue"}
+              />
+            ),
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnalyticsDashboard({
+  analytics,
+}: {
+  analytics: PortfolioAnalytics;
+}): JSX.Element {
+  const sectorData = Object.entries(analytics.sectorWeights ?? {}).map(
+    ([key, weightPercent]) => ({ key, weightPercent }),
+  );
+  const qualityData = Object.entries(
+    analytics.qualityDistribution.earningsQualityPercent ?? {},
+  );
+  const moat = analytics.moatProfile;
+  const concentrationTone = (
+    item: HoldingConcentration,
+  ): "emerald" | "amber" | "rose" =>
+    item.status.toLowerCase().includes("concentrated")
+      ? "rose"
+      : item.status.toLowerCase().includes("immaterial")
+        ? "amber"
+        : "emerald";
+
+  return (
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold text-white">
+            Portfolio intelligence
+          </h2>
+          <p className="mt-1 text-sm text-slate-400">
+            Portfolio-level diagnostics for concentration, liquidity, benchmark characteristics, and quality.
+          </p>
+        </div>
+        <div className="text-right text-sm">
+          <p className="text-slate-400">Snapshot</p>
+          <p className="font-semibold text-white">
+            {new Date(analytics.capturedAt).toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <MetricTile
+          labelText="Weighted MoS"
+          value={percent(analytics.weightedMetrics.marginOfSafety)}
+        />
+        <MetricTile
+          labelText="Weighted P/E"
+          value={ratio(analytics.weightedMetrics.peRatio)}
+        />
+        <MetricTile
+          labelText="Dividend yield"
+          value={percent(analytics.weightedMetrics.dividendYield)}
+        />
+        <MetricTile
+          labelText="Value score"
+          value={ratio(analytics.weightedMetrics.valueScore)}
+        />
+        <MetricTile
+          labelText="F-Score"
+          value={ratio(analytics.weightedMetrics.piotroskiFScore)}
+          helper="Piotroski"
+        />
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-2">
+        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <h3 className="font-semibold text-white">Sector allocation</h3>
+          <div className="mt-4 grid gap-4 md:grid-cols-[15rem_1fr]">
+            <div
+              className="h-52"
+              aria-label="Portfolio sector allocation chart"
+            >
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={sectorData}
+                    dataKey="weightPercent"
+                    nameKey="key"
+                    innerRadius="55%"
+                    outerRadius="80%"
+                  >
+                    {sectorData.map((entry, index) => (
+                      <Cell
+                        key={entry.key}
+                        fill={palette[index % palette.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => percent(Number(value))} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2">
+              {sectorData.map((entry, index) => (
+                <ProgressBar
+                  key={entry.key}
+                  labelText={entry.key}
+                  value={entry.weightPercent}
+                  tone={
+                    analytics.sectorConcentrationFlags.includes(entry.key)
+                      ? "rose"
+                      : index % 2
+                        ? "blue"
+                        : "emerald"
+                  }
+                />
+              ))}
+              {analytics.sectorConcentrationFlags.length > 0 && (
+                <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm text-amber-100">
+                  Concentration flags:{" "}
+                  {analytics.sectorConcentrationFlags.join(", ")}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <h3 className="font-semibold text-white">Holding concentration</h3>
+          <div className="mt-4 space-y-3">
+            {analytics.holdingConcentration.map((item) => (
+              <div key={item.symbol}>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-semibold text-emerald-200">
+                    {item.symbol}
+                  </span>
+                  <StatusChip value={item.status} />
+                </div>
+                <ProgressBar
+                  labelText="Portfolio weight"
+                  value={item.weightPercent}
+                  tone={concentrationTone(item)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <h3 className="font-semibold text-white">Moat profile</h3>
+          <div className="mt-4 space-y-3">
+            <ProgressBar labelText="Wide" value={moat.widePercent} />
+            <ProgressBar labelText="Narrow" value={moat.narrowPercent} tone="blue" />
+            <ProgressBar labelText="None" value={moat.nonePercent} tone="amber" />
+            <ProgressBar labelText="Unknown" value={moat.unknownPercent} tone="rose" />
+          </div>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <h3 className="font-semibold text-white">Quality distribution</h3>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <MetricTile
+              labelText="Avg. ROIC"
+              value={percent(analytics.qualityDistribution.averageRoic)}
+            />
+            <MetricTile
+              labelText="Avg. ROE"
+              value={percent(analytics.qualityDistribution.averageRoe)}
+            />
+          </div>
+          <div className="mt-4 space-y-2">
+            {qualityData.map(([key, value]) => (
+              <ProgressBar
+                key={key}
+                labelText={label(key)}
+                value={value}
+                tone="blue"
+              />
+            ))}
+          </div>
+        </div>
+        <BenchmarkPanel benchmark={analytics.benchmarkComparison} />
+      </div>
+
+      {analytics.warnings.length > 0 && (
+        <div className="mt-5 space-y-2">
+          {analytics.warnings.map((warning) => (
+            <p
+              key={`${warning.type}-${warning.key}-${warning.message}`}
+              className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm text-amber-100"
+            >
+              {warning.message}
+            </p>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function PortfolioPage(): JSX.Element {
   const client = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
@@ -101,6 +495,11 @@ export function PortfolioPage(): JSX.Element {
     queryFn: () => portfolioApi.detail(activeId!),
     enabled: Boolean(activeId),
   });
+  const analytics = useQuery({
+    queryKey: ["portfolio", activeId, "analytics"],
+    queryFn: () => portfolioApi.analytics(activeId!),
+    enabled: Boolean(activeId),
+  });
   const create = useMutation({
     mutationFn: () => portfolioApi.create(name, description),
     onSuccess: (created) => {
@@ -120,6 +519,9 @@ export function PortfolioPage(): JSX.Element {
   });
   const refreshDetail = (): void => {
     void client.invalidateQueries({ queryKey: ["portfolio", activeId] });
+    void client.invalidateQueries({
+      queryKey: ["portfolio", activeId, "analytics"],
+    });
     void client.invalidateQueries({ queryKey: ["portfolios"] });
   };
   const addHolding = useMutation({
@@ -159,6 +561,16 @@ export function PortfolioPage(): JSX.Element {
         0,
       ) ?? 0,
     [simulation],
+  );
+  const liquidityBySymbol = useMemo(
+    () =>
+      new Map(
+        (analytics.data?.liquidity ?? []).map((item) => [
+          item.symbol.toUpperCase(),
+          item,
+        ]),
+      ),
+    [analytics.data],
   );
   const canRun =
     Boolean(activeId) &&
@@ -276,7 +688,7 @@ export function PortfolioPage(): JSX.Element {
             </div>
             {detail.data?.holdings?.length ? (
               <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[38rem] text-left text-sm">
+                <table className="w-full min-w-[46rem] text-left text-sm">
                   <thead className="text-xs uppercase text-slate-400">
                     <tr>
                       <th>Holding</th>
@@ -284,6 +696,7 @@ export function PortfolioPage(): JSX.Element {
                       <th>Value</th>
                       <th>Weight</th>
                       <th>MoS</th>
+                      <th>Liquidity</th>
                       <th>
                         <span className="sr-only">Actions</span>
                       </th>
@@ -299,6 +712,13 @@ export function PortfolioPage(): JSX.Element {
                         <td>{money(holding.currentValue)}</td>
                         <td>{percent(holding.weightPercent)}</td>
                         <td>{percent(holding.marginOfSafety)}</td>
+                        <td>
+                          <LiquidityCell
+                            liquidity={liquidityBySymbol.get(
+                              holding.symbol.toUpperCase(),
+                            )}
+                          />
+                        </td>
                         <td>
                           <div className="flex flex-wrap gap-3">
                             <Link
@@ -392,6 +812,16 @@ export function PortfolioPage(): JSX.Element {
               error={detail.error ?? addHolding.error ?? removeHolding.error}
             />
           </section>
+
+          {analytics.data && <AnalyticsDashboard analytics={analytics.data} />}
+          {!analytics.data && analytics.isLoading && activeId && (
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+              <p className="text-sm text-slate-400">
+                Loading portfolio intelligence...
+              </p>
+            </section>
+          )}
+          <ErrorNotice error={analytics.error} />
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <h2 className="text-xl font-semibold text-white">
@@ -653,7 +1083,8 @@ export function PortfolioPage(): JSX.Element {
               </h2>
               <p className="mt-1 text-sm text-slate-400">
                 Buy {money(rebalance.estimatedBuyValue)} · Sell{" "}
-                {money(rebalance.estimatedSellValue)}
+                {money(rebalance.estimatedSellValue)} - Cost{" "}
+                {money(rebalance.totalEstimatedTransactionCost)}
               </p>
             </div>
             <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-sm text-emerald-200">
@@ -661,15 +1092,19 @@ export function PortfolioPage(): JSX.Element {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-[42rem] w-full text-left text-sm">
+            <table className="min-w-[62rem] w-full text-left text-sm">
               <thead className="bg-slate-950/40 text-xs uppercase text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Security</th>
                   <th>Action</th>
+                  <th>Urgency</th>
                   <th>Current</th>
                   <th>Target</th>
                   <th>Change</th>
                   <th>Estimated value</th>
+                  <th>Cost</th>
+                  <th>Holding period</th>
+                  <th>Position note</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
@@ -679,10 +1114,18 @@ export function PortfolioPage(): JSX.Element {
                       {line.symbol}
                     </td>
                     <td>{line.side}</td>
+                    <td>
+                      <StatusChip value={line.urgency} />
+                    </td>
                     <td>{line.currentQuantity}</td>
                     <td>{line.targetQuantity}</td>
                     <td>{line.deltaQuantity}</td>
                     <td>{money(line.estimatedTradeValue)}</td>
+                    <td>{money(line.estimatedTransactionCost)}</td>
+                    <td>{label(line.holdingPeriod)}</td>
+                    <td className="max-w-[14rem] text-xs text-slate-400">
+                      {line.positionSizeWarning ?? "N/A"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
