@@ -3,6 +3,7 @@ package it.mazzoni.vis.admin;
 import it.mazzoni.vis.config.JobsProperties;
 import it.mazzoni.vis.domain.entity.IngestionEvent;
 import it.mazzoni.vis.domain.entity.JobRunLog;
+import it.mazzoni.vis.domain.repository.JobRuntimeSettingRepository;
 import it.mazzoni.vis.domain.repository.IngestionEventRepository;
 import it.mazzoni.vis.domain.repository.JobRunLogRepository;
 import org.junit.jupiter.api.Test;
@@ -13,14 +14,18 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -37,14 +42,17 @@ class JobAdminServiceTest {
     @Autowired
     private IngestionEventRepository ingestionEventRepository;
 
+    @Autowired
+    private JobRuntimeSettingRepository jobRuntimeSettingRepository;
+
     @Test
     void listJobs_includesCronEnabledAndLatestRun() {
-        JobRunLog older = runLog("quote-refresh", "SUCCESS", LocalDateTime.now().minusHours(2));
-        JobRunLog newer = runLog("quote-refresh", "FAILED", LocalDateTime.now().minusHours(1));
+        JobRunLog older = runLog("list-job", "SUCCESS", LocalDateTime.now().minusHours(2));
+        JobRunLog newer = runLog("list-job", "FAILED", LocalDateTime.now().minusHours(1));
         jobRunLogRepository.saveAll(List.of(older, newer));
 
         Map<String, JobDefinition> registry = new LinkedHashMap<>();
-        registry.put("quote-refresh", new JobDefinition("quote-refresh", "quote-refresh", () -> {}));
+        registry.put("list-job", new JobDefinition("list-job", "quote-refresh", () -> 0));
 
         List<JobSummaryResponse> jobs = service.listJobs(registry);
 
@@ -53,6 +61,65 @@ class JobAdminServiceTest {
         assertThat(jobs.getFirst().enabled()).isTrue();
         assertThat(jobs.getFirst().lastRun().status()).isEqualTo("FAILED");
         assertThat(jobs.getFirst().lastRun().id()).isEqualTo(newer.getId());
+    }
+
+    @Test
+    void updateEnabled_persistsRuntimeStateAndListUsesIt() {
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> 0);
+
+        JobSummaryResponse updated = service.updateEnabled(definition, false);
+
+        assertThat(updated.enabled()).isFalse();
+        assertThat(jobRuntimeSettingRepository.findById("quote-refresh")).hasValueSatisfying(setting ->
+                assertThat(setting.isEnabled()).isFalse());
+        assertThat(service.listJobs(Map.of("quote-refresh", definition)).getFirst().enabled()).isFalse();
+    }
+
+    @Test
+    void updateCron_validatesAndPersistsOverride() {
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> 0);
+
+        JobSummaryResponse updated = service.updateCron(definition, "0 0 4 * * *");
+
+        assertThat(updated.cronExpression()).isEqualTo("0 0 4 * * *");
+        assertThatThrownBy(() -> service.updateCron(definition, "not-a-cron"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void trigger_returnsPollableRunIdAndPersistsScope() throws Exception {
+        AtomicBoolean ran = new AtomicBoolean(false);
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> {
+            ran.set(true);
+            return 2;
+        });
+
+        JobTriggerResponse response = service.trigger(definition, new JobRunRequest("aapl, msft", "nasdaq", "quote"));
+
+        assertThat(response.status()).isEqualTo("triggered");
+        awaitCompleted(response.jobRunId());
+        JobRunStatusResponse status = service.runStatus(response.jobRunId()).orElseThrow();
+        assertThat(ran).isTrue();
+        assertThat(status.status()).isEqualTo("SUCCESS");
+        assertThat(status.recordsProcessed()).isEqualTo(2);
+        assertThat(status.totalSymbols()).isEqualTo(2);
+        assertThat(status.scopeSymbols()).isEqualTo("AAPL,MSFT");
+        assertThat(status.scopeExchange()).isEqualTo("NASDAQ");
+        assertThat(status.scopeDataTypes()).isEqualTo("QUOTE");
+    }
+
+    @Test
+    void trigger_disabledJobCreatesSkippedRun() {
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> 99);
+        service.updateEnabled(definition, false);
+
+        JobTriggerResponse response = service.trigger(definition, null);
+
+        JobRunStatusResponse status = service.runStatus(response.jobRunId()).orElseThrow();
+        assertThat(response.status()).isEqualTo("skipped");
+        assertThat(status.status()).isEqualTo("SKIPPED");
+        assertThat(status.recordsProcessed()).isZero();
     }
 
     @Test
@@ -91,6 +158,17 @@ class JobAdminServiceTest {
         event.setSource("yahoo");
         event.setOccurredAt(LocalDateTime.now());
         return event;
+    }
+
+    private void awaitCompleted(UUID runId) throws InterruptedException {
+        for (int attempt = 0; attempt < 20; attempt++) {
+            JobRunStatusResponse status = service.runStatus(runId).orElseThrow();
+            if (!"RUNNING".equals(status.status())) {
+                return;
+            }
+            Thread.sleep(50);
+        }
+        throw new AssertionError("Timed out waiting for job run " + runId);
     }
 
     @TestConfiguration

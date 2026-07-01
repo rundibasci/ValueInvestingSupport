@@ -275,7 +275,7 @@
       </section>
 
       <section id="jobs-panel" class="admin-only" data-msg="Login as ADMIN to access this section">
-        <h3>Job Trigger</h3>
+        <h3>Job Control</h3>
         <div class="field">
           <label>Job Name</label>
           <select id="job-name">
@@ -288,7 +288,28 @@
             <option value="insider-trading">insider-trading</option>
           </select>
         </div>
+        <div class="field">
+          <label>Scoped Symbols</label>
+          <input id="job-symbols" type="text" placeholder="AAPL,MSFT" style="text-transform:uppercase">
+        </div>
+        <div class="field">
+          <label>Exchange</label>
+          <input id="job-exchange" type="text" placeholder="NASDAQ" style="text-transform:uppercase">
+        </div>
+        <div class="field">
+          <label>Data Types</label>
+          <input id="job-data-types" type="text" placeholder="profile,quote" style="text-transform:uppercase">
+        </div>
+        <div class="field">
+          <label>Cron Override</label>
+          <input id="job-cron" type="text" placeholder="0 0 2 * * *">
+        </div>
+        <button id="job-list-btn">Load Jobs</button>
+        <button id="job-enable-btn">Enable</button>
+        <button id="job-disable-btn" class="danger">Disable</button>
+        <button id="job-cron-btn">Update Cron</button>
         <button id="job-btn">Trigger Job</button>
+        <button id="job-status-btn">Poll Last Run</button>
         <div class="result" id="job-result"></div>
         <details><summary>Raw JSON</summary><pre id="job-raw"></pre></details>
       </section>
@@ -660,6 +681,76 @@
       }
     });
 
+    let lastJobRunId = null;
+
+    async function jobApi(method, path, body = null) {
+      const res = await apiCall(method, path, body);
+      let data = {};
+      try { data = await res.json(); } catch { /* no body */ }
+      return { res, data };
+    }
+
+    document.getElementById('job-list-btn').addEventListener('click', async () => {
+      const result = document.getElementById('job-result');
+      const raw = document.getElementById('job-raw');
+      result.innerHTML = '<span style="color:var(--muted)">Loading...</span>';
+      try {
+        const { res, data } = await jobApi('GET', '/api/v1/admin/jobs');
+        raw.textContent = JSON.stringify(data, null, 2);
+        if (!res.ok) {
+          result.innerHTML = `<span class="err">Error ${res.status}: ${data.message || data.error || JSON.stringify(data)}</span>`;
+          return;
+        }
+        result.innerHTML = `<table><thead><tr><th>Job</th><th>Enabled</th><th>Cron</th><th>Last</th></tr></thead><tbody>${
+          data.map(job => `<tr><td>${job.jobName}</td><td>${job.enabled}</td><td>${job.cronExpression}</td><td>${job.lastRun?.status || '-'}</td></tr>`).join('')
+        }</tbody></table>`;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
+    async function updateJobSetting(method, path, body) {
+      const jobName = document.getElementById('job-name').value;
+      const result = document.getElementById('job-result');
+      const raw = document.getElementById('job-raw');
+      result.innerHTML = '<span style="color:var(--muted)">Updating...</span>';
+      try {
+        const { res, data } = await jobApi(method, `/api/v1/admin/jobs/${encodeURIComponent(jobName)}${path}`, body);
+        raw.textContent = JSON.stringify(data, null, 2);
+        result.innerHTML = res.ok
+          ? `<span class="ok">Job <strong>${jobName}</strong> updated.</span>`
+          : `<span class="err">Error ${res.status}: ${data.message || data.error || JSON.stringify(data)}</span>`;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    }
+
+    document.getElementById('job-enable-btn').addEventListener('click', () =>
+      updateJobSetting('PUT', '/enabled', { enabled: true }));
+    document.getElementById('job-disable-btn').addEventListener('click', () =>
+      updateJobSetting('PUT', '/enabled', { enabled: false }));
+    document.getElementById('job-cron-btn').addEventListener('click', () =>
+      updateJobSetting('PUT', '/cron', { cron: document.getElementById('job-cron').value }));
+
+    document.getElementById('job-status-btn').addEventListener('click', async () => {
+      const result = document.getElementById('job-result');
+      const raw = document.getElementById('job-raw');
+      if (!lastJobRunId) {
+        result.innerHTML = '<span class="err">No triggered run to poll.</span>';
+        return;
+      }
+      result.innerHTML = '<span style="color:var(--muted)">Polling...</span>';
+      try {
+        const { res, data } = await jobApi('GET', `/api/v1/admin/jobs/runs/${encodeURIComponent(lastJobRunId)}/status`);
+        raw.textContent = JSON.stringify(data, null, 2);
+        result.innerHTML = res.ok
+          ? `<span class="ok">Run ${data.jobRunId}: ${data.status}, processed ${data.recordsProcessed ?? 0}, errors ${data.errorCount}</span>`
+          : `<span class="err">Error ${res.status}: ${data.message || data.error || JSON.stringify(data)}</span>`;
+      } catch (e) {
+        result.innerHTML = `<span class="err">${e.message === 'SESSION_EXPIRED' ? 'Session expired.' : `Network error: ${e.message}`}</span>`;
+      }
+    });
+
     // Job trigger
     document.getElementById('job-btn').addEventListener('click', async () => {
       const jobName = document.getElementById('job-name').value;
@@ -667,9 +758,14 @@
       const raw     = document.getElementById('job-raw');
       result.innerHTML = '<span style="color:var(--muted)">Triggering…</span>';
       try {
-        const res  = await apiCall('POST', `/api/v1/admin/jobs/${encodeURIComponent(jobName)}/run`);
+        const res  = await apiCall('POST', `/api/v1/admin/jobs/${encodeURIComponent(jobName)}/run`, {
+          symbols: document.getElementById('job-symbols').value || null,
+          exchange: document.getElementById('job-exchange').value || null,
+          dataTypes: document.getElementById('job-data-types').value || null
+        });
         let data = {};
         try { data = await res.json(); } catch { /* 202 may have no body */ }
+        if (data.jobRunId) lastJobRunId = data.jobRunId;
         raw.textContent = JSON.stringify(data, null, 2);
         if (res.status === 202 || res.ok) {
           result.innerHTML = `<span class="ok">Job <strong>${jobName}</strong> triggered. Status: ${data.status || 'triggered'}</span>`;
