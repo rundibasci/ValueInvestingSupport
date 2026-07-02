@@ -1,0 +1,49 @@
+﻿{
+    "mode":  "dry-run",
+    "baseUrl":  "http://localhost:8080",
+    "symbols":  [
+                    "BRK.B",
+                    "JNJ",
+                    "PG",
+                    "KO",
+                    "PEP",
+                    "WMT",
+                    "MSFT",
+                    "ADP",
+                    "UNP",
+                    "XOM"
+                ],
+    "watchlistSymbols":  [
+                             {
+                                 "Symbol":  "PG",
+                                 "MonitoringReason":  "WAIT_FOR_BETTER_PRICE",
+                                 "Rationale":  "Defensive consumer staples candidate; monitor for better margin of safety and complete valuation coverage."
+                             },
+                             {
+                                 "Symbol":  "KO",
+                                 "MonitoringReason":  "WAIT_FOR_BETTER_PRICE",
+                                 "Rationale":  "High-quality brand profile; keep on watchlist until valuation and data-quality evidence support deeper review."
+                             },
+                             {
+                                 "Symbol":  "JNJ",
+                                 "MonitoringReason":  "DATA_QUALITY_GAP",
+                                 "Rationale":  "Defensive health care candidate; track source coverage, freshness, and dividend sustainability before decisions."
+                             },
+                             {
+                                 "Symbol":  "MSFT",
+                                 "MonitoringReason":  "VALUATION_CONCERN",
+                                 "Rationale":  "Strong business quality signal; monitor for valuation discipline and concentration impact."
+                             }
+                         ],
+    "plannedEvidence":  [
+                            "seed-results.json",
+                            "review-summary.json",
+                            "equal-weight-portfolio.json",
+                            "equal-weight-portfolio-detail.json",
+                            "oversized-concentration-portfolio.json",
+                            "oversized-concentration-detail.json",
+                            "watchlist-reload.json",
+                            "replay-summary.md"
+                        ],
+    "note":  "Dry run only. Start the local backend and rerun without -SkipLiveApi for live evidence. This replay is decision-support workflow evidence, not investment advice."
+}
