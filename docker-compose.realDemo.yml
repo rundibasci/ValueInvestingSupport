@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vis
+      POSTGRES_USER: vis
+      POSTGRES_PASSWORD: vis
+    ports:
+      - "5432:5432"
+    volumes:
+      - real_demo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vis -d vis"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: realDemo
+      DATABASE_URL: jdbc:postgresql://postgres:5432/vis
+      DATABASE_USERNAME: vis
+      DATABASE_PASSWORD: vis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MARKET_DATA_SOURCE: yahoo
+      REAL_DEMO_TICKERS: ${REAL_DEMO_TICKERS:-AAPL,MSFT,KO,JNJ,PG,PEP,WMT,BRK-B,UNP,XOM}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  real_demo_postgres_data:
