@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- L4: Conservative workflow API with deterministic preset metadata, empty-state diagnostics that preserve active criteria, and Agent 1 selected-symbol comparison across valuation, score, quality, resilience, growth, dividend, and source/data coverage.
+- L4: Screener conservative preset controls, conservative criteria summary, empty-state diagnostic rendering, and Agent 1 comparison table while retaining decision-support language.
+- L4: Feature specifications and replay evidence under `specs/2026-07-02-l4-conservative-workflow-enhancements/`, with focused backend tests, frontend typecheck, and production build validation passing.
 - L3: Availability diagnostics API with deterministic examples for every shared status (`AVAILABLE`, `STALE`, `PENDING`, `PROVIDER_LIMITED`, `MISSING_SEEDED_HISTORY`, `MISSING_INTERNAL_COMPUTATION`, and `GUARDRAIL_BLOCKED`), plus focused backend tests.
 - L3: Shared frontend availability status mapping used by screener and review badges, with an in-depth review diagnostics panel explaining conservative interpretations without advice language.
 - L3: Feature specifications under `specs/2026-07-02-l3-availability-status-examples-diagnostics/`, with focused backend tests, frontend typecheck, and production build validation passing.

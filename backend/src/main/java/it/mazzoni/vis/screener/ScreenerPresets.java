@@ -40,4 +40,15 @@ public final class ScreenerPresets {
             null, null,
             "totalScore", "DESC", 0, 20
     );
+
+    public static final ScreenerRequest CONSERVATIVE = new ScreenerRequest(
+            null, null,
+            new BigDecimal("15"), null,
+            new BigDecimal("60"),
+            new BigDecimal("10"), new BigDecimal("1.0"),
+            new BigDecimal("1.5"), BigDecimal.ZERO,
+            7, null, "SAFE",
+            "WIDE", "NET_BUYBACK",
+            "totalScore", "DESC", 0, 20
+    );
 }

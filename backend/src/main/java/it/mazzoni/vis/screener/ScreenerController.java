@@ -38,7 +38,8 @@ public class ScreenerController {
         return ResponseEntity.ok(Map.of(
                 "graham",   ScreenerPresets.GRAHAM,
                 "dividend", ScreenerPresets.DIVIDEND,
-                "quality",  ScreenerPresets.QUALITY
+                "quality",  ScreenerPresets.QUALITY,
+                "conservative", ScreenerPresets.CONSERVATIVE
         ));
     }
 
