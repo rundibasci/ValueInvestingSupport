@@ -46,6 +46,11 @@ type Result = {
 }
 type Response = { results: Result[]; page: number; pageSize: number; totalElements: number; totalPages: number }
 type Presets = Record<string, Partial<QueryState>>
+type ConservativeCriterion = { key: string; label: string; currentValue: string; whyItMatters: string; relaxation: string }
+type ConservativePreset = { name: string; description: string; criteria: Partial<QueryState>; criteriaSummary: ConservativeCriterion[]; decisionSupportNote: string }
+type ConservativeEmptyStateDiagnostic = { likelyEliminators: ConservativeCriterion[]; suggestedRelaxations: string[]; currentCriteriaPreserved: boolean; decisionSupportNote: string }
+type ComparisonMetric = { group: string; label: string; value: string; availabilityStatus: string; coverageNote: string }
+type ComparisonRow = { symbol: string; companyName: string; metrics: ComparisonMetric[] }
 
 const emptyFilters: Filters = {
   sector: '',
@@ -145,11 +150,18 @@ export function ScreenerPage(): JSX.Element {
   const sectors = useQuery({ queryKey: ['screener', 'sectors'], queryFn: () => getJson<string[]>('/api/v1/screener/sectors') })
   const exchanges = useQuery({ queryKey: ['screener', 'exchanges'], queryFn: () => getJson<string[]>('/api/v1/screener/exchanges') })
   const presets = useQuery({ queryKey: ['screener', 'presets'], queryFn: () => getJson<Presets>('/api/v1/screener/presets') })
+  const conservativePreset = useQuery({ queryKey: ['conservative-workflow', 'preset'], queryFn: () => getJson<ConservativePreset>('/api/v1/conservative-workflow/preset') })
+  const comparison = useQuery({ queryKey: ['conservative-workflow', 'agent-one-comparison'], queryFn: () => getJson<ComparisonRow[]>('/api/v1/conservative-workflow/agent-one-comparison') })
   const competence = useQuery({ queryKey: ['competence-preferences'], queryFn: professionalApi.competence, retry: false })
   const results = useQuery({
     queryKey: ['screener', 'results', query],
     queryFn: () => getJson<Response>('/api/v1/screener', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serialise(query)) }),
     placeholderData: (previous) => previous,
+  })
+  const emptyStateDiagnostics = useQuery({
+    queryKey: ['conservative-workflow', 'empty-state-diagnostics', query],
+    queryFn: () => getJson<ConservativeEmptyStateDiagnostic>('/api/v1/conservative-workflow/empty-state-diagnostics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serialise(query)) }),
+    enabled: Boolean(results.data && results.data.results.length === 0),
   })
   const activeFilterCount = useMemo(() => Object.values(filters).filter((value) => value !== '').length, [filters])
   const update = (field: keyof Filters, value: string) => setFilters((current) => ({ ...current, [field]: value }))
@@ -225,9 +237,29 @@ export function ScreenerPage(): JSX.Element {
             <p className="mt-1 text-sm text-slate-400">Apply your own discipline or begin with a research preset.</p>
             {competence.data?.preferredSectors.length ? <p className="mt-2 text-xs text-amber-100">Rows outside your marked sectors are labelled in the results table.</p> : null}
           </div>
-          <div className="flex flex-wrap gap-2">{['graham', 'dividend', 'quality'].map((preset) => <button key={preset} type="button" disabled={presets.isLoading || !presets.data?.[preset]} onClick={() => usePreset(preset)} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium capitalize text-emerald-200 transition hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50">{preset}</button>)}</div>
+          <div className="flex flex-wrap gap-2">{['graham', 'dividend', 'quality', 'conservative'].map((preset) => <button key={preset} type="button" disabled={presets.isLoading || !presets.data?.[preset]} onClick={() => usePreset(preset)} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium capitalize text-emerald-200 transition hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50">{preset}</button>)}</div>
         </div>
         {presets.isError && <p role="alert" className="mt-3 text-sm text-amber-200">Research presets are unavailable right now.</p>}
+        {conservativePreset.data && (
+          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+            <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
+              <div>
+                <p className="text-sm font-semibold text-white">Conservative preset</p>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">{conservativePreset.data.description}</p>
+              </div>
+              <button type="button" onClick={() => usePreset('conservative')} className="w-fit rounded-lg bg-emerald-400 px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300">Apply preset</button>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {conservativePreset.data.criteriaSummary.map((criterion) => (
+                <div key={criterion.key} className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+                  <p className="text-sm font-semibold text-slate-100">{criterion.label}</p>
+                  <p className="mt-1 text-xs font-medium text-emerald-200">{criterion.currentValue}</p>
+                  <p className="mt-2 text-xs leading-5 text-slate-400">{criterion.whyItMatters}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <form className="mt-6 space-y-5" onSubmit={apply}>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <label className="block text-sm font-medium text-slate-200">Sector<select value={filters.sector} onChange={(event) => update('sector', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">All sectors</option>{sectors.data?.map((sector) => <option key={sector} value={sector}>{sector}</option>)}</select></label>
@@ -267,7 +299,36 @@ export function ScreenerPage(): JSX.Element {
         ) : results.isLoading ? (
           <div className="p-12 text-center text-slate-400">Loading screening data...</div>
         ) : results.data?.results.length === 0 ? (
-          <div className="p-12 text-center"><p className="text-lg font-medium text-white">No companies match these criteria.</p><p className="mt-2 text-sm text-slate-400">Try widening a filter or reset the screen.</p><button type="button" onClick={reset} className="mt-4 text-sm font-semibold text-emerald-300 underline">Reset filters</button></div>
+          <div className="p-6 sm:p-8">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="text-lg font-medium text-white">No companies match these criteria.</p>
+              <p className="mt-2 text-sm text-slate-400">The current criteria are still preserved. Review which filters may be narrowing the universe before changing them.</p>
+              <button type="button" onClick={reset} className="mt-4 text-sm font-semibold text-emerald-300 underline">Reset filters</button>
+            </div>
+            {emptyStateDiagnostics.data && (
+              <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                  <h3 className="text-sm font-semibold text-white">Likely filter pressure</h3>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {emptyStateDiagnostics.data.likelyEliminators.map((criterion) => (
+                      <div key={criterion.key} className="rounded-lg border border-slate-800 bg-slate-900/60 p-3 text-left">
+                        <p className="text-sm font-semibold text-slate-100">{criterion.label}</p>
+                        <p className="mt-1 text-xs font-medium text-emerald-200">{criterion.currentValue}</p>
+                        <p className="mt-2 text-xs leading-5 text-slate-400">{criterion.relaxation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-left">
+                  <h3 className="text-sm font-semibold text-white">Research relaxations</h3>
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                    {emptyStateDiagnostics.data.suggestedRelaxations.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                  <p className="mt-4 text-xs leading-5 text-slate-500">{emptyStateDiagnostics.data.decisionSupportNote}</p>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -308,6 +369,43 @@ export function ScreenerPage(): JSX.Element {
               </div>
             </div>
           </>
+        )}
+      </section>
+
+      <section aria-labelledby="agent-one-comparison-heading" className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
+        <div className="border-b border-slate-800 px-5 py-5 sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">Conservative workflow</p>
+          <h2 id="agent-one-comparison-heading" className="mt-2 text-lg font-semibold text-white">Agent 1 selected-symbol comparison</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">Compare the validation symbols across valuation, score, quality, resilience, growth, dividend, and source coverage before opening individual review packets.</p>
+        </div>
+        {comparison.isLoading ? (
+          <div className="p-8 text-sm text-slate-400">Loading comparison evidence...</div>
+        ) : comparison.isError ? (
+          <div className="m-6 rounded-xl border border-amber-300/30 bg-amber-300/5 p-4 text-sm text-amber-100">Comparison evidence is unavailable right now.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-[1200px] w-full border-collapse text-sm">
+              <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
+                <tr><th className="px-4 py-3 text-left">Symbol</th><th className="px-4 py-3 text-left">Valuation</th><th className="px-4 py-3 text-left">Score</th><th className="px-4 py-3 text-left">Quality</th><th className="px-4 py-3 text-left">Resilience</th><th className="px-4 py-3 text-left">Growth</th><th className="px-4 py-3 text-left">Dividend</th><th className="px-4 py-3 text-left">Coverage</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {comparison.data?.map((row) => {
+                  const byGroup = Object.fromEntries(row.metrics.map((metric) => [metric.group, metric]))
+                  return (
+                    <tr key={row.symbol} className="text-slate-200">
+                      <td className="px-4 py-4"><span className="block font-semibold text-white">{row.symbol}</span><span className="text-xs text-slate-500">{row.companyName}</span></td>
+                      {['valuation', 'score', 'quality', 'resilience', 'growth', 'dividend', 'coverage'].map((group) => (
+                        <td key={group} className="px-4 py-4">
+                          <span className="block font-medium text-slate-100">{byGroup[group]?.value ?? '-'}</span>
+                          <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${availabilityClass(byGroup[group]?.availabilityStatus)}`}>{statusText(byGroup[group]?.availabilityStatus)}</span>
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
       <p className="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-xs leading-5 text-slate-400">This screener is decision-support software, not personalised investment advice. Fair value and scoring are model outputs based on available data; review the underlying research before acting.</p>
