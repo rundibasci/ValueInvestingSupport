@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- L2: Conservative portfolio review pack on the portfolio page with holding/sector evidence, weighted MoS, valuation availability, missing validation checks, watchlist rationale coverage, data-quality blockers, quality-versus-negative-MoS conflict notes, and browser-print journal summary.
+- L2: Feature specifications under `specs/2026-07-02-l2-conservative-portfolio-review-pack/`, with frontend typecheck and production build validation passing.
 - L1: Prudent persona replay pack with deterministic PowerShell dry-run/live runner, redacted evidence output, Agent 1 10-symbol review capture, portfolio concentration checks, watchlist rationale persistence checks, and backend Maven suite passing with 341 tests.
 - L1: Feature specifications under `specs/2026-07-02-l1-prudent-persona-replay-pack/`, with dry-run replay validation and decision-support boundary notes.
 - RD1-2: Agent 1 real-demo walkthrough evidence package with stakeholder report, screenshot manifest, deterministic PowerShell replay runner, redacted dry-run artifact output, and decision-support boundary notes.
