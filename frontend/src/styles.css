@@ -26,3 +26,50 @@ a {
 .login-canvas {
   background: radial-gradient(circle at 12% 15%, rgba(52, 211, 153, .12), transparent 32%), #020617;
 }
+
+@media print {
+  body {
+    background: #ffffff;
+    color: #111827;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .review-pack,
+  .review-pack * {
+    visibility: visible;
+  }
+
+  .review-pack {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    border: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  .review-pack table {
+    border-collapse: collapse;
+  }
+
+  .review-pack th,
+  .review-pack td {
+    border-bottom: 1px solid #d1d5db;
+    color: #111827 !important;
+  }
+
+  .review-pack h2,
+  .review-pack h3,
+  .review-pack p,
+  .review-pack span,
+  .review-pack li {
+    color: #111827 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
