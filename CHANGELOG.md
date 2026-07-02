@@ -6,6 +6,9 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- L3: Availability diagnostics API with deterministic examples for every shared status (`AVAILABLE`, `STALE`, `PENDING`, `PROVIDER_LIMITED`, `MISSING_SEEDED_HISTORY`, `MISSING_INTERNAL_COMPUTATION`, and `GUARDRAIL_BLOCKED`), plus focused backend tests.
+- L3: Shared frontend availability status mapping used by screener and review badges, with an in-depth review diagnostics panel explaining conservative interpretations without advice language.
+- L3: Feature specifications under `specs/2026-07-02-l3-availability-status-examples-diagnostics/`, with focused backend tests, frontend typecheck, and production build validation passing.
 - L2: Conservative portfolio review pack on the portfolio page with holding/sector evidence, weighted MoS, valuation availability, missing validation checks, watchlist rationale coverage, data-quality blockers, quality-versus-negative-MoS conflict notes, and browser-print journal summary.
 - L2: Feature specifications under `specs/2026-07-02-l2-conservative-portfolio-review-pack/`, with frontend typecheck and production build validation passing.
 - L1: Prudent persona replay pack with deterministic PowerShell dry-run/live runner, redacted evidence output, Agent 1 10-symbol review capture, portfolio concentration checks, watchlist rationale persistence checks, and backend Maven suite passing with 341 tests.
