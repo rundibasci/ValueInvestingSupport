@@ -1,0 +1,86 @@
+﻿{
+    "mode":  "dry-run",
+    "baseUrl":  "http://localhost:8080",
+    "symbols":  [
+                    "AAPL",
+                    "KO",
+                    "JNJ",
+                    "PG",
+                    "MSFT"
+                ],
+    "steps":  [
+                  {
+                      "name":  "Admin login",
+                      "method":  "POST",
+                      "path":  "/auth/login",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Investor login",
+                      "method":  "POST",
+                      "path":  "/auth/login",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Backend health",
+                      "method":  "GET",
+                      "path":  "/actuator/health",
+                      "role":  "public"
+                  },
+                  {
+                      "name":  "Dashboard summary",
+                      "method":  "GET",
+                      "path":  "/api/v1/dashboard",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Screener conservative evidence",
+                      "method":  "POST",
+                      "path":  "/api/v1/screener",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "AAPL security detail",
+                      "method":  "GET",
+                      "path":  "/api/v1/securities/AAPL",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "KO review packet",
+                      "method":  "GET",
+                      "path":  "/api/v1/securities/KO/review",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Watchlist",
+                      "method":  "GET",
+                      "path":  "/api/v1/watchlist",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Portfolio list",
+                      "method":  "GET",
+                      "path":  "/api/v1/portfolios",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Job definitions",
+                      "method":  "GET",
+                      "path":  "/api/v1/admin/jobs",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Job run history",
+                      "method":  "GET",
+                      "path":  "/api/v1/admin/jobs/runs",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Account",
+                      "method":  "GET",
+                      "path":  "/api/v1/account",
+                      "role":  "investor"
+                  }
+              ],
+    "note":  "Dry run only. Start docker compose -f docker-compose.realDemo.yml up --build and rerun without -SkipLiveApi for live evidence."
+}

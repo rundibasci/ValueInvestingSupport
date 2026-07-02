@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RD1-2: Agent 1 real-demo walkthrough evidence package with stakeholder report, screenshot manifest, deterministic PowerShell replay runner, redacted dry-run artifact output, and decision-support boundary notes.
+- RD1-2: Feature specifications under `specs/2026-07-02-rd1-agent-1-full-feature-walkthrough/`, with replay dry-run validation, frontend production build, and backend Maven suite passing with 341 tests.
 - RD1-1: Real demo Yahoo Finance startup profile with curated ticker ingestion, admin and investor demo users, investor watchlist coverage for refresh jobs, startup job-run logging, ingestion events, and Docker Compose packaging.
 - RD1-1: Feature specifications under `specs/2026-07-02-rd1-yahoo-finance-startup-ingestion-profile/`, real demo guide, focused real-demo tests, backend Maven suite passing with 341 tests, and frontend production build validation.
 - SC2: Universe Curation React workflow with SC1 template loading, criteria filter builder, preview table, capped warning display, active workflow summary, criteria-based seed action, and per-symbol seed result handoff links.
