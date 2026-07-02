@@ -18,6 +18,7 @@ import { apiFetch } from '../api/client'
 import { portfolioApi, type Portfolio } from '../api/portfolio'
 import { professionalApi, type ChecklistEvaluation, type Confidence, type Verification } from '../api/professional'
 import { watchlistApi } from '../api/watchlist'
+import { availabilityClass, availabilityLabel } from '../lib/availability'
 
 type Detail = {
   symbol: string
@@ -70,6 +71,7 @@ type FreshnessItem = { category: string; dataAsOf: string | null; status: string
 type Availability = { status: string; reason: string; dataAsOf: string | null }
 type AvailabilityItem = { category: string; state: Availability }
 type DataQualityNote = { category: string; severity: string; message: string }
+type AvailabilityDiagnostic = { status: string; exampleCategory: string; exampleReason: string; surfaces: string[]; conservativeInterpretation: string; decisionSupportNote: string }
 type Review = {
   symbol: string
   detail: Detail
@@ -229,10 +231,27 @@ function ProfessionalReviewPanel({
 
 function AvailabilityBadge({ state }: { state?: Availability | null }): JSX.Element {
   const status = state?.status || 'MISSING_INTERNAL_COMPUTATION'
-  const ok = status === 'AVAILABLE'
-  const warn = status === 'STALE' || status === 'GUARDRAIL_BLOCKED'
-  const classes = ok ? 'bg-emerald-300/15 text-emerald-100' : warn ? 'bg-amber-300/15 text-amber-100' : 'bg-slate-700 text-slate-200'
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{status.replace(/_/g, ' ').toLowerCase()}</span>
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${availabilityClass(status)}`}>{availabilityLabel(status)}</span>
+}
+
+function AvailabilityDiagnosticsPanel({ diagnostics }: { diagnostics?: AvailabilityDiagnostic[] }): JSX.Element {
+  if (!diagnostics?.length) return <DataGap>Availability diagnostics are unavailable. Existing status badges still show local endpoint evidence.</DataGap>
+  return (
+    <div className="mt-5 grid gap-3 lg:grid-cols-2">
+      {diagnostics.map((item) => (
+        <div key={item.status} className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${availabilityClass(item.status)}`}>{availabilityLabel(item.status)}</span>
+            <span className="text-xs uppercase tracking-wide text-slate-500">{item.exampleCategory}</span>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-300">{item.exampleReason}</p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">{item.conservativeInterpretation}</p>
+          <p className="mt-2 text-xs leading-5 text-amber-100">{item.decisionSupportNote}</p>
+          <p className="mt-2 text-xs text-slate-500">Surfaces: {item.surfaces.join(', ')}</p>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function StatusPill({ value }: { value: string | null | undefined }): JSX.Element {
@@ -858,6 +877,7 @@ export function SecurityReviewPage(): JSX.Element {
   const verification = useQuery({ queryKey: ['professional-verification', symbol], enabled: !!symbol, queryFn: () => professionalApi.verification(symbol), retry: false })
   const checklists = useQuery({ queryKey: ['checklists'], queryFn: professionalApi.checklists, retry: false })
   const competence = useQuery({ queryKey: ['competence-preferences'], queryFn: professionalApi.competence, retry: false })
+  const availabilityDiagnostics = useQuery({ queryKey: ['availability-diagnostics'], queryFn: () => json<AvailabilityDiagnostic[]>('/api/v1/availability/diagnostics'), retry: false })
   const queryClient = useQueryClient()
   const addWatchlist = useMutation({
     mutationFn: () => watchlistApi.add(symbol, { mosAlertMin: null, mosAlertMax: null, fundamentalDegradeThreshold: null, monitoringReason: 'WAIT_FOR_BETTER_PRICE', rationaleNote: 'Added from the review page for continued monitoring.' }),
@@ -946,6 +966,7 @@ export function SecurityReviewPage(): JSX.Element {
           <CoverageGrid coverage={review.data.sourceCoverage} freshness={review.data.freshness} />
           {review.data.availability.length > 0 && <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{review.data.availability.map((item) => <div key={item.category} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{item.category}</span><div className="mt-2"><AvailabilityBadge state={item.state} /></div><p className="mt-2 text-xs leading-5 text-slate-500">{item.state.reason}</p></div>)}</div>}
           <DataGap>Provider labels are shown where the backend has stored provider metadata. Otherwise the endpoint reports application data availability without inferring a provider.</DataGap>
+          <AvailabilityDiagnosticsPanel diagnostics={availabilityDiagnostics.data} />
         </Section>
 
         <Section id="valuation" title="Valuation And Margin Of Safety" aside={<span className="rounded-full bg-amber-300/10 px-3 py-1 text-xs font-semibold text-amber-100">Decision support</span>}>

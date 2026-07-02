@@ -4,6 +4,7 @@ import type { FormEvent, KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api/client'
 import { professionalApi } from '../api/professional'
+import { availabilityClass, availabilityLabel } from '../lib/availability'
 
 type SortField = 'totalScore' | 'marginOfSafety' | 'symbol' | 'companyName' | 'sector' | 'exchange'
 type SortDirection = 'ASC' | 'DESC'
@@ -110,12 +111,6 @@ function statusClass(value: number | null): string {
   return 'bg-rose-400/15 text-rose-100 ring-1 ring-rose-300/25'
 }
 
-function availabilityClass(status: string | null | undefined): string {
-  if (status === 'AVAILABLE') return 'bg-emerald-300/15 text-emerald-100'
-  if (status === 'STALE' || status === 'GUARDRAIL_BLOCKED') return 'bg-amber-300/15 text-amber-100'
-  return 'bg-slate-700 text-slate-200'
-}
-
 function zoneClass(zone: string | null | undefined): string {
   if (zone === 'SAFE') return 'bg-emerald-300/15 text-emerald-100'
   if (zone === 'GREY') return 'bg-amber-300/15 text-amber-100'
@@ -130,7 +125,7 @@ function qualityClass(value: string | null | undefined): string {
 }
 
 function statusText(value: string | null | undefined): string {
-  return (value || 'MISSING_INTERNAL_COMPUTATION').replace(/_/g, ' ').toLowerCase()
+  return availabilityLabel(value)
 }
 
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }): JSX.Element {
