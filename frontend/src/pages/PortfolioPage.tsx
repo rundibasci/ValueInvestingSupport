@@ -3,14 +3,17 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
 import { professionalApi } from "../api/professional";
+import { watchlistApi, type WatchlistItem } from "../api/watchlist";
 import { useAuth } from "../auth/AuthProvider";
 import {
   portfolioApi,
   type BenchmarkComparison,
+  type Holding,
   type HoldingConcentration,
   type LiquidityResult,
   type Portfolio,
   type PortfolioAnalytics,
+  type PortfolioDetail,
   type Simulation,
   type SimulationInput,
 } from "../api/portfolio";
@@ -472,6 +475,214 @@ function AnalyticsDashboard({
   );
 }
 
+function ConservativeReviewPack({
+  portfolio,
+  analytics,
+  watchlist,
+}: {
+  portfolio: PortfolioDetail;
+  analytics: PortfolioAnalytics | undefined;
+  watchlist: WatchlistItem[];
+}): JSX.Element {
+  const watchlistBySymbol = new Map(
+    watchlist.map((item) => [item.symbol.toUpperCase(), item]),
+  );
+  const sectorWeights =
+    analytics?.sectorWeights ??
+    portfolio.holdings.reduce<Record<string, number>>((weights, holding) => {
+      const key = holding.sector ?? "Sector missing";
+      weights[key] = (weights[key] ?? 0) + (holding.weightPercent ?? 0);
+      return weights;
+    }, {});
+  const validationFindings = portfolio.holdings.flatMap((holding) =>
+    conservativeFindings(holding),
+  );
+  const rationaleCovered = portfolio.holdings.filter((holding) => {
+    const item = watchlistBySymbol.get(holding.symbol.toUpperCase());
+    return Boolean(item?.monitoringReason || item?.rationaleNote);
+  }).length;
+  const qualitySignals =
+    (analytics?.moatProfile.widePercent ?? 0) +
+      (analytics?.moatProfile.narrowPercent ?? 0) >
+      0 ||
+    (analytics?.qualityDistribution.averageRoic ?? 0) >= 12;
+  const qualityConflicts = portfolio.holdings.filter(
+    (holding) => qualitySignals && (holding.marginOfSafety ?? 0) < 0,
+  );
+
+  return (
+    <section className="review-pack rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">
+            Conservative review
+          </p>
+          <h2 className="mt-2 text-xl font-semibold text-white">
+            Portfolio review pack
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">
+            Journal-style evidence for portfolio concentration, data coverage,
+            valuation availability, and watchlist rationale. This is
+            decision-support only and does not prescribe an investment action.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="no-print rounded-lg border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-100 hover:bg-emerald-400/10"
+        >
+          Print journal summary
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricTile labelText="Holdings" value={`${portfolio.holdings.length}`} />
+        <MetricTile
+          labelText="Weighted MoS"
+          value={percent(
+            analytics?.weightedMetrics.marginOfSafety ?? portfolio.weightedMoS,
+          )}
+        />
+        <MetricTile
+          labelText="Rationale coverage"
+          value={`${rationaleCovered}/${portfolio.holdings.length}`}
+          helper="Holdings with watchlist reason or note"
+        />
+        <MetricTile
+          labelText="Incomplete checks"
+          value={`${validationFindings.length}`}
+          helper="Missing price, sector, score, or valuation status"
+        />
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_20rem]">
+        <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
+          <table className="w-full min-w-[64rem] text-left text-sm">
+            <thead className="bg-slate-950/60 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Holding</th>
+                <th>Weight</th>
+                <th>Sector</th>
+                <th>Price</th>
+                <th>MoS</th>
+                <th>Valuation</th>
+                <th>Score</th>
+                <th>Rationale</th>
+                <th>Validation</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {portfolio.holdings.map((holding) => {
+                const watchItem = watchlistBySymbol.get(
+                  holding.symbol.toUpperCase(),
+                );
+                const findings = conservativeFindings(holding);
+                return (
+                  <tr key={holding.id} className="align-top">
+                    <td className="px-4 py-3 font-semibold text-emerald-300">
+                      {holding.symbol}
+                    </td>
+                    <td>{percent(holding.weightPercent)}</td>
+                    <td>{holding.sector ?? "Missing"}</td>
+                    <td>{money(holding.currentPrice)}</td>
+                    <td>{percent(holding.marginOfSafety)}</td>
+                    <td>
+                      <StatusChip value={holding.valueStatus} />
+                    </td>
+                    <td>
+                      <StatusChip value="not reported by holding API" />
+                    </td>
+                    <td className="max-w-[14rem] text-xs leading-5 text-slate-400">
+                      {watchItem?.rationaleNote ||
+                        (watchItem?.monitoringReason
+                          ? label(watchItem.monitoringReason)
+                          : null) ||
+                        "No watchlist rationale linked"}
+                    </td>
+                    <td className="max-w-[16rem] text-xs leading-5 text-slate-300">
+                      {findings.length ? findings.join("; ") : "Complete"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <aside className="space-y-4">
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <h3 className="font-semibold text-white">Sector weights</h3>
+            <div className="mt-4 space-y-3">
+              {Object.entries(sectorWeights).map(([sector, weight]) => (
+                <ProgressBar
+                  key={sector}
+                  labelText={sector}
+                  value={weight}
+                  tone={
+                    analytics?.sectorConcentrationFlags.includes(sector)
+                      ? "rose"
+                      : "blue"
+                  }
+                />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <h3 className="font-semibold text-white">Data-quality blockers</h3>
+            {validationFindings.length ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-amber-100">
+                {validationFindings.map((finding) => (
+                  <li key={finding}>{finding}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm text-slate-400">
+                No required validation blockers detected for the current
+                holdings.
+              </p>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      {qualityConflicts.length > 0 && (
+        <div className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4 text-sm leading-6 text-amber-100">
+          <h3 className="font-semibold text-amber-50">
+            Quality and valuation conflicts
+          </h3>
+          <p className="mt-2">
+            {qualityConflicts.map((holding) => holding.symbol).join(", ")} show
+            negative margin of safety while portfolio-level quality signals are
+            present. Review valuation assumptions before treating business
+            quality as sufficient evidence.
+          </p>
+        </div>
+      )}
+
+      <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950/50 p-4 text-sm leading-6 text-slate-300">
+        <h3 className="font-semibold text-white">Journal summary</h3>
+        <p className="mt-2">
+          Portfolio: {portfolio.name}. Current value:{" "}
+          {money(portfolio.totalValue)}. Concentration warnings:{" "}
+          {portfolio.concentrationWarnings.length || "none"}. Analytics
+          snapshot: {analytics?.capturedAt ?? "not available"}. This report
+          records available evidence and missing-data conditions for research
+          review; it is not personalised investment advice.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function conservativeFindings(holding: Holding): string[] {
+  const findings: string[] = [];
+  if (holding.currentPrice == null) findings.push(`${holding.symbol}: missing current price`);
+  if (!holding.sector) findings.push(`${holding.symbol}: missing sector`);
+  findings.push(`${holding.symbol}: score status not reported by holding API`);
+  if (!holding.valueStatus) findings.push(`${holding.symbol}: missing valuation status`);
+  return findings;
+}
+
 export function PortfolioPage(): JSX.Element {
   const { session } = useAuth();
   const client = useQueryClient();
@@ -512,6 +723,10 @@ export function PortfolioPage(): JSX.Element {
     queryKey: ["portfolio", activeId, "analytics"],
     queryFn: () => portfolioApi.analytics(activeId!),
     enabled: Boolean(activeId),
+  });
+  const watchlist = useQuery({
+    queryKey: ["watchlist"],
+    queryFn: watchlistApi.list,
   });
   const create = useMutation({
     mutationFn: () => portfolioApi.create(name, description),
@@ -855,6 +1070,14 @@ export function PortfolioPage(): JSX.Element {
             </section>
           )}
           <ErrorNotice error={analytics.error} />
+          {detail.data?.holdings?.length ? (
+            <ConservativeReviewPack
+              portfolio={detail.data}
+              analytics={analytics.data}
+              watchlist={watchlist.data ?? []}
+            />
+          ) : null}
+          <ErrorNotice error={watchlist.error} />
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <h2 className="text-xl font-semibold text-white">
