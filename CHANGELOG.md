@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- L1: Prudent persona replay pack with deterministic PowerShell dry-run/live runner, redacted evidence output, Agent 1 10-symbol review capture, portfolio concentration checks, watchlist rationale persistence checks, and backend Maven suite passing with 341 tests.
+- L1: Feature specifications under `specs/2026-07-02-l1-prudent-persona-replay-pack/`, with dry-run replay validation and decision-support boundary notes.
 - RD1-2: Agent 1 real-demo walkthrough evidence package with stakeholder report, screenshot manifest, deterministic PowerShell replay runner, redacted dry-run artifact output, and decision-support boundary notes.
 - RD1-2: Feature specifications under `specs/2026-07-02-rd1-agent-1-full-feature-walkthrough/`, with replay dry-run validation, frontend production build, and backend Maven suite passing with 341 tests.
 - RD1-1: Real demo Yahoo Finance startup profile with curated ticker ingestion, admin and investor demo users, investor watchlist coverage for refresh jobs, startup job-run logging, ingestion events, and Docker Compose packaging.
