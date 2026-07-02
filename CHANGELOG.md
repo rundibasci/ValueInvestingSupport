@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RD1-1: Real demo Yahoo Finance startup profile with curated ticker ingestion, admin and investor demo users, investor watchlist coverage for refresh jobs, startup job-run logging, ingestion events, and Docker Compose packaging.
+- RD1-1: Feature specifications under `specs/2026-07-02-rd1-yahoo-finance-startup-ingestion-profile/`, real demo guide, focused real-demo tests, backend Maven suite passing with 341 tests, and frontend production build validation.
 - SC2: Universe Curation React workflow with SC1 template loading, criteria filter builder, preview table, capped warning display, active workflow summary, criteria-based seed action, and per-symbol seed result handoff links.
 - SC2: Feature specifications under `specs/2026-07-02-sc2-universe-curation-ui/`, with frontend typecheck and production build validation passing.
 - SC1: Universe selection API with admin templates, criteria-based preview, criteria-based seed execution through the existing seed pipeline, capped preview warnings, and optional FMP stock-list metadata for country, sector, market cap, price, and volume.

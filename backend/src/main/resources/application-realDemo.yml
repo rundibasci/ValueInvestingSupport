@@ -1,0 +1,80 @@
+market-data:
+  source: yahoo
+
+real-demo:
+  tickers: ${REAL_DEMO_TICKERS:AAPL,MSFT,KO,JNJ,PG,PEP,WMT,BRK-B,UNP,XOM}
+
+app:
+  jobs:
+    enabled: false
+
+spring:
+  cache:
+    type: redis
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/vis}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:vis}
+    password: ${DATABASE_PASSWORD:vis}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+jwt:
+  private-key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCUNViJvatOmnox
+    PmB1/ZoCIKQ1HGXSlf4D9A4CQV+X0njHARetIZrE7TXS12M2odFL1979967YsxVJ
+    8UvWX+q3/C1LQMmjoBBPm6q7MPh/gzCR2MGRgr5kd5AtqM+krFwR8c5RllYsx+BK
+    vdvKlQ4xZSHumS/gr4yBCb/w+bkycBIvKu5tRFuj8hWqvbMT23uLwAp5WUhTwDuT
+    nIiSxRtlCiT9BkdeogVw4zbIXH4zuD1Bg1a0lCNWpZ4DgdNaGKd9hFGH6jFeqzFn
+    Poxjx6pI6yeI3MdoDUaMhYO9Kwze5hp+jxXJwNc86zpsisjs++2Lv5ePH3g/Pxry
+    dyZh9PedAgMBAAECggEACFdJk1REVtkkyq6wWRObs5ueAjXbQ9MYh6UYQLzod1qW
+    B4UijaYtgqsNnhRsdf+nZXWnDB4AuMYOCv+fKAJ1QEOF/Q05YTxkjpu71mshdnOu
+    ARdKKuPzznhYJJRdPe72rjUwn7DZSriOVpvWydDtCo9Jg0HFywcLiPDr3NEBFjst
+    zTxfDK3Z6R7SzJ4AzLmiYQgq/MDBR30HkTGc9CWbXDqdVrlv0tQ7rQxDUl+D76WQ
+    S2ZFAM7qBVe2/RGTKzdcaVN3gbgInLx3/fOc6RMNIZdMykpoC41u+mvfSCr8wj5m
+    BVv34SE4ogYvAEuhR5aMMfNNzJnlNaHSASFfgeYxAQKBgQDPpinCh257QKIV9TZG
+    pS0AdAiFxge2Sk5AE0uX10d6sSEtR9nI8YI9Itv276Y0o6AhHtigJNkSHy3ywYgF
+    lSq91qAOJOVDt6S3fD3heqjDDFWySgOlaER4oGAI+M+EP4I36XI4VgUugcBkYnBO
+    CMzJiq8180+4jeEHEYRcsENTQQKBgQC2t/Vr9TpQtxtBG28IS5+eyqLPb26sXzZP
+    j9/LhfAvasdhiA0PbKJlfphVNASgqKFDp39xqDD1BOkU9UORbAEGl/o1MQf1lLgW
+    T7fMesO7rFjch6qs7wwGIUECRZmLFQag6ogbZ01RGRbSWclNWDM6RdAOshzZ5HkO
+    bAn+y6Z5XQKBgQDKEclRpLm+94bEF3xaAyNn7YLdq3iVzHmZoS1O9hB5NSY0ClfF
+    VECJfgLQqyXy08hgcsQcE7+qAu2T7wGPbTnKw7G+EemJnIyOgjk100enh7ldZull
+    bbI0MN1D3d0TtTnjbynX6N3iBCJVjfX7+lRPTMZ0mfJahrcVSdak3GKoAQKBgQCs
+    5ucWgbftKVhhA9TNxMIHQTlPkeLoujBqmXrs3JGsTR7e7B9vuRzzbhg4iEDYxrnT
+    i2zN4JpzQXJOosiNk+Zkluvt6bfebBzHACitFn6h2TU9eiPIAW0fX9hkjff95Keh
+    Hk4toFNJqrQt2UjkJ9JSEj4PqfwjNFBZlWLf+VZPAQKBgFE19IUhC54ZIBr2Re4K
+    k6CXO5Juk4xBqs7KkVmALYWn1r/pCMeCFE+GtE/yN+nqwSt95Lf5mNpuGZDvoTgU
+    QflB9G2gItBjq0pcxITNU9T0ArvLb9xStOLPzRbrMEmCR060CSmnKHX7NsWhX6aN
+    BK5A5EAeOqb3dDJnxLEtA00u
+    -----END PRIVATE KEY-----
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlDVYib2rTpp6MT5gdf2a
+    AiCkNRxl0pX+A/QOAkFfl9J4xwEXrSGaxO010tdjNqHRS9fe/feu2LMVSfFL1l/q
+    t/wtS0DJo6AQT5uquzD4f4MwkdjBkYK+ZHeQLajPpKxcEfHOUZZWLMfgSr3bypUO
+    MWUh7pkv4K+MgQm/8Pm5MnASLyrubURbo/IVqr2zE9t7i8AKeVlIU8A7k5yIksUb
+    ZQok/QZHXqIFcOM2yFx+M7g9QYNWtJQjVqWeA4HTWhinfYRRh+oxXqsxZz6MY8eq
+    SOsniNzHaA1GjIWDvSsM3uYafo8VycDXPOs6bIrI7Pvti7+Xjx94Pz8a8ncmYfT3
+    nQIDAQAB
+    -----END PUBLIC KEY-----
