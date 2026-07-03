@@ -22,11 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -61,6 +63,28 @@ class ScreenerServiceTest {
         ScreenerResponse result = screenerService.search(emptyRequest());
         assertThat(result.totalElements()).isEqualTo(3);
         assertThat(result.results()).hasSize(3);
+    }
+
+    @Test
+    void search_nullRequest_usesDefaultScreen() {
+        ScreenerResponse result = screenerService.search(null);
+        assertThat(result.totalElements()).isEqualTo(3);
+        assertThat(result.page()).isZero();
+        assertThat(result.pageSize()).isEqualTo(20);
+    }
+
+    @Test
+    void search_fractionalPercentThreshold_returnsBadRequest() {
+        ScreenerRequest req = new ScreenerRequest(
+                null, null,
+                new BigDecimal("0.15"), null,
+                null, null, null, null, null,
+                null, null, null,
+                "totalScore", "DESC", 0, 20);
+
+        assertThatThrownBy(() -> screenerService.search(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("minMarginOfSafety expects percentages");
     }
 
     @Test
