@@ -1037,11 +1037,14 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
 - Store each replay cycle under `specs/YYYY-MM-DD-investor-replay-recycling/` with screenshots, request payloads, relevant log excerpts, shortlist rationale, and decision-support boundary notes.
 - Create a lightweight triage template that classifies findings as data-quality gap, UI contradiction, API validation defect, provider limitation, accessibility issue, or product follow-up.
 - Require every real-demo replay after RD2 to either close findings with validation evidence or carry them into a roadmap phase before GCP deployment.
+- Run replay cycles iteratively after each RCL fix batch until two consecutive investor-agent plus monitor-agent cycles produce no new high- or medium-severity findings and no unexplained backend `5xx`, frontend console error, raw authorization failure, or data-quality contradiction.
+- Treat any newly discovered high- or medium-severity finding as a failed recycling gate: create or update the relevant RCL fix task, apply the fix, rerun the investor and monitor agents, and record the new cycle evidence before proceeding.
 - Acceptance checklist:
   - At least one replay run demonstrates investor-agent issue reporting and monitor-agent log correlation.
   - Findings include severity, affected route/API, reproduction path, and next owner.
   - No replay artifact describes a shortlist or demo portfolio as investable or as personalized advice.
-  - Open findings are visible before K1 stakeholder cloud deployment begins.
+  - Two consecutive replay cycles are clean, or every remaining low-severity/nice-to-have finding is explicitly accepted or deferred with owner, rationale, and target phase.
+  - Open findings are visible before K1 stakeholder cloud deployment begins, and no unresolved high- or medium-severity finding is allowed through the K1 readiness gate.
 
 ### Phase RCL3: Security Detail Historical Chart And Data Verification Pass
 - Verify `http://localhost:5173/securities/KO` and related review routes for historical chart readability: quote/history charts must display correctly labeled price data, readable axes, and no misleading flat lines caused by missing or repeated source values.
@@ -1064,6 +1067,8 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
 
 ### Phase RCL4: Beta Tester Functional Fix Pack
 - Consolidate beta tester findings from the investor, advisor/compliance, UI/accessibility, and data-quality/API test passes into a single fix pack before GCP stakeholder deployment.
+- Add a dedicated real-portfolio beta tester that uses the local CSV input `C:\Users\Marcello\Downloads\Portfolio.csv` to validate portfolio ingestion/mapping, symbol normalization, position sizing, sector exposure, missing-data handling, and decision-support copy against a user-provided portfolio.
+- Repeat the beta testing pass after each fix batch with the same persona coverage (investor, advisor/compliance, UI/accessibility, data-quality/API, and real-portfolio CSV tester) until two consecutive beta cycles report no new high- or medium-severity defects.
 - Align Agent 1 comparison, screener results, portfolio review, and security review pages to a single clearly identified data snapshot or show explicit source/date differences when they intentionally diverge.
 - Replace user-facing `Recommendation` terminology on review, screener, dashboard, portfolio, and API-derived UI labels with neutral decision-support wording such as `Model valuation status`, `Research signal`, or `Valuation classification`.
 - Hide admin-only or restricted workflows such as Universe Curation from `INVESTOR` navigation, or render a clear access-denied page with disabled controls instead of raw `Forbidden` messages.
@@ -1083,6 +1088,8 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
   - Berkshire class B valuation avoids strong positive model classifications from one potentially inapplicable/scaled Graham-only result.
 - Acceptance checklist:
   - Beta tester reports are linked from validation evidence and each high-severity issue is closed or explicitly deferred with owner and reason.
+  - Beta testing has been rerun after fixes until two consecutive cycles are clean for high/medium severity, or remaining findings are documented as accepted low-severity residual risk.
+  - The `Portfolio.csv` beta tester can load or map the CSV holdings into the portfolio workflow without destructive changes, with clear reporting for unsupported symbols, missing prices, duplicate holdings, currency mismatches, and concentration warnings.
   - Investor role cannot trigger raw admin `403` experiences from primary navigation.
   - Compliance-sensitive labels avoid buy/sell/recommendation language on decision-support surfaces.
   - Demo checklist, audit rationale visibility, and advisor acknowledgement flows can be exercised end to end.
@@ -1150,7 +1157,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M19: Real Demo (Full Stack)** | RD1-1, RD1-2 | Yahoo Finance (free) | All features live with real Yahoo Finance data ingested on startup; Agent 1 full walkthrough with screenshots |
 | **M20: Conservative Workflow Hardening** | L1-L4 | FMP primary / Yahoo fallback | Agent 1 prudent-value replay pack, 10-stock validation portfolio evidence, conservative review diagnostics, availability-state examples, and workflow enhancements |
 | **M21: Real Demo (Curated)** | RD2-1 | Yahoo Finance (free) | Agent 1 validates curated universe workflow end to end with screenshots; comparison with manual-seed experience |
-| **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack, and monitor-agent log correlation from investor-agent findings |
+| **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack including real-portfolio CSV validation, and monitor-agent log correlation from investor-agent findings |
 | **M23: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
 | **M24: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M25: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
@@ -1185,4 +1192,4 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 >
 > **M21 validates the curated workflow.** Agent 1 repeats the full demo but starts from universe curation instead of manual seeding. The comparison with M19 demonstrates that structured selection produces a more coherent research experience.
 >
-> **M22 recycles investor-agent findings before cloud deployment.** The autonomous investor replay surfaced issues that are small individually but trust-eroding in aggregate: screener empty-state contradiction, API threshold validation fragility, duplicate landmarks, and `BRK.B`/`BRK-B` symbol mismatch. M22 turns those findings into a focused hardening loop with monitor-agent log correlation before K1 exposes the demo to stakeholders in the cloud.
+> **M22 recycles investor-agent findings before cloud deployment.** The autonomous investor replay surfaced issues that are small individually but trust-eroding in aggregate: screener empty-state contradiction, API threshold validation fragility, duplicate landmarks, and `BRK.B`/`BRK-B` symbol mismatch. M22 turns those findings into a focused hardening loop with monitor-agent log correlation before K1 exposes the demo to stakeholders in the cloud. The replay and beta-test phases are iterative gates: fixes are followed by repeat investor, monitor, and beta cycles until consecutive clean runs show no unresolved high- or medium-severity problems.
