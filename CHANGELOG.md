@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RCL1: Screener and symbol recycling pass with defensive request normalization, clear fractional-percent validation, Berkshire `BRK.B` to `BRK-B` boundary normalization for portfolio/review flows, and RCL1 feature specifications.
+- RCL1: Screener UI cleanup for duplicate `main` landmarks, result-count pluralization, and Agent 1 comparison copy that identifies replay evidence as a separate validation snapshot.
 - RD2-1: Curated-universe walkthrough evidence pack with defensive-quality dry-run/live replay script, redacted artifact capture, stakeholder report scaffold, screenshot checklist, and feature specifications under `specs/2026-07-03-rd2-curated-demo/`.
 - L4: Conservative workflow API with deterministic preset metadata, empty-state diagnostics that preserve active criteria, and Agent 1 selected-symbol comparison across valuation, score, quality, resilience, growth, dividend, and source/data coverage.
 - L4: Screener conservative preset controls, conservative criteria summary, empty-state diagnostic rendering, and Agent 1 comparison table while retaining decision-support language.

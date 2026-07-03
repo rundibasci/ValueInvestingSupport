@@ -1,6 +1,7 @@
 package it.mazzoni.vis.security;
 
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
+import it.mazzoni.vis.common.SymbolNormalizer;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
@@ -147,7 +148,7 @@ public class SecurityReviewService {
 
     @Transactional
     public SecurityReviewResponse getReview(String symbol) {
-        String upper = symbol.toUpperCase();
+        String upper = SymbolNormalizer.canonical(symbol);
         Security security = securityRepository.findBySymbol(upper)
                 .orElseThrow(() -> new SymbolNotFoundException(symbol));
 

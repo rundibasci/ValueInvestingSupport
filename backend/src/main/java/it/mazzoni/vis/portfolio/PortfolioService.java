@@ -13,6 +13,7 @@ import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.professional.ResearchDecisionAuditService;
+import it.mazzoni.vis.common.SymbolNormalizer;
 import it.mazzoni.vis.portfolio.dto.AddHoldingRequest;
 import it.mazzoni.vis.portfolio.dto.ConcentrationWarning;
 import it.mazzoni.vis.portfolio.dto.CreatePortfolioRequest;
@@ -109,7 +110,7 @@ public class PortfolioService {
         Map<String, String> sectorMap = new HashMap<>();
 
         for (String symbol : symbols) {
-            Optional<Security> secOpt = securityRepository.findBySymbol(symbol);
+            Optional<Security> secOpt = securityRepository.findBySymbol(SymbolNormalizer.canonical(symbol));
             if (secOpt.isPresent()) {
                 Security sec = secOpt.get();
                 sectorMap.put(symbol, sec.getSector());
@@ -165,7 +166,7 @@ public class PortfolioService {
 
         Holding h = new Holding();
         h.setPortfolio(portfolio);
-        h.setSymbol(req.symbol().toUpperCase());
+        h.setSymbol(SymbolNormalizer.canonical(req.symbol()));
         h.setQuantity(req.quantity());
         h.setAverageCostBasis(req.averageCostBasis());
         h.setCurrency(req.currency());
@@ -226,7 +227,7 @@ public class PortfolioService {
         String recommendation = null;
         String sector = null;
 
-        Optional<Security> secOpt = securityRepository.findBySymbol(symbol);
+        Optional<Security> secOpt = securityRepository.findBySymbol(SymbolNormalizer.canonical(symbol));
         if (secOpt.isPresent()) {
             Security sec = secOpt.get();
             sector = sec.getSector();

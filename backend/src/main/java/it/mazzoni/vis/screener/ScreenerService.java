@@ -32,6 +32,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,11 +70,12 @@ public class ScreenerService {
     }
 
     public ScreenerResponse search(ScreenerRequest request) {
+        request = normalize(request);
         int page = request.page() != null ? Math.max(request.page(), 0) : 0;
         int pageSize = request.pageSize() != null
                 ? Math.min(Math.max(request.pageSize(), 1), MAX_PAGE_SIZE)
                 : DEFAULT_PAGE_SIZE;
-        String sortField = VALID_SORT_FIELDS.contains(request.sortField())
+        String sortField = request.sortField() != null && VALID_SORT_FIELDS.contains(request.sortField())
                 ? request.sortField() : "totalScore";
         boolean sortDesc = !"ASC".equalsIgnoreCase(request.sortDirection());
 
@@ -81,6 +84,66 @@ public class ScreenerService {
         int totalPages = (int) Math.ceil((double) totalElements / pageSize);
 
         return new ScreenerResponse(items, page, pageSize, totalElements, totalPages);
+    }
+
+    private ScreenerRequest normalize(ScreenerRequest request) {
+        if (request == null) {
+            request = new ScreenerRequest(
+                    null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null);
+        }
+        validatePercentThreshold("minMarginOfSafety", request.minMarginOfSafety());
+        validatePercentThreshold("maxMarginOfSafety", request.maxMarginOfSafety());
+        validatePercentThreshold("minRoic", request.minRoic());
+        validatePercentThreshold("minDividendYield", request.minDividendYield());
+        validatePercentThreshold("minRevenueGrowth", request.minRevenueGrowth());
+        validateEnum("altmanZone", request.altmanZone(), AltmanZone.class);
+        validateEnum("moatStrength", request.moatStrength(), MoatStrength.class);
+        validateEnum("sharesOutstandingTrend", request.sharesOutstandingTrend(), SharesOutstandingTrend.class);
+        return new ScreenerRequest(
+                clean(request.sector()),
+                clean(request.exchange()),
+                request.minMarginOfSafety(),
+                request.maxMarginOfSafety(),
+                request.minValueScore(),
+                request.minRoic(),
+                request.maxDebtToEquity(),
+                request.minDividendYield(),
+                request.minRevenueGrowth(),
+                request.piotroskiMin(),
+                request.piotroskiMax(),
+                clean(request.altmanZone()),
+                clean(request.moatStrength()),
+                clean(request.sharesOutstandingTrend()),
+                clean(request.sortField()),
+                clean(request.sortDirection()),
+                request.page(),
+                request.pageSize());
+    }
+
+    private String clean(String value) {
+        return value != null && !value.isBlank() ? value.trim() : null;
+    }
+
+    private void validatePercentThreshold(String field, BigDecimal value) {
+        if (value != null
+                && value.compareTo(BigDecimal.ZERO) > 0
+                && value.abs().compareTo(BigDecimal.ONE) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    field + " expects percentages such as 15, not fractions such as 0.15");
+        }
+    }
+
+    private <T extends Enum<T>> void validateEnum(String field, String value, Class<T> enumType) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        try {
+            Enum.valueOf(enumType, value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Unsupported " + field + ": " + value);
+        }
     }
 
     private List<ScreenerResultItem> runDataQuery(

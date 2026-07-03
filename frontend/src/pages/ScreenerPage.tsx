@@ -218,7 +218,7 @@ export function ScreenerPage(): JSX.Element {
   )
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 px-5 py-8 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-6 px-5 py-8 lg:px-8">
       <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-slate-950/20 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">Discover</p>
         <div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -290,7 +290,7 @@ export function ScreenerPage(): JSX.Element {
         <div className="flex flex-col justify-between gap-3 border-b border-slate-800 px-5 py-5 sm:flex-row sm:items-center sm:px-6">
           <div>
             <h2 id="results-heading" className="text-lg font-semibold text-white">Screen results</h2>
-            <p aria-live="polite" className="mt-1 text-sm text-slate-400">{results.isLoading ? 'Finding companies...' : `${formatNumber(results.data?.totalElements ?? 0)} company${results.data?.totalElements === 1 ? '' : 'ies'} found`}{results.isFetching && !results.isLoading ? ' - Updating...' : ''}</p>
+            <p aria-live="polite" className="mt-1 text-sm text-slate-400">{results.isLoading ? 'Finding companies...' : `${formatNumber(results.data?.totalElements ?? 0)} ${results.data?.totalElements === 1 ? 'company' : 'companies'} found`}{results.isFetching && !results.isLoading ? ' - Updating...' : ''}</p>
           </div>
           <label className="flex items-center gap-2 text-sm text-slate-300">Rows<select value={query.pageSize} onChange={(event) => setQuery((current) => ({ ...current, pageSize: Number(event.target.value), page: 0 }))} className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1.5 text-white focus:border-emerald-400"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select></label>
         </div>
@@ -303,6 +303,7 @@ export function ScreenerPage(): JSX.Element {
             <div className="mx-auto max-w-4xl text-center">
               <p className="text-lg font-medium text-white">No companies match these criteria.</p>
               <p className="mt-2 text-sm text-slate-400">The current criteria are still preserved. Review which filters may be narrowing the universe before changing them.</p>
+              <p className="mt-2 text-sm text-slate-400">Agent 1 comparison rows below come from a separate validation snapshot, so they can still appear when the live screener table is empty.</p>
               <button type="button" onClick={reset} className="mt-4 text-sm font-semibold text-emerald-300 underline">Reset filters</button>
             </div>
             {emptyStateDiagnostics.data && (
@@ -376,7 +377,7 @@ export function ScreenerPage(): JSX.Element {
         <div className="border-b border-slate-800 px-5 py-5 sm:px-6">
           <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">Conservative workflow</p>
           <h2 id="agent-one-comparison-heading" className="mt-2 text-lg font-semibold text-white">Agent 1 selected-symbol comparison</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">Compare the validation symbols across valuation, score, quality, resilience, growth, dividend, and source coverage before opening individual review packets.</p>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">Compare the validation symbols across valuation, score, quality, resilience, growth, dividend, and source coverage before opening individual review packets. These rows are replay evidence from the Agent 1 validation snapshot.</p>
         </div>
         {comparison.isLoading ? (
           <div className="p-8 text-sm text-slate-400">Loading comparison evidence...</div>
@@ -409,6 +410,6 @@ export function ScreenerPage(): JSX.Element {
         )}
       </section>
       <p className="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-xs leading-5 text-slate-400">This screener is decision-support software, not personalised investment advice. Fair value and scoring are model outputs based on available data; review the underlying research before acting.</p>
-    </main>
+    </div>
   )
 }
