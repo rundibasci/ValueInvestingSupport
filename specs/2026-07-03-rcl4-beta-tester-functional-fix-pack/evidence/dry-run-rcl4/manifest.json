@@ -1,0 +1,38 @@
+﻿{
+    "cycleId":  "dry-run-rcl4",
+    "generatedAt":  "2026-07-03T19:02:43.1807043+02:00",
+    "mode":  "dry-run",
+    "portfolioCsv":  "C:\\Users\\Marcello\\Downloads\\Portfolio.csv",
+    "personas":  [
+                     {
+                         "id":  "investor",
+                         "focus":  "Watchlist, screener, portfolio, KO/MSFT review packets, decision-support clarity."
+                     },
+                     {
+                         "id":  "advisor-compliance",
+                         "focus":  "Restricted/admin flows, acknowledgement copy, recommendation wording, audit rationale visibility."
+                     },
+                     {
+                         "id":  "ui-accessibility",
+                         "focus":  "One main landmark, responsive overflow, disabled states, chart container warnings."
+                     },
+                     {
+                         "id":  "data-quality-api",
+                         "focus":  "Screener validation, dividend/growth/insider unavailable states, backend 5xx scan."
+                     },
+                     {
+                         "id":  "real-portfolio-csv",
+                         "focus":  "Portfolio.csv mapping, symbols, quantities, duplicate holdings, missing values, Berkshire normalization."
+                     }
+                 ],
+    "liveProbes":  [
+
+                   ],
+    "gate":  {
+                 "requiresTwoConsecutiveCleanCycles":  true,
+                 "blocksOnHighOrMediumSeverity":  true,
+                 "blocksOnRawAdminForbidden":  true,
+                 "blocksOnUnexpected5xx":  true,
+                 "blocksOnDataQualityContradiction":  true
+             }
+}
