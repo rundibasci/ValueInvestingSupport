@@ -1010,6 +1010,86 @@ Goal: validate the seeds-choice process end to end by having Agent 1 use the SC 
 
 ---
 
+## Group RCL — Investor Replay Recycling
+
+Goal: recycle issues discovered by autonomous investor-style market analysis before cloud distribution. This group turns real user-research friction into focused hardening work: screener result consistency, API input normalization, symbol canonicalization, and log-assisted defect triage. It preserves the decision-support boundary by improving evidence quality and workflow clarity without turning shortlist outputs into trade recommendations.
+
+Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2 replay evidence, and generated `analysis-*` screenshots/JSON artifacts in the workspace root.
+
+### Phase RCL1: Screener And Symbol Recycling Pass
+- Normalize screener numeric threshold handling so API requests accept or explicitly reject fractional inputs (`0.15`) versus percentage inputs (`15`) with clear validation errors instead of `500` responses.
+- Add regression coverage for conservative screener requests, empty payloads, fractional threshold payloads, and UI-standard percentage payloads.
+- Resolve screener page inconsistency where `0 active filters` and `0 companyies found` can appear while the Agent 1 comparison table below is populated.
+- Fix the screener empty-state copy typo (`companyies`) and ensure the empty-state explanation distinguishes "no screener results" from "comparison/watchlist candidates are still available".
+- Audit the screener DOM structure for duplicate `<main>` landmarks and adjust layout semantics so accessibility tests and browser automation target one primary main region.
+- Canonicalize Berkshire Hathaway class B symbols across seed, review, watchlist, comparison, and portfolio surfaces (`BRK-B` provider form versus `BRK.B` display/research form), including migration or alias handling for existing demo data.
+- Add log-correlation evidence for the investor-reported issues: route, payload, timestamp, status code, exception/validation message, and frontend route.
+- Acceptance checklist:
+  - Invalid screener payloads return `400` with actionable field errors, not `500`.
+  - Standard UI screener requests still return expected results for seeded demo data.
+  - Screener empty state and Agent 1 comparison can coexist without contradictory copy.
+  - Automated accessibility checks see one primary page landmark on the screener route.
+  - `BRK.B`/`BRK-B` can be seeded, reviewed, watchlisted, compared, and held without missing-price or missing-review artifacts caused only by symbol format mismatch.
+  - Investor replay and log-monitor reports are linked from validation evidence.
+
+### Phase RCL2: Replay-To-Backlog Feedback Loop
+- Add a repeatable two-agent validation protocol: investor agent explores market/app workflows and reports structured UI/API problems; monitor agent correlates Docker/backend/frontend logs and produces severity-tagged evidence.
+- Store each replay cycle under `specs/YYYY-MM-DD-investor-replay-recycling/` with screenshots, request payloads, relevant log excerpts, shortlist rationale, and decision-support boundary notes.
+- Create a lightweight triage template that classifies findings as data-quality gap, UI contradiction, API validation defect, provider limitation, accessibility issue, or product follow-up.
+- Require every real-demo replay after RD2 to either close findings with validation evidence or carry them into a roadmap phase before GCP deployment.
+- Acceptance checklist:
+  - At least one replay run demonstrates investor-agent issue reporting and monitor-agent log correlation.
+  - Findings include severity, affected route/API, reproduction path, and next owner.
+  - No replay artifact describes a shortlist or demo portfolio as investable or as personalized advice.
+  - Open findings are visible before K1 stakeholder cloud deployment begins.
+
+### Phase RCL3: Security Detail Historical Chart And Data Verification Pass
+- Verify `http://localhost:5173/securities/KO` and related review routes for historical chart readability: quote/history charts must display correctly labeled price data, readable axes, and no misleading flat lines caused by missing or repeated source values.
+- Add a user-selectable history window for security-detail/review charts where appropriate (for example 1y, 3y, 5y, 10y, max), and preserve a sensible default when the available history is shorter than the selected range.
+- Audit ratio, return, valuation, P/E, and capital-structure charts for repeated identical values. If true historical series are unavailable, do not graph synthetic repeated points; show the current value as text with an explicit unavailable-history note instead.
+- Verify whether the Financial Health resilience indicator is incorrectly constant across symbols or periods; if it is derived from sparse data, expose the data basis and avoid implying a historical trend.
+- Investigate the valuation action where clicking `Run FCF` does not display any visible result; ensure success, validation failure, guardrail-blocked, and provider-limited states all render user-facing feedback and are logged.
+- Cross-check dividends, growth, and insider sections against persisted API responses and provider/source metadata so the UI does not display stale, repeated, or fabricated-looking values.
+- Add regression tests or replay assertions for:
+  - KO security-detail chart rendering with available quote/history data.
+  - Missing historical ratios showing text-only current values instead of flat charts.
+  - FCF valuation run feedback for success and guardrail-blocked cases.
+  - Dividends, growth, and insider panels showing source/freshness/unavailable states consistently.
+- Acceptance checklist:
+  - Charts are only rendered when there is enough real historical data to support a chart.
+  - Users can choose the history window where historical depth exists.
+  - Repeated values are either confirmed as real source history or replaced by explicit text-only unavailable-history states.
+  - FCF run produces visible feedback in every outcome.
+  - Dividends, growth, and insider values are cross-checked against backend responses and documented in validation evidence.
+
+### Phase RCL4: Beta Tester Functional Fix Pack
+- Consolidate beta tester findings from the investor, advisor/compliance, UI/accessibility, and data-quality/API test passes into a single fix pack before GCP stakeholder deployment.
+- Align Agent 1 comparison, screener results, portfolio review, and security review pages to a single clearly identified data snapshot or show explicit source/date differences when they intentionally diverge.
+- Replace user-facing `Recommendation` terminology on review, screener, dashboard, portfolio, and API-derived UI labels with neutral decision-support wording such as `Model valuation status`, `Research signal`, or `Valuation classification`.
+- Hide admin-only or restricted workflows such as Universe Curation from `INVESTOR` navigation, or render a clear access-denied page with disabled controls instead of raw `Forbidden` messages.
+- Seed at least one non-destructive professional checklist for demo users, such as `Conservative quality review`, so checklist evaluation can be tested from KO/MSFT review pages without manual setup.
+- Improve audit/decision-history completeness by capturing rationale, source action, route/context, and correlation identifier for portfolio/watchlist decisions where available; flag missing rationale in the UI/export instead of silently showing `null`.
+- Stabilize chart containers and responsive layouts:
+  - eliminate Recharts `width(-1)` / `height(-1)` warnings on review and portfolio routes;
+  - prevent horizontal page overflow on portfolio mobile viewports around 390px wide;
+  - ensure chart/table overflow is local and intentional where dense data cannot fit.
+- Fix login first-visit messaging so an anonymous user does not see `Your session has expired` unless a previously authenticated session actually expired.
+- Improve disabled-button states, including Seed Universe invalid input, so disabled primary actions are visually distinct and not mistaken for available commands.
+- Add API/data-quality safeguards discovered by beta testing:
+  - `POST /api/v1/screener` with `{}` or malformed numeric payloads returns defaults or `400` validation errors, never `500`;
+  - dividend payer endpoints distinguish `data unavailable/provider limited` from true zero dividend history;
+  - insider endpoints distinguish unsupported provider data from a genuine empty insider-trade history;
+  - ratio/financial history exposes coverage status when only partial annuals, no quarters, or flat backfilled values are available;
+  - Berkshire class B valuation avoids strong positive model classifications from one potentially inapplicable/scaled Graham-only result.
+- Acceptance checklist:
+  - Beta tester reports are linked from validation evidence and each high-severity issue is closed or explicitly deferred with owner and reason.
+  - Investor role cannot trigger raw admin `403` experiences from primary navigation.
+  - Compliance-sensitive labels avoid buy/sell/recommendation language on decision-support surfaces.
+  - Demo checklist, audit rationale visibility, and advisor acknowledgement flows can be exercised end to end.
+  - Mobile portfolio, screener, and KO review pass smoke checks for no global horizontal overflow, one primary main landmark, and no unexpected chart warnings.
+
+---
+
 ## Group K — GCP Distribution & Operational Readiness
 
 Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
@@ -1070,9 +1150,10 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M19: Real Demo (Full Stack)** | RD1-1, RD1-2 | Yahoo Finance (free) | All features live with real Yahoo Finance data ingested on startup; Agent 1 full walkthrough with screenshots |
 | **M20: Conservative Workflow Hardening** | L1-L4 | FMP primary / Yahoo fallback | Agent 1 prudent-value replay pack, 10-stock validation portfolio evidence, conservative review diagnostics, availability-state examples, and workflow enhancements |
 | **M21: Real Demo (Curated)** | RD2-1 | Yahoo Finance (free) | Agent 1 validates curated universe workflow end to end with screenshots; comparison with manual-seed experience |
-| **M22: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
-| **M23: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
-| **M24: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
+| **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack, and monitor-agent log correlation from investor-agent findings |
+| **M23: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
+| **M24: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
+| **M25: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
@@ -1103,3 +1184,5 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M19 is the first real-data full-stack demo — now with trustworthy analytics.** By this point the valuation engine has WACC transparency, the scoring engine has the MoS gate and risk indicators, and moat analysis is in place. The demo proves a complete, analytically sound product rather than a polished shell.
 >
 > **M21 validates the curated workflow.** Agent 1 repeats the full demo but starts from universe curation instead of manual seeding. The comparison with M19 demonstrates that structured selection produces a more coherent research experience.
+>
+> **M22 recycles investor-agent findings before cloud deployment.** The autonomous investor replay surfaced issues that are small individually but trust-eroding in aggregate: screener empty-state contradiction, API threshold validation fragility, duplicate landmarks, and `BRK.B`/`BRK-B` symbol mismatch. M22 turns those findings into a focused hardening loop with monitor-agent log correlation before K1 exposes the demo to stakeholders in the cloud.
