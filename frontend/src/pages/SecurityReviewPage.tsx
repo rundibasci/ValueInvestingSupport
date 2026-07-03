@@ -282,6 +282,10 @@ const percentFromRatio = (value: number | null | undefined) => {
 function PercentTrendChart({ data, lines, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; summary: string }): JSX.Element {
   const visible = data.filter((item) => lines.some(([key]) => typeof item[key] === 'number'))
   if (!visible.length) return <DataGap>No historical series is available for this chart.</DataGap>
+  const populatedSeries = lines.map(([key]) => numericSeries(visible, key)).filter((values) => values.length >= 2)
+  if (!populatedSeries.length || populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1)) {
+    return textOnlySeries(visible, lines)
+  }
   return (
     <div>
       <p className="mb-3 text-sm leading-6 text-slate-400">{summary}</p>
@@ -523,15 +527,52 @@ function BusinessQuality({ review, annual, ratioData }: { review: Review; annual
   )
 }
 
+type HistoryWindow = '3y' | '5y' | '10y' | 'max'
+const historyWindowSize: Record<HistoryWindow, number | null> = { '3y': 3, '5y': 5, '10y': 10, max: null }
+
+function numericSeries(data: Array<Record<string, number | string | null>>, key: string): number[] {
+  return data.map((item) => item[key]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+}
+
+function textOnlySeries(data: Array<Record<string, number | string | null>>, lines: Array<[string, string]>): JSX.Element {
+  const latest = [...data].reverse().find((item) => lines.some(([key]) => typeof item[key] === 'number'))
+  return (
+    <div className="space-y-3">
+      <DataGap>Historical depth is unavailable or repeated for this metric, so the current value is shown without a chart.</DataGap>
+      <dl className="grid gap-3 sm:grid-cols-2">
+        {lines.map(([key, label]) => <Metric key={key} label={label} value={number(latest?.[key] as number | null | undefined)} />)}
+      </dl>
+    </div>
+  )
+}
+
 function Chart({ data, lines, bar = false, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; summary: string }): JSX.Element {
+  const [window, setWindow] = useState<HistoryWindow>('10y')
   if (!data.length) return <DataGap>No historical series is available for this chart.</DataGap>
+  const size = historyWindowSize[window]
+  const visibleData = size == null || data.length <= size ? data : data.slice(-size)
+  const candidateData = visibleData.length >= 2 ? visibleData : data
+  const series = lines.map(([key]) => numericSeries(candidateData, key))
+  const populatedSeries = series.filter((values) => values.length >= 2)
+  if (!populatedSeries.length) return textOnlySeries(data, lines)
+  const allPopulatedSeriesAreFlat = populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1)
+  if (allPopulatedSeriesAreFlat) return textOnlySeries(data, lines)
   const Component = bar ? BarChart : LineChart
   return (
     <div>
-      <p className="mb-3 text-sm leading-6 text-slate-400">{summary}</p>
+      <div className="mb-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <p className="text-sm leading-6 text-slate-400">{summary}</p>
+        {data.length > 3 && (
+          <div className="inline-flex w-fit rounded-lg border border-slate-700 bg-slate-950 p-1">
+            {(['3y', '5y', '10y', 'max'] as HistoryWindow[]).map((option) => (
+              <button key={option} type="button" onClick={() => setWindow(option)} className={`rounded-md px-2.5 py-1 text-xs font-semibold ${window === option ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{option}</button>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="min-h-72 h-72 min-w-0 w-full" role="img" aria-label={summary}>
         <ResponsiveContainer width="100%" height="100%">
-          <Component data={data}>
+          <Component data={candidateData}>
             <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
             <XAxis dataKey="label" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" tickFormatter={(v) => compact(Number(v))} width={78} />
