@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RD2-1: Curated-universe walkthrough evidence pack with defensive-quality dry-run/live replay script, redacted artifact capture, stakeholder report scaffold, screenshot checklist, and feature specifications under `specs/2026-07-03-rd2-curated-demo/`.
 - L4: Conservative workflow API with deterministic preset metadata, empty-state diagnostics that preserve active criteria, and Agent 1 selected-symbol comparison across valuation, score, quality, resilience, growth, dividend, and source/data coverage.
 - L4: Screener conservative preset controls, conservative criteria summary, empty-state diagnostic rendering, and Agent 1 comparison table while retaining decision-support language.
 - L4: Feature specifications and replay evidence under `specs/2026-07-02-l4-conservative-workflow-enhancements/`, with focused backend tests, frontend typecheck, and production build validation passing.
