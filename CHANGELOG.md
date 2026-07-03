@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RCL2: Investor replay recycling protocol with two-agent responsibilities, severity gate rules, triage template, and decision-support boundary requirements before K1 readiness.
+- RCL2: PowerShell replay artifact generator with dry-run evidence for manifest, investor report, monitor report, triage backlog, and boundary note under `specs/2026-07-03-rcl2-investor-replay-recycling/`.
 - RCL1: Screener and symbol recycling pass with defensive request normalization, clear fractional-percent validation, Berkshire `BRK.B` to `BRK-B` boundary normalization for portfolio/review flows, and RCL1 feature specifications.
 - RCL1: Screener UI cleanup for duplicate `main` landmarks, result-count pluralization, and Agent 1 comparison copy that identifies replay evidence as a separate validation snapshot.
 - RD2-1: Curated-universe walkthrough evidence pack with defensive-quality dry-run/live replay script, redacted artifact capture, stakeholder report scaffold, screenshot checklist, and feature specifications under `specs/2026-07-03-rd2-curated-demo/`.
