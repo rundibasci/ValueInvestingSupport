@@ -1,0 +1,135 @@
+﻿{
+    "mode":  "dry-run",
+    "baseUrl":  "http://localhost:8080",
+    "template":  "defensive-quality",
+    "curatedSymbols":  [
+                           "AAPL",
+                           "MSFT",
+                           "KO",
+                           "JNJ",
+                           "PG",
+                           "PEP",
+                           "WMT",
+                           "BRK-B",
+                           "UNP",
+                           "XOM",
+                           "ADP",
+                           "COST",
+                           "CL",
+                           "MCD",
+                           "LOW",
+                           "HD",
+                           "NKE",
+                           "MDT",
+                           "TGT",
+                           "TXN"
+                       ],
+    "topCandidateSymbols":  [
+                                "KO",
+                                "JNJ",
+                                "PG",
+                                "PEP",
+                                "WMT"
+                            ],
+    "steps":  [
+                  {
+                      "name":  "Admin login",
+                      "method":  "POST",
+                      "path":  "/auth/login",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Investor login",
+                      "method":  "POST",
+                      "path":  "/auth/login",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Backend health",
+                      "method":  "GET",
+                      "path":  "/actuator/health",
+                      "role":  "public"
+                  },
+                  {
+                      "name":  "Universe templates",
+                      "method":  "GET",
+                      "path":  "/api/v1/admin/universe/templates",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Defensive quality preview",
+                      "method":  "POST",
+                      "path":  "/api/v1/admin/universe/preview",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Seed curated universe",
+                      "method":  "POST",
+                      "path":  "/api/v1/admin/universe/seed",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Job definitions",
+                      "method":  "GET",
+                      "path":  "/api/v1/admin/jobs",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Job run history",
+                      "method":  "GET",
+                      "path":  "/api/v1/admin/jobs/runs",
+                      "role":  "admin"
+                  },
+                  {
+                      "name":  "Curated screener",
+                      "method":  "POST",
+                      "path":  "/api/v1/screener",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "KO review packet",
+                      "method":  "GET",
+                      "path":  "/api/v1/securities/KO/review",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "JNJ review packet",
+                      "method":  "GET",
+                      "path":  "/api/v1/securities/JNJ/review",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Top five comparison",
+                      "method":  "GET",
+                      "path":  "/api/v1/conservative-workflow/agent-one-comparison",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Portfolio list",
+                      "method":  "GET",
+                      "path":  "/api/v1/portfolios",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Watchlist",
+                      "method":  "GET",
+                      "path":  "/api/v1/watchlist",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Dashboard summary",
+                      "method":  "GET",
+                      "path":  "/api/v1/dashboard",
+                      "role":  "investor"
+                  },
+                  {
+                      "name":  "Account",
+                      "method":  "GET",
+                      "path":  "/api/v1/account",
+                      "role":  "investor"
+                  }
+              ],
+    "screenshotChecklist":  "specs/2026-07-03-rd2-curated-demo/screenshots/README.md",
+    "note":  "Dry run only. Start docker compose -f docker-compose.realDemo.yml up --build and rerun without -SkipLiveApi for live curated-universe evidence.",
+    "boundary":  "Workflow validation only; not investment advice."
+}
