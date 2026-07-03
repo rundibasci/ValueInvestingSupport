@@ -1,0 +1,30 @@
+﻿{
+    "cycleId":  "dry-run-rcl2",
+    "generatedAt":  "2026-07-03T18:55:47.8744999+02:00",
+    "mode":  "dry-run",
+    "frontendBaseUrl":  "http://localhost:5173",
+    "backendBaseUrl":  "http://localhost:8080",
+    "investorAgentRoutes":  [
+                                "http://localhost:5173/watchlist",
+                                "http://localhost:5173/screener",
+                                "http://localhost:5173/securities/KO",
+                                "http://localhost:5173/securities/KO/review"
+                            ],
+    "requiredArtifacts":  [
+                              "investor-report.md",
+                              "monitor-report.md",
+                              "triage-backlog.md",
+                              "decision-support-boundary.md"
+                          ],
+    "liveProbes":  [
+
+                   ],
+    "gate":  {
+                 "requiresTwoConsecutiveCleanCycles":  true,
+                 "blocksOnHighOrMediumSeverity":  true,
+                 "blocksOnUnexplainedBackend5xx":  true,
+                 "blocksOnFrontendConsoleError":  true,
+                 "blocksOnRawAuthorizationFailure":  true,
+                 "blocksOnDataQualityContradiction":  true
+             }
+}
