@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RCL3: Security review/detail chart history windows (`3y`, `5y`, `10y`, `max`) with text-only fallbacks for sparse or repeated-only series so missing history is not rendered as misleading flat charts.
+- RCL3: Feature specifications and validation evidence for KO/security-detail historical chart and data-verification hardening under `specs/2026-07-03-rcl3-security-detail-chart-data-verification/`.
 - RCL2: Investor replay recycling protocol with two-agent responsibilities, severity gate rules, triage template, and decision-support boundary requirements before K1 readiness.
 - RCL2: PowerShell replay artifact generator with dry-run evidence for manifest, investor report, monitor report, triage backlog, and boundary note under `specs/2026-07-03-rcl2-investor-replay-recycling/`.
 - RCL1: Screener and symbol recycling pass with defensive request normalization, clear fractional-percent validation, Berkshire `BRK.B` to `BRK-B` boundary normalization for portfolio/review flows, and RCL1 feature specifications.
