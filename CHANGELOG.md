@@ -6,6 +6,8 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [Unreleased]
 
 ### Added
+- RCL4: Beta tester functional pass harness with investor, advisor/compliance, UI/accessibility, data-quality/API, and real-portfolio CSV personas plus two-clean-cycle gate rules before K1.
+- RCL4: Non-destructive `Portfolio.csv` inspection for brokerage-style headers, symbol/quantity/value detection, duplicate/blank symbol reporting, and dry-run beta evidence under `specs/2026-07-03-rcl4-beta-tester-functional-fix-pack/`.
 - RCL3: Security review/detail chart history windows (`3y`, `5y`, `10y`, `max`) with text-only fallbacks for sparse or repeated-only series so missing history is not rendered as misleading flat charts.
 - RCL3: Feature specifications and validation evidence for KO/security-detail historical chart and data-verification hardening under `specs/2026-07-03-rcl3-security-detail-chart-data-verification/`.
 - RCL2: Investor replay recycling protocol with two-agent responsibilities, severity gate rules, triage template, and decision-support boundary requirements before K1 readiness.

@@ -1,0 +1,27 @@
+﻿{
+    "path":  "C:\\Users\\Marcello\\Downloads\\Portfolio.csv",
+    "exists":  true,
+    "rowCount":  15,
+    "headers":  [
+                    "Prodotto",
+                    "Codice",
+                    "Quantità",
+                    "Ultimo",
+                    "Valore",
+                    "H1",
+                    "Valore in EUR"
+                ],
+    "probableSymbolColumn":  "Codice",
+    "probableQuantityColumn":  "Quantità",
+    "probableValueColumn":  "Valore",
+    "duplicateSymbols":  [
+
+                         ],
+    "blankSymbols":  1,
+    "berkshireAliases":  [
+
+                         ],
+    "notes":  [
+
+              ]
+}
