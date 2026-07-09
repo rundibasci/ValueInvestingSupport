@@ -1,0 +1,16 @@
+﻿{
+    "id":  "1353fc7c-9508-4519-a554-0a19977cf627",
+    "symbol":  "BRK.B",
+    "sector":  null,
+    "quantity":  1,
+    "averageCostBasis":  100,
+    "currency":  "USD",
+    "currentPrice":  null,
+    "currentValue":  null,
+    "weightPercent":  null,
+    "compositeFairValue":  null,
+    "marginOfSafety":  null,
+    "recommendation":  null,
+    "valueStatus":  "MISSING_SEEDED_HISTORY",
+    "addedAt":  "2026-07-03T06:54:14.613444688"
+}

@@ -67,7 +67,7 @@ public class RealDemoStartupRunner {
             List<SeedResult> seedResults = seedService.seedTickers(symbols);
             int processed = recordSeedEvents(seedResults);
             processed += quoteRefreshJob.execute();
-            processed += dividendUpdateJob.execute();
+            processed += runOptionalDividendUpdate();
             int alertsCreated = alertDetectionService.execute();
             alertDeliveryService.deliverPendingHighPriorityAlerts();
             eventRecorder.record("ALL", "alert", "SUCCESS", "created alerts: " + alertsCreated);
@@ -82,6 +82,17 @@ public class RealDemoStartupRunner {
         } finally {
             MDC.remove("job.name");
             MDC.remove("job.run.id");
+        }
+    }
+
+    private int runOptionalDividendUpdate() {
+        try {
+            return dividendUpdateJob.execute();
+        } catch (UnsupportedOperationException e) {
+            String message = e.getMessage() != null ? e.getMessage() : "dividend history unavailable";
+            eventRecorder.record("ALL", "dividend", "SKIPPED", message);
+            log.warn("real_demo_dividend_update_skipped message={}", message);
+            return 0;
         }
     }
 

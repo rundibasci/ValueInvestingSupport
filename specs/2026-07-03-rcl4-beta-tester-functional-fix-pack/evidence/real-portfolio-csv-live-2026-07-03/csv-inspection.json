@@ -1,0 +1,154 @@
+﻿{
+    "path":  "C:\\Users\\Marcello\\Downloads\\Portfolio.csv",
+    "rowCount":  15,
+    "headers":  [
+                    "Prodotto",
+                    "Codice",
+                    "Quantità",
+                    "Ultimo",
+                    "Valore",
+                    "H1",
+                    "Valore in EUR"
+                ],
+    "blankCodice":  1,
+    "duplicateCodice":  [
+
+                        ],
+    "rows":  [
+                 {
+                     "Prodotto":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+                     "Codice":  "",
+                     "Quantità":  "",
+                     "Ultimo":  "",
+                     "Valore":  "EUR",
+                     "H1":  "1772,93",
+                     "Valore in EUR":  "1772,93"
+                 },
+                 {
+                     "Prodotto":  "ABBOTT LABORATORIES",
+                     "Codice":  "US0028241000",
+                     "Quantità":  "81",
+                     "Ultimo":  "95,40",
+                     "Valore":  "USD",
+                     "H1":  "7727,40",
+                     "Valore in EUR":  "6759,93"
+                 },
+                 {
+                     "Prodotto":  "ACOMO NV",
+                     "Codice":  "NL0000313286",
+                     "Quantità":  "570",
+                     "Ultimo":  "22,35",
+                     "Valore":  "EUR",
+                     "H1":  "12739,50",
+                     "Valore in EUR":  "12739,50"
+                 },
+                 {
+                     "Prodotto":  "ARCHER-DANIELS-MIDLAND CO",
+                     "Codice":  "US0394831020",
+                     "Quantità":  "150",
+                     "Ultimo":  "76,79",
+                     "Valore":  "USD",
+                     "H1":  "11518,50",
+                     "Valore in EUR":  "10076,38"
+                 },
+                 {
+                     "Prodotto":  "BRISTOL-MYERS SQUIBB CO",
+                     "Codice":  "US1101221083",
+                     "Quantità":  "30",
+                     "Ultimo":  "58,13",
+                     "Valore":  "USD",
+                     "H1":  "1743,90",
+                     "Valore in EUR":  "1525,56"
+                 },
+                 {
+                     "Prodotto":  "COVIVIO SA",
+                     "Codice":  "FR0000064578",
+                     "Quantità":  "62",
+                     "Ultimo":  "54,55",
+                     "Valore":  "EUR",
+                     "H1":  "3382,10",
+                     "Valore in EUR":  "3382,10"
+                 },
+                 {
+                     "Prodotto":  "GSK PLC",
+                     "Codice":  "GB00BN7SWP63",
+                     "Quantità":  "185",
+                     "Ultimo":  "23,26",
+                     "Valore":  "EUR",
+                     "H1":  "4303,10",
+                     "Valore in EUR":  "4303,10"
+                 },
+                 {
+                     "Prodotto":  "INGREDION INC",
+                     "Codice":  "US4571871023",
+                     "Quantità":  "118",
+                     "Ultimo":  "97,62",
+                     "Valore":  "USD",
+                     "H1":  "11519,16",
+                     "Valore in EUR":  "10076,96"
+                 },
+                 {
+                     "Prodotto":  "JOHNSON \u0026 JOHNSON",
+                     "Codice":  "US4781601046",
+                     "Quantità":  "20",
+                     "Ultimo":  "263,04",
+                     "Valore":  "USD",
+                     "H1":  "5260,80",
+                     "Valore in EUR":  "4602,15"
+                 },
+                 {
+                     "Prodotto":  "NOMAD FOODS LTD",
+                     "Codice":  "VGG6564A1057",
+                     "Quantità":  "750",
+                     "Ultimo":  "11,42",
+                     "Valore":  "USD",
+                     "H1":  "8565,00",
+                     "Valore in EUR":  "7492,66"
+                 },
+                 {
+                     "Prodotto":  "NUTRIEN LTD",
+                     "Codice":  "CA67077M1086",
+                     "Quantità":  "66",
+                     "Ultimo":  "65,06",
+                     "Valore":  "USD",
+                     "H1":  "4293,96",
+                     "Valore in EUR":  "3756,36"
+                 },
+                 {
+                     "Prodotto":  "PFIZER INC",
+                     "Codice":  "US7170811035",
+                     "Quantità":  "150",
+                     "Ultimo":  "24,32",
+                     "Valore":  "USD",
+                     "H1":  "3648,00",
+                     "Valore in EUR":  "3191,27"
+                 },
+                 {
+                     "Prodotto":  "RAYONIER INC",
+                     "Codice":  "US7549071030",
+                     "Quantità":  "110",
+                     "Ultimo":  "21,49",
+                     "Valore":  "USD",
+                     "H1":  "2363,90",
+                     "Valore in EUR":  "2067,94"
+                 },
+                 {
+                     "Prodotto":  "REALTY INCOME CORP",
+                     "Codice":  "US7561091049",
+                     "Quantità":  "249",
+                     "Ultimo":  "63,84",
+                     "Valore":  "USD",
+                     "H1":  "15896,16",
+                     "Valore in EUR":  "13905,96"
+                 },
+                 {
+                     "Prodotto":  "WEYERHAEUSER CO",
+                     "Codice":  "US9621661043",
+                     "Quantità":  "160",
+                     "Ultimo":  "23,79",
+                     "Valore":  "USD",
+                     "H1":  "3806,40",
+                     "Valore in EUR":  "3329,84"
+                 }
+             ]
+}

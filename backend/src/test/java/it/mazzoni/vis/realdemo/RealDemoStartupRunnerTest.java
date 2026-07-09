@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 
 class RealDemoStartupRunnerTest {
 
@@ -68,5 +69,44 @@ class RealDemoStartupRunnerTest {
         verify(jobRunLogRepository, org.mockito.Mockito.atLeast(2)).save(runCaptor.capture());
         assertThat(runCaptor.getAllValues().getLast().getStatus()).isEqualTo("SUCCESS");
         assertThat(runCaptor.getAllValues().getLast().getRecordsProcessed()).isEqualTo(7);
+    }
+
+    @Test
+    void runStartupIngestion_skipsUnsupportedDividendHistoryWithoutFailingDemoStartup() {
+        RealDemoProperties properties = new RealDemoProperties("KO");
+        SeedService seedService = mock(SeedService.class);
+        QuoteRefreshJob quoteRefreshJob = mock(QuoteRefreshJob.class);
+        DividendUpdateJob dividendUpdateJob = mock(DividendUpdateJob.class);
+        AlertDetectionService alertDetectionService = mock(AlertDetectionService.class);
+        AlertDeliveryService alertDeliveryService = mock(AlertDeliveryService.class);
+        IngestionEventRecorder eventRecorder = mock(IngestionEventRecorder.class);
+        JobRunLogRepository jobRunLogRepository = mock(JobRunLogRepository.class);
+        when(jobRunLogRepository.save(any(JobRunLog.class))).thenAnswer(invocation -> {
+            JobRunLog log = invocation.getArgument(0);
+            if (log.getId() == null) {
+                log.setId(UUID.randomUUID());
+            }
+            return log;
+        });
+        when(seedService.seedTickers(List.of("KO"))).thenReturn(List.of(
+                new SeedResult("KO", "Coca-Cola Co.", "Consumer Defensive", "NYSE", "US", "desc",
+                        null, null, null, null, null, "yahoo", "seeded", null, LocalDate.now(), null)
+        ));
+        when(quoteRefreshJob.execute()).thenReturn(1);
+        doThrow(new UnsupportedOperationException("getDividendHistory is not supported by the Yahoo Finance client"))
+                .when(dividendUpdateJob).execute();
+        when(alertDetectionService.execute()).thenReturn(1);
+
+        RealDemoStartupRunner runner = new RealDemoStartupRunner(properties, seedService, quoteRefreshJob,
+                dividendUpdateJob, alertDetectionService, alertDeliveryService, eventRecorder, jobRunLogRepository);
+
+        runner.runStartupIngestion();
+
+        verify(eventRecorder).record("ALL", "dividend", "SKIPPED",
+                "getDividendHistory is not supported by the Yahoo Finance client");
+        ArgumentCaptor<JobRunLog> runCaptor = ArgumentCaptor.forClass(JobRunLog.class);
+        verify(jobRunLogRepository, org.mockito.Mockito.atLeast(2)).save(runCaptor.capture());
+        assertThat(runCaptor.getAllValues().getLast().getStatus()).isEqualTo("SUCCESS");
+        assertThat(runCaptor.getAllValues().getLast().getRecordsProcessed()).isEqualTo(3);
     }
 }

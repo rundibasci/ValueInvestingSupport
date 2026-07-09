@@ -1,0 +1,227 @@
+﻿[
+    {
+        "name":  "health",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/actuator/health",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "frontend-watchlist",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:5173/watchlist",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "frontend-ko-review",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:5173/securities/KO/review",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "watchlist-api",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/watchlist",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "portfolios-api",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/portfolios",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "screener-empty-post",
+        "ok":  false,
+        "status":  500,
+        "uri":  "http://localhost:8080/api/v1/screener",
+        "contentLength":  116,
+        "error":  "Errore del server remoto: (500) Errore interno del server.",
+        "sample":  null
+    },
+    {
+        "name":  "agent-one-comparison",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/conservative-workflow/agent-one-comparison",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "review-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO/review",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "profile-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "valuation-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO/valuation",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "dividends-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO/dividends",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "growth-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO/growth",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "insiders-KO",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/KO/insiders",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "review-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B/review",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "profile-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "valuation-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B/valuation",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "dividends-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B/dividends",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "growth-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B/growth",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "insiders-BRK-B",
+        "ok":  false,
+        "status":  null,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK-B/insiders",
+        "contentLength":  0,
+        "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+        "sample":  null
+    },
+    {
+        "name":  "review-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B/review",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    },
+    {
+        "name":  "profile-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    },
+    {
+        "name":  "valuation-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B/valuation",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    },
+    {
+        "name":  "dividends-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B/dividends",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    },
+    {
+        "name":  "growth-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B/growth",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    },
+    {
+        "name":  "insiders-BRK.B",
+        "ok":  false,
+        "status":  404,
+        "uri":  "http://localhost:8080/api/v1/securities/BRK.B/insiders",
+        "contentLength":  35,
+        "error":  "Errore del server remoto: (404) Non trovato.",
+        "sample":  null
+    }
+]

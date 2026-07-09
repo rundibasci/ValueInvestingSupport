@@ -1,0 +1,16 @@
+﻿{
+    "id":  "33352296-221b-4b3d-9198-f8e29474a644",
+    "symbol":  "JNJ",
+    "sector":  "Healthcare",
+    "quantity":  5,
+    "averageCostBasis":  150,
+    "currency":  "USD",
+    "currentPrice":  263.0400,
+    "currentValue":  1315.2000,
+    "weightPercent":  null,
+    "compositeFairValue":  80.9400,
+    "marginOfSafety":  -224.9800,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:16.281184599"
+}

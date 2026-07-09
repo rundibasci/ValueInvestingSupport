@@ -10,13 +10,14 @@ import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
+import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
-import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,8 +49,8 @@ class SeedServiceTest {
     @Mock FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
     @Mock PriceQuoteRepository priceQuoteRepository;
-    @Mock ValueScoreRepository valueScoreRepository;
     @Mock ValuationService valuationService;
+    @Mock ValueScoreService valueScoreService;
     @Mock SourceTracker sourceTracker;
 
     SeedService seedService;
@@ -61,7 +62,7 @@ class SeedServiceTest {
                 new BigDecimal("0.04"), new BigDecimal("0.025"));
         seedService = new SeedService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
-                priceQuoteRepository, valueScoreRepository, valuationService, defaults, sourceTracker);
+                priceQuoteRepository, valuationService, valueScoreService, defaults, sourceTracker);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
         Mockito.lenient().when(securityRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -88,6 +89,7 @@ class SeedServiceTest {
         assertThat(results).hasSize(2);
         assertThat(results.get(0).symbol()).isEqualTo("AAPL");
         assertThat(results.get(0).compositeFairValue()).isEqualByComparingTo("210.50");
+        assertThat(results.get(0).totalScore()).isEqualByComparingTo("66.00");
         assertThat(results.get(0).error()).isNull();
         assertThat(results.get(1).symbol()).isEqualTo("KO");
         assertThat(results.get(1).marginOfSafety()).isEqualByComparingTo("18.40");
@@ -123,6 +125,7 @@ class SeedServiceTest {
         assertThat(results).hasSize(1);
         assertThat(results.get(0).error()).isNotNull();
         verify(valuationService, never()).calculate(any(), any());
+        verify(valueScoreService, never()).compute(any());
     }
 
     @Test
@@ -188,5 +191,8 @@ class SeedServiceTest {
         result.setRecommendation(rec);
         when(valuationService.calculate(eq(symbol), any()))
                 .thenReturn(new ValuationOutcome(result, Map.<String, BigDecimal>of()));
+        ValueScore score = new ValueScore();
+        score.setTotalScore(new BigDecimal("66.00"));
+        when(valueScoreService.compute(symbol)).thenReturn(score);
     }
 }

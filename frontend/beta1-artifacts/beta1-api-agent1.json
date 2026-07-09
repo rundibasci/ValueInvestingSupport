@@ -1,0 +1,552 @@
+[
+    {
+        "symbol":  "BRK.B",
+        "companyName":  "Berkshire Hathaway Inc.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "0.0%",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "78",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "wide",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "low leverage",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "not income-focused",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "JNJ",
+        "companyName":  "Johnson \u0026 Johnson",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "positive",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "72",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "defensive quality",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "low growth",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "PG",
+        "companyName":  "Procter \u0026 Gamble Co.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "near fair value",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "70",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "defensive quality",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "KO",
+        "companyName":  "Coca-Cola Co.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "negative",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "68",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "brand moat",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "PEP",
+        "companyName":  "PepsiCo Inc.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "negative",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "67",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "brand moat",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "moderate leverage",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "WMT",
+        "companyName":  "Walmart Inc.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "thin",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "65",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "scale moat",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "MSFT",
+        "companyName":  "Microsoft Corp.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "negative",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "82",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "wide",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "net cash",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "high quality",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "low yield",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "ADP",
+        "companyName":  "Automatic Data Processing Inc.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "negative",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "74",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "service moat",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "steady",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "UNP",
+        "companyName":  "Union Pacific Corp.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "thin",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "69",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "network moat",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "moderate leverage",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "cyclical",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    },
+    {
+        "symbol":  "XOM",
+        "companyName":  "Exxon Mobil Corp.",
+        "metrics":  [
+                        {
+                            "group":  "valuation",
+                            "label":  "Margin of safety",
+                            "value":  "cyclical",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "available"
+                        },
+                        {
+                            "group":  "score",
+                            "label":  "Value score",
+                            "value":  "64",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Composite score available in seeded/local data."
+                        },
+                        {
+                            "group":  "quality",
+                            "label":  "Quality",
+                            "value":  "commodity-exposed",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Moat and business-quality signal available."
+                        },
+                        {
+                            "group":  "resilience",
+                            "label":  "Leverage/liquidity",
+                            "value":  "resilient",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Debt and solvency indicators present."
+                        },
+                        {
+                            "group":  "growth",
+                            "label":  "Growth",
+                            "value":  "cyclical",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Recent growth trend can be reviewed."
+                        },
+                        {
+                            "group":  "dividend",
+                            "label":  "Dividend indicators",
+                            "value":  "covered",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Dividend coverage should be checked in the review packet."
+                        },
+                        {
+                            "group":  "coverage",
+                            "label":  "Source/data coverage",
+                            "value":  "available",
+                            "availabilityStatus":  "AVAILABLE",
+                            "coverageNote":  "Availability states remain visible per L3 diagnostics."
+                        }
+                    ]
+    }
+]

@@ -1,0 +1,689 @@
+{
+  "generatedAt": "2026-07-03T11:31:38.401Z",
+  "events": [
+    {
+      "type": "http",
+      "status": 401,
+      "text": "http://localhost:8080/auth/refresh",
+      "url": "http://localhost:5173/login"
+    },
+    {
+      "type": "console:error",
+      "text": "Failed to load resource: the server responded with a status of 401 ()",
+      "url": "http://localhost:5173/login"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/securities/KO/review"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/portfolio"
+    },
+    {
+      "type": "http",
+      "status": 403,
+      "text": "http://localhost:8080/api/v1/admin/universe/templates",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "console:error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "http",
+      "status": 403,
+      "text": "http://localhost:8080/api/v1/admin/universe/templates",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "console:error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "console:warning",
+      "text": "The width(-1) and height(-1) of chart should be greater than 0,\n       please check the style of container, or the props width(100%) and height(100%),\n       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the\n       height and width.",
+      "url": "http://localhost:5173/portfolio"
+    },
+    {
+      "type": "http",
+      "status": 403,
+      "text": "http://localhost:8080/api/v1/admin/universe/templates",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "console:error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "http",
+      "status": 403,
+      "text": "http://localhost:8080/api/v1/admin/universe/templates",
+      "url": "http://localhost:5173/universe-curation"
+    },
+    {
+      "type": "console:error",
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "http://localhost:5173/universe-curation"
+    }
+  ],
+  "results": [
+    {
+      "label": "login-initial",
+      "route": "/login",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\login-initial.png",
+      "url": "http://localhost:5173/login",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\n\nA BETTER STARTING POINT\n\nResearch before conviction.\n\nA disciplined workspace for examining fundamentals, valuing businesses, and keeping your reasoning visible.\n\nTHE QUIET ADVANTAGE\n\nGood investment decisions begin with patient questions, not louder opinions.\n\nWelcome back\n\nEnter your workspace\n\nSign in to continue your research.\n\nYour session has expired. Please sign in again.\nG\nContinue with Google\nPASSWORD\nEmail\nPassword\nSign in to research\n\nValue Investing is decision support, not investment advice. Your judgment stays in the room.",
+      "bodyLength": 561,
+      "h1": [
+        "Research before conviction."
+      ],
+      "headings": [
+        "H1:Research before conviction.",
+        "H2:Enter your workspace"
+      ],
+      "mainCount": 1,
+      "navCount": 0,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Your session has expired. Please sign in again."
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "dashboard",
+      "route": "/",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\dashboard.png",
+      "url": "http://localhost:5173/",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nMONITOR\n\nDashboard\n\nTrack portfolio condition, active alerts, margin of safety, and the data gaps that need review before decisions are made.\n\nPortfolio scope\nL1 oversized KO concentration\nL1 prudent validation equal weight\n\nPORTFOLIO VALUE\n\n$10,486\n\n3/3 holdings priced\n\nWEIGHTED MARGIN OF SAFETY\n\n-244.6%\n\n0 holdings at or above 15%\n\nYIELD\n\n-\n\nPortfolio yield is not exposed by the current API.\n\nACTIVE ALERTS\n\n0\n\n0 high priority\n\nCOST BASIS RETURN\n\nTop movers\nOpen portfolio\nHOLDING\tVALUE\tCURRENT PRICE\tRETURN\tMOS\tRECOMMENDATION\nJNJ\t$1,315\t$263\t75.4%\t-225%\tOVERVALUED\nKO\t$8,414\t$84\t40.2%\t-255.8%\tOVERVALUED\nPG\t$757\t$151\t-5.4%\t-154%\tOVERVALUED\n\nMONITORING\n\nAlert pressure\n",
+      "bodyLength": 1532,
+      "h1": [
+        "Dashboard"
+      ],
+      "headings": [
+        "H1:Dashboard",
+        "H2:Top movers",
+        "H2:Alert pressure",
+        "H2:Portfolio data quality",
+        "H2:Upcoming earnings and dividends"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "-5.4%"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "screener",
+      "route": "/screener",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\screener.png",
+      "url": "http://localhost:5173/screener",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nDISCOVER\n\nBuild a better shortlist.\n\nStart with the evidence: quality, resilience, growth, income, and the gap between market price and calculated fair value.\n\n0 active filters\nScreen criteria\n\nApply your own discipline or begin with a research preset.\n\nGraham\nDividend\nQuality\nConservative\n\nConservative preset\n\nPositive valuation gap, available score evidence, dividend signal, balance-sheet resilience, and complete data coverage.\n\nApply preset\n\nPositive margin of safety\n\n15% minimum\n\nKeeps valuation discipline visible.\n\nScore availability and strength\n\n60 minimum\n\nRequires a usable composite evidence base.\n\nDividend signal\n\n1.5% minimum\n\nHighlights income coverage c",
+      "bodyLength": 5129,
+      "h1": [
+        "Build a better shortlist."
+      ],
+      "headings": [
+        "H1:Build a better shortlist.",
+        "H2:Screen criteria",
+        "H2:Screen results",
+        "H3:Likely filter pressure",
+        "H3:Research relaxations",
+        "H2:Agent 1 selected-symbol comparison"
+      ],
+      "mainCount": 2,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "security-detail-ko",
+      "route": "/securities/KO",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\security-detail-ko.png",
+      "url": "http://localhost:5173/securities/KO",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n← Back to screener\n\nSECURITY RESEARCH\n\nThe Coca-Cola Company (KO)\n\nConsumer Defensive · US\n\nCURRENT PRICE\n$84.14\nJul 3, 2026\nOpen in-depth review\nAdd to watchlist\nOverview\nFinancials\nRatios\nFinancial health\nValuation\nDividends\nGrowth\nInsider\nBusiness context\n\nCompany description is not available.\n\nCurrent fundamentals\nREVENUE\n$47.94B\nNET INCOME\n$13.11B\nFREE CASH FLOW\n$5.3B\nROIC\n—\nP/E\n—\nDIVIDEND YIELD\n0.03%\nSector peers\nCompany\tMoS\tScore\nPGThe Procter & Gamble Company\t-154.04%\t—\nPEPPepsiCo, Inc.\t-204.71%\t—\nWMTWalmart Inc.\t-306.4%\t—\nData context\nDATA AS OF\nJul 3, 2026\nPRICE DATE\nJul 3, 2026\nEXCHANGE\n—\nCOUNTRY\nUS",
+      "bodyLength": 842,
+      "h1": [
+        "The Coca-Cola Company (KO)"
+      ],
+      "headings": [
+        "H1:The Coca-Cola Company (KO)",
+        "H2:Business context",
+        "H2:Current fundamentals",
+        "H2:Sector peers",
+        "H2:Data context"
+      ],
+      "mainCount": 2,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "security-review-ko",
+      "route": "/securities/KO/review",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\security-review-ko.png",
+      "url": "http://localhost:5173/securities/KO/review",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\nBack to screener\n\nIN-DEPTH STOCK REVIEW\n\nThe Coca-Cola Company (KO)\n\nConsumer Defensive · US · USD\n\nBusiness description is unavailable from the current provider data.\n\nCURRENT PRICE\n$84.14\n\nPrice date: Jul 3, 2026\n\nFUNDAMENTALS AS OF\nJul 3, 2026\nAlready on watchlist\nOpen Security Detail\nRefresh or seed\n\nKO is already on your watchlist.\n\nSources\nValuation\nCash generation\nEarnings\nWorkflow\nMoat\nDebt\nGraphs\nDividends\nQuality\nRisk\nSource Coverage And Freshness\nPROFILE\navailable\n\nApplication data is available; provider-level metadata is not stored for this category.\n\nFUNDAMENTALS\navailable\n\nfresh · Jul 3, 2026\n\nApplication data is available; provider-level metadata is no",
+      "bodyLength": 12787,
+      "h1": [
+        "The Coca-Cola Company (KO)"
+      ],
+      "headings": [
+        "H1:The Coca-Cola Company (KO)",
+        "H2:Source Coverage And Freshness",
+        "H2:Valuation And Margin Of Safety",
+        "H3:MODEL OUTPUTS",
+        "H3:CUSTOM DCF",
+        "H3:DCF SENSITIVITY",
+        "H3:WACC TRANSPARENCY",
+        "H3:COMPOSITE WEIGHT PREVIEW",
+        "H3:GRAHAM CRITERIA CHECKLIST",
+        "H2:Professional Workflow",
+        "H3:CONFIDENCE",
+        "H3:VERIFICATION WARNINGS",
+        "H3:CHECKLIST EVALUATION",
+        "H2:Moat And Business Quality",
+        "H3:MOAT ASSESSMENT"
+      ],
+      "mainCount": 1,
+      "navCount": 2,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "provider limited",
+        "provider limited",
+        "fail",
+        "fail",
+        "fail",
+        "fail",
+        "fail",
+        "low confidence",
+        "low",
+        "low",
+        "low"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": [
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        },
+        {
+          "width": 14,
+          "height": 14,
+          "text": ""
+        },
+        {
+          "width": 471,
+          "height": 288,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "label": "portfolio",
+      "route": "/portfolio",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\portfolio.png",
+      "url": "http://localhost:5173/portfolio",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nCONSTRUCT\n\nBuild with constraints, not hunches.\n\nCreate a model portfolio, test its diversification limits, then review the practical trades required to rebalance it.\n\nYour portfolios\nL1 oversized KO concentration\n3 holdings\nL1 prudent validation equal weight\n10 holdings\nNew portfolio\nDescription\nCreate portfolio\nL1 oversized KO concentration\n\nReplay evidence portfolio for holding concentration warnings; not an investable model.\n\nCurrent value\n\n$10,486\n\nHOLDING\tQUANTITY\tVALUE\tWEIGHT\tMOS\tLIQUIDITY\t\nACTIONS\n\nPG\t5\t$757\t7.2%\t-154.0%\t\nUnknown\n\nData Unavailable\n\n\t\nReview\nRemove\n\nJNJ\t5\t$1,315\t12.5%\t-225.0%\t\nUnknown\n\nData Unavailable\n\n\t\nReview\nRemove\n\nKO\t100\t$8,414\t80.2%\t-2",
+      "bodyLength": 3922,
+      "h1": [
+        "Build with constraints, not hunches."
+      ],
+      "headings": [
+        "H1:Build with constraints, not hunches.",
+        "H2:Your portfolios",
+        "H2:L1 oversized KO concentration",
+        "H2:Portfolio intelligence",
+        "H3:Sector allocation",
+        "H3:Holding concentration",
+        "H3:Moat profile",
+        "H3:Quality distribution",
+        "H3:Benchmark comparison",
+        "H2:Portfolio review pack",
+        "H3:Sector weights",
+        "H3:Data-quality blockers",
+        "H3:Journal summary",
+        "H2:Allocation constraints"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Remove",
+        "Remove",
+        "Remove",
+        "Concentrated"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": [
+        {
+          "width": 240,
+          "height": 208,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "label": "watchlist",
+      "route": "/watchlist",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\watchlist.png",
+      "url": "http://localhost:5173/watchlist",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nMONITOR\n\nWatchlist & alerts\n\nKeep promising businesses in view and surface changes worth researching.\n\nDecision-support only, not investment advice (MiFID II). Alerts identify a condition; they do not prescribe an action.\nYour watchlist\n\nEach card shows monitoring thresholds, alert state, and research rationale.\n\nAll\nAlerts\nQuiet\nXOM\n\nAdded Jul 3, 2026, 6:40 AM\n\nMonitoring\n\nRESEARCH RATIONALE\n\nData Quality Gap\n\nReal demo startup universe member for conservative workflow validation.\n\nMoS floor\nNot set\nMoS ceiling\nNot set\nFundamental threshold\nNot set\nReview\nEdit alerts\nRemove\nUNP\n\nAdded Jul 3, 2026, 6:40 AM\n\nMonitoring\n\nRESEARCH RATIONALE\n\nData Quality Gap\n\nReal demo",
+      "bodyLength": 3521,
+      "h1": [
+        "Watchlist & alerts"
+      ],
+      "headings": [
+        "H1:Watchlist & alerts",
+        "H2:Your watchlist",
+        "H2:Add to watchlist",
+        "H2:Alerts requiring review"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove",
+        "Remove"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "seed-universe",
+      "route": "/seed",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\seed-universe.png",
+      "url": "http://localhost:5173/seed",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nSHARED RESEARCH UNIVERSE\n\nSeed Universe\n\nSeed symbols into platform-wide reference data so every authenticated user can discover them through screener, search, security detail, and review workflows.\n\nOpen screener\nScope\n\nSeeding creates or refreshes shared securities, profiles, fundamentals, ratios, quotes, valuations, and scores. It does not add symbols to your personal watchlist or portfolio; those actions stay user-owned and separate.\n\nCSV tickers\n\nAvailable to investors, advisors, and admins.\n\nTicker list\nPreview\n4 unique tickers\nAAPL\nMSFT\nKO\nJNJ\nSeed CSV list\nNamed packs\n\nNamed packs are hidden for non-admin roles until the backend quota and cost policy allows ",
+      "bodyLength": 959,
+      "h1": [
+        "Seed Universe"
+      ],
+      "headings": [
+        "H1:Seed Universe",
+        "H2:Scope",
+        "H2:CSV tickers",
+        "H3:Preview",
+        "H2:Named packs"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "universe-curation",
+      "route": "/universe-curation",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\universe-curation.png",
+      "url": "http://localhost:5173/universe-curation",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nSHARED UNIVERSE\n\nUniverse Curation\n\nBuild a criteria-based research universe, preview the exact symbols, then seed only the reviewed list into shared reference data.\n\nCSV seed\nScreener\nTemplate\nCustom criteria\nForbidden\nSort\nMarket cap high to low\nMarket cap low to high\nVolume high to low\nSymbol A to Z\nExchanges\nNASDAQ\nNYSE\nAMEX\nLSE\nTSX\nXETRA\nCountries\nUS\nCA\nGB\nDE\nFR\nIT\nCH\nSectors\nBasic Materials\nCommunication Services\nConsumer Cyclical\nConsumer Defensive\nEnergy\nFinancial Services\nHealthcare\nIndustrials\nReal Estate\nTechnology\nUtilities\nTreat selected sectors as exclusions\nMarket cap min\nMarket cap max\nMinimum volume\nMax symbols\nPreview universe\nSeed preview\nActive w",
+      "bodyLength": 1208,
+      "h1": [
+        "Universe Curation"
+      ],
+      "headings": [
+        "H1:Universe Curation",
+        "H2:Active workflow summary",
+        "H3:SECTORS",
+        "H3:EXCHANGES",
+        "H2:Restrictions"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Forbidden"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": true,
+      "horizontalOverflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "svgs": []
+    },
+    {
+      "label": "mobile-screener",
+      "route": "/screener",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\mobile-screener.png",
+      "url": "http://localhost:5173/screener",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\nSign out\n\nDISCOVER\n\nBuild a better shortlist.\n\nStart with the evidence: quality, resilience, growth, income, and the gap between market price and calculated fair value.\n\n0 active filters\nScreen criteria\n\nApply your own discipline or begin with a research preset.\n\nGraham\nDividend\nQuality\nConservative\n\nConservative preset\n\nPositive valuation gap, available score evidence, dividend signal, balance-sheet resilience, and complete data coverage.\n\nApply preset\n\nPositive margin of safety\n\n15% minimum\n\nKeeps valuation discipline visible.\n\nScore availability and strength\n\n60 minimum\n\nRequires a usable composite evidence base.\n\nDividend signal\n\n1.5% minimum\n\nHighlights income coverage candidates for conservative review",
+      "bodyLength": 5096,
+      "h1": [
+        "Build a better shortlist."
+      ],
+      "headings": [
+        "H1:Build a better shortlist.",
+        "H2:Screen criteria",
+        "H2:Screen results",
+        "H3:Likely filter pressure",
+        "H3:Research relaxations",
+        "H2:Agent 1 selected-symbol comparison"
+      ],
+      "mainCount": 2,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "svgs": []
+    },
+    {
+      "label": "mobile-portfolio",
+      "route": "/portfolio",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\mobile-portfolio.png",
+      "url": "http://localhost:5173/portfolio",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\nSign out\n\nCONSTRUCT\n\nBuild with constraints, not hunches.\n\nCreate a model portfolio, test its diversification limits, then review the practical trades required to rebalance it.\n\nYour portfolios\nL1 oversized KO concentration\n3 holdings\nL1 prudent validation equal weight\n10 holdings\nNew portfolio\nDescription\nCreate portfolio\nL1 oversized KO concentration\n\nReplay evidence portfolio for holding concentration warnings; not an investable model.\n\nCurrent value\n\n$10,486\n\nHOLDING\tQUANTITY\tVALUE\tWEIGHT\tMOS\tLIQUIDITY\t\nACTIONS\n\nPG\t5\t$757\t7.2%\t-154.0%\t\nUnknown\n\nData Unavailable\n\n\t\nReview\nRemove\n\nJNJ\t5\t$1,315\t12.5%\t-225.0%\t\nUnknown\n\nData Unavailable\n\n\t\nReview\nRemove\n\nKO\t100\t$8,414\t80.2%\t-255.8%\t\nUnknown\n\nData Unavailable\n",
+      "bodyLength": 3889,
+      "h1": [
+        "Build with constraints, not hunches."
+      ],
+      "headings": [
+        "H1:Build with constraints, not hunches.",
+        "H2:Your portfolios",
+        "H2:L1 oversized KO concentration",
+        "H2:Portfolio intelligence",
+        "H3:Sector allocation",
+        "H3:Holding concentration",
+        "H3:Moat profile",
+        "H3:Quality distribution",
+        "H3:Benchmark comparison",
+        "H2:Portfolio review pack",
+        "H3:Sector weights",
+        "H3:Data-quality blockers",
+        "H3:Journal summary",
+        "H2:Allocation constraints"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Remove",
+        "Remove",
+        "Remove",
+        "Concentrated"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": false,
+      "horizontalOverflow": true,
+      "scrollWidth": 798,
+      "clientWidth": 390,
+      "svgs": [
+        {
+          "width": 702,
+          "height": 208,
+          "text": ""
+        }
+      ]
+    },
+    {
+      "label": "mobile-universe-curation",
+      "route": "/universe-curation",
+      "screenshot": "C:\\Users\\Marcello\\OneDrive\\Documents\\workspace\\ValueInvestingSupport\\qa-artifacts\\beta3-ui\\mobile-universe-curation.png",
+      "url": "http://localhost:5173/universe-curation",
+      "title": "Value Investing Support",
+      "bodyStart": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\nSign out\n\nSHARED UNIVERSE\n\nUniverse Curation\n\nBuild a criteria-based research universe, preview the exact symbols, then seed only the reviewed list into shared reference data.\n\nCSV seed\nScreener\nTemplate\nCustom criteria\nForbidden\nSort\nMarket cap high to low\nMarket cap low to high\nVolume high to low\nSymbol A to Z\nExchanges\nNASDAQ\nNYSE\nAMEX\nLSE\nTSX\nXETRA\nCountries\nUS\nCA\nGB\nDE\nFR\nIT\nCH\nSectors\nBasic Materials\nCommunication Services\nConsumer Cyclical\nConsumer Defensive\nEnergy\nFinancial Services\nHealthcare\nIndustrials\nReal Estate\nTechnology\nUtilities\nTreat selected sectors as exclusions\nMarket cap min\nMarket cap max\nMinimum volume\nMax symbols\nPreview universe\nSeed preview\nActive workflow summary\nMatches\n-\nReturne",
+      "bodyLength": 1175,
+      "h1": [
+        "Universe Curation"
+      ],
+      "headings": [
+        "H1:Universe Curation",
+        "H2:Active workflow summary",
+        "H3:SECTORS",
+        "H3:EXCHANGES",
+        "H2:Restrictions"
+      ],
+      "mainCount": 1,
+      "navCount": 1,
+      "duplicateIds": [],
+      "unnamedButtons": [],
+      "unnamedFields": [],
+      "alerts": [
+        "Forbidden"
+      ],
+      "hasLoadingText": false,
+      "hasEmptyText": true,
+      "horizontalOverflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "svgs": []
+    }
+  ]
+}

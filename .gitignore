@@ -9,8 +9,13 @@ frontend/dist/
 frontend/.vite/
 frontend/*.tsbuildinfo
 frontend/*.log
+frontend/test-results/
 .npm-cache/
 .tools/
+qa-artifacts/node_modules/
+qa-artifacts/test-results/
+test-results/
+*.log
 
 # IDE
 .idea/

@@ -1,0 +1,1022 @@
+﻿{
+    "generatedAt":  "2026-07-03T19:12:59.8520285+02:00",
+    "mode":  "non-destructive-live-probe-v2",
+    "authUser":  "investor@realdemo.local",
+    "token":  "redacted",
+    "csv":  {
+                "path":  "C:\\Users\\Marcello\\Downloads\\Portfolio.csv",
+                "rowCount":  15,
+                "headers":  [
+                                "Prodotto",
+                                "Codice",
+                                "Quantità",
+                                "Ultimo",
+                                "Valore",
+                                "H1",
+                                "Valore in EUR"
+                            ],
+                "blankCodice":  1,
+                "duplicateCodice":  [
+
+                                    ],
+                "rows":  [
+                             {
+                                 "Prodotto":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+                                 "Codice":  "",
+                                 "Quantità":  "",
+                                 "Ultimo":  "",
+                                 "Valore":  "EUR",
+                                 "H1":  "1772,93",
+                                 "Valore in EUR":  "1772,93"
+                             },
+                             {
+                                 "Prodotto":  "ABBOTT LABORATORIES",
+                                 "Codice":  "US0028241000",
+                                 "Quantità":  "81",
+                                 "Ultimo":  "95,40",
+                                 "Valore":  "USD",
+                                 "H1":  "7727,40",
+                                 "Valore in EUR":  "6759,93"
+                             },
+                             {
+                                 "Prodotto":  "ACOMO NV",
+                                 "Codice":  "NL0000313286",
+                                 "Quantità":  "570",
+                                 "Ultimo":  "22,35",
+                                 "Valore":  "EUR",
+                                 "H1":  "12739,50",
+                                 "Valore in EUR":  "12739,50"
+                             },
+                             {
+                                 "Prodotto":  "ARCHER-DANIELS-MIDLAND CO",
+                                 "Codice":  "US0394831020",
+                                 "Quantità":  "150",
+                                 "Ultimo":  "76,79",
+                                 "Valore":  "USD",
+                                 "H1":  "11518,50",
+                                 "Valore in EUR":  "10076,38"
+                             },
+                             {
+                                 "Prodotto":  "BRISTOL-MYERS SQUIBB CO",
+                                 "Codice":  "US1101221083",
+                                 "Quantità":  "30",
+                                 "Ultimo":  "58,13",
+                                 "Valore":  "USD",
+                                 "H1":  "1743,90",
+                                 "Valore in EUR":  "1525,56"
+                             },
+                             {
+                                 "Prodotto":  "COVIVIO SA",
+                                 "Codice":  "FR0000064578",
+                                 "Quantità":  "62",
+                                 "Ultimo":  "54,55",
+                                 "Valore":  "EUR",
+                                 "H1":  "3382,10",
+                                 "Valore in EUR":  "3382,10"
+                             },
+                             {
+                                 "Prodotto":  "GSK PLC",
+                                 "Codice":  "GB00BN7SWP63",
+                                 "Quantità":  "185",
+                                 "Ultimo":  "23,26",
+                                 "Valore":  "EUR",
+                                 "H1":  "4303,10",
+                                 "Valore in EUR":  "4303,10"
+                             },
+                             {
+                                 "Prodotto":  "INGREDION INC",
+                                 "Codice":  "US4571871023",
+                                 "Quantità":  "118",
+                                 "Ultimo":  "97,62",
+                                 "Valore":  "USD",
+                                 "H1":  "11519,16",
+                                 "Valore in EUR":  "10076,96"
+                             },
+                             {
+                                 "Prodotto":  "JOHNSON \u0026 JOHNSON",
+                                 "Codice":  "US4781601046",
+                                 "Quantità":  "20",
+                                 "Ultimo":  "263,04",
+                                 "Valore":  "USD",
+                                 "H1":  "5260,80",
+                                 "Valore in EUR":  "4602,15"
+                             },
+                             {
+                                 "Prodotto":  "NOMAD FOODS LTD",
+                                 "Codice":  "VGG6564A1057",
+                                 "Quantità":  "750",
+                                 "Ultimo":  "11,42",
+                                 "Valore":  "USD",
+                                 "H1":  "8565,00",
+                                 "Valore in EUR":  "7492,66"
+                             },
+                             {
+                                 "Prodotto":  "NUTRIEN LTD",
+                                 "Codice":  "CA67077M1086",
+                                 "Quantità":  "66",
+                                 "Ultimo":  "65,06",
+                                 "Valore":  "USD",
+                                 "H1":  "4293,96",
+                                 "Valore in EUR":  "3756,36"
+                             },
+                             {
+                                 "Prodotto":  "PFIZER INC",
+                                 "Codice":  "US7170811035",
+                                 "Quantità":  "150",
+                                 "Ultimo":  "24,32",
+                                 "Valore":  "USD",
+                                 "H1":  "3648,00",
+                                 "Valore in EUR":  "3191,27"
+                             },
+                             {
+                                 "Prodotto":  "RAYONIER INC",
+                                 "Codice":  "US7549071030",
+                                 "Quantità":  "110",
+                                 "Ultimo":  "21,49",
+                                 "Valore":  "USD",
+                                 "H1":  "2363,90",
+                                 "Valore in EUR":  "2067,94"
+                             },
+                             {
+                                 "Prodotto":  "REALTY INCOME CORP",
+                                 "Codice":  "US7561091049",
+                                 "Quantità":  "249",
+                                 "Ultimo":  "63,84",
+                                 "Valore":  "USD",
+                                 "H1":  "15896,16",
+                                 "Valore in EUR":  "13905,96"
+                             },
+                             {
+                                 "Prodotto":  "WEYERHAEUSER CO",
+                                 "Codice":  "US9621661043",
+                                 "Quantità":  "160",
+                                 "Ultimo":  "23,79",
+                                 "Valore":  "USD",
+                                 "H1":  "3806,40",
+                                 "Valore in EUR":  "3329,84"
+                             }
+                         ]
+            },
+    "probes":  [
+                   {
+                       "name":  "health",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/actuator/health",
+                       "contentLength":  2022,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  null
+                   },
+                   {
+                       "name":  "frontend-watchlist",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:5173/watchlist",
+                       "contentLength":  471,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  null
+                   },
+                   {
+                       "name":  "frontend-ko-review",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:5173/securities/KO/review",
+                       "contentLength":  471,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  null
+                   },
+                   {
+                       "name":  "watchlist-api",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/watchlist",
+                       "contentLength":  3013,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "[{\"id\":\"d957af2e-b567-46eb-8ede-cea5669b03b2\",\"symbol\":\"XOM\",\"mosAlertMin\":null,\"mosAlertMax\":null,\"fundamentalDegradeThreshold\":null,\"monitoringReason\":\"DATA_QUALITY_GAP\",\"rationaleNote\":\"Real demo startup universe member for conservative workflow validation.\",\"addedAt\":\"2026-07-03T06:40:11.975151\"},{\"id\":\"040af446-d653-42c4-aa10-b24479fd8387\",\"symbol\":\"UNP\",\"mosAlertMin\":null,\"mosAlertMax\":null,\"fundamentalDegradeThreshold\":null,\"monitoringReason\":\"DATA_QUALITY_GAP\",\"rationaleNote\":\"Real demo startup universe member for conservative workflow validation.\",\"addedAt\":\"2026-07-03T06:40:11.968502\"},{\"id\":\"6592419c-0c2e-4e98-85bd-f9d8f2bf79c2\",\"symbol\":\"BRK-B\",\"mosAlertMin\":null,\"mosAlertMax\":null,\"fundamentalDegradeThreshold\":null,\"monitoringReason\":\"DATA_QUALITY_GAP\",\"rationaleNote\":\"Real demo startup universe member for conservative workflow validation.\",\"addedAt\":\"2026-07-03T06:40:11.961"
+                   },
+                   {
+                       "name":  "portfolios-api",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/portfolios",
+                       "contentLength":  571,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "[{\"id\":\"c9f6e79c-dd67-4dc0-96de-18098830f965\",\"name\":\"L1 oversized KO concentration\",\"description\":\"Replay evidence portfolio for holding concentration warnings; not an investable model.\",\"holdingCount\":3,\"createdAt\":\"2026-07-03T06:54:15.942968\",\"updatedAt\":\"2026-07-03T06:54:15.942968\"},{\"id\":\"5ef0f36e-5cdc-477d-b72a-8120ce3ca23e\",\"name\":\"L1 prudent validation equal weight\",\"description\":\"Replay evidence portfolio for concentration checks; not an investable model.\",\"holdingCount\":10,\"createdAt\":\"2026-07-03T06:54:14.413441\",\"updatedAt\":\"2026-07-03T06:54:14.413441\"}]"
+                   },
+                   {
+                       "name":  "screener-empty-post",
+                       "ok":  false,
+                       "status":  500,
+                       "uri":  "http://localhost:8080/api/v1/screener",
+                       "contentLength":  116,
+                       "error":  "Errore del server remoto: (500) Errore interno del server.",
+                       "errorContent":  "{\"timestamp\":\"2026-07-03T17:12:57.678+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"path\":\"/api/v1/screener\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "agent-one-comparison",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/conservative-workflow/agent-one-comparison",
+                       "contentLength":  11553,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "[{\"symbol\":\"BRK.B\",\"companyName\":\"Berkshire Hathaway Inc.\",\"metrics\":[{\"group\":\"valuation\",\"label\":\"Margin of safety\",\"value\":\"0.0%\",\"availabilityStatus\":\"AVAILABLE\",\"coverageNote\":\"available\"},{\"group\":\"score\",\"label\":\"Value score\",\"value\":\"78\",\"availabilityStatus\":\"AVAILABLE\",\"coverageNote\":\"Composite score available in seeded/local data.\"},{\"group\":\"quality\",\"label\":\"Quality\",\"value\":\"wide\",\"availabilityStatus\":\"AVAILABLE\",\"coverageNote\":\"Moat and business-quality signal available.\"},{\"group\":\"resilience\",\"label\":\"Leverage/liquidity\",\"value\":\"low leverage\",\"availabilityStatus\":\"AVAILABLE\",\"coverageNote\":\"Debt and solvency indicators present.\"},{\"group\":\"growth\",\"label\":\"Growth\",\"value\":\"steady\",\"availabilityStatus\":\"AVAILABLE\",\"coverageNote\":\"Recent growth trend can be reviewed.\"},{\"group\":\"dividend\",\"label\":\"Dividend indicators\",\"value\":\"not income-focused\",\"availabilityStatus\":\"AVAI"
+                   },
+                   {
+                       "name":  "review-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/review",
+                       "contentLength":  10890,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"detail\":{\"symbol\":\"KO\",\"companyName\":\"The Coca-Cola Company\",\"sector\":\"Consumer Defensive\",\"exchange\":null,\"country\":\"US\",\"currency\":\"USD\",\"marketCap\":362010869760.00,\"description\":null,\"website\":null,\"currentPrice\":84.1400,\"priceDate\":\"2026-07-03\",\"revenue\":47941000000.00,\"netIncome\":13107000000.00,\"fcf\":5296000000.00,\"eps\":3.0400,\"bvps\":7.9469,\"pe\":null,\"roic\":null,\"dividendYield\":0.0292,\"dataAsOf\":\"2026-07-03\"},\"financials\":{\"symbol\":\"KO\",\"annuals\":[{\"fiscalYear\":2026,\"revenue\":47941000000.00,\"netIncome\":13107000000.00,\"fcf\":5296000000.00,\"eps\":3.0400,\"bvps\":7.9469,\"sharesOutstanding\":4313000000},{\"fiscalYear\":2025,\"revenue\":46897000000.00,\"netIncome\":10631000000.00,\"fcf\":null,\"eps\":null,\"bvps\":null,\"sharesOutstanding\":null},{\"fiscalYear\":2024,\"revenue\":45784000000.00,\"netIncome\":10714000000.00,\"fcf\":null,\"eps\":null,\"bvps\":null,\"sharesOutstanding\":null},{\"fiscalYear\":2"
+                   },
+                   {
+                       "name":  "profile-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO",
+                       "contentLength":  409,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"companyName\":\"The Coca-Cola Company\",\"sector\":\"Consumer Defensive\",\"exchange\":null,\"country\":\"US\",\"currency\":\"USD\",\"marketCap\":362010869760.00,\"description\":null,\"website\":null,\"currentPrice\":84.1400,\"priceDate\":\"2026-07-03\",\"revenue\":47941000000.00,\"netIncome\":13107000000.00,\"fcf\":5296000000.00,\"eps\":3.0400,\"bvps\":7.9469,\"pe\":null,\"roic\":null,\"dividendYield\":0.0292,\"dataAsOf\":\"2026-07-03\"}"
+                   },
+                   {
+                       "name":  "valuation-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/valuation",
+                       "contentLength":  609,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"companyName\":\"The Coca-Cola Company\",\"currentPrice\":84.1400,\"dcf\":{\"base\":null,\"low\":null,\"high\":null},\"dcfTerminalValuePercentage\":null,\"dcfHighTerminalDependence\":false,\"sensitivity\":null,\"grahamNumber\":23.6500,\"ddmValue\":null,\"epv\":null,\"ownerEarnings\":{\"value\":13107000000.00,\"maintenanceCapexEstimate\":0.00},\"compositeFairValue\":23.6500,\"marginOfSafety\":-255.7700,\"mosLow\":null,\"mosHigh\":null,\"recommendation\":\"OVERVALUED\",\"analystEstimates\":null,\"wacc\":null,\"grahamChecklist\":null,\"dataAsOf\":\"2026-07-03\",\"disclaimer\":\"This is a decision-support tool, not investment advice (MiFID II).\"}"
+                   },
+                   {
+                       "name":  "dividends-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/dividends",
+                       "contentLength":  82,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"history\":[],\"streak\":0,\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null}"
+                   },
+                   {
+                       "name":  "growth-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/growth",
+                       "contentLength":  172,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"revenue\":{\"cagr3y\":3.66,\"cagr5y\":null,\"cagr10y\":null},\"fcf\":{\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null},\"eps\":{\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null}}"
+                   },
+                   {
+                       "name":  "insiders-KO",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/insiders",
+                       "contentLength":  27,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"KO\",\"trades\":[]}"
+                   },
+                   {
+                       "name":  "review-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/review",
+                       "contentLength":  10424,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"detail\":{\"symbol\":\"BRK-B\",\"companyName\":\"Berkshire Hathaway Inc.\",\"sector\":\"Financial Services\",\"exchange\":null,\"country\":\"US\",\"currency\":\"USD\",\"marketCap\":1095207223296.00,\"description\":null,\"website\":null,\"currentPrice\":507.7800,\"priceDate\":\"2026-07-03\",\"revenue\":371444000000.00,\"netIncome\":66968000000.00,\"fcf\":25042000000.00,\"eps\":31.0400,\"bvps\":333.6074,\"pe\":null,\"roic\":null,\"dividendYield\":0.0000,\"dataAsOf\":\"2026-07-03\"},\"financials\":{\"symbol\":\"BRK-B\",\"annuals\":[{\"fiscalYear\":2026,\"revenue\":371444000000.00,\"netIncome\":66968000000.00,\"fcf\":25042000000.00,\"eps\":31.0400,\"bvps\":333.6074,\"sharesOutstanding\":2157335000},{\"fiscalYear\":2025,\"revenue\":371433000000.00,\"netIncome\":88995000000.00,\"fcf\":null,\"eps\":null,\"bvps\":null,\"sharesOutstanding\":null},{\"fiscalYear\":2024,\"revenue\":364482000000.00,\"netIncome\":96223000000.00,\"fcf\":null,\"eps\":null,\"bvps\":null,\"sharesOutstandi"
+                   },
+                   {
+                       "name":  "profile-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B",
+                       "contentLength":  421,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"companyName\":\"Berkshire Hathaway Inc.\",\"sector\":\"Financial Services\",\"exchange\":null,\"country\":\"US\",\"currency\":\"USD\",\"marketCap\":1095207223296.00,\"description\":null,\"website\":null,\"currentPrice\":507.7800,\"priceDate\":\"2026-07-03\",\"revenue\":371444000000.00,\"netIncome\":66968000000.00,\"fcf\":25042000000.00,\"eps\":31.0400,\"bvps\":333.6074,\"pe\":null,\"roic\":null,\"dividendYield\":0.0000,\"dataAsOf\":\"2026-07-03\"}"
+                   },
+                   {
+                       "name":  "valuation-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/valuation",
+                       "contentLength":  619,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"companyName\":\"Berkshire Hathaway Inc.\",\"currentPrice\":507.7800,\"dcf\":{\"base\":null,\"low\":null,\"high\":null},\"dcfTerminalValuePercentage\":null,\"dcfHighTerminalDependence\":false,\"sensitivity\":null,\"grahamNumber\":19555.8300,\"ddmValue\":null,\"epv\":null,\"ownerEarnings\":{\"value\":66968000000.00,\"maintenanceCapexEstimate\":0.00},\"compositeFairValue\":19555.8300,\"marginOfSafety\":97.4000,\"mosLow\":null,\"mosHigh\":null,\"recommendation\":\"STRONG_BUY\",\"analystEstimates\":null,\"wacc\":null,\"grahamChecklist\":null,\"dataAsOf\":\"2026-07-03\",\"disclaimer\":\"This is a decision-support tool, not investment advice (MiFID II).\"}"
+                   },
+                   {
+                       "name":  "dividends-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/dividends",
+                       "contentLength":  85,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"history\":[],\"streak\":0,\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null}"
+                   },
+                   {
+                       "name":  "growth-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/growth",
+                       "contentLength":  175,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"revenue\":{\"cagr3y\":7.13,\"cagr5y\":null,\"cagr10y\":null},\"fcf\":{\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null},\"eps\":{\"cagr3y\":null,\"cagr5y\":null,\"cagr10y\":null}}"
+                   },
+                   {
+                       "name":  "insiders-BRK-B",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/insiders",
+                       "contentLength":  30,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"symbol\":\"BRK-B\",\"trades\":[]}"
+                   },
+                   {
+                       "name":  "review-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/review",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "profile-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "valuation-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/valuation",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "dividends-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/dividends",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "growth-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/growth",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "insiders-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/insiders",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "errorContent":  "{\"error\":\"Symbol not found: BRK.B\"}",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "portfolio-detail-c9f6e79c-dd67-4dc0-96de-18098830f965",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/portfolios/c9f6e79c-dd67-4dc0-96de-18098830f965",
+                       "contentLength":  1827,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"id\":\"c9f6e79c-dd67-4dc0-96de-18098830f965\",\"name\":\"L1 oversized KO concentration\",\"description\":\"Replay evidence portfolio for holding concentration warnings; not an investable model.\",\"totalValue\":10486.2500000000,\"weightedMoS\":-244.56,\"holdings\":[{\"id\":\"8c2477ac-8b44-47c7-beb7-f8b55cb32b01\",\"symbol\":\"PG\",\"sector\":\"Consumer Defensive\",\"quantity\":5.000000,\"averageCostBasis\":160.0000,\"currency\":\"USD\",\"currentPrice\":151.4100,\"currentValue\":757.0500000000,\"weightPercent\":7.22,\"compositeFairValue\":59.6000,\"marginOfSafety\":-154.0400,\"recommendation\":\"OVERVALUED\",\"valueStatus\":\"AVAILABLE\",\"addedAt\":\"2026-07-03T06:54:16.395532\"},{\"id\":\"33352296-221b-4b3d-9198-f8e29474a644\",\"symbol\":\"JNJ\",\"sector\":\"Healthcare\",\"quantity\":5.000000,\"averageCostBasis\":150.0000,\"currency\":\"USD\",\"currentPrice\":263.0400,\"currentValue\":1315.2000000000,\"weightPercent\":12.54,\"compositeFairValue\":80.9400,\"marginOfSafety"
+                   },
+                   {
+                       "name":  "portfolio-detail-5ef0f36e-5cdc-477d-b72a-8120ce3ca23e",
+                       "ok":  true,
+                       "status":  200,
+                       "uri":  "http://localhost:8080/api/v1/portfolios/5ef0f36e-5cdc-477d-b72a-8120ce3ca23e",
+                       "contentLength":  4494,
+                       "error":  null,
+                       "errorContent":  null,
+                       "sample":  "{\"id\":\"5ef0f36e-5cdc-477d-b72a-8120ce3ca23e\",\"name\":\"L1 prudent validation equal weight\",\"description\":\"Replay evidence portfolio for concentration checks; not an investable model.\",\"totalValue\":9366.9900000000,\"weightedMoS\":-178.54,\"holdings\":[{\"id\":\"2cd8e6c2-38dd-4cd0-ba38-390071a9ea32\",\"symbol\":\"XOM\",\"sector\":\"Energy\",\"quantity\":7.000000,\"averageCostBasis\":137.0900,\"currency\":\"USD\",\"currentPrice\":137.0900,\"currentValue\":959.6300000000,\"weightPercent\":10.24,\"compositeFairValue\":91.0800,\"marginOfSafety\":-50.5200,\"recommendation\":\"OVERVALUED\",\"valueStatus\":\"AVAILABLE\",\"addedAt\":\"2026-07-03T06:54:15.648128\"},{\"id\":\"edfb1d13-d919-420b-9204-9b299f94abdd\",\"symbol\":\"UNP\",\"sector\":\"Industrials\",\"quantity\":4.000000,\"averageCostBasis\":282.2500,\"currency\":\"USD\",\"currentPrice\":282.2500,\"currentValue\":1129.0000000000,\"weightPercent\":12.05,\"compositeFairValue\":94.5200,\"marginOfSafety\":-198.6100,\"rec"
+                   }
+               ],
+    "portfolios":  [
+                       {
+                           "id":  "c9f6e79c-dd67-4dc0-96de-18098830f965",
+                           "name":  "L1 oversized KO concentration",
+                           "description":  "Replay evidence portfolio for holding concentration warnings; not an investable model.",
+                           "totalValue":  10486.2500000000,
+                           "weightedMoS":  -244.56,
+                           "holdings":  [
+                                            {
+                                                "id":  "8c2477ac-8b44-47c7-beb7-f8b55cb32b01",
+                                                "symbol":  "PG",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  5.000000,
+                                                "averageCostBasis":  160.0000,
+                                                "currency":  "USD",
+                                                "currentPrice":  151.4100,
+                                                "currentValue":  757.0500000000,
+                                                "weightPercent":  7.22,
+                                                "compositeFairValue":  59.6000,
+                                                "marginOfSafety":  -154.0400,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:16.395532"
+                                            },
+                                            {
+                                                "id":  "33352296-221b-4b3d-9198-f8e29474a644",
+                                                "symbol":  "JNJ",
+                                                "sector":  "Healthcare",
+                                                "quantity":  5.000000,
+                                                "averageCostBasis":  150.0000,
+                                                "currency":  "USD",
+                                                "currentPrice":  263.0400,
+                                                "currentValue":  1315.2000000000,
+                                                "weightPercent":  12.54,
+                                                "compositeFairValue":  80.9400,
+                                                "marginOfSafety":  -224.9800,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:16.281185"
+                                            },
+                                            {
+                                                "id":  "122e0cbc-356e-4f35-a128-25fa737b10b9",
+                                                "symbol":  "KO",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  100.000000,
+                                                "averageCostBasis":  60.0000,
+                                                "currency":  "USD",
+                                                "currentPrice":  84.1400,
+                                                "currentValue":  8414.0000000000,
+                                                "weightPercent":  80.24,
+                                                "compositeFairValue":  23.6500,
+                                                "marginOfSafety":  -255.7700,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:16.035894"
+                                            }
+                                        ],
+                           "concentrationWarnings":  [
+                                                         {
+                                                             "type":  "HOLDING",
+                                                             "key":  "KO",
+                                                             "weightPercent":  80.24,
+                                                             "thresholdPercent":  20.00,
+                                                             "message":  "KO is above the model holding concentration threshold."
+                                                         },
+                                                         {
+                                                             "type":  "SECTOR",
+                                                             "key":  "Consumer Defensive",
+                                                             "weightPercent":  87.46,
+                                                             "thresholdPercent":  35.00,
+                                                             "message":  "Consumer Defensive exposure is above the model sector concentration threshold."
+                                                         }
+                                                     ],
+                           "createdAt":  "2026-07-03T06:54:15.942968",
+                           "updatedAt":  "2026-07-03T06:54:15.942968"
+                       },
+                       {
+                           "id":  "5ef0f36e-5cdc-477d-b72a-8120ce3ca23e",
+                           "name":  "L1 prudent validation equal weight",
+                           "description":  "Replay evidence portfolio for concentration checks; not an investable model.",
+                           "totalValue":  9366.9900000000,
+                           "weightedMoS":  -178.54,
+                           "holdings":  [
+                                            {
+                                                "id":  "2cd8e6c2-38dd-4cd0-ba38-390071a9ea32",
+                                                "symbol":  "XOM",
+                                                "sector":  "Energy",
+                                                "quantity":  7.000000,
+                                                "averageCostBasis":  137.0900,
+                                                "currency":  "USD",
+                                                "currentPrice":  137.0900,
+                                                "currentValue":  959.6300000000,
+                                                "weightPercent":  10.24,
+                                                "compositeFairValue":  91.0800,
+                                                "marginOfSafety":  -50.5200,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.648128"
+                                            },
+                                            {
+                                                "id":  "edfb1d13-d919-420b-9204-9b299f94abdd",
+                                                "symbol":  "UNP",
+                                                "sector":  "Industrials",
+                                                "quantity":  4.000000,
+                                                "averageCostBasis":  282.2500,
+                                                "currency":  "USD",
+                                                "currentPrice":  282.2500,
+                                                "currentValue":  1129.0000000000,
+                                                "weightPercent":  12.05,
+                                                "compositeFairValue":  94.5200,
+                                                "marginOfSafety":  -198.6100,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.544151"
+                                            },
+                                            {
+                                                "id":  "e9ddbc59-3baf-48e3-bb83-1a6f5aba2331",
+                                                "symbol":  "ADP",
+                                                "sector":  "Industrials",
+                                                "quantity":  4.000000,
+                                                "averageCostBasis":  242.2700,
+                                                "currency":  "USD",
+                                                "currentPrice":  242.2700,
+                                                "currentValue":  969.0800000000,
+                                                "weightPercent":  10.35,
+                                                "compositeFairValue":  187.5000,
+                                                "marginOfSafety":  -29.2100,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.448109"
+                                            },
+                                            {
+                                                "id":  "a38183ca-2a09-492e-9506-7ca9102d9045",
+                                                "symbol":  "MSFT",
+                                                "sector":  "Technology",
+                                                "quantity":  3.000000,
+                                                "averageCostBasis":  390.4900,
+                                                "currency":  "USD",
+                                                "currentPrice":  390.4900,
+                                                "currentValue":  1171.4700000000,
+                                                "weightPercent":  12.51,
+                                                "compositeFairValue":  145.1600,
+                                                "marginOfSafety":  -169.0100,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.306519"
+                                            },
+                                            {
+                                                "id":  "483d37a9-59ff-4a40-8dac-7a0ad31896f9",
+                                                "symbol":  "WMT",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  9.000000,
+                                                "averageCostBasis":  111.8400,
+                                                "currency":  "USD",
+                                                "currentPrice":  111.8400,
+                                                "currentValue":  1006.5600000000,
+                                                "weightPercent":  10.75,
+                                                "compositeFairValue":  27.5200,
+                                                "marginOfSafety":  -306.4000,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.178229"
+                                            },
+                                            {
+                                                "id":  "956699ee-1dba-4f98-ac51-f30460172513",
+                                                "symbol":  "PEP",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  7.000000,
+                                                "averageCostBasis":  144.2200,
+                                                "currency":  "USD",
+                                                "currentPrice":  144.2200,
+                                                "currentValue":  1009.5400000000,
+                                                "weightPercent":  10.78,
+                                                "compositeFairValue":  47.3300,
+                                                "marginOfSafety":  -204.7100,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:15.082684"
+                                            },
+                                            {
+                                                "id":  "7669f1be-529d-4a94-8f57-75bf3fc9f9c5",
+                                                "symbol":  "KO",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  12.000000,
+                                                "averageCostBasis":  84.1400,
+                                                "currency":  "USD",
+                                                "currentPrice":  84.1400,
+                                                "currentValue":  1009.6800000000,
+                                                "weightPercent":  10.78,
+                                                "compositeFairValue":  23.6500,
+                                                "marginOfSafety":  -255.7700,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:14.977617"
+                                            },
+                                            {
+                                                "id":  "5b7d25d6-f54b-4b76-a122-cc47680e424e",
+                                                "symbol":  "PG",
+                                                "sector":  "Consumer Defensive",
+                                                "quantity":  7.000000,
+                                                "averageCostBasis":  151.4100,
+                                                "currency":  "USD",
+                                                "currentPrice":  151.4100,
+                                                "currentValue":  1059.8700000000,
+                                                "weightPercent":  11.31,
+                                                "compositeFairValue":  59.6000,
+                                                "marginOfSafety":  -154.0400,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:14.864378"
+                                            },
+                                            {
+                                                "id":  "20ecb7a7-2f2a-4d71-9377-c0e2458efab1",
+                                                "symbol":  "JNJ",
+                                                "sector":  "Healthcare",
+                                                "quantity":  4.000000,
+                                                "averageCostBasis":  263.0400,
+                                                "currency":  "USD",
+                                                "currentPrice":  263.0400,
+                                                "currentValue":  1052.1600000000,
+                                                "weightPercent":  11.23,
+                                                "compositeFairValue":  80.9400,
+                                                "marginOfSafety":  -224.9800,
+                                                "recommendation":  "OVERVALUED",
+                                                "valueStatus":  "AVAILABLE",
+                                                "addedAt":  "2026-07-03T06:54:14.768902"
+                                            },
+                                            {
+                                                "id":  "1353fc7c-9508-4519-a554-0a19977cf627",
+                                                "symbol":  "BRK.B",
+                                                "sector":  null,
+                                                "quantity":  1.000000,
+                                                "averageCostBasis":  100.0000,
+                                                "currency":  "USD",
+                                                "currentPrice":  null,
+                                                "currentValue":  null,
+                                                "weightPercent":  null,
+                                                "compositeFairValue":  null,
+                                                "marginOfSafety":  null,
+                                                "recommendation":  null,
+                                                "valueStatus":  "MISSING_INTERNAL_COMPUTATION",
+                                                "addedAt":  "2026-07-03T06:54:14.613445"
+                                            }
+                                        ],
+                           "concentrationWarnings":  [
+                                                         {
+                                                             "type":  "SECTOR",
+                                                             "key":  "Consumer Defensive",
+                                                             "weightPercent":  43.62,
+                                                             "thresholdPercent":  35.00,
+                                                             "message":  "Consumer Defensive exposure is above the model sector concentration threshold."
+                                                         },
+                                                         {
+                                                             "type":  "DATA_UNAVAILABLE",
+                                                             "key":  "Portfolio",
+                                                             "weightPercent":  null,
+                                                             "thresholdPercent":  null,
+                                                             "message":  "Some holdings are missing current prices, so concentration cannot be fully calculated."
+                                                         }
+                                                     ],
+                           "createdAt":  "2026-07-03T06:54:14.413441",
+                           "updatedAt":  "2026-07-03T06:54:14.413441"
+                       }
+                   ],
+    "searches":  [
+                     {
+                         "product":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+                         "codice":  "",
+                         "term":  "CASH \u0026",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ABBOTT LABORATORIES",
+                         "codice":  "US0028241000",
+                         "term":  "US0028241000",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ABBOTT LABORATORIES",
+                         "codice":  "US0028241000",
+                         "term":  "ABBOTT LABORATORIES",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ACOMO NV",
+                         "codice":  "NL0000313286",
+                         "term":  "NL0000313286",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ACOMO NV",
+                         "codice":  "NL0000313286",
+                         "term":  "ACOMO NV",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ARCHER-DANIELS-MIDLAND CO",
+                         "codice":  "US0394831020",
+                         "term":  "US0394831020",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "ARCHER-DANIELS-MIDLAND CO",
+                         "codice":  "US0394831020",
+                         "term":  "ARCHER-DANIELS-MIDLAND CO",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "BRISTOL-MYERS SQUIBB CO",
+                         "codice":  "US1101221083",
+                         "term":  "US1101221083",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "BRISTOL-MYERS SQUIBB CO",
+                         "codice":  "US1101221083",
+                         "term":  "BRISTOL-MYERS SQUIBB",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "COVIVIO SA",
+                         "codice":  "FR0000064578",
+                         "term":  "FR0000064578",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "COVIVIO SA",
+                         "codice":  "FR0000064578",
+                         "term":  "COVIVIO SA",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "GSK PLC",
+                         "codice":  "GB00BN7SWP63",
+                         "term":  "GB00BN7SWP63",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "GSK PLC",
+                         "codice":  "GB00BN7SWP63",
+                         "term":  "GSK PLC",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "INGREDION INC",
+                         "codice":  "US4571871023",
+                         "term":  "US4571871023",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "INGREDION INC",
+                         "codice":  "US4571871023",
+                         "term":  "INGREDION INC",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "JOHNSON \u0026 JOHNSON",
+                         "codice":  "US4781601046",
+                         "term":  "US4781601046",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "JOHNSON \u0026 JOHNSON",
+                         "codice":  "US4781601046",
+                         "term":  "JOHNSON \u0026",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  1,
+                         "results":  [
+                                         {
+                                             "symbol":  "JNJ",
+                                             "companyName":  "Johnson \u0026 Johnson",
+                                             "sector":  "Healthcare",
+                                             "exchange":  null
+                                         }
+                                     ]
+                     },
+                     {
+                         "product":  "NOMAD FOODS LTD",
+                         "codice":  "VGG6564A1057",
+                         "term":  "VGG6564A1057",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "NOMAD FOODS LTD",
+                         "codice":  "VGG6564A1057",
+                         "term":  "NOMAD FOODS",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "NUTRIEN LTD",
+                         "codice":  "CA67077M1086",
+                         "term":  "CA67077M1086",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "NUTRIEN LTD",
+                         "codice":  "CA67077M1086",
+                         "term":  "NUTRIEN LTD",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "PFIZER INC",
+                         "codice":  "US7170811035",
+                         "term":  "US7170811035",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "PFIZER INC",
+                         "codice":  "US7170811035",
+                         "term":  "PFIZER INC",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "RAYONIER INC",
+                         "codice":  "US7549071030",
+                         "term":  "US7549071030",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "RAYONIER INC",
+                         "codice":  "US7549071030",
+                         "term":  "RAYONIER INC",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "REALTY INCOME CORP",
+                         "codice":  "US7561091049",
+                         "term":  "US7561091049",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "REALTY INCOME CORP",
+                         "codice":  "US7561091049",
+                         "term":  "REALTY INCOME",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "WEYERHAEUSER CO",
+                         "codice":  "US9621661043",
+                         "term":  "US9621661043",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     },
+                     {
+                         "product":  "WEYERHAEUSER CO",
+                         "codice":  "US9621661043",
+                         "term":  "WEYERHAEUSER CO",
+                         "status":  200,
+                         "ok":  true,
+                         "count":  0,
+                         "results":  [
+
+                                     ]
+                     }
+                 ]
+}

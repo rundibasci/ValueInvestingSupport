@@ -1,0 +1,326 @@
+﻿[
+    {
+        "product":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+        "codice":  "",
+        "term":  "CASH \u0026",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ABBOTT LABORATORIES",
+        "codice":  "US0028241000",
+        "term":  "US0028241000",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ABBOTT LABORATORIES",
+        "codice":  "US0028241000",
+        "term":  "ABBOTT LABORATORIES",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ACOMO NV",
+        "codice":  "NL0000313286",
+        "term":  "NL0000313286",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ACOMO NV",
+        "codice":  "NL0000313286",
+        "term":  "ACOMO NV",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ARCHER-DANIELS-MIDLAND CO",
+        "codice":  "US0394831020",
+        "term":  "US0394831020",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "ARCHER-DANIELS-MIDLAND CO",
+        "codice":  "US0394831020",
+        "term":  "ARCHER-DANIELS-MIDLAND CO",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "BRISTOL-MYERS SQUIBB CO",
+        "codice":  "US1101221083",
+        "term":  "US1101221083",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "BRISTOL-MYERS SQUIBB CO",
+        "codice":  "US1101221083",
+        "term":  "BRISTOL-MYERS SQUIBB",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "COVIVIO SA",
+        "codice":  "FR0000064578",
+        "term":  "FR0000064578",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "COVIVIO SA",
+        "codice":  "FR0000064578",
+        "term":  "COVIVIO SA",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "GSK PLC",
+        "codice":  "GB00BN7SWP63",
+        "term":  "GB00BN7SWP63",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "GSK PLC",
+        "codice":  "GB00BN7SWP63",
+        "term":  "GSK PLC",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "INGREDION INC",
+        "codice":  "US4571871023",
+        "term":  "US4571871023",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "INGREDION INC",
+        "codice":  "US4571871023",
+        "term":  "INGREDION INC",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "JOHNSON \u0026 JOHNSON",
+        "codice":  "US4781601046",
+        "term":  "US4781601046",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "JOHNSON \u0026 JOHNSON",
+        "codice":  "US4781601046",
+        "term":  "JOHNSON \u0026",
+        "status":  200,
+        "ok":  true,
+        "count":  1,
+        "results":  [
+                        {
+                            "symbol":  "JNJ",
+                            "companyName":  "Johnson \u0026 Johnson",
+                            "sector":  "Healthcare",
+                            "exchange":  null
+                        }
+                    ]
+    },
+    {
+        "product":  "NOMAD FOODS LTD",
+        "codice":  "VGG6564A1057",
+        "term":  "VGG6564A1057",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "NOMAD FOODS LTD",
+        "codice":  "VGG6564A1057",
+        "term":  "NOMAD FOODS",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "NUTRIEN LTD",
+        "codice":  "CA67077M1086",
+        "term":  "CA67077M1086",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "NUTRIEN LTD",
+        "codice":  "CA67077M1086",
+        "term":  "NUTRIEN LTD",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "PFIZER INC",
+        "codice":  "US7170811035",
+        "term":  "US7170811035",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "PFIZER INC",
+        "codice":  "US7170811035",
+        "term":  "PFIZER INC",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "RAYONIER INC",
+        "codice":  "US7549071030",
+        "term":  "US7549071030",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "RAYONIER INC",
+        "codice":  "US7549071030",
+        "term":  "RAYONIER INC",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "REALTY INCOME CORP",
+        "codice":  "US7561091049",
+        "term":  "US7561091049",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "REALTY INCOME CORP",
+        "codice":  "US7561091049",
+        "term":  "REALTY INCOME",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "WEYERHAEUSER CO",
+        "codice":  "US9621661043",
+        "term":  "US9621661043",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    },
+    {
+        "product":  "WEYERHAEUSER CO",
+        "codice":  "US9621661043",
+        "term":  "WEYERHAEUSER CO",
+        "status":  200,
+        "ok":  true,
+        "count":  0,
+        "results":  [
+
+                    ]
+    }
+]

@@ -1,0 +1,16 @@
+﻿{
+    "id":  "a38183ca-2a09-492e-9506-7ca9102d9045",
+    "symbol":  "MSFT",
+    "sector":  "Technology",
+    "quantity":  3,
+    "averageCostBasis":  390.4900,
+    "currency":  "USD",
+    "currentPrice":  390.4900,
+    "currentValue":  1171.4700,
+    "weightPercent":  null,
+    "compositeFairValue":  145.1600,
+    "marginOfSafety":  -169.0100,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.306519058"
+}

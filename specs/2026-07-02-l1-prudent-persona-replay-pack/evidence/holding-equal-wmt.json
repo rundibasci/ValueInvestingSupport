@@ -1,0 +1,16 @@
+﻿{
+    "id":  "483d37a9-59ff-4a40-8dac-7a0ad31896f9",
+    "symbol":  "WMT",
+    "sector":  "Consumer Defensive",
+    "quantity":  9,
+    "averageCostBasis":  111.8400,
+    "currency":  "USD",
+    "currentPrice":  111.8400,
+    "currentValue":  1006.5600,
+    "weightPercent":  null,
+    "compositeFairValue":  27.5200,
+    "marginOfSafety":  -306.4000,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.178229315"
+}

@@ -106,9 +106,12 @@ public class ValuationService {
         BigDecimal mos = MarginOfSafetyCalculator.compute(compositeFairValue, currentPrice);
         Recommendation recommendation = deriveRecommendation(mos);
 
+        LocalDate valuationDate = LocalDate.now();
+        valuationResultRepository.deleteBySecurityAndValuationDate(security, valuationDate);
+
         ValuationResult result = new ValuationResult();
         result.setSecurity(security);
-        result.setValuationDate(LocalDate.now());
+        result.setValuationDate(valuationDate);
         if (dcfResult != null) {
             result.setDcfFairValue(dcfResult.fairValue());
             result.setDcfFairValueLow(dcfResult.fairValueLow());

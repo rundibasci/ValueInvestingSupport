@@ -1,0 +1,16 @@
+﻿{
+    "id":  "956699ee-1dba-4f98-ac51-f30460172513",
+    "symbol":  "PEP",
+    "sector":  "Consumer Defensive",
+    "quantity":  7,
+    "averageCostBasis":  144.2200,
+    "currency":  "USD",
+    "currentPrice":  144.2200,
+    "currentValue":  1009.5400,
+    "weightPercent":  null,
+    "compositeFairValue":  47.3300,
+    "marginOfSafety":  -204.7100,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.082684303"
+}

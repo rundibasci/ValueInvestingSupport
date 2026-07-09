@@ -1,0 +1,102 @@
+﻿[
+    {
+        "id":  "d957af2e-b567-46eb-8ede-cea5669b03b2",
+        "symbol":  "XOM",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.975151"
+    },
+    {
+        "id":  "040af446-d653-42c4-aa10-b24479fd8387",
+        "symbol":  "UNP",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.968502"
+    },
+    {
+        "id":  "6592419c-0c2e-4e98-85bd-f9d8f2bf79c2",
+        "symbol":  "BRK-B",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.961407"
+    },
+    {
+        "id":  "a06dbc07-e882-42fb-9b89-60a57fde3106",
+        "symbol":  "WMT",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.953311"
+    },
+    {
+        "id":  "48b8e8a0-c804-4ef3-8684-b68edc3c8335",
+        "symbol":  "PEP",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.946673"
+    },
+    {
+        "id":  "ac65766a-c939-4fd7-81d4-c2417997624c",
+        "symbol":  "PG",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.937505"
+    },
+    {
+        "id":  "8ee7d28f-5f2e-48ad-99fc-572a54bab65d",
+        "symbol":  "JNJ",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.930349"
+    },
+    {
+        "id":  "eecada3c-504b-4f8c-8725-a0097cd6ea90",
+        "symbol":  "KO",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.918539"
+    },
+    {
+        "id":  "d96ec5b2-ead0-4db5-8df7-61ded770dde8",
+        "symbol":  "MSFT",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.912408"
+    },
+    {
+        "id":  "dcb985de-7af7-424b-914d-5612544b433b",
+        "symbol":  "AAPL",
+        "mosAlertMin":  null,
+        "mosAlertMax":  null,
+        "fundamentalDegradeThreshold":  null,
+        "monitoringReason":  "DATA_QUALITY_GAP",
+        "rationaleNote":  "Real demo startup universe member for conservative workflow validation.",
+        "addedAt":  "2026-07-03T06:40:11.904294"
+    }
+]

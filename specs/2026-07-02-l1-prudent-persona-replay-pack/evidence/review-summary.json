@@ -1,0 +1,1227 @@
+﻿{
+    "symbols":  [
+                    "BRK.B",
+                    "JNJ",
+                    "PG",
+                    "KO",
+                    "PEP",
+                    "WMT",
+                    "MSFT",
+                    "ADP",
+                    "UNP",
+                    "XOM"
+                ],
+    "rows":  [
+                 {
+                     "symbol":  "JNJ",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -224.9800,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "PG",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -154.0400,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "KO",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -255.7700,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "PEP",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -204.7100,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "WMT",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -306.4000,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "MSFT",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -169.0100,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "ADP",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "AVAILABLE",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -29.2100,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "UNP",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -198.6100,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 },
+                 {
+                     "symbol":  "XOM",
+                     "scoreStatus":  "MISSING_INTERNAL_COMPUTATION",
+                     "valuationStatus":  "GUARDRAIL_BLOCKED",
+                     "quoteStatus":  "AVAILABLE",
+                     "marginOfSafety":  -50.5200,
+                     "recommendation":  "OVERVALUED",
+                     "sourceCoverage":  [
+                                            {
+                                                "category":  "Profile",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Fundamentals",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Ratios",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Quote",
+                                                "provider":  null,
+                                                "status":  "AVAILABLE",
+                                                "message":  "Application data is available; provider-level metadata is not stored for this category."
+                                            },
+                                            {
+                                                "category":  "Dividends",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Valuation",
+                                                "provider":  "fmp",
+                                                "status":  "AVAILABLE",
+                                                "message":  "Provider metadata is available for this category."
+                                            },
+                                            {
+                                                "category":  "Score",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Peers",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            },
+                                            {
+                                                "category":  "Analyst estimates",
+                                                "provider":  null,
+                                                "status":  "MISSING_SEEDED_HISTORY",
+                                                "message":  "No local data is available for this category."
+                                            }
+                                        ],
+                     "freshness":  [
+                                       {
+                                           "category":  "Fundamentals",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Ratios",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Quote",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Valuation",
+                                           "status":  "FRESH",
+                                           "dataAsOf":  "2026-07-03",
+                                           "message":  "Local data is within the freshness guard."
+                                       },
+                                       {
+                                           "category":  "Score",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       },
+                                       {
+                                           "category":  "Dividends",
+                                           "status":  "MISSING_SEEDED_HISTORY",
+                                           "dataAsOf":  null,
+                                           "message":  "No local date is available."
+                                       }
+                                   ],
+                     "dataQualityNotes":  [
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Quick ratio is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Financial health",
+                                                  "severity":  "INFO",
+                                                  "message":  "Interest coverage is unavailable from the current provider data model."
+                                              },
+                                              {
+                                                  "category":  "Valuation",
+                                                  "severity":  "INFO",
+                                                  "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                                              },
+                                              {
+                                                  "category":  "Score",
+                                                  "severity":  "INFO",
+                                                  "message":  "No persisted value score is available for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Dividends",
+                                                  "severity":  "INFO",
+                                                  "message":  "Dividend history is unavailable for this symbol."
+                                              },
+                                              {
+                                                  "category":  "Advice boundary",
+                                                  "severity":  "INFO",
+                                                  "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                                              }
+                                          ],
+                     "reviewCaptured":  true
+                 }
+             ],
+    "decisionSupportBoundary":  "This replay records conservative research workflow evidence only. It is not investment advice or an investable model portfolio."
+}

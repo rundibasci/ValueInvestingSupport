@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { apiBaseUrl } from '../api/client'
+import { apiBaseUrl, authFetch } from '../api/client'
 import { useAuth } from '../auth/AuthProvider'
 import { rememberOAuthReturnPath } from './OAuthCallbackPage'
 
@@ -12,11 +12,31 @@ export function LoginPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [googleStarting, setGoogleStarting] = useState(false)
+  const [googleAvailable, setGoogleAvailable] = useState<boolean | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
 
   const from = (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)?.from
   const destination = from?.pathname ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}` : '/'
+  const googleDisabled = googleAvailable !== true || googleStarting || submitting
+
+  useEffect(() => {
+    let cancelled = false
+    authFetch('/auth/oauth2/providers')
+      .then(async (response) => {
+        if (cancelled) return
+        if (!response.ok) {
+          setGoogleAvailable(false)
+          return
+        }
+        const data = (await response.json()) as { google?: boolean }
+        setGoogleAvailable(Boolean(data.google))
+      })
+      .catch(() => {
+        if (!cancelled) setGoogleAvailable(false)
+      })
+    return () => { cancelled = true }
+  }, [])
 
   if (session) return <Navigate to={destination} replace />
 
@@ -40,6 +60,10 @@ export function LoginPage(): JSX.Element {
 
   function startGoogleLogin(): void {
     setError(null)
+    if (googleAvailable !== true) {
+      setError('Google sign-in is not configured for this demo environment. Use email and password to continue.')
+      return
+    }
     setGoogleStarting(true)
     rememberOAuthReturnPath(destination)
     window.location.assign(`${apiBaseUrl}/oauth2/authorization/google`)
@@ -78,13 +102,19 @@ export function LoginPage(): JSX.Element {
 
           <button
             className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 font-semibold text-slate-100 transition hover:border-emerald-400 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={googleStarting || submitting}
+            disabled={googleDisabled}
             onClick={startGoogleLogin}
+            title={googleAvailable === false ? 'Google sign-in is not configured for this demo environment.' : undefined}
             type="button"
           >
             <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-sm font-bold text-slate-900">G</span>
-            {googleStarting ? 'Opening Google...' : 'Continue with Google'}
+            {googleStarting ? 'Opening Google...' : googleAvailable === null ? 'Checking Google...' : googleAvailable ? 'Continue with Google' : 'Google sign-in unavailable'}
           </button>
+          {googleAvailable === false && (
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              Google sign-in is not configured for this demo environment. Use the demo email and password instead.
+            </p>
+          )}
 
           <div className="my-6 flex items-center gap-3 text-xs uppercase text-slate-500">
             <span className="h-px flex-1 bg-slate-800" />

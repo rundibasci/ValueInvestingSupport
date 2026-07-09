@@ -1,0 +1,588 @@
+﻿{
+    "symbol":  "MSFT",
+    "detail":  {
+                   "symbol":  "MSFT",
+                   "companyName":  "Microsoft Corporation",
+                   "sector":  "Technology",
+                   "exchange":  null,
+                   "country":  "US",
+                   "currency":  "USD",
+                   "marketCap":  2900729528320.00,
+                   "description":  null,
+                   "website":  null,
+                   "currentPrice":  390.4900,
+                   "priceDate":  "2026-07-03",
+                   "revenue":  281724000000.00,
+                   "netIncome":  101832000000.00,
+                   "fcf":  71611000000.00,
+                   "eps":  13.6400,
+                   "bvps":  46.0119,
+                   "pe":  null,
+                   "roic":  null,
+                   "dividendYield":  0.0065,
+                   "dataAsOf":  "2026-07-03"
+               },
+    "financials":  {
+                       "symbol":  "MSFT",
+                       "annuals":  [
+                                       {
+                                           "fiscalYear":  2026,
+                                           "revenue":  281724000000.00,
+                                           "netIncome":  101832000000.00,
+                                           "fcf":  71611000000.00,
+                                           "eps":  13.6400,
+                                           "bvps":  46.0119,
+                                           "sharesOutstanding":  7465000000
+                                       },
+                                       {
+                                           "fiscalYear":  2025,
+                                           "revenue":  245122000000.00,
+                                           "netIncome":  88136000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2024,
+                                           "revenue":  211915000000.00,
+                                           "netIncome":  72361000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2023,
+                                           "revenue":  198270000000.00,
+                                           "netIncome":  72738000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       }
+                                   ],
+                       "quarters":  [
+
+                                    ],
+                       "ttm":  {
+                                   "revenue":  281724000000.00,
+                                   "netIncome":  101832000000.00,
+                                   "fcf":  71611000000.00,
+                                   "eps":  13.6400
+                               }
+                   },
+    "ratios":  {
+                   "symbol":  "MSFT",
+                   "ratios":  [
+                                  {
+                                      "date":  "2026-07-03",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0065
+                                  },
+                                  {
+                                      "date":  "2025-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2024-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2023-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2022-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2021-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2020-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2019-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2018-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  },
+                                  {
+                                      "date":  "2017-12-31",
+                                      "pe":  23.2573,
+                                      "roic":  null,
+                                      "roe":  0.3401,
+                                      "debtToEquity":  30.2710,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0093
+                                  }
+                              ]
+               },
+    "valuation":  {
+                      "symbol":  "MSFT",
+                      "companyName":  "Microsoft Corporation",
+                      "currentPrice":  390.4900,
+                      "dcf":  {
+                                  "base":  null,
+                                  "low":  null,
+                                  "high":  null
+                              },
+                      "dcfTerminalValuePercentage":  null,
+                      "dcfHighTerminalDependence":  false,
+                      "sensitivity":  null,
+                      "grahamNumber":  145.1600,
+                      "ddmValue":  null,
+                      "epv":  null,
+                      "ownerEarnings":  {
+                                            "value":  101832000000.00,
+                                            "maintenanceCapexEstimate":  0.00
+                                        },
+                      "compositeFairValue":  145.1600,
+                      "marginOfSafety":  -169.0100,
+                      "mosLow":  null,
+                      "mosHigh":  null,
+                      "recommendation":  "OVERVALUED",
+                      "analystEstimates":  null,
+                      "wacc":  {
+                                   "wacc":  0.090000,
+                                   "riskFreeRate":  0.045000,
+                                   "equityRiskPremium":  0.055000,
+                                   "beta":  null,
+                                   "costOfEquity":  null,
+                                   "costOfDebt":  null,
+                                   "debtWeight":  null,
+                                   "equityWeight":  null,
+                                   "effectiveTaxRate":  null,
+                                   "fallbackUsed":  true,
+                                   "source":  "sector-fallback"
+                               },
+                      "grahamChecklist":  {
+                                              "passed":  0,
+                                              "failed":  5,
+                                              "insufficient":  3,
+                                              "criteria":  [
+                                                               {
+                                                                   "code":  "current_ratio_above_2",
+                                                                   "label":  "Current ratio above 2.0",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  1.283000
+                                                               },
+                                                               {
+                                                                   "code":  "dividend_record_10y",
+                                                                   "label":  "Dividend record at least 10 years",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  0.000000
+                                                               },
+                                                               {
+                                                                   "code":  "earnings_stability_10y",
+                                                                   "label":  "10-year earnings stability",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "no_negative_earnings_5y",
+                                                                   "label":  "No negative earnings in last 5 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "pb_under_1_5",
+                                                                   "label":  "P/B below 1.5",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  7.000914
+                                                               },
+                                                               {
+                                                                   "code":  "pe_pb_under_22_5",
+                                                                   "label":  "P/E times P/B below 22.5",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  162.822315
+                                                               },
+                                                               {
+                                                                   "code":  "pe_under_15",
+                                                                   "label":  "P/E below 15",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  23.257294
+                                                               },
+                                                               {
+                                                                   "code":  "positive_eps_growth_10y",
+                                                                   "label":  "Positive EPS growth over 10 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               }
+                                                           ]
+                                          },
+                      "dataAsOf":  "2026-07-03",
+                      "disclaimer":  "This is a decision-support tool, not investment advice (MiFID II)."
+                  },
+    "dividends":  {
+                      "symbol":  "MSFT",
+                      "history":  [
+
+                                  ],
+                      "streak":  0,
+                      "cagr3y":  null,
+                      "cagr5y":  null,
+                      "cagr10y":  null
+                  },
+    "growth":  {
+                   "symbol":  "MSFT",
+                   "revenue":  {
+                                   "cagr3y":  12.42,
+                                   "cagr5y":  null,
+                                   "cagr10y":  null
+                               },
+                   "fcf":  {
+                               "cagr3y":  null,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           },
+                   "eps":  {
+                               "cagr3y":  null,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           }
+               },
+    "peers":  {
+                  "symbol":  "MSFT",
+                  "peers":  [
+                                {
+                                    "symbol":  "AAPL",
+                                    "companyName":  "Apple Inc.",
+                                    "currentPrice":  308.6300,
+                                    "compositeFairValue":  36.7500,
+                                    "marginOfSafety":  -739.8100,
+                                    "totalScore":  null,
+                                    "pe":  null,
+                                    "roic":  null
+                                }
+                            ]
+              },
+    "score":  null,
+    "piotroski":  null,
+    "altman":  null,
+    "cyclicality":  null,
+    "earningsQuality":  null,
+    "moat":  {
+                 "symbol":  "MSFT",
+                 "resultDate":  "2026-07-03",
+                 "moatStrength":  "INSUFFICIENT_DATA",
+                 "roicTrend":  "INSUFFICIENT_DATA",
+                 "yearsAnalyzed":  0,
+                 "yearsRoicAboveWacc":  0,
+                 "roicConsistencyPercentage":  null,
+                 "averageRoic":  null,
+                 "estimatedWacc":  0.090000,
+                 "averageRoicSpread":  null,
+                 "trendSlope":  null,
+                 "reinvestmentRate":  null,
+                 "availabilityMessage":  "At least five annual ROIC observations are required.",
+                 "stabilityCriteria":  [
+
+                                       ]
+             },
+    "capitalAllocation":  {
+                              "symbol":  "MSFT",
+                              "resultDate":  "2026-07-03",
+                              "sharesOutstandingTrend":  "INSUFFICIENT_DATA",
+                              "classification":  "INSUFFICIENT_DATA",
+                              "yearsAnalyzed":  1,
+                              "sharesChangePercentage":  null,
+                              "sharesCagr":  null,
+                              "dividendYield":  0.0065,
+                              "netBuybackYield":  null,
+                              "totalShareholderYield":  null,
+                              "insiderOwnershipPercentage":  null,
+                              "acquisitionSpendToFcf":  null,
+                              "availabilityMessage":  "At least two annual shares outstanding observations are required."
+                          },
+    "valuationBands":  {
+                           "symbol":  "MSFT",
+                           "resultDate":  "2026-07-03",
+                           "bands":  [
+                                         {
+                                             "metric":  "PE",
+                                             "yearsAnalyzed":  9,
+                                             "currentValue":  null,
+                                             "medianValue":  23.2573,
+                                             "percentile25":  23.2573,
+                                             "percentile75":  23.2573,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  null
+                                         },
+                                         {
+                                             "metric":  "PB",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  10.7641,
+                                             "medianValue":  7.0009,
+                                             "percentile25":  7.0009,
+                                             "percentile75":  7.0009,
+                                             "currentPercentile":  100.00,
+                                             "position":  "HISTORICALLY_EXPENSIVE",
+                                             "availabilityMessage":  null
+                                         },
+                                         {
+                                             "metric":  "EV_EBITDA",
+                                             "yearsAnalyzed":  0,
+                                             "currentValue":  null,
+                                             "medianValue":  null,
+                                             "percentile25":  null,
+                                             "percentile75":  null,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  "At least three historical observations are required."
+                                         },
+                                         {
+                                             "metric":  "DIVIDEND_YIELD",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  0.0065,
+                                             "medianValue":  0.0093,
+                                             "percentile25":  0.0093,
+                                             "percentile75":  0.0093,
+                                             "currentPercentile":  10.00,
+                                             "position":  "HISTORICALLY_EXPENSIVE",
+                                             "availabilityMessage":  null
+                                         }
+                                     ]
+                       },
+    "financialHealth":  {
+                            "totalDebt":  112184000000.00,
+                            "cash":  94555000000.00,
+                            "netDebt":  17629000000.00,
+                            "debtToEquity":  null,
+                            "currentRatio":  1.3534,
+                            "quickRatio":  null,
+                            "interestCoverage":  null,
+                            "payoutRatio":  null,
+                            "dividendYield":  0.0065,
+                            "grossMargin":  null,
+                            "operatingMargin":  null,
+                            "netMargin":  null,
+                            "dataAsOf":  "2026-07-03"
+                        },
+    "sourceCoverage":  [
+                           {
+                               "category":  "Profile",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Fundamentals",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Ratios",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Quote",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Dividends",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Valuation",
+                               "provider":  "fmp",
+                               "status":  "AVAILABLE",
+                               "message":  "Provider metadata is available for this category."
+                           },
+                           {
+                               "category":  "Score",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Peers",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Analyst estimates",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           }
+                       ],
+    "freshness":  [
+                      {
+                          "category":  "Fundamentals",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Ratios",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Quote",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Valuation",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Score",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      },
+                      {
+                          "category":  "Dividends",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      }
+                  ],
+    "availability":  [
+                         {
+                             "category":  "Fundamentals",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Ratios",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Quote",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Valuation",
+                             "state":  {
+                                           "status":  "GUARDRAIL_BLOCKED",
+                                           "reason":  "DCF is unavailable because eligibility guardrails were not met; other valuation components may still be available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Score",
+                             "state":  {
+                                           "status":  "MISSING_INTERNAL_COMPUTATION",
+                                           "reason":  "No persisted value score is available.",
+                                           "dataAsOf":  null
+                                       }
+                         },
+                         {
+                             "category":  "Dividends",
+                             "state":  {
+                                           "status":  "PROVIDER_LIMITED",
+                                           "reason":  "Dividend history is unavailable from the current local data.",
+                                           "dataAsOf":  null
+                                       }
+                         }
+                     ],
+    "dataQualityNotes":  [
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Quick ratio is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Interest coverage is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Valuation",
+                                 "severity":  "INFO",
+                                 "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                             },
+                             {
+                                 "category":  "Score",
+                                 "severity":  "INFO",
+                                 "message":  "No persisted value score is available for this symbol."
+                             },
+                             {
+                                 "category":  "Dividends",
+                                 "severity":  "INFO",
+                                 "message":  "Dividend history is unavailable for this symbol."
+                             },
+                             {
+                                 "category":  "Advice boundary",
+                                 "severity":  "INFO",
+                                 "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                             }
+                         ]
+}

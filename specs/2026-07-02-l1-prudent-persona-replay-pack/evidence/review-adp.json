@@ -1,0 +1,661 @@
+﻿{
+    "symbol":  "ADP",
+    "detail":  {
+                   "symbol":  "ADP",
+                   "companyName":  "Automatic Data Processing, Inc.",
+                   "sector":  "Industrials",
+                   "exchange":  null,
+                   "country":  "US",
+                   "currency":  "USD",
+                   "marketCap":  null,
+                   "description":  null,
+                   "website":  null,
+                   "currentPrice":  242.2700,
+                   "priceDate":  "2026-07-03",
+                   "revenue":  20560900000.00,
+                   "netIncome":  4079700000.00,
+                   "fcf":  4771000000.00,
+                   "eps":  9.9800,
+                   "bvps":  15.1407,
+                   "pe":  null,
+                   "roic":  null,
+                   "dividendYield":  0.0191,
+                   "dataAsOf":  "2026-07-03"
+               },
+    "financials":  {
+                       "symbol":  "ADP",
+                       "annuals":  [
+                                       {
+                                           "fiscalYear":  2026,
+                                           "revenue":  20560900000.00,
+                                           "netIncome":  4079700000.00,
+                                           "fcf":  4771000000.00,
+                                           "eps":  9.9800,
+                                           "bvps":  15.1407,
+                                           "sharesOutstanding":  408700000
+                                       },
+                                       {
+                                           "fiscalYear":  2025,
+                                           "revenue":  19202600000.00,
+                                           "netIncome":  3752000000.00,
+                                           "fcf":  3594200000.00,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2024,
+                                           "revenue":  18012200000.00,
+                                           "netIncome":  3412000000.00,
+                                           "fcf":  3636000000.00,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2023,
+                                           "revenue":  16498300000.00,
+                                           "netIncome":  2948900000.00,
+                                           "fcf":  2546100000.00,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       }
+                                   ],
+                       "quarters":  [
+
+                                    ],
+                       "ttm":  {
+                                   "revenue":  20560900000.00,
+                                   "netIncome":  4079700000.00,
+                                   "fcf":  4771000000.00,
+                                   "eps":  9.9800
+                               }
+                   },
+    "ratios":  {
+                   "symbol":  "ADP",
+                   "ratios":  [
+                                  {
+                                      "date":  "2026-07-03",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2025-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2024-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2023-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2022-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2021-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2020-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2019-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2018-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  },
+                                  {
+                                      "date":  "2017-12-31",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0191
+                                  }
+                              ]
+               },
+    "valuation":  {
+                      "symbol":  "ADP",
+                      "companyName":  "Automatic Data Processing, Inc.",
+                      "currentPrice":  242.2700,
+                      "dcf":  {
+                                  "base":  241.3300,
+                                  "low":  181.4900,
+                                  "high":  287.7200
+                              },
+                      "dcfTerminalValuePercentage":  56.9000,
+                      "dcfHighTerminalDependence":  false,
+                      "sensitivity":  {
+                                          "waccValues":  [
+                                                             0.080000,
+                                                             0.090000,
+                                                             0.100000
+                                                         ],
+                                          "terminalRateValues":  [
+                                                                     0.020,
+                                                                     0.025,
+                                                                     0.030
+                                                                 ],
+                                          "cells":  [
+                                                        {
+                                                            "wacc":  0.080000,
+                                                            "terminalRate":  0.020,
+                                                            "fairValue":  249.42,
+                                                            "terminalValuePercentage":  59.29,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.080000,
+                                                            "terminalRate":  0.025,
+                                                            "fairValue":  263.83,
+                                                            "terminalValuePercentage":  61.49,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.080000,
+                                                            "terminalRate":  0.030,
+                                                            "fairValue":  281.11,
+                                                            "terminalValuePercentage":  63.84,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.090000,
+                                                            "terminalRate":  0.020,
+                                                            "fairValue":  211.92,
+                                                            "terminalValuePercentage":  54.44,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.090000,
+                                                            "terminalRate":  0.025,
+                                                            "fairValue":  221.54,
+                                                            "terminalValuePercentage":  56.39,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.090000,
+                                                            "terminalRate":  0.030,
+                                                            "fairValue":  232.76,
+                                                            "terminalValuePercentage":  58.46,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.100000,
+                                                            "terminalRate":  0.020,
+                                                            "fairValue":  183.87,
+                                                            "terminalValuePercentage":  50.00,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.100000,
+                                                            "terminalRate":  0.025,
+                                                            "fairValue":  190.58,
+                                                            "terminalValuePercentage":  51.74,
+                                                            "highTerminalDependence":  false
+                                                        },
+                                                        {
+                                                            "wacc":  0.100000,
+                                                            "terminalRate":  0.030,
+                                                            "fairValue":  198.26,
+                                                            "terminalValuePercentage":  53.58,
+                                                            "highTerminalDependence":  false
+                                                        }
+                                                    ],
+                                          "baseWacc":  0.090000,
+                                          "baseTerminalRate":  0.025
+                                      },
+                      "grahamNumber":  58.3100,
+                      "ddmValue":  null,
+                      "epv":  null,
+                      "ownerEarnings":  {
+                                            "value":  4079700000.00,
+                                            "maintenanceCapexEstimate":  0.00
+                                        },
+                      "compositeFairValue":  187.5000,
+                      "marginOfSafety":  -29.2100,
+                      "mosLow":  -33.49,
+                      "mosHigh":  15.80,
+                      "recommendation":  "OVERVALUED",
+                      "analystEstimates":  null,
+                      "wacc":  {
+                                   "wacc":  0.090000,
+                                   "riskFreeRate":  0.045000,
+                                   "equityRiskPremium":  0.055000,
+                                   "beta":  null,
+                                   "costOfEquity":  null,
+                                   "costOfDebt":  null,
+                                   "debtWeight":  null,
+                                   "equityWeight":  null,
+                                   "effectiveTaxRate":  null,
+                                   "fallbackUsed":  true,
+                                   "source":  "sector-fallback"
+                               },
+                      "grahamChecklist":  {
+                                              "passed":  0,
+                                              "failed":  3,
+                                              "insufficient":  5,
+                                              "criteria":  [
+                                                               {
+                                                                   "code":  "current_ratio_above_2",
+                                                                   "label":  "Current ratio above 2.0",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  1.047819
+                                                               },
+                                                               {
+                                                                   "code":  "dividend_record_10y",
+                                                                   "label":  "Dividend record at least 10 years",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  0.000000
+                                                               },
+                                                               {
+                                                                   "code":  "earnings_stability_10y",
+                                                                   "label":  "10-year earnings stability",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "no_negative_earnings_5y",
+                                                                   "label":  "No negative earnings in last 5 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "pb_under_1_5",
+                                                                   "label":  "P/B below 1.5",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  20.289211
+                                                               },
+                                                               {
+                                                                   "code":  "pe_pb_under_22_5",
+                                                                   "label":  "P/E times P/B below 22.5",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "pe_under_15",
+                                                                   "label":  "P/E below 15",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "positive_eps_growth_10y",
+                                                                   "label":  "Positive EPS growth over 10 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               }
+                                                           ]
+                                          },
+                      "dataAsOf":  "2026-07-03",
+                      "disclaimer":  "This is a decision-support tool, not investment advice (MiFID II)."
+                  },
+    "dividends":  {
+                      "symbol":  "ADP",
+                      "history":  [
+
+                                  ],
+                      "streak":  0,
+                      "cagr3y":  null,
+                      "cagr5y":  null,
+                      "cagr10y":  null
+                  },
+    "growth":  {
+                   "symbol":  "ADP",
+                   "revenue":  {
+                                   "cagr3y":  7.61,
+                                   "cagr5y":  null,
+                                   "cagr10y":  null
+                               },
+                   "fcf":  {
+                               "cagr3y":  23.29,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           },
+                   "eps":  {
+                               "cagr3y":  null,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           }
+               },
+    "peers":  {
+                  "symbol":  "ADP",
+                  "peers":  [
+                                {
+                                    "symbol":  "UNP",
+                                    "companyName":  "Union Pacific Corporation",
+                                    "currentPrice":  282.2500,
+                                    "compositeFairValue":  94.5200,
+                                    "marginOfSafety":  -198.6100,
+                                    "totalScore":  null,
+                                    "pe":  null,
+                                    "roic":  null
+                                }
+                            ]
+              },
+    "score":  null,
+    "piotroski":  null,
+    "altman":  null,
+    "cyclicality":  null,
+    "earningsQuality":  null,
+    "moat":  {
+                 "symbol":  "ADP",
+                 "resultDate":  "2026-07-03",
+                 "moatStrength":  "INSUFFICIENT_DATA",
+                 "roicTrend":  "INSUFFICIENT_DATA",
+                 "yearsAnalyzed":  0,
+                 "yearsRoicAboveWacc":  0,
+                 "roicConsistencyPercentage":  null,
+                 "averageRoic":  null,
+                 "estimatedWacc":  0.090000,
+                 "averageRoicSpread":  null,
+                 "trendSlope":  null,
+                 "reinvestmentRate":  null,
+                 "availabilityMessage":  "At least five annual ROIC observations are required.",
+                 "stabilityCriteria":  [
+
+                                       ]
+             },
+    "capitalAllocation":  {
+                              "symbol":  "ADP",
+                              "resultDate":  "2026-07-03",
+                              "sharesOutstandingTrend":  "INSUFFICIENT_DATA",
+                              "classification":  "INSUFFICIENT_DATA",
+                              "yearsAnalyzed":  1,
+                              "sharesChangePercentage":  null,
+                              "sharesCagr":  null,
+                              "dividendYield":  0.0191,
+                              "netBuybackYield":  null,
+                              "totalShareholderYield":  null,
+                              "insiderOwnershipPercentage":  null,
+                              "acquisitionSpendToFcf":  null,
+                              "availabilityMessage":  "At least two annual shares outstanding observations are required."
+                          },
+    "valuationBands":  {
+                           "symbol":  "ADP",
+                           "resultDate":  "2026-07-03",
+                           "bands":  [
+                                         {
+                                             "metric":  "PE",
+                                             "yearsAnalyzed":  0,
+                                             "currentValue":  null,
+                                             "medianValue":  null,
+                                             "percentile25":  null,
+                                             "percentile75":  null,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  "At least three historical observations are required."
+                                         },
+                                         {
+                                             "metric":  "PB",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  20.2892,
+                                             "medianValue":  20.2892,
+                                             "percentile25":  20.2892,
+                                             "percentile75":  20.2892,
+                                             "currentPercentile":  100.00,
+                                             "position":  "NORMAL",
+                                             "availabilityMessage":  null
+                                         },
+                                         {
+                                             "metric":  "EV_EBITDA",
+                                             "yearsAnalyzed":  0,
+                                             "currentValue":  null,
+                                             "medianValue":  null,
+                                             "percentile25":  null,
+                                             "percentile75":  null,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  "At least three historical observations are required."
+                                         },
+                                         {
+                                             "metric":  "DIVIDEND_YIELD",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  0.0191,
+                                             "medianValue":  0.0191,
+                                             "percentile25":  0.0191,
+                                             "percentile75":  0.0191,
+                                             "currentPercentile":  100.00,
+                                             "position":  "NORMAL",
+                                             "availabilityMessage":  null
+                                         }
+                                     ]
+                       },
+    "financialHealth":  {
+                            "totalDebt":  9065400000.00,
+                            "cash":  7846600000.00,
+                            "netDebt":  1218800000.00,
+                            "debtToEquity":  null,
+                            "currentRatio":  1.0478,
+                            "quickRatio":  null,
+                            "interestCoverage":  null,
+                            "payoutRatio":  null,
+                            "dividendYield":  0.0191,
+                            "grossMargin":  null,
+                            "operatingMargin":  null,
+                            "netMargin":  null,
+                            "dataAsOf":  "2026-07-03"
+                        },
+    "sourceCoverage":  [
+                           {
+                               "category":  "Profile",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Fundamentals",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Ratios",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Quote",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Dividends",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Valuation",
+                               "provider":  "fmp",
+                               "status":  "AVAILABLE",
+                               "message":  "Provider metadata is available for this category."
+                           },
+                           {
+                               "category":  "Score",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Peers",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Analyst estimates",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           }
+                       ],
+    "freshness":  [
+                      {
+                          "category":  "Fundamentals",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Ratios",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Quote",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Valuation",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Score",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      },
+                      {
+                          "category":  "Dividends",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      }
+                  ],
+    "availability":  [
+                         {
+                             "category":  "Fundamentals",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Ratios",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Quote",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Valuation",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Score",
+                             "state":  {
+                                           "status":  "MISSING_INTERNAL_COMPUTATION",
+                                           "reason":  "No persisted value score is available.",
+                                           "dataAsOf":  null
+                                       }
+                         },
+                         {
+                             "category":  "Dividends",
+                             "state":  {
+                                           "status":  "PROVIDER_LIMITED",
+                                           "reason":  "Dividend history is unavailable from the current local data.",
+                                           "dataAsOf":  null
+                                       }
+                         }
+                     ],
+    "dataQualityNotes":  [
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Quick ratio is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Interest coverage is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Score",
+                                 "severity":  "INFO",
+                                 "message":  "No persisted value score is available for this symbol."
+                             },
+                             {
+                                 "category":  "Dividends",
+                                 "severity":  "INFO",
+                                 "message":  "Dividend history is unavailable for this symbol."
+                             },
+                             {
+                                 "category":  "Advice boundary",
+                                 "severity":  "INFO",
+                                 "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                             }
+                         ]
+}

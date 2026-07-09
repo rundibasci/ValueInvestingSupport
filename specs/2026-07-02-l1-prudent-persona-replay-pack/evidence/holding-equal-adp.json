@@ -1,0 +1,16 @@
+﻿{
+    "id":  "e9ddbc59-3baf-48e3-bb83-1a6f5aba2331",
+    "symbol":  "ADP",
+    "sector":  "Industrials",
+    "quantity":  4,
+    "averageCostBasis":  242.2700,
+    "currency":  "USD",
+    "currentPrice":  242.2700,
+    "currentValue":  969.0800,
+    "weightPercent":  null,
+    "compositeFairValue":  187.5000,
+    "marginOfSafety":  -29.2100,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.44810902"
+}

@@ -1,0 +1,54 @@
+﻿{
+    "likelyEliminators":  [
+                              {
+                                  "key":  "minMarginOfSafety",
+                                  "label":  "Positive margin of safety",
+                                  "currentValue":  "15% minimum",
+                                  "whyItMatters":  "Keeps valuation discipline visible.",
+                                  "relaxation":  "Lower the floor in small steps."
+                              },
+                              {
+                                  "key":  "minValueScore",
+                                  "label":  "Score availability and strength",
+                                  "currentValue":  "60 minimum",
+                                  "whyItMatters":  "Requires a usable composite evidence base.",
+                                  "relaxation":  "Inspect score gaps before lowering the threshold."
+                              },
+                              {
+                                  "key":  "minDividendYield",
+                                  "label":  "Dividend signal",
+                                  "currentValue":  "1.5% minimum",
+                                  "whyItMatters":  "Highlights income coverage candidates for conservative review.",
+                                  "relaxation":  "Remove for reinvestment-led compounders."
+                              },
+                              {
+                                  "key":  "maxDebtToEquity",
+                                  "label":  "Leverage resilience",
+                                  "currentValue":  "1.0 maximum",
+                                  "whyItMatters":  "Flags balance sheets that may be less exposed to financing stress.",
+                                  "relaxation":  "Review sector norms before widening."
+                              },
+                              {
+                                  "key":  "altmanZone",
+                                  "label":  "Liquidity and solvency resilience",
+                                  "currentValue":  "SAFE",
+                                  "whyItMatters":  "Keeps distress signals out of the default preset.",
+                                  "relaxation":  "Allow GREY only with explicit review notes."
+                              },
+                              {
+                                  "key":  "dataCoverage",
+                                  "label":  "Data completeness",
+                                  "currentValue":  "Availability must be visible",
+                                  "whyItMatters":  "Missing provider or internal calculations must be explainable.",
+                                  "relaxation":  "Keep missing-data labels visible when filters are relaxed."
+                              }
+                          ],
+    "suggestedRelaxations":  [
+                                 "Lower the margin-of-safety floor before removing quality or solvency checks.",
+                                 "Allow narrow moat or stable share-count results when wide-moat buyback candidates are too scarce.",
+                                 "Temporarily remove the dividend yield filter for durable compounders that reinvest rather than distribute cash.",
+                                 "Keep unavailable score or source coverage visible instead of treating missing data as a pass."
+                             ],
+    "currentCriteriaPreserved":  true,
+    "decisionSupportNote":  "The current criteria are preserved. Suggested relaxations are research alternatives, not automated changes."
+}

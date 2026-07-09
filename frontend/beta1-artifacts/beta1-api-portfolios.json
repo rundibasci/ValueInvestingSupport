@@ -1,0 +1,18 @@
+[
+    {
+        "id":  "c9f6e79c-dd67-4dc0-96de-18098830f965",
+        "name":  "L1 oversized KO concentration",
+        "description":  "Replay evidence portfolio for holding concentration warnings; not an investable model.",
+        "holdingCount":  3,
+        "createdAt":  "2026-07-03T06:54:15.942968",
+        "updatedAt":  "2026-07-03T06:54:15.942968"
+    },
+    {
+        "id":  "5ef0f36e-5cdc-477d-b72a-8120ce3ca23e",
+        "name":  "L1 prudent validation equal weight",
+        "description":  "Replay evidence portfolio for concentration checks; not an investable model.",
+        "holdingCount":  10,
+        "createdAt":  "2026-07-03T06:54:14.413441",
+        "updatedAt":  "2026-07-03T06:54:14.413441"
+    }
+]

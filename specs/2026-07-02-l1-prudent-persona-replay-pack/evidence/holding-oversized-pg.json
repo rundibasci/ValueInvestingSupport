@@ -1,0 +1,16 @@
+﻿{
+    "id":  "8c2477ac-8b44-47c7-beb7-f8b55cb32b01",
+    "symbol":  "PG",
+    "sector":  "Consumer Defensive",
+    "quantity":  5,
+    "averageCostBasis":  160,
+    "currency":  "USD",
+    "currentPrice":  151.4100,
+    "currentValue":  757.0500,
+    "weightPercent":  null,
+    "compositeFairValue":  59.6000,
+    "marginOfSafety":  -154.0400,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:16.39553168"
+}

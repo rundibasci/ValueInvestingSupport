@@ -86,9 +86,12 @@ public class ValueScoreService {
                 && rawTotalScore.compareTo(new BigDecimal("40")) > 0;
         BigDecimal totalScore = gateApplied ? new BigDecimal("40") : rawTotalScore;
 
+        LocalDate scoreDate = LocalDate.now();
+        valueScoreRepository.deleteBySecurityAndScoreDate(security, scoreDate);
+
         ValueScore entity = new ValueScore();
         entity.setSecurity(security);
-        entity.setScoreDate(LocalDate.now());
+        entity.setScoreDate(scoreDate);
         entity.setMosScore(mosScore);
         entity.setQualityScore(qualityScore);
         entity.setSafetyScore(safetyScore);

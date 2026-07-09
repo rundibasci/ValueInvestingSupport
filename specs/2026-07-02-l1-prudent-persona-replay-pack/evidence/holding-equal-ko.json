@@ -1,0 +1,16 @@
+﻿{
+    "id":  "7669f1be-529d-4a94-8f57-75bf3fc9f9c5",
+    "symbol":  "KO",
+    "sector":  "Consumer Defensive",
+    "quantity":  12,
+    "averageCostBasis":  84.1400,
+    "currency":  "USD",
+    "currentPrice":  84.1400,
+    "currentValue":  1009.6800,
+    "weightPercent":  null,
+    "compositeFairValue":  23.6500,
+    "marginOfSafety":  -255.7700,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:14.977616879"
+}

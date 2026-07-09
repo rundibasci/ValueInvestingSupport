@@ -1,0 +1,42 @@
+{
+  "loginInitial": {
+    "url": "http://localhost:5173/login",
+    "text": "V\nValue Investing\n\nA BETTER STARTING POINT\n\nResearch before conviction.\n\nA disciplined workspace for examining fundamentals, valuing businesses, and keeping your reasoning visible.\n\nTHE QUIET ADVANTAGE\n\nGood investment decisions begin with patient questions, not louder opinions.\n\nWelcome back\n\nEnter your workspace\n\nSign in to continue your research.\n\nYour session has expired. Please sign in again.\nG\nContinue with Google\nPASSWORD\nEmail\nPassword\nSign in to research\n\nValue Investing is decision support, not investment advice. Your judgment stays in the room.",
+    "alerts": [
+      "Your session has expired. Please sign in again."
+    ]
+  },
+  "loginWrong": {
+    "url": "http://localhost:5173/login",
+    "text": "V\nValue Investing\n\nA BETTER STARTING POINT\n\nResearch before conviction.\n\nA disciplined workspace for examining fundamentals, valuing businesses, and keeping your reasoning visible.\n\nTHE QUIET ADVANTAGE\n\nGood investment decisions begin with patient questions, not louder opinions.\n\nWelcome back\n\nEnter your workspace\n\nSign in to continue your research.\n\nInvalid email or password.\nG\nContinue with Google\nPASSWORD\nEmail\nPassword\nSign in to research\n\nValue Investing is decision support, not investment advice. Your judgment stays in the room.",
+    "alerts": [
+      "Invalid email or password."
+    ]
+  },
+  "seedInvalid": {
+    "url": "http://localhost:5173/seed",
+    "text": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nSHARED RESEARCH UNIVERSE\n\nSeed Universe\n\nSeed symbols into platform-wide reference data so every authenticated user can discover them through screener, search, security detail, and review workflows.\n\nOpen screener\nScope\n\nSeeding creates or refreshes shared securities, profiles, fundamentals, ratios, quotes, valuations, and scores. It does not add symbols to your personal watchlist or portfolio; those actions stay user-owned and separate.\n\nCSV tickers\n\nAvailable to investors, advisors, and admins.\n\nTicker list\nPreview\n2 unique tickers\nKO\nMSFT\n\nRemoved duplicates: KO\n\nInvalid entries: bad!\n\nSeed CSV list\nNamed packs\n\nNamed packs are hidden for non-admin roles until the backend quota and cost policy allows them. CSV seeding remains available for your research list.",
+    "buttons": [
+      {
+        "text": "Sign out",
+        "disabled": false
+      },
+      {
+        "text": "Seed CSV list",
+        "disabled": true
+      }
+    ]
+  },
+  "universeBefore": {
+    "url": "http://localhost:5173/universe-curation",
+    "text": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nSHARED UNIVERSE\n\nUniverse Curation\n\nBuild a criteria-based research universe, preview the exact symbols, then seed only the reviewed list into shared reference data.\n\nCSV seed\nScreener\nTemplate\nCustom criteria\nForbidden\nSort\nMarket cap high to low\nMarket cap low to high\nVolume high to low\nSymbol A to Z\nExchanges\nNASDAQ\nNYSE\nAMEX\nLSE\nTSX\nXETRA\nCountries\nUS\nCA\nGB\nDE\nFR\nIT\nCH\nSectors\nBasic Materials\nCommunication Services\nConsumer Cyclical\nConsumer Defensive\nEnergy\nFinancial Services\nHealthcare\nIndustrials\nReal Estate\nTechnology\nUtilities\nTreat selected sectors as exclusions\nMarket cap min\nMarket cap max\nMinimum volume\nMax symbols\nPreview universe\nSeed preview\nActive workflow summary\nMatches\n-\nReturned\n-\nSeeded\n-\nLast refresh\nThis session\nSECTORS\n\nNo preview yet.\n\nEXCHANGES\n\nNo preview yet.\n\nRestrictions\n\nPersistent symbol exclusion is waiting on a backend contract. Use criteria filters before seeding; no local exclusion state is saved.\n\nExclusion persistence unavailable",
+    "alerts": []
+  },
+  "universeAfter": {
+    "url": "http://localhost:5173/universe-curation",
+    "text": "V\nValue Investing\nDecision support\nDashboard\nScreener\nSeed Universe\nUniverse Curation\nPortfolio\nWatchlist\nDecision History\nChecklists\nAccount\n\nWORKSPACE\n\nResearch before conviction.\n\ninvestor@realdemo.local\nINVESTOR\nSign out\n\nSHARED UNIVERSE\n\nUniverse Curation\n\nBuild a criteria-based research universe, preview the exact symbols, then seed only the reviewed list into shared reference data.\n\nCSV seed\nScreener\nTemplate\nCustom criteria\nForbidden\nSort\nMarket cap high to low\nMarket cap low to high\nVolume high to low\nSymbol A to Z\nExchanges\nNASDAQ\nNYSE\nAMEX\nLSE\nTSX\nXETRA\nCountries\nUS\nCA\nGB\nDE\nFR\nIT\nCH\nSectors\nBasic Materials\nCommunication Services\nConsumer Cyclical\nConsumer Defensive\nEnergy\nFinancial Services\nHealthcare\nIndustrials\nReal Estate\nTechnology\nUtilities\nTreat selected sectors as exclusions\nMarket cap min\nMarket cap max\nMinimum volume\nMax symbols\nPreview universe\nSeed preview\n\nForbidden\n\nActive workflow summary\nMatches\n-\nReturned\n-\nSeeded\n-\nLast refresh\nThis session\nSECTORS\n\nNo preview yet.\n\nEXCHANGES\n\nNo preview yet.\n\nRestrictions\n\nPersistent symbol exclusion is waiting on a backend contract. Use criteria filters before seeding; no local exclusion state is saved.\n\nExclusion persistence unavailable",
+    "alerts": [
+      "Forbidden"
+    ]
+  }
+}

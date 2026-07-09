@@ -1,0 +1,80 @@
+﻿{
+    "portfolio":  {
+                      "id":  "c9f6e79c-dd67-4dc0-96de-18098830f965",
+                      "name":  "L1 oversized KO concentration",
+                      "description":  "Replay evidence portfolio for holding concentration warnings; not an investable model.",
+                      "totalValue":  10486.2500000000,
+                      "weightedMoS":  -244.56,
+                      "holdings":  [
+                                       {
+                                           "id":  "8c2477ac-8b44-47c7-beb7-f8b55cb32b01",
+                                           "symbol":  "PG",
+                                           "sector":  "Consumer Defensive",
+                                           "quantity":  5.000000,
+                                           "averageCostBasis":  160.0000,
+                                           "currency":  "USD",
+                                           "currentPrice":  151.4100,
+                                           "currentValue":  757.0500000000,
+                                           "weightPercent":  7.22,
+                                           "compositeFairValue":  59.6000,
+                                           "marginOfSafety":  -154.0400,
+                                           "recommendation":  "OVERVALUED",
+                                           "valueStatus":  "AVAILABLE",
+                                           "addedAt":  "2026-07-03T06:54:16.395532"
+                                       },
+                                       {
+                                           "id":  "33352296-221b-4b3d-9198-f8e29474a644",
+                                           "symbol":  "JNJ",
+                                           "sector":  "Healthcare",
+                                           "quantity":  5.000000,
+                                           "averageCostBasis":  150.0000,
+                                           "currency":  "USD",
+                                           "currentPrice":  263.0400,
+                                           "currentValue":  1315.2000000000,
+                                           "weightPercent":  12.54,
+                                           "compositeFairValue":  80.9400,
+                                           "marginOfSafety":  -224.9800,
+                                           "recommendation":  "OVERVALUED",
+                                           "valueStatus":  "AVAILABLE",
+                                           "addedAt":  "2026-07-03T06:54:16.281185"
+                                       },
+                                       {
+                                           "id":  "122e0cbc-356e-4f35-a128-25fa737b10b9",
+                                           "symbol":  "KO",
+                                           "sector":  "Consumer Defensive",
+                                           "quantity":  100.000000,
+                                           "averageCostBasis":  60.0000,
+                                           "currency":  "USD",
+                                           "currentPrice":  84.1400,
+                                           "currentValue":  8414.0000000000,
+                                           "weightPercent":  80.24,
+                                           "compositeFairValue":  23.6500,
+                                           "marginOfSafety":  -255.7700,
+                                           "recommendation":  "OVERVALUED",
+                                           "valueStatus":  "AVAILABLE",
+                                           "addedAt":  "2026-07-03T06:54:16.035894"
+                                       }
+                                   ],
+                      "concentrationWarnings":  [
+                                                    {
+                                                        "type":  "HOLDING",
+                                                        "key":  "KO",
+                                                        "weightPercent":  80.24,
+                                                        "thresholdPercent":  20.00,
+                                                        "message":  "KO is above the model holding concentration threshold."
+                                                    },
+                                                    {
+                                                        "type":  "SECTOR",
+                                                        "key":  "Consumer Defensive",
+                                                        "weightPercent":  87.46,
+                                                        "thresholdPercent":  35.00,
+                                                        "message":  "Consumer Defensive exposure is above the model sector concentration threshold."
+                                                    }
+                                                ],
+                      "createdAt":  "2026-07-03T06:54:15.942968",
+                      "updatedAt":  "2026-07-03T06:54:15.942968"
+                  },
+    "holdingConcentrationBreaches":  1,
+    "passesExpectedCheck":  true,
+    "note":  "Expected: oversized KO scenario produces at least one holding concentration warning when prices are available."
+}

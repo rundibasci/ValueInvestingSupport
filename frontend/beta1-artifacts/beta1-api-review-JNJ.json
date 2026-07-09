@@ -1,0 +1,579 @@
+{
+    "symbol":  "JNJ",
+    "detail":  {
+                   "symbol":  "JNJ",
+                   "companyName":  "Johnson \u0026 Johnson",
+                   "sector":  "Healthcare",
+                   "exchange":  null,
+                   "country":  "US",
+                   "currency":  "USD",
+                   "marketCap":  633194348544.00,
+                   "description":  null,
+                   "website":  null,
+                   "currentPrice":  263.0400,
+                   "priceDate":  "2026-07-03",
+                   "revenue":  94193000000.00,
+                   "netIncome":  26804000000.00,
+                   "fcf":  19698000000.00,
+                   "eps":  11.0300,
+                   "bvps":  33.5655,
+                   "pe":  null,
+                   "roic":  null,
+                   "dividendYield":  0.0246,
+                   "dataAsOf":  "2026-07-03"
+               },
+    "financials":  {
+                       "symbol":  "JNJ",
+                       "annuals":  [
+                                       {
+                                           "fiscalYear":  2026,
+                                           "revenue":  94193000000.00,
+                                           "netIncome":  26804000000.00,
+                                           "fcf":  19698000000.00,
+                                           "eps":  11.0300,
+                                           "bvps":  33.5655,
+                                           "sharesOutstanding":  2429400000
+                                       },
+                                       {
+                                           "fiscalYear":  2025,
+                                           "revenue":  88821000000.00,
+                                           "netIncome":  14066000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2024,
+                                           "revenue":  85159000000.00,
+                                           "netIncome":  35153000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       },
+                                       {
+                                           "fiscalYear":  2023,
+                                           "revenue":  94943000000.00,
+                                           "netIncome":  17941000000.00,
+                                           "fcf":  null,
+                                           "eps":  null,
+                                           "bvps":  null,
+                                           "sharesOutstanding":  null
+                                       }
+                                   ],
+                       "quarters":  [
+
+                                    ],
+                       "ttm":  {
+                                   "revenue":  94193000000.00,
+                                   "netIncome":  26804000000.00,
+                                   "fcf":  19698000000.00,
+                                   "eps":  11.0300
+                               }
+                   },
+    "ratios":  {
+                   "symbol":  "JNJ",
+                   "ratios":  [
+                                  {
+                                      "date":  "2026-07-03",
+                                      "pe":  null,
+                                      "roic":  null,
+                                      "roe":  null,
+                                      "debtToEquity":  null,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0246
+                                  },
+                                  {
+                                      "date":  "2025-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2024-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2023-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2022-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2021-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2020-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2019-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2018-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  },
+                                  {
+                                      "date":  "2017-12-31",
+                                      "pe":  30.4797,
+                                      "roic":  null,
+                                      "roe":  0.2642,
+                                      "debtToEquity":  67.7300,
+                                      "grossMargin":  null,
+                                      "dividendYield":  0.0204
+                                  }
+                              ]
+               },
+    "valuation":  {
+                      "symbol":  "JNJ",
+                      "companyName":  "Johnson \u0026 Johnson",
+                      "currentPrice":  263.0400,
+                      "dcf":  {
+                                  "base":  null,
+                                  "low":  null,
+                                  "high":  null
+                              },
+                      "dcfTerminalValuePercentage":  null,
+                      "dcfHighTerminalDependence":  false,
+                      "sensitivity":  null,
+                      "grahamNumber":  80.9400,
+                      "ddmValue":  null,
+                      "epv":  null,
+                      "ownerEarnings":  {
+                                            "value":  26804000000.00,
+                                            "maintenanceCapexEstimate":  0.00
+                                        },
+                      "compositeFairValue":  80.9400,
+                      "marginOfSafety":  -224.9800,
+                      "mosLow":  null,
+                      "mosHigh":  null,
+                      "recommendation":  "OVERVALUED",
+                      "analystEstimates":  null,
+                      "wacc":  {
+                                   "wacc":  0.090000,
+                                   "riskFreeRate":  0.045000,
+                                   "equityRiskPremium":  0.055000,
+                                   "beta":  null,
+                                   "costOfEquity":  null,
+                                   "costOfDebt":  null,
+                                   "debtWeight":  null,
+                                   "equityWeight":  null,
+                                   "effectiveTaxRate":  null,
+                                   "fallbackUsed":  true,
+                                   "source":  "sector-fallback"
+                               },
+                      "grahamChecklist":  {
+                                              "passed":  0,
+                                              "failed":  5,
+                                              "insufficient":  3,
+                                              "criteria":  [
+                                                               {
+                                                                   "code":  "current_ratio_above_2",
+                                                                   "label":  "Current ratio above 2.0",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  1.025000
+                                                               },
+                                                               {
+                                                                   "code":  "dividend_record_10y",
+                                                                   "label":  "Dividend record at least 10 years",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  0.000000
+                                                               },
+                                                               {
+                                                                   "code":  "earnings_stability_10y",
+                                                                   "label":  "10-year earnings stability",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "no_negative_earnings_5y",
+                                                                   "label":  "No negative earnings in last 5 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               },
+                                                               {
+                                                                   "code":  "pb_under_1_5",
+                                                                   "label":  "P/B below 1.5",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  7.797243
+                                                               },
+                                                               {
+                                                                   "code":  "pe_pb_under_22_5",
+                                                                   "label":  "P/E times P/B below 22.5",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  237.657807
+                                                               },
+                                                               {
+                                                                   "code":  "pe_under_15",
+                                                                   "label":  "P/E below 15",
+                                                                   "status":  "FAIL",
+                                                                   "actualValue":  30.479723
+                                                               },
+                                                               {
+                                                                   "code":  "positive_eps_growth_10y",
+                                                                   "label":  "Positive EPS growth over 10 years",
+                                                                   "status":  "INSUFFICIENT_DATA",
+                                                                   "actualValue":  null
+                                                               }
+                                                           ]
+                                          },
+                      "dataAsOf":  "2026-07-03",
+                      "disclaimer":  "This is a decision-support tool, not investment advice (MiFID II)."
+                  },
+    "dividends":  {
+                      "symbol":  "JNJ",
+                      "history":  [
+
+                                  ],
+                      "streak":  0,
+                      "cagr3y":  null,
+                      "cagr5y":  null,
+                      "cagr10y":  null
+                  },
+    "growth":  {
+                   "symbol":  "JNJ",
+                   "revenue":  {
+                                   "cagr3y":  -0.26,
+                                   "cagr5y":  null,
+                                   "cagr10y":  null
+                               },
+                   "fcf":  {
+                               "cagr3y":  null,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           },
+                   "eps":  {
+                               "cagr3y":  null,
+                               "cagr5y":  null,
+                               "cagr10y":  null
+                           }
+               },
+    "peers":  {
+                  "symbol":  "JNJ",
+                  "peers":  [
+
+                            ]
+              },
+    "score":  null,
+    "piotroski":  null,
+    "altman":  null,
+    "cyclicality":  null,
+    "earningsQuality":  null,
+    "moat":  {
+                 "symbol":  "JNJ",
+                 "resultDate":  "2026-07-03",
+                 "moatStrength":  "INSUFFICIENT_DATA",
+                 "roicTrend":  "INSUFFICIENT_DATA",
+                 "yearsAnalyzed":  0,
+                 "yearsRoicAboveWacc":  0,
+                 "roicConsistencyPercentage":  null,
+                 "averageRoic":  null,
+                 "estimatedWacc":  0.090000,
+                 "averageRoicSpread":  null,
+                 "trendSlope":  null,
+                 "reinvestmentRate":  null,
+                 "availabilityMessage":  "At least five annual ROIC observations are required.",
+                 "stabilityCriteria":  [
+
+                                       ]
+             },
+    "capitalAllocation":  {
+                              "symbol":  "JNJ",
+                              "resultDate":  "2026-07-03",
+                              "sharesOutstandingTrend":  "INSUFFICIENT_DATA",
+                              "classification":  "INSUFFICIENT_DATA",
+                              "yearsAnalyzed":  1,
+                              "sharesChangePercentage":  null,
+                              "sharesCagr":  null,
+                              "dividendYield":  0.0246,
+                              "netBuybackYield":  null,
+                              "totalShareholderYield":  null,
+                              "insiderOwnershipPercentage":  null,
+                              "acquisitionSpendToFcf":  null,
+                              "availabilityMessage":  "At least two annual shares outstanding observations are required."
+                          },
+    "valuationBands":  {
+                           "symbol":  "JNJ",
+                           "resultDate":  "2026-07-03",
+                           "bands":  [
+                                         {
+                                             "metric":  "PE",
+                                             "yearsAnalyzed":  9,
+                                             "currentValue":  null,
+                                             "medianValue":  30.4797,
+                                             "percentile25":  30.4797,
+                                             "percentile75":  30.4797,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  null
+                                         },
+                                         {
+                                             "metric":  "PB",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  6.1817,
+                                             "medianValue":  7.7972,
+                                             "percentile25":  7.7972,
+                                             "percentile75":  7.7972,
+                                             "currentPercentile":  10.00,
+                                             "position":  "HISTORICALLY_CHEAP",
+                                             "availabilityMessage":  null
+                                         },
+                                         {
+                                             "metric":  "EV_EBITDA",
+                                             "yearsAnalyzed":  0,
+                                             "currentValue":  null,
+                                             "medianValue":  null,
+                                             "percentile25":  null,
+                                             "percentile75":  null,
+                                             "currentPercentile":  null,
+                                             "position":  "INSUFFICIENT_DATA",
+                                             "availabilityMessage":  "At least three historical observations are required."
+                                         },
+                                         {
+                                             "metric":  "DIVIDEND_YIELD",
+                                             "yearsAnalyzed":  10,
+                                             "currentValue":  0.0246,
+                                             "medianValue":  0.0204,
+                                             "percentile25":  0.0204,
+                                             "percentile75":  0.0204,
+                                             "currentPercentile":  100.00,
+                                             "position":  "HISTORICALLY_CHEAP",
+                                             "availabilityMessage":  null
+                                         }
+                                     ]
+                       },
+    "financialHealth":  {
+                            "totalDebt":  47933000000.00,
+                            "cash":  20102000000.00,
+                            "netDebt":  27831000000.00,
+                            "debtToEquity":  null,
+                            "currentRatio":  1.0277,
+                            "quickRatio":  null,
+                            "interestCoverage":  null,
+                            "payoutRatio":  null,
+                            "dividendYield":  0.0246,
+                            "grossMargin":  null,
+                            "operatingMargin":  null,
+                            "netMargin":  null,
+                            "dataAsOf":  "2026-07-03"
+                        },
+    "sourceCoverage":  [
+                           {
+                               "category":  "Profile",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Fundamentals",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Ratios",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Quote",
+                               "provider":  null,
+                               "status":  "AVAILABLE",
+                               "message":  "Application data is available; provider-level metadata is not stored for this category."
+                           },
+                           {
+                               "category":  "Dividends",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Valuation",
+                               "provider":  "fmp",
+                               "status":  "AVAILABLE",
+                               "message":  "Provider metadata is available for this category."
+                           },
+                           {
+                               "category":  "Score",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Peers",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           },
+                           {
+                               "category":  "Analyst estimates",
+                               "provider":  null,
+                               "status":  "MISSING_SEEDED_HISTORY",
+                               "message":  "No local data is available for this category."
+                           }
+                       ],
+    "freshness":  [
+                      {
+                          "category":  "Fundamentals",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Ratios",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Quote",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Valuation",
+                          "dataAsOf":  "2026-07-03",
+                          "status":  "FRESH",
+                          "message":  "Local data is within the freshness guard."
+                      },
+                      {
+                          "category":  "Score",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      },
+                      {
+                          "category":  "Dividends",
+                          "dataAsOf":  null,
+                          "status":  "MISSING_SEEDED_HISTORY",
+                          "message":  "No local date is available."
+                      }
+                  ],
+    "availability":  [
+                         {
+                             "category":  "Fundamentals",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Ratios",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Quote",
+                             "state":  {
+                                           "status":  "AVAILABLE",
+                                           "reason":  "Data is available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Valuation",
+                             "state":  {
+                                           "status":  "GUARDRAIL_BLOCKED",
+                                           "reason":  "DCF is unavailable because eligibility guardrails were not met; other valuation components may still be available.",
+                                           "dataAsOf":  "2026-07-03"
+                                       }
+                         },
+                         {
+                             "category":  "Score",
+                             "state":  {
+                                           "status":  "MISSING_INTERNAL_COMPUTATION",
+                                           "reason":  "No persisted value score is available.",
+                                           "dataAsOf":  null
+                                       }
+                         },
+                         {
+                             "category":  "Dividends",
+                             "state":  {
+                                           "status":  "PROVIDER_LIMITED",
+                                           "reason":  "Dividend history is unavailable from the current local data.",
+                                           "dataAsOf":  null
+                                       }
+                         }
+                     ],
+    "dataQualityNotes":  [
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Quick ratio is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Financial health",
+                                 "severity":  "INFO",
+                                 "message":  "Interest coverage is unavailable from the current provider data model."
+                             },
+                             {
+                                 "category":  "Valuation",
+                                 "severity":  "INFO",
+                                 "message":  "DCF output is unavailable, likely because eligibility guards were not met."
+                             },
+                             {
+                                 "category":  "Score",
+                                 "severity":  "INFO",
+                                 "message":  "No persisted value score is available for this symbol."
+                             },
+                             {
+                                 "category":  "Dividends",
+                                 "severity":  "INFO",
+                                 "message":  "Dividend history is unavailable for this symbol."
+                             },
+                             {
+                                 "category":  "Advice boundary",
+                                 "severity":  "INFO",
+                                 "message":  "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."
+                             }
+                         ]
+}

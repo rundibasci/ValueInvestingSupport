@@ -1,0 +1,624 @@
+﻿{
+    "generatedAt":  "2026-07-03T19:11:54.0161519+02:00",
+    "mode":  "non-destructive-live-probe",
+    "authUser":  "investor@realdemo.local",
+    "token":  "redacted",
+    "csv":  {
+                "path":  "C:\\Users\\Marcello\\Downloads\\Portfolio.csv",
+                "rowCount":  15,
+                "headers":  [
+                                "Prodotto",
+                                "Codice",
+                                "Quantità",
+                                "Ultimo",
+                                "Valore",
+                                "H1",
+                                "Valore in EUR"
+                            ],
+                "blankCodice":  1,
+                "duplicateCodice":  [
+
+                                    ],
+                "rows":  [
+                             {
+                                 "Prodotto":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+                                 "Codice":  "",
+                                 "Quantità":  "",
+                                 "Ultimo":  "",
+                                 "Valore":  "EUR",
+                                 "H1":  "1772,93",
+                                 "Valore in EUR":  "1772,93"
+                             },
+                             {
+                                 "Prodotto":  "ABBOTT LABORATORIES",
+                                 "Codice":  "US0028241000",
+                                 "Quantità":  "81",
+                                 "Ultimo":  "95,40",
+                                 "Valore":  "USD",
+                                 "H1":  "7727,40",
+                                 "Valore in EUR":  "6759,93"
+                             },
+                             {
+                                 "Prodotto":  "ACOMO NV",
+                                 "Codice":  "NL0000313286",
+                                 "Quantità":  "570",
+                                 "Ultimo":  "22,35",
+                                 "Valore":  "EUR",
+                                 "H1":  "12739,50",
+                                 "Valore in EUR":  "12739,50"
+                             },
+                             {
+                                 "Prodotto":  "ARCHER-DANIELS-MIDLAND CO",
+                                 "Codice":  "US0394831020",
+                                 "Quantità":  "150",
+                                 "Ultimo":  "76,79",
+                                 "Valore":  "USD",
+                                 "H1":  "11518,50",
+                                 "Valore in EUR":  "10076,38"
+                             },
+                             {
+                                 "Prodotto":  "BRISTOL-MYERS SQUIBB CO",
+                                 "Codice":  "US1101221083",
+                                 "Quantità":  "30",
+                                 "Ultimo":  "58,13",
+                                 "Valore":  "USD",
+                                 "H1":  "1743,90",
+                                 "Valore in EUR":  "1525,56"
+                             },
+                             {
+                                 "Prodotto":  "COVIVIO SA",
+                                 "Codice":  "FR0000064578",
+                                 "Quantità":  "62",
+                                 "Ultimo":  "54,55",
+                                 "Valore":  "EUR",
+                                 "H1":  "3382,10",
+                                 "Valore in EUR":  "3382,10"
+                             },
+                             {
+                                 "Prodotto":  "GSK PLC",
+                                 "Codice":  "GB00BN7SWP63",
+                                 "Quantità":  "185",
+                                 "Ultimo":  "23,26",
+                                 "Valore":  "EUR",
+                                 "H1":  "4303,10",
+                                 "Valore in EUR":  "4303,10"
+                             },
+                             {
+                                 "Prodotto":  "INGREDION INC",
+                                 "Codice":  "US4571871023",
+                                 "Quantità":  "118",
+                                 "Ultimo":  "97,62",
+                                 "Valore":  "USD",
+                                 "H1":  "11519,16",
+                                 "Valore in EUR":  "10076,96"
+                             },
+                             {
+                                 "Prodotto":  "JOHNSON \u0026 JOHNSON",
+                                 "Codice":  "US4781601046",
+                                 "Quantità":  "20",
+                                 "Ultimo":  "263,04",
+                                 "Valore":  "USD",
+                                 "H1":  "5260,80",
+                                 "Valore in EUR":  "4602,15"
+                             },
+                             {
+                                 "Prodotto":  "NOMAD FOODS LTD",
+                                 "Codice":  "VGG6564A1057",
+                                 "Quantità":  "750",
+                                 "Ultimo":  "11,42",
+                                 "Valore":  "USD",
+                                 "H1":  "8565,00",
+                                 "Valore in EUR":  "7492,66"
+                             },
+                             {
+                                 "Prodotto":  "NUTRIEN LTD",
+                                 "Codice":  "CA67077M1086",
+                                 "Quantità":  "66",
+                                 "Ultimo":  "65,06",
+                                 "Valore":  "USD",
+                                 "H1":  "4293,96",
+                                 "Valore in EUR":  "3756,36"
+                             },
+                             {
+                                 "Prodotto":  "PFIZER INC",
+                                 "Codice":  "US7170811035",
+                                 "Quantità":  "150",
+                                 "Ultimo":  "24,32",
+                                 "Valore":  "USD",
+                                 "H1":  "3648,00",
+                                 "Valore in EUR":  "3191,27"
+                             },
+                             {
+                                 "Prodotto":  "RAYONIER INC",
+                                 "Codice":  "US7549071030",
+                                 "Quantità":  "110",
+                                 "Ultimo":  "21,49",
+                                 "Valore":  "USD",
+                                 "H1":  "2363,90",
+                                 "Valore in EUR":  "2067,94"
+                             },
+                             {
+                                 "Prodotto":  "REALTY INCOME CORP",
+                                 "Codice":  "US7561091049",
+                                 "Quantità":  "249",
+                                 "Ultimo":  "63,84",
+                                 "Valore":  "USD",
+                                 "H1":  "15896,16",
+                                 "Valore in EUR":  "13905,96"
+                             },
+                             {
+                                 "Prodotto":  "WEYERHAEUSER CO",
+                                 "Codice":  "US9621661043",
+                                 "Quantità":  "160",
+                                 "Ultimo":  "23,79",
+                                 "Valore":  "USD",
+                                 "H1":  "3806,40",
+                                 "Valore in EUR":  "3329,84"
+                             }
+                         ]
+            },
+    "probes":  [
+                   {
+                       "name":  "health",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/actuator/health",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "frontend-watchlist",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:5173/watchlist",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "frontend-ko-review",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:5173/securities/KO/review",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "watchlist-api",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/watchlist",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "portfolios-api",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/portfolios",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "screener-empty-post",
+                       "ok":  false,
+                       "status":  500,
+                       "uri":  "http://localhost:8080/api/v1/screener",
+                       "contentLength":  116,
+                       "error":  "Errore del server remoto: (500) Errore interno del server.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "agent-one-comparison",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/conservative-workflow/agent-one-comparison",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "review-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/review",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "profile-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "valuation-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/valuation",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "dividends-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/dividends",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "growth-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/growth",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "insiders-KO",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/KO/insiders",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "review-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/review",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "profile-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "valuation-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/valuation",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "dividends-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/dividends",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "growth-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/growth",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "insiders-BRK-B",
+                       "ok":  false,
+                       "status":  null,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK-B/insiders",
+                       "contentLength":  0,
+                       "error":  "Riferimento a un oggetto non impostato su un\u0027istanza di oggetto.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "review-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/review",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "profile-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "valuation-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/valuation",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "dividends-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/dividends",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "growth-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/growth",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   },
+                   {
+                       "name":  "insiders-BRK.B",
+                       "ok":  false,
+                       "status":  404,
+                       "uri":  "http://localhost:8080/api/v1/securities/BRK.B/insiders",
+                       "contentLength":  35,
+                       "error":  "Errore del server remoto: (404) Non trovato.",
+                       "sample":  null
+                   }
+               ],
+    "portfolios":  [
+
+                   ],
+    "searches":  [
+                     {
+                         "product":  "CASH \u0026 CASH FUND \u0026 FTX CASH (EUR)",
+                         "codice":  "",
+                         "term":  "CASH \u0026",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ABBOTT LABORATORIES",
+                         "codice":  "US0028241000",
+                         "term":  "US0028241000",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ABBOTT LABORATORIES",
+                         "codice":  "US0028241000",
+                         "term":  "ABBOTT LABORATORIES",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ACOMO NV",
+                         "codice":  "NL0000313286",
+                         "term":  "NL0000313286",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ACOMO NV",
+                         "codice":  "NL0000313286",
+                         "term":  "ACOMO NV",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ARCHER-DANIELS-MIDLAND CO",
+                         "codice":  "US0394831020",
+                         "term":  "US0394831020",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "ARCHER-DANIELS-MIDLAND CO",
+                         "codice":  "US0394831020",
+                         "term":  "ARCHER-DANIELS-MIDLAND CO",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "BRISTOL-MYERS SQUIBB CO",
+                         "codice":  "US1101221083",
+                         "term":  "US1101221083",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "BRISTOL-MYERS SQUIBB CO",
+                         "codice":  "US1101221083",
+                         "term":  "BRISTOL-MYERS SQUIBB",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "COVIVIO SA",
+                         "codice":  "FR0000064578",
+                         "term":  "FR0000064578",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "COVIVIO SA",
+                         "codice":  "FR0000064578",
+                         "term":  "COVIVIO SA",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "GSK PLC",
+                         "codice":  "GB00BN7SWP63",
+                         "term":  "GB00BN7SWP63",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "GSK PLC",
+                         "codice":  "GB00BN7SWP63",
+                         "term":  "GSK PLC",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "INGREDION INC",
+                         "codice":  "US4571871023",
+                         "term":  "US4571871023",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "INGREDION INC",
+                         "codice":  "US4571871023",
+                         "term":  "INGREDION INC",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "JOHNSON \u0026 JOHNSON",
+                         "codice":  "US4781601046",
+                         "term":  "US4781601046",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "JOHNSON \u0026 JOHNSON",
+                         "codice":  "US4781601046",
+                         "term":  "JOHNSON \u0026",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "NOMAD FOODS LTD",
+                         "codice":  "VGG6564A1057",
+                         "term":  "VGG6564A1057",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "NOMAD FOODS LTD",
+                         "codice":  "VGG6564A1057",
+                         "term":  "NOMAD FOODS",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "NUTRIEN LTD",
+                         "codice":  "CA67077M1086",
+                         "term":  "CA67077M1086",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "NUTRIEN LTD",
+                         "codice":  "CA67077M1086",
+                         "term":  "NUTRIEN LTD",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "PFIZER INC",
+                         "codice":  "US7170811035",
+                         "term":  "US7170811035",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "PFIZER INC",
+                         "codice":  "US7170811035",
+                         "term":  "PFIZER INC",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "RAYONIER INC",
+                         "codice":  "US7549071030",
+                         "term":  "US7549071030",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "RAYONIER INC",
+                         "codice":  "US7549071030",
+                         "term":  "RAYONIER INC",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "REALTY INCOME CORP",
+                         "codice":  "US7561091049",
+                         "term":  "US7561091049",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "REALTY INCOME CORP",
+                         "codice":  "US7561091049",
+                         "term":  "REALTY INCOME",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "WEYERHAEUSER CO",
+                         "codice":  "US9621661043",
+                         "term":  "US9621661043",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     },
+                     {
+                         "product":  "WEYERHAEUSER CO",
+                         "codice":  "US9621661043",
+                         "term":  "WEYERHAEUSER CO",
+                         "status":  null,
+                         "count":  1,
+                         "results":  null
+                     }
+                 ]
+}

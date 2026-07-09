@@ -1,0 +1,69 @@
+﻿{
+    "name":  "conservative",
+    "description":  "Positive valuation gap, available score evidence, dividend signal, balance-sheet resilience, and complete data coverage.",
+    "criteria":  {
+                     "sector":  null,
+                     "exchange":  null,
+                     "minMarginOfSafety":  15,
+                     "maxMarginOfSafety":  null,
+                     "minValueScore":  60,
+                     "minRoic":  10,
+                     "maxDebtToEquity":  1.0,
+                     "minDividendYield":  1.5,
+                     "minRevenueGrowth":  0,
+                     "piotroskiMin":  7,
+                     "piotroskiMax":  null,
+                     "altmanZone":  "SAFE",
+                     "moatStrength":  "WIDE",
+                     "sharesOutstandingTrend":  "NET_BUYBACK",
+                     "sortField":  "totalScore",
+                     "sortDirection":  "DESC",
+                     "page":  0,
+                     "pageSize":  20
+                 },
+    "criteriaSummary":  [
+                            {
+                                "key":  "minMarginOfSafety",
+                                "label":  "Positive margin of safety",
+                                "currentValue":  "15% minimum",
+                                "whyItMatters":  "Keeps valuation discipline visible.",
+                                "relaxation":  "Lower the floor in small steps."
+                            },
+                            {
+                                "key":  "minValueScore",
+                                "label":  "Score availability and strength",
+                                "currentValue":  "60 minimum",
+                                "whyItMatters":  "Requires a usable composite evidence base.",
+                                "relaxation":  "Inspect score gaps before lowering the threshold."
+                            },
+                            {
+                                "key":  "minDividendYield",
+                                "label":  "Dividend signal",
+                                "currentValue":  "1.5% minimum",
+                                "whyItMatters":  "Highlights income coverage candidates for conservative review.",
+                                "relaxation":  "Remove for reinvestment-led compounders."
+                            },
+                            {
+                                "key":  "maxDebtToEquity",
+                                "label":  "Leverage resilience",
+                                "currentValue":  "1.0 maximum",
+                                "whyItMatters":  "Flags balance sheets that may be less exposed to financing stress.",
+                                "relaxation":  "Review sector norms before widening."
+                            },
+                            {
+                                "key":  "altmanZone",
+                                "label":  "Liquidity and solvency resilience",
+                                "currentValue":  "SAFE",
+                                "whyItMatters":  "Keeps distress signals out of the default preset.",
+                                "relaxation":  "Allow GREY only with explicit review notes."
+                            },
+                            {
+                                "key":  "dataCoverage",
+                                "label":  "Data completeness",
+                                "currentValue":  "Availability must be visible",
+                                "whyItMatters":  "Missing provider or internal calculations must be explainable.",
+                                "relaxation":  "Keep missing-data labels visible when filters are relaxed."
+                            }
+                        ],
+    "decisionSupportNote":  "Use these signals to structure research; they do not recommend transactions or position changes in any security."
+}

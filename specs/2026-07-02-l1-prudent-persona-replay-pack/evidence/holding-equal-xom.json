@@ -1,0 +1,16 @@
+﻿{
+    "id":  "2cd8e6c2-38dd-4cd0-ba38-390071a9ea32",
+    "symbol":  "XOM",
+    "sector":  "Energy",
+    "quantity":  7,
+    "averageCostBasis":  137.0900,
+    "currency":  "USD",
+    "currentPrice":  137.0900,
+    "currentValue":  959.6300,
+    "weightPercent":  null,
+    "compositeFairValue":  91.0800,
+    "marginOfSafety":  -50.5200,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.648128"
+}

@@ -12,10 +12,10 @@ import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
-import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.SourceTracker;
+import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationParams;
 import it.mazzoni.vis.valuation.ValuationService;
@@ -42,8 +42,8 @@ public class SeedService {
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
     private final RatioSnapshotRepository ratioSnapshotRepository;
     private final PriceQuoteRepository priceQuoteRepository;
-    private final ValueScoreRepository valueScoreRepository;
     private final ValuationService valuationService;
+    private final ValueScoreService valueScoreService;
     private final ValuationDefaultsProperties defaults;
     private final SourceTracker sourceTracker;
 
@@ -52,8 +52,8 @@ public class SeedService {
                        FundamentalSnapshotRepository fundamentalSnapshotRepository,
                        RatioSnapshotRepository ratioSnapshotRepository,
                        PriceQuoteRepository priceQuoteRepository,
-                       ValueScoreRepository valueScoreRepository,
                        ValuationService valuationService,
+                       ValueScoreService valueScoreService,
                        ValuationDefaultsProperties defaults,
                        SourceTracker sourceTracker) {
         this.marketDataClient = marketDataClient;
@@ -61,8 +61,8 @@ public class SeedService {
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
         this.priceQuoteRepository = priceQuoteRepository;
-        this.valueScoreRepository = valueScoreRepository;
         this.valuationService = valuationService;
+        this.valueScoreService = valueScoreService;
         this.defaults = defaults;
         this.sourceTracker = sourceTracker;
     }
@@ -93,12 +93,11 @@ public class SeedService {
                     defaults.terminalRate(), null, null);
             ValuationOutcome outcome = valuationService.calculate(symbol, params);
             ValuationResult result = outcome.result();
+            it.mazzoni.vis.domain.entity.ValueScore score = valueScoreService.compute(symbol);
             BigDecimal currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
                     .map(PriceQuote::getClose)
                     .orElse(null);
-            BigDecimal totalScore = valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)
-                    .map(it.mazzoni.vis.domain.entity.ValueScore::getTotalScore)
-                    .orElse(null);
+            BigDecimal totalScore = score.getTotalScore();
 
             return SeedResult.success(symbol, security.getCompanyName(),
                     security.getSector(), security.getExchange(), security.getCountry(),

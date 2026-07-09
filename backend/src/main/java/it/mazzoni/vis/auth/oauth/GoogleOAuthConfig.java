@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @Profile("!demo")
-@ConditionalOnExpression("!'${GOOGLE_CLIENT_ID:}'.isEmpty()")
+@ConditionalOnExpression("!'${GOOGLE_CLIENT_ID:}'.isEmpty() && !'${GOOGLE_CLIENT_SECRET:}'.isEmpty()")
 public class GoogleOAuthConfig {
 
     @Bean

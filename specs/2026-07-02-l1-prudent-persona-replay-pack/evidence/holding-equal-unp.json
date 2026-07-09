@@ -1,0 +1,16 @@
+﻿{
+    "id":  "edfb1d13-d919-420b-9204-9b299f94abdd",
+    "symbol":  "UNP",
+    "sector":  "Industrials",
+    "quantity":  4,
+    "averageCostBasis":  282.2500,
+    "currency":  "USD",
+    "currentPrice":  282.2500,
+    "currentValue":  1129.0000,
+    "weightPercent":  null,
+    "compositeFairValue":  94.5200,
+    "marginOfSafety":  -198.6100,
+    "recommendation":  "OVERVALUED",
+    "valueStatus":  "AVAILABLE",
+    "addedAt":  "2026-07-03T06:54:15.54415125"
+}
