@@ -1097,6 +1097,34 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
 
 ---
 
+## Group JM — Scheduled Job Monitor Console
+
+Goal: make scheduled jobs visible and controllable from a dedicated admin window before stakeholder cloud deployment. JC1/JC2 provide the job APIs and runtime controls; this group turns them into an operational console where an admin can see what is scheduled, what is currently running, what failed, and launch a job immediately without using curl or demo-only pages.
+
+### Phase JM1: Job Monitor Backend Readiness
+- Review the JC1/JC2 admin job APIs and fill any missing fields needed by a production-style monitor window: next scheduled run, last successful run, last failed run, current status, running duration, enabled/disabled state, cron expression, active data source, and latest error summary.
+- Add a normalized `GET /api/v1/admin/jobs/monitor` endpoint if the existing job list API cannot serve the window efficiently without multiple round trips.
+- Ensure `POST /api/v1/admin/jobs/{jobName}/run` supports immediate execution for all registered scheduled jobs and returns a `jobRunId`, even when the job is started from the UI without a custom scope.
+- Prevent duplicate unsafe executions: if a non-concurrent job is already running, return a clear conflict response with the active `jobRunId` instead of starting a second run.
+- Emit structured audit events for manual job launches, enable/disable changes, cron edits, failed runs, skipped runs, and duplicate-run blocks.
+- Add backend tests for monitor summary fields, immediate launch, duplicate-run protection, authorization, and audit-event creation.
+
+### Phase JM2: Scheduled Job Monitor Window
+- Add an ADMIN-only React route, for example `/admin/jobs`, reachable from the admin navigation and hidden from INVESTOR users.
+- Show a dense monitor table with job name, enabled state, schedule/cron, next run, last run result, current status, duration, records processed, failed records, data source, and latest error summary.
+- Provide row actions to run now, enable/disable, view history, inspect ingestion events, and open scoped-run options where JC2 supports symbol/exchange/data-type scope.
+- Add a run-now confirmation modal that explains the selected job, optional scope, expected data impact, and duplicate-run handling before launching.
+- After launch, show live/polling progress using `jobRunId`: status, elapsed time, processed/failed counts, per-symbol ingestion events, and final result.
+- Include filters for status, job type, enabled/disabled, data source, symbol, and date range; keep dense tables usable on desktop and provide a compact mobile layout.
+- Acceptance checklist:
+  - Admin can see all scheduled jobs, their next/last run state, and current running status from one window.
+  - Admin can launch any supported scheduled job immediately and receive visible progress/final outcome.
+  - Duplicate manual launches are blocked or clearly joined to the existing run.
+  - Failed/skipped jobs show actionable error context without exposing secrets.
+  - INVESTOR users cannot access the route or trigger raw admin `403` experiences from navigation.
+
+---
+
 ## Group K — GCP Distribution & Operational Readiness
 
 Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
@@ -1158,9 +1186,10 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M20: Conservative Workflow Hardening** | L1-L4 | FMP primary / Yahoo fallback | Agent 1 prudent-value replay pack, 10-stock validation portfolio evidence, conservative review diagnostics, availability-state examples, and workflow enhancements |
 | **M21: Real Demo (Curated)** | RD2-1 | Yahoo Finance (free) | Agent 1 validates curated universe workflow end to end with screenshots; comparison with manual-seed experience |
 | **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack including real-portfolio CSV validation, and monitor-agent log correlation from investor-agent findings |
-| **M23: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
-| **M24: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
-| **M25: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
+| **M23: Scheduled Job Monitor Console** | JM1, JM2 | FMP primary / Yahoo fallback | ADMIN window to monitor scheduled jobs, inspect run/event history, and launch jobs immediately with visible progress |
+| **M24: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
+| **M25: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
+| **M26: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
@@ -1193,3 +1222,5 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M21 validates the curated workflow.** Agent 1 repeats the full demo but starts from universe curation instead of manual seeding. The comparison with M19 demonstrates that structured selection produces a more coherent research experience.
 >
 > **M22 recycles investor-agent findings before cloud deployment.** The autonomous investor replay surfaced issues that are small individually but trust-eroding in aggregate: screener empty-state contradiction, API threshold validation fragility, duplicate landmarks, and `BRK.B`/`BRK-B` symbol mismatch. M22 turns those findings into a focused hardening loop with monitor-agent log correlation before K1 exposes the demo to stakeholders in the cloud. The replay and beta-test phases are iterative gates: fixes are followed by repeat investor, monitor, and beta cycles until consecutive clean runs show no unresolved high- or medium-severity problems.
+>
+> **M23 makes scheduled work operable from the product.** JC1/JC2 provide job APIs and runtime controls; JM turns them into an ADMIN-facing monitor window so a stakeholder or operator can verify schedules, observe progress, inspect failures, and launch a job immediately without leaving the React app.

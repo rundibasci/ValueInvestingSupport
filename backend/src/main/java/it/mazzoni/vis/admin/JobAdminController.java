@@ -8,6 +8,7 @@ import it.mazzoni.vis.jobs.DividendUpdateJob;
 import it.mazzoni.vis.jobs.InsiderTradingJob;
 import it.mazzoni.vis.jobs.QuoteRefreshJob;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,6 +56,11 @@ public class JobAdminController {
     @GetMapping
     List<JobSummaryResponse> listJobs() {
         return jobAdminService.listJobs(jobRegistry);
+    }
+
+    @GetMapping("/monitor")
+    List<JobMonitorResponse> monitorJobs() {
+        return jobAdminService.monitorJobs(jobRegistry);
     }
 
     @GetMapping("/{jobName}/history")
@@ -118,6 +124,12 @@ public class JobAdminController {
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(JobRunConflictException.class)
+    ResponseEntity<JobTriggerResponse> duplicateRun(JobRunConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new JobTriggerResponse(ex.jobName(), "already-running", ex.activeRunId()));
     }
 
     private void register(String jobName, String cronKey, java.util.function.Supplier<Integer> runner) {

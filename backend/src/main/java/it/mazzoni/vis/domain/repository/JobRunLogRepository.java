@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface JobRunLogRepository extends JpaRepository<JobRunLog, UUID> {
     Optional<JobRunLog> findTop1ByJobNameOrderByStartedAtDesc(String jobName);
+    Optional<JobRunLog> findTop1ByJobNameAndStatusOrderByStartedAtDesc(String jobName, String status);
     Page<JobRunLog> findByJobNameOrderByStartedAtDesc(String jobName, Pageable pageable);
 }

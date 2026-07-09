@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,6 +62,31 @@ class JobAdminServiceTest {
         assertThat(jobs.getFirst().enabled()).isTrue();
         assertThat(jobs.getFirst().lastRun().status()).isEqualTo("FAILED");
         assertThat(jobs.getFirst().lastRun().id()).isEqualTo(newer.getId());
+    }
+
+    @Test
+    void monitorJobs_includesOperationalState() {
+        JobRunLog running = runLog("monitor-job", "RUNNING", LocalDateTime.now().minusMinutes(3));
+        running.setCompletedAt(null);
+        JobRunLog success = runLog("monitor-job", "SUCCESS", LocalDateTime.now().minusHours(2));
+        JobRunLog failure = runLog("monitor-job", "FAILED", LocalDateTime.now().minusHours(1));
+        failure.setErrorMessage("provider unavailable");
+        jobRunLogRepository.saveAll(List.of(success, failure, running));
+        ingestionEventRepository.save(event(running.getId(), "monitor-job", "AAPL", "quote", "SUCCESS"));
+
+        Map<String, JobDefinition> registry = Map.of("monitor-job", new JobDefinition("monitor-job", "quote-refresh", () -> 0));
+
+        JobMonitorResponse response = service.monitorJobs(registry).getFirst();
+
+        assertThat(response.jobName()).isEqualTo("monitor-job");
+        assertThat(response.enabled()).isTrue();
+        assertThat(response.nextRunAt()).isNotNull();
+        assertThat(response.currentStatus()).isEqualTo("RUNNING");
+        assertThat(response.runningRun().id()).isEqualTo(running.getId());
+        assertThat(response.lastSuccessfulRun().id()).isEqualTo(success.getId());
+        assertThat(response.lastFailedRun().id()).isEqualTo(failure.getId());
+        assertThat(response.latestError()).isEqualTo("provider unavailable");
+        assertThat(response.dataSource()).isEqualTo("yahoo");
     }
 
     @Test
@@ -123,6 +149,31 @@ class JobAdminServiceTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void trigger_blocksDuplicateManualRunWhileRunning() throws Exception {
+        CountDownLatch release = new CountDownLatch(1);
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> {
+            try {
+                release.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(e);
+            }
+            return 1;
+        });
+
+        JobTriggerResponse first = service.trigger(definition, null);
+        awaitRunning(first.jobRunId());
+
+        assertThatThrownBy(() -> service.trigger(definition, null))
+                .isInstanceOf(JobRunConflictException.class)
+                .satisfies(error -> assertThat(((JobRunConflictException) error).activeRunId()).isEqualTo(first.jobRunId()));
+
+        release.countDown();
+        awaitCompleted(first.jobRunId());
+    }
+
+    @Test
     void events_filtersByRunSymbolAndStatus() {
         UUID targetRunId = UUID.randomUUID();
         ingestionEventRepository.save(event(targetRunId, "quote-refresh", "AAPL", "quote", "SUCCESS"));
@@ -169,6 +220,17 @@ class JobAdminServiceTest {
             Thread.sleep(50);
         }
         throw new AssertionError("Timed out waiting for job run " + runId);
+    }
+
+    private void awaitRunning(UUID runId) throws InterruptedException {
+        for (int attempt = 0; attempt < 20; attempt++) {
+            JobRunStatusResponse status = service.runStatus(runId).orElseThrow();
+            if ("RUNNING".equals(status.status())) {
+                return;
+            }
+            Thread.sleep(50);
+        }
+        throw new AssertionError("Timed out waiting for running job " + runId);
     }
 
     @TestConfiguration
