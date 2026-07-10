@@ -126,6 +126,29 @@ class FmpMarketDataClientTest {
     }
 
     @Test
+    void getHistoricalPrices_returnsMappedPriceRows() {
+        wireMock.stubFor(get(urlPathEqualTo("/historical-price-eod/full"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .withQueryParam("from", equalTo("2025-07-10"))
+                .withQueryParam("to", equalTo("2026-07-10"))
+                .willReturn(okJson("""
+                        [
+                          {"date":"2026-07-10","close":99.08,"volume":123456},
+                          {"date":"2026-07-09","close":98.50,"volume":111111}
+                        ]
+                        """)));
+
+        var result = client.getHistoricalPrices("INGR",
+                java.time.LocalDate.of(2025, 7, 10),
+                java.time.LocalDate.of(2026, 7, 10));
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).symbol()).isEqualTo("INGR");
+        assertThat(result.get(0).close()).isEqualByComparingTo("99.08");
+        assertThat(result.get(0).volume()).isEqualTo(123456L);
+    }
+
+    @Test
     void getRatios_returnsMappedRatioSnapshot() {
         wireMock.stubFor(get(urlPathEqualTo("/ratios"))
                 .withQueryParam("symbol", equalTo("AAPL"))

@@ -68,7 +68,7 @@ class UniverseSelectionControllerTest {
         mockMvc.perform(post("/api/v1/admin/universe/preview")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"exchanges":["NASDAQ"],"countries":["US"],"maxSymbols":1,"sortBy":"MARKET_CAP"}
+                                {"exchanges":["NASDAQ"],"countries":["US"],"maxSymbols":1,"sortBy":"MARKET_CAP_DESC"}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalMatches").value(2))

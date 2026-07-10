@@ -1,7 +1,12 @@
 package it.mazzoni.vis.admin;
 
 import it.mazzoni.vis.marketdata.MarketDataClient;
+import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
+import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.repository.SecurityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +25,21 @@ import java.util.function.Predicate;
 @Profile("!demo")
 public class UniverseSelectionService {
 
+    private static final Logger log = LoggerFactory.getLogger(UniverseSelectionService.class);
+
     private static final int DEFAULT_MAX_SYMBOLS = 100;
     private static final int HARD_MAX_SYMBOLS = 500;
     private static final List<String> DEFAULT_EXCHANGES = List.of("NYSE", "NASDAQ");
 
     private final MarketDataClient marketDataClient;
+    private final SecurityRepository securityRepository;
     private final SeedService seedService;
 
-    public UniverseSelectionService(MarketDataClient marketDataClient, SeedService seedService) {
+    public UniverseSelectionService(MarketDataClient marketDataClient,
+                                    SecurityRepository securityRepository,
+                                    SeedService seedService) {
         this.marketDataClient = marketDataClient;
+        this.securityRepository = securityRepository;
         this.seedService = seedService;
     }
 
@@ -103,13 +114,26 @@ public class UniverseSelectionService {
         }
         Map<String, FmpStockListEntry> bySymbol = new LinkedHashMap<>();
         for (String exchange : normalizedExchanges) {
-            for (FmpStockListEntry entry : marketDataClient.listSymbols(exchange)) {
+            for (FmpStockListEntry entry : loadEntriesForExchange(exchange)) {
                 if (entry.symbol() != null) {
                     bySymbol.putIfAbsent(entry.symbol().trim().toUpperCase(Locale.ROOT), entry);
                 }
             }
         }
         return new ArrayList<>(bySymbol.values());
+    }
+
+    private List<FmpStockListEntry> loadEntriesForExchange(String exchange) {
+        try {
+            return marketDataClient.listSymbols(exchange);
+        } catch (MarketDataException e) {
+            log.warn("FMP universe list unavailable for exchange {}: {}. Falling back to seeded securities.",
+                    exchange, e.getMessage());
+            return securityRepository.findAll().stream()
+                    .filter(security -> exchangeMatches(security, exchange))
+                    .map(UniverseSelectionService::toStockListEntry)
+                    .toList();
+        }
     }
 
     private static Predicate<FmpStockListEntry> hasSymbol() {
@@ -143,17 +167,20 @@ public class UniverseSelectionService {
 
     private static Predicate<FmpStockListEntry> matchesVolume(Long volumeMin) {
         if (volumeMin == null) return entry -> true;
-        return entry -> entry.volume() != null && entry.volume() >= volumeMin;
+        return entry -> entry.volume() == null || entry.volume() >= volumeMin;
     }
 
     private static Comparator<UniversePreviewRow> comparator(UniverseSortBy sortBy) {
         UniverseSortBy effective = sortBy != null ? sortBy : UniverseSortBy.MARKET_CAP;
         return switch (effective) {
-            case VOLUME -> Comparator
+            case VOLUME, VOLUME_DESC -> Comparator
                     .comparing(UniversePreviewRow::volume, Comparator.nullsLast(Comparator.reverseOrder()))
                     .thenComparing(UniversePreviewRow::symbol);
-            case ALPHABETICAL -> Comparator.comparing(UniversePreviewRow::symbol);
-            case MARKET_CAP -> Comparator
+            case ALPHABETICAL, SYMBOL_ASC -> Comparator.comparing(UniversePreviewRow::symbol);
+            case MARKET_CAP_ASC -> Comparator
+                    .comparing(UniversePreviewRow::marketCap, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(UniversePreviewRow::symbol);
+            case MARKET_CAP, MARKET_CAP_DESC -> Comparator
                     .comparing(UniversePreviewRow::marketCap, Comparator.nullsLast(Comparator.reverseOrder()))
                     .thenComparing(UniversePreviewRow::symbol);
         };
@@ -168,6 +195,26 @@ public class UniverseSelectionService {
                 entry.sector(),
                 entry.marketCap(),
                 entry.volume());
+    }
+
+    private static FmpStockListEntry toStockListEntry(Security security) {
+        return new FmpStockListEntry(
+                security.getSymbol(),
+                security.getCompanyName(),
+                security.getCountry(),
+                security.getSector(),
+                security.getExchange(),
+                security.getExchange(),
+                "stock",
+                null,
+                security.getMarketCap(),
+                null);
+    }
+
+    private static boolean exchangeMatches(Security security, String exchange) {
+        return security.getExchange() == null
+                || security.getExchange().isBlank()
+                || security.getExchange().equalsIgnoreCase(exchange);
     }
 
     private static int normalizeMaxSymbols(Integer requested) {

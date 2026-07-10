@@ -1,7 +1,10 @@
 package it.mazzoni.vis.admin;
 
 import it.mazzoni.vis.domain.entity.Recommendation;
+import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
+import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +20,9 @@ import static org.mockito.Mockito.when;
 class UniverseSelectionServiceTest {
 
     private final MarketDataClient marketDataClient = mock(MarketDataClient.class);
+    private final SecurityRepository securityRepository = mock(SecurityRepository.class);
     private final SeedService seedService = mock(SeedService.class);
-    private final UniverseSelectionService service = new UniverseSelectionService(marketDataClient, seedService);
+    private final UniverseSelectionService service = new UniverseSelectionService(marketDataClient, securityRepository, seedService);
 
     @Test
     void preview_filtersSortsAndCapsSymbolsBeforeSeeding() {
@@ -67,6 +71,38 @@ class UniverseSelectionServiceTest {
     }
 
     @Test
+    void preview_supportsFrontendMarketCapAscendingSortValue() {
+        when(marketDataClient.listSymbols("NYSE")).thenReturn(List.of(
+                stock("BIG", "Big Co", "US", "Industrials", "NYSE", new BigDecimal("300000000000"), 1000000L),
+                stock("SMALL", "Small Co", "US", "Industrials", "NYSE", new BigDecimal("1000000000"), 1000000L),
+                stock("MID", "Mid Co", "US", "Industrials", "NYSE", new BigDecimal("10000000000"), 1000000L)
+        ));
+
+        UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
+                List.of("NYSE"), List.of("US"), List.of(), false,
+                null, null, null, 10, UniverseSortBy.MARKET_CAP_ASC));
+
+        assertThat(response.symbols()).extracting(UniversePreviewRow::symbol)
+                .containsExactly("SMALL", "MID", "BIG");
+    }
+
+    @Test
+    void preview_fallsBackToSeededSecuritiesWhenFmpStockListIsUnavailable() {
+        when(marketDataClient.listSymbols("NYSE")).thenThrow(new MarketDataException(
+                MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, "NYSE"));
+        when(securityRepository.findAll()).thenReturn(List.of(
+                security("KO", "Coca-Cola", "US", "Consumer Staples", null, new BigDecimal("260000000000")),
+                security("AAPL", "Apple Inc.", "US", "Technology", "NASDAQ", new BigDecimal("3000000000000"))
+        ));
+
+        UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
+                List.of("NYSE"), List.of("US"), List.of(), false,
+                null, null, 250000L, 10, UniverseSortBy.SYMBOL_ASC));
+
+        assertThat(response.symbols()).extracting(UniversePreviewRow::symbol).containsExactly("KO");
+    }
+
+    @Test
     void templates_includeRoadmapTemplates() {
         assertThat(service.templates())
                 .extracting(UniverseTemplateResponse::id)
@@ -100,5 +136,21 @@ class UniverseSelectionServiceTest {
                                            Long volume) {
         return new FmpStockListEntry(symbol, name, country, sector, exchange, exchange, "stock",
                 null, marketCap, volume);
+    }
+
+    private static Security security(String symbol,
+                                     String name,
+                                     String country,
+                                     String sector,
+                                     String exchange,
+                                     BigDecimal marketCap) {
+        Security security = new Security();
+        security.setSymbol(symbol);
+        security.setCompanyName(name);
+        security.setCountry(country);
+        security.setSector(sector);
+        security.setExchange(exchange);
+        security.setMarketCap(marketCap);
+        return security;
     }
 }

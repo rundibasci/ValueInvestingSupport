@@ -6,6 +6,7 @@ import it.mazzoni.vis.client.yahoo.dto.ChartResponse;
 import it.mazzoni.vis.client.yahoo.dto.QuoteSummaryResponse;
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
+import it.mazzoni.vis.domain.HistoricalPriceQuote;
 import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -155,6 +157,13 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     @Override
     public List<FmpStockListEntry> listSymbols(String exchange) {
         return fmpClient.listSymbols(exchange);
+    }
+
+    @Override
+    public List<HistoricalPriceQuote> getHistoricalPrices(String symbol, LocalDate from, LocalDate to) {
+        List<HistoricalPriceQuote> result = fmpClient.getHistoricalPrices(symbol, from, to);
+        statusTracker.recordSuccess("fmp");
+        return result;
     }
 
     @Override

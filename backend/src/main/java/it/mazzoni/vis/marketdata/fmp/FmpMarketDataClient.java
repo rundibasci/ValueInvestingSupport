@@ -2,6 +2,7 @@ package it.mazzoni.vis.marketdata.fmp;
 
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
+import it.mazzoni.vis.domain.HistoricalPriceQuote;
 import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.marketdata.MarketDataClient;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -125,6 +127,31 @@ public class FmpMarketDataClient implements MarketDataClient {
         if (all == null) return List.of();
         return all.stream()
                 .filter(e -> exchange.equalsIgnoreCase(e.exchangeShortName()) && "stock".equalsIgnoreCase(e.type()))
+                .toList();
+    }
+
+    @Override
+    public List<HistoricalPriceQuote> getHistoricalPrices(String symbol, LocalDate from, LocalDate to) {
+        List<FmpHistoricalPriceEntry> rows = fmpWebClient.get()
+                .uri(u -> u.path("/historical-price-eod/full")
+                        .queryParam("symbol", symbol.toUpperCase())
+                        .queryParam("from", from)
+                        .queryParam("to", to)
+                        .build())
+                .retrieve()
+                .onStatus(status -> status.value() == 404,
+                        resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol)))
+                .onStatus(status -> status.value() == 402,
+                        resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.PLAN_RESTRICTION, symbol)))
+                .bodyToMono(new ParameterizedTypeReference<List<FmpHistoricalPriceEntry>>() {})
+                .retryWhen(RETRY_SPEC)
+                .onErrorMap(WebClientResponseException.class,
+                        e -> new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e))
+                .block();
+        if (rows == null) return List.of();
+        return rows.stream()
+                .filter(row -> row.date() != null && row.close() != null)
+                .map(row -> new HistoricalPriceQuote(symbol.toUpperCase(), row.date(), row.close(), row.volume()))
                 .toList();
     }
 
