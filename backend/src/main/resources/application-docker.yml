@@ -1,5 +1,5 @@
 market-data:
-  source: ${MARKET_DATA_SOURCE:yahoo}
+  source: ${MARKET_DATA_SOURCE:fmp}
 
 app:
   jobs:

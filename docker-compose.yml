@@ -35,7 +35,8 @@ services:
       DATABASE_PASSWORD: vis
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      MARKET_DATA_SOURCE: yahoo
+      MARKET_DATA_SOURCE: fmp
+      FMP_API_KEY: ${FMP_API_KEY}
     ports:
       - "8080:8080"
     depends_on:

@@ -1,5 +1,5 @@
 market-data:
-  source: yahoo
+  source: ${MARKET_DATA_SOURCE:fmp}
 
 spring:
   cache:

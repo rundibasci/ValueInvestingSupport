@@ -53,6 +53,7 @@ class SeedServiceTest {
     @Mock ValueScoreService valueScoreService;
     @Mock SourceTracker sourceTracker;
 
+    SeedTickerService seedTickerService;
     SeedService seedService;
 
     @BeforeEach
@@ -60,9 +61,10 @@ class SeedServiceTest {
         ValuationDefaultsProperties defaults = new ValuationDefaultsProperties(
                 new BigDecimal("0.09"), new BigDecimal("0.08"),
                 new BigDecimal("0.04"), new BigDecimal("0.025"));
-        seedService = new SeedService(marketDataClient, securityRepository,
+        seedTickerService = new SeedTickerService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
                 priceQuoteRepository, valuationService, valueScoreService, defaults, sourceTracker);
+        seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
         Mockito.lenient().when(securityRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -126,6 +128,25 @@ class SeedServiceTest {
         assertThat(results.get(0).error()).isNotNull();
         verify(valuationService, never()).calculate(any(), any());
         verify(valueScoreService, never()).compute(any());
+    }
+
+    @Test
+    void seedTickers_runtimeFailureReturnsErrorAndContinuesWithNextTicker() {
+        when(marketDataClient.getProfile("BROKEN"))
+                .thenThrow(new IllegalStateException("valuation data incomplete"));
+        stubFmpData("AAPL", "Apple Inc.");
+        stubValuation("AAPL", new BigDecimal("210.50"), new BigDecimal("13.60"), Recommendation.QUALITY_VALUE);
+
+        List<SeedResult> results = seedService.seedTickers(List.of("BROKEN", "AAPL"));
+
+        assertThat(results).hasSize(2);
+        SeedResult brokenResult = results.stream().filter(r -> r.symbol().equals("BROKEN")).findFirst().orElseThrow();
+        assertThat(brokenResult.status()).isEqualTo("failed");
+        assertThat(brokenResult.error()).isEqualTo("valuation data incomplete");
+
+        SeedResult aaplResult = results.stream().filter(r -> r.symbol().equals("AAPL")).findFirst().orElseThrow();
+        assertThat(aaplResult.error()).isNull();
+        assertThat(aaplResult.status()).isEqualTo("seeded");
     }
 
     @Test

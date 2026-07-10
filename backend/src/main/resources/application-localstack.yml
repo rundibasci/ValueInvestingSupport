@@ -2,7 +2,7 @@
 # These RSA keys are test-only (local dev / CI). Never use in production.
 
 market-data:
-  source: yahoo
+  source: ${MARKET_DATA_SOURCE:fmp}
 
 app:
   jobs:

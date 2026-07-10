@@ -1,5 +1,5 @@
 market-data:
-  source: yahoo
+  source: ${MARKET_DATA_SOURCE:fmp}
 
 real-demo:
   tickers: ${REAL_DEMO_TICKERS:AAPL,MSFT,KO,JNJ,PG,PEP,WMT,BRK-B,UNP,XOM}

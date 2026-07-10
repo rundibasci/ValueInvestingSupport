@@ -8,7 +8,8 @@ Run from the repository root:
 docker compose -f docker-compose.realDemo.yml up --build
 ```
 
-The backend starts with the `realDemo` Spring profile, PostgreSQL, Redis, and `MARKET_DATA_SOURCE=yahoo`.
+The backend starts with the `realDemo` Spring profile, PostgreSQL, Redis, and `MARKET_DATA_SOURCE=fmp`.
+Set `FMP_API_KEY` in your shell or `.env` before startup.
 
 ## Seeded Universe
 
@@ -45,6 +46,6 @@ These accounts are local-demo defaults only. Do not use them outside the `realDe
 - Backend health: `http://localhost:8080/actuator/health`
 - Job control should show a `real-demo-startup` run with seed events and follow-up quote, dividend, and alert activity.
 
-## Yahoo Finance Limitations
+## FMP Data Limitations
 
-Yahoo Finance is an unofficial, zero-cost demo source. It can return partial data, rate-limit calls, omit dividend history, or change response shape without notice. Treat this profile as stakeholder demo evidence, not a production data source.
+FMP is the configured provider for ingestion and service calls. Plan limits, missing fields, quota exhaustion, or symbol coverage gaps can still produce partial data; treat this profile as stakeholder demo evidence unless it is backed by the intended production FMP plan and monitoring.

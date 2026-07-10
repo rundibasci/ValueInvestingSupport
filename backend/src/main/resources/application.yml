@@ -9,7 +9,7 @@ spring:
     open-in-view: false
 
 market-data:
-  source: yahoo
+  source: ${MARKET_DATA_SOURCE:fmp}
 
 app:
   observability:
