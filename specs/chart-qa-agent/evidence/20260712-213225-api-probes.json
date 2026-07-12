@@ -1,0 +1,10 @@
+﻿{
+    "symbol":  "INGR",
+    "route":  "/securities/INGR",
+    "probes":  {
+                   "detail":  {
+                                  "ok":  false,
+                                  "error":  "Errore del server remoto: (422)."
+                              }
+               }
+}

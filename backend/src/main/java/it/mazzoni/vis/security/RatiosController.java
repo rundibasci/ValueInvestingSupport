@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/securities")
@@ -50,6 +52,25 @@ public class RatiosController {
                 .map(RatioSnapshotItem::from)
                 .toList();
 
+        if (hasRepeatedCoreHistory(items)) {
+            items = items.stream().limit(1).toList();
+        }
+
         return ResponseEntity.ok(new RatiosHistoryResponse(symbol.toUpperCase(), items));
+    }
+
+    private static boolean hasRepeatedCoreHistory(List<RatioSnapshotItem> items) {
+        return items.size() >= 6
+                && distinctCount(items.stream().map(RatioSnapshotItem::pe).toList())
+                + distinctCount(items.stream().map(RatioSnapshotItem::roic).toList())
+                + distinctCount(items.stream().map(RatioSnapshotItem::roe).toList()) <= 3;
+    }
+
+    private static long distinctCount(List<BigDecimal> values) {
+        return values.stream()
+                .filter(Objects::nonNull)
+                .map(BigDecimal::stripTrailingZeros)
+                .distinct()
+                .count();
     }
 }

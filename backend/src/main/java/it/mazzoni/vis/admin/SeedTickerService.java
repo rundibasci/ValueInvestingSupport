@@ -170,21 +170,15 @@ public class SeedTickerService {
     }
 
     private void persistRatios(Security security, String symbol) {
-        LocalDate today = LocalDate.now();
         it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(symbol);
         ratioSnapshotRepository.deleteBySecurityAndPeriod(security, Period.TTM);
-        ratioSnapshotRepository.deleteBySecurityAndPeriodAndReportDateBetween(
-                security,
-                Period.ANNUAL,
-                LocalDate.of(today.getYear(), 1, 1),
-                LocalDate.of(today.getYear(), 12, 31));
+        ratioSnapshotRepository.deleteAll(ratioSnapshotRepository
+                .findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
+                .stream()
+                .filter(snapshot -> sameRatioValues(snapshot, data))
+                .toList());
 
-        persistRatioSnapshot(security, data, Period.TTM, today);
-
-        for (int i = 0; i < 10; i++) {
-            LocalDate reportDate = i == 0 ? today : LocalDate.of(today.getYear() - i, 12, 31);
-            persistRatioSnapshot(security, data, Period.ANNUAL, reportDate);
-        }
+        persistRatioSnapshot(security, data, Period.TTM, LocalDate.now());
     }
 
     private void persistRatioSnapshot(Security security,
@@ -209,6 +203,26 @@ public class SeedTickerService {
         entity.setDividendYield(data.dividendYield());
         entity.setPayoutRatio(data.payoutRatio());
         ratioSnapshotRepository.save(entity);
+    }
+
+    private static boolean sameRatioValues(RatioSnapshot snapshot,
+                                           it.mazzoni.vis.domain.RatioSnapshot data) {
+        return sameDecimal(snapshot.getPeRatio(), data.peRatio())
+                && sameDecimal(snapshot.getPbRatio(), data.priceToBook())
+                && sameDecimal(snapshot.getRoe(), data.roe())
+                && sameDecimal(snapshot.getRoa(), data.roa())
+                && sameDecimal(snapshot.getRoic(), data.roic())
+                && sameDecimal(snapshot.getCurrentRatio(), data.currentRatio())
+                && sameDecimal(snapshot.getDebtToEquity(), data.debtToEquity())
+                && sameDecimal(snapshot.getDividendYield(), data.dividendYield())
+                && sameDecimal(snapshot.getPayoutRatio(), data.payoutRatio());
+    }
+
+    private static boolean sameDecimal(BigDecimal left, BigDecimal right) {
+        if (left == null || right == null) {
+            return left == right;
+        }
+        return left.compareTo(right) == 0;
     }
 
     private void persistPriceQuote(Security security, String symbol) {

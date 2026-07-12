@@ -11,7 +11,6 @@ import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.security.dto.SecurityDetailResponse;
-import it.mazzoni.vis.valuation.StaleDataException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,14 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-
 @RestController
 @RequestMapping("/api/v1/securities")
 @Profile("!demo")
 public class SecurityProfileController {
-
-    private static final int STALE_DAYS = 7;
 
     private final SecurityRepository securityRepository;
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
@@ -51,11 +46,6 @@ public class SecurityProfileController {
         FundamentalSnapshot snapshot = fundamentalSnapshotRepository
                 .findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
                 .orElseThrow(() -> new SymbolNotFoundException(symbol));
-
-        if (snapshot.getReportDate() != null &&
-                snapshot.getReportDate().isBefore(LocalDate.now().minusDays(STALE_DAYS))) {
-            throw new StaleDataException(symbol, snapshot.getReportDate());
-        }
 
         RatioSnapshot ratios = ratioSnapshotRepository
                 .findTopBySecurityOrderByReportDateDesc(security)

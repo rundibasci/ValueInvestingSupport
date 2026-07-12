@@ -1,0 +1,109 @@
+﻿{
+    "generatedAt":  "2026-07-12T21:42:56.2354019+02:00",
+    "agent":  "chart-qa-agent",
+    "scope":  {
+                  "symbols":  [
+                                  "INGR"
+                              ],
+                  "routes":  [
+                                 "/securities/INGR"
+                             ]
+              },
+    "evidencePath":  "specs\\chart-qa-agent\\evidence\\20260712-214251-api-probes.json",
+    "bugs":  [
+                 {
+                     "id":  "CHART-INGR-FINANCIALS-10Y-DEPTH",
+                     "status":  "fixed",
+                     "severity":  "medium",
+                     "route":  "/securities/INGR",
+                     "surface":  "Financials tab",
+                     "title":  "INGR financial charts expose 10y controls without 10 annual points",
+                     "observed":  "Annual financial rows=4; range controls are guarded.",
+                     "expected":  "10y controls should be disabled/renamed when fewer than 10 distinct annual periods exist.",
+                     "reproduction":  "Open http://localhost:5173/securities/INGR, select Financials, then inspect chart range controls.",
+                     "suggestedOwner":  "frontend/backend",
+                     "detectedAt":  "2026-07-10T18:24:41.9879780+02:00",
+                     "lastSeenAt":  "2026-07-10T18:39:48.9479184+02:00",
+                     "evidence":  {
+                                      "ok":  true,
+                                      "annualCount":  4,
+                                      "years":  [
+                                                    2026,
+                                                    2025,
+                                                    2024,
+                                                    2023
+                                                ],
+                                      "rangeControlsGuarded":  true
+                                  },
+                     "lastFixAttemptAt":  "2026-07-10T18:44:38.5731183+02:00",
+                     "fixAttemptCount":  8,
+                     "lastFixNote":  "Audit verified guarded annual range controls."
+                 },
+                 {
+                     "id":  "CHART-INGR-RATIOS-REPEATED-SERIES",
+                     "status":  "fixed",
+                     "severity":  "high",
+                     "route":  "/securities/INGR",
+                     "surface":  "Ratios tab",
+                     "title":  "INGR ratio charts show repeated synthetic history",
+                     "observed":  "Ratios rows=1, distinct PE/ROIC/ROE values=1/0/1.",
+                     "expected":  "Historical ratio charts should plot distinct observed periods, or show a data gap instead of repeated copied values.",
+                     "reproduction":  "Open http://localhost:5173/securities/INGR, select Ratios, switch chart periods.",
+                     "suggestedOwner":  "frontend/backend",
+                     "detectedAt":  "2026-07-10T18:24:42.2392457+02:00",
+                     "lastSeenAt":  "2026-07-10T18:44:38.3736698+02:00",
+                     "evidence":  {
+                                      "ok":  true,
+                                      "rowCount":  1,
+                                      "peDistinct":  1,
+                                      "roicDistinct":  0,
+                                      "roeDistinct":  1,
+                                      "dates":  [
+                                                    "2026-06-28"
+                                                ]
+                                  },
+                     "lastFixAttemptAt":  "2026-07-12T21:32:26.6133541+02:00",
+                     "fixAttemptCount":  3,
+                     "lastFixNote":  "Audit did not redetect repeated synthetic ratio history."
+                 },
+                 {
+                     "id":  "CHART-INGR-DIVIDENDS-DEPTH",
+                     "status":  "open",
+                     "severity":  "medium",
+                     "route":  "/securities/INGR",
+                     "surface":  "Dividends tab",
+                     "title":  "INGR dividend chart has insufficient historical depth",
+                     "observed":  "Dividend rows=0, cagr10y=.",
+                     "expected":  "Dividend charts and 10y CAGR labels should clearly indicate insufficient history.",
+                     "reproduction":  "Open http://localhost:5173/securities/INGR and select Dividends.",
+                     "suggestedOwner":  "frontend/backend",
+                     "detectedAt":  "2026-07-10T18:24:42.2954966+02:00",
+                     "lastSeenAt":  "2026-07-12T21:42:55.9530891+02:00",
+                     "evidence":  {
+                                      "ok":  true,
+                                      "rowCount":  0,
+                                      "cagr10y":  null
+                                  }
+                 },
+                 {
+                     "id":  "CHART-INGR-DETAIL-UNAVAILABLE",
+                     "status":  "fixed",
+                     "severity":  "high",
+                     "route":  "/securities/INGR",
+                     "surface":  "Security detail",
+                     "title":  "INGR security detail cannot load",
+                     "observed":  "Security detail loaded; currentPrice=97.9300, priceDate=2026-06-28.",
+                     "expected":  "The detail page should load core profile data before rendering chart tabs.",
+                     "reproduction":  "Open http://localhost:5173/securities/INGR.",
+                     "suggestedOwner":  "frontend/backend",
+                     "detectedAt":  "2026-07-12T21:28:59.9948587+02:00",
+                     "lastSeenAt":  "2026-07-12T21:32:26.2063023+02:00",
+                     "evidence":  {
+                                      "ok":  true,
+                                      "priceDate":  "2026-06-28",
+                                      "currentPrice":  97.9300
+                                  },
+                     "lastFixNote":  "Audit verified that the security detail API loads."
+                 }
+             ]
+}

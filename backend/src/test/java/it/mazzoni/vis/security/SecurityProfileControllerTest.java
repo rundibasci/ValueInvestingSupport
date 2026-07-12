@@ -83,16 +83,21 @@ class SecurityProfileControllerTest {
     }
 
     @Test
-    void profile_staleSnapshot_returns422() throws Exception {
+    void profile_staleSnapshot_returns200WithDataAsOf() throws Exception {
         Security s = security("STALE", "Stale Corp.");
-        FundamentalSnapshot snap = snapshot(LocalDate.now().minusDays(10), new BigDecimal("50000000000"));
+        LocalDate reportDate = LocalDate.now().minusDays(10);
+        FundamentalSnapshot snap = snapshot(reportDate, new BigDecimal("50000000000"));
 
         when(securityRepository.findBySymbol("STALE")).thenReturn(Optional.of(s));
         when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(eq(s), eq(Period.ANNUAL)))
                 .thenReturn(Optional.of(snap));
+        when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(s)).thenReturn(Optional.empty());
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(s)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/securities/STALE"))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.symbol").value("STALE"))
+                .andExpect(jsonPath("$.dataAsOf").value(reportDate.toString()));
     }
 
     private Security security(String symbol, String name) {

@@ -1,0 +1,72 @@
+﻿{
+    "symbol":  "INGR",
+    "route":  "/securities/INGR",
+    "probes":  {
+                   "ratios":  {
+                                  "ok":  true,
+                                  "rowCount":  1,
+                                  "peDistinct":  1,
+                                  "roicDistinct":  0,
+                                  "roeDistinct":  1,
+                                  "dates":  [
+                                                "2026-06-28"
+                                            ]
+                              },
+                   "prices-10y":  {
+                                      "ok":  true,
+                                      "source":  "FMP",
+                                      "count":  2513,
+                                      "first":  "2016-07-12",
+                                      "last":  "2026-07-10"
+                                  },
+                   "prices-1y":  {
+                                     "ok":  true,
+                                     "source":  "FMP",
+                                     "count":  250,
+                                     "first":  "2025-07-14",
+                                     "last":  "2026-07-10"
+                                 },
+                   "prices-5y":  {
+                                     "ok":  true,
+                                     "source":  "FMP",
+                                     "count":  1255,
+                                     "first":  "2021-07-12",
+                                     "last":  "2026-07-10"
+                                 },
+                   "prices-3y":  {
+                                     "ok":  true,
+                                     "source":  "FMP",
+                                     "count":  752,
+                                     "first":  "2023-07-12",
+                                     "last":  "2026-07-10"
+                                 },
+                   "dividends":  {
+                                     "ok":  true,
+                                     "rowCount":  0,
+                                     "cagr10y":  null
+                                 },
+                   "detail":  {
+                                  "ok":  true,
+                                  "priceDate":  "2026-06-28",
+                                  "currentPrice":  97.9300
+                              },
+                   "financials":  {
+                                      "ok":  true,
+                                      "annualCount":  4,
+                                      "years":  [
+                                                    2026,
+                                                    2025,
+                                                    2024,
+                                                    2023
+                                                ],
+                                      "rangeControlsGuarded":  true
+                                  },
+                   "prices-max":  {
+                                      "ok":  true,
+                                      "source":  "FMP",
+                                      "count":  5000,
+                                      "first":  "2006-08-23",
+                                      "last":  "2026-07-10"
+                                  }
+               }
+}

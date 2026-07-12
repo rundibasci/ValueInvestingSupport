@@ -75,6 +75,8 @@ class SeedServiceTest {
                 any(), any(), any())).thenReturn(false);
         Mockito.lenient().when(ratioSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
                 any(), any(), any())).thenReturn(false);
+        Mockito.lenient().when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(
+                any(), any())).thenReturn(List.of());
         Mockito.lenient().when(priceQuoteRepository.existsBySecurityAndQuoteDate(
                 any(), any())).thenReturn(false);
     }
@@ -164,20 +166,17 @@ class SeedServiceTest {
     }
 
     @Test
-    void seedTickers_existingCurrentRatiosReplacesTtmAndCurrentYearRows() {
+    void seedTickers_currentRatiosDoNotCreateSyntheticAnnualHistory() {
         stubFmpData("AAPL", "Apple Inc.");
         stubValuation("AAPL", new BigDecimal("200.00"), new BigDecimal("10.00"), Recommendation.QUALITY_VALUE);
 
         seedService.seedTickers(List.of("AAPL"));
 
-        LocalDate today = LocalDate.now();
         verify(ratioSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.TTM));
-        verify(ratioSnapshotRepository).deleteBySecurityAndPeriodAndReportDateBetween(
-                any(Security.class),
-                eq(Period.ANNUAL),
-                eq(LocalDate.of(today.getYear(), 1, 1)),
-                eq(LocalDate.of(today.getYear(), 12, 31)));
-        verify(ratioSnapshotRepository, times(11)).save(any());
+        verify(ratioSnapshotRepository).findBySecurityAndPeriodOrderByReportDateDesc(
+                any(Security.class), eq(Period.ANNUAL));
+        verify(ratioSnapshotRepository).deleteAll(List.of());
+        verify(ratioSnapshotRepository, times(1)).save(any());
     }
 
     private void stubFmpData(String symbol, String companyName) {

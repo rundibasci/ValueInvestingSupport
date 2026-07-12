@@ -82,6 +82,26 @@ class RatiosControllerTest {
                 .andExpect(jsonPath("$.ratios").isEmpty());
     }
 
+    @Test
+    void ratios_repeatedPersistedHistory_returnsCurrentRowOnly() throws Exception {
+        Security s = security("INGR");
+        when(securityRepository.findBySymbol("INGR")).thenReturn(Optional.of(s));
+        when(ratioSnapshotRepository.findBySecurity(s))
+                .thenReturn(List.of(
+                        ratioSnapshot(LocalDate.of(2026, 7, 3)),
+                        ratioSnapshot(LocalDate.of(2025, 12, 31)),
+                        ratioSnapshot(LocalDate.of(2024, 12, 31)),
+                        ratioSnapshot(LocalDate.of(2023, 12, 31)),
+                        ratioSnapshot(LocalDate.of(2022, 12, 31)),
+                        ratioSnapshot(LocalDate.of(2021, 12, 31))));
+
+        mockMvc.perform(get("/api/v1/securities/INGR/ratios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ratios.length()").value(1))
+                .andExpect(jsonPath("$.ratios[0].date").value("2026-07-03"))
+                .andExpect(jsonPath("$.ratios[0].pe").value(28.4));
+    }
+
     private Security security(String symbol) {
         Security s = new Security();
         s.setSymbol(symbol);

@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
@@ -43,6 +43,8 @@ function Card({ title, children }: { title: string; children: ReactNode }): JSX.
 function Metric({ label, value }: { label: string; value: string }): JSX.Element { return <div className="rounded-lg bg-slate-950/55 p-3"><dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt><dd className="mt-1 font-medium text-white">{value}</dd></div> }
 type HistoryWindow = '3y' | '5y' | '10y' | 'max'
 const historyWindowSize: Record<HistoryWindow, number | null> = { '3y': 3, '5y': 5, '10y': 10, max: null }
+const historyWindows: HistoryWindow[] = ['3y', '5y', '10y', 'max']
+function availableHistoryWindows(dataLength: number): HistoryWindow[] { return historyWindows.filter((option) => option === 'max' ? dataLength > 3 : dataLength >= (historyWindowSize[option] ?? 0)) }
 function numericSeries(data: Array<Record<string, number | string | null>>, key: string): number[] { return data.map((item) => item[key]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value)) }
 function textOnlySeries(data: Array<Record<string, number | string | null>>, lines: Array<[string, string]>): JSX.Element {
   const latest = [...data].reverse().find((item) => lines.some(([key]) => typeof item[key] === 'number'))
@@ -50,6 +52,10 @@ function textOnlySeries(data: Array<Record<string, number | string | null>>, lin
 }
 function Chart({ data, lines, bar = false }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean }): JSX.Element {
   const [window, setWindow] = useState<HistoryWindow>('10y')
+  const windowOptions = useMemo(() => availableHistoryWindows(data.length), [data.length])
+  useEffect(() => {
+    if (data.length && !windowOptions.includes(window)) setWindow('max')
+  }, [data.length, window, windowOptions])
   if (!data.length) return <Unavailable />
   const size = historyWindowSize[window]
   const visibleData = size == null || data.length <= size ? data : data.slice(-size)
@@ -57,7 +63,7 @@ function Chart({ data, lines, bar = false }: { data: Array<Record<string, number
   const populatedSeries = lines.map(([key]) => numericSeries(candidateData, key)).filter((values) => values.length >= 2)
   if (!populatedSeries.length || populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1)) return textOnlySeries(data, lines)
   const Component = bar ? BarChart : LineChart
-  return <div><div className="mb-3 flex justify-end">{data.length > 3 && <div className="inline-flex rounded-lg border border-slate-700 bg-slate-950 p-1">{(['3y', '5y', '10y', 'max'] as HistoryWindow[]).map((option) => <button key={option} type="button" onClick={() => setWindow(option)} className={`rounded-md px-2.5 py-1 text-xs font-semibold ${window === option ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{option}</button>)}</div>}</div><div className="h-72 min-h-72 min-w-0 w-full" role="img" aria-label={`Historical chart: ${lines.map(([, label]) => label).join(', ')}`}><ResponsiveContainer width="100%" height="100%"><Component data={candidateData}><CartesianGrid stroke="#334155" strokeDasharray="3 3" /><XAxis dataKey="label" stroke="#94a3b8" /><YAxis stroke="#94a3b8" tickFormatter={(v) => number(v)} width={78} /><Tooltip formatter={(v) => number(Number(v))} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} /><Legend />{lines.map(([key, label], index) => bar ? <Bar key={key} dataKey={key} name={label} fill={['#34d399', '#60a5fa', '#fbbf24'][index]} /> : <Line key={key} type="monotone" dataKey={key} name={label} stroke={['#34d399', '#60a5fa', '#fbbf24', '#f472b6'][index]} strokeWidth={2} dot={false} connectNulls />)}</Component></ResponsiveContainer></div></div>
+  return <div><div className="mb-3 flex justify-end">{windowOptions.length > 1 && <div className="inline-flex rounded-lg border border-slate-700 bg-slate-950 p-1">{windowOptions.map((option) => <button key={option} type="button" onClick={() => setWindow(option)} className={`rounded-md px-2.5 py-1 text-xs font-semibold ${window === option ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{option}</button>)}</div>}</div><div className="h-72 min-h-72 min-w-0 w-full" role="img" aria-label={`Historical chart: ${lines.map(([, label]) => label).join(', ')}`}><ResponsiveContainer width="100%" height="100%"><Component data={candidateData}><CartesianGrid stroke="#334155" strokeDasharray="3 3" /><XAxis dataKey="label" stroke="#94a3b8" /><YAxis stroke="#94a3b8" tickFormatter={(v) => number(v)} width={78} /><Tooltip formatter={(v) => number(Number(v))} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} /><Legend />{lines.map(([key, label], index) => bar ? <Bar key={key} dataKey={key} name={label} fill={['#34d399', '#60a5fa', '#fbbf24'][index]} /> : <Line key={key} type="monotone" dataKey={key} name={label} stroke={['#34d399', '#60a5fa', '#fbbf24', '#f472b6'][index]} strokeWidth={2} dot={false} connectNulls />)}</Component></ResponsiveContainer></div></div>
 }
 
 function PriceHistoryChart({ symbol, currency }: { symbol: string; currency: string }): JSX.Element {
