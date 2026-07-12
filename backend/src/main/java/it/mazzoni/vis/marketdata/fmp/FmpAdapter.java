@@ -75,20 +75,31 @@ public class FmpAdapter {
     }
 
     public RatioSnapshot toRatioSnapshot(String symbol, FmpRatiosEntry e) {
+        return toRatioSnapshot(symbol, e, null);
+    }
+
+    public RatioSnapshot toRatioSnapshot(String symbol, FmpRatiosEntry e, FmpKeyMetricsEntry metrics) {
         return new RatioSnapshot(
                 symbol.toUpperCase(),
-                e.peRatio(),
+                firstNonNull(e.priceToEarningsRatio(), e.peRatio()),
                 null,
                 e.priceToBookRatio(),
-                e.returnOnEquity(),
-                e.returnOnAssets(),
-                e.returnOnCapitalEmployed(),
+                metrics != null ? metrics.returnOnEquity() : e.returnOnEquity(),
+                metrics != null ? metrics.returnOnAssets() : e.returnOnAssets(),
+                metrics != null ? firstNonNull(metrics.returnOnInvestedCapital(), metrics.returnOnCapitalEmployed()) : e.returnOnCapitalEmployed(),
                 e.currentRatio(),
-                e.debtToEquity(),
+                firstNonNull(e.debtToEquityRatio(), e.debtToEquity()),
                 e.dividendYield(),
-                e.payoutRatio(),
-                null
+                firstNonNull(e.dividendPayoutRatio(), e.payoutRatio()),
+                null,
+                e.grossProfitMargin(),
+                e.operatingProfitMargin(),
+                e.netProfitMargin()
         );
+    }
+
+    private static BigDecimal firstNonNull(BigDecimal preferred, BigDecimal fallback) {
+        return preferred != null ? preferred : fallback;
     }
 
     public MarketPriceQuote toMarketPriceQuote(String symbol, FmpQuoteEntry e) {

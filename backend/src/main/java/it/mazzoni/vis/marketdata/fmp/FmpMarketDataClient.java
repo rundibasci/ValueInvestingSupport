@@ -100,7 +100,15 @@ public class FmpMarketDataClient implements MarketDataClient {
         if (ratios.isEmpty()) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol);
         }
-        return adapter.toRatioSnapshot(symbol, ratios.get(0));
+        FmpKeyMetricsEntry metrics = null;
+        try {
+            List<FmpKeyMetricsEntry> keyMetrics = fetchList(
+                    "/key-metrics", symbol, new ParameterizedTypeReference<>() {});
+            metrics = keyMetrics.isEmpty() ? null : keyMetrics.get(0);
+        } catch (MarketDataException ignored) {
+            // Ratios remain useful when key metrics are unavailable on the active FMP plan.
+        }
+        return adapter.toRatioSnapshot(symbol, ratios.get(0), metrics);
     }
 
     @Override

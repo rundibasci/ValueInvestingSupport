@@ -162,6 +162,36 @@ class FmpMarketDataClientTest {
     }
 
     @Test
+    void getRatios_mapsCurrentStableSchemaAndKeyMetrics() {
+        wireMock.stubFor(get(urlPathEqualTo("/ratios"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .willReturn(okJson("""
+                        [{"symbol":"INGR","date":"2025-12-31",
+                          "priceToEarningsRatio":9.706,"priceToBookRatio":1.632,
+                          "debtToEquityRatio":0.413,"currentRatio":2.663,
+                          "dividendYield":0.0298,"dividendPayoutRatio":0.289,
+                          "grossProfitMargin":0.253,"operatingProfitMargin":0.144,
+                          "netProfitMargin":0.101}]
+                        """)));
+        wireMock.stubFor(get(urlPathEqualTo("/key-metrics"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .willReturn(okJson("""
+                        [{"symbol":"INGR","date":"2025-12-31",
+                          "returnOnEquity":0.168,"returnOnAssets":0.092,
+                          "returnOnInvestedCapital":0.118}]
+                        """)));
+
+        RatioSnapshot result = client.getRatios("INGR");
+
+        assertThat(result.peRatio()).isEqualByComparingTo("9.706");
+        assertThat(result.debtToEquity()).isEqualByComparingTo("0.413");
+        assertThat(result.payoutRatio()).isEqualByComparingTo("0.289");
+        assertThat(result.roe()).isEqualByComparingTo("0.168");
+        assertThat(result.roic()).isEqualByComparingTo("0.118");
+        assertThat(result.grossMargin()).isEqualByComparingTo("0.253");
+    }
+
+    @Test
     void getFundamentals_returnsMappedSnapshot() {
         wireMock.stubFor(get(urlPathEqualTo("/income-statement"))
                 .withQueryParam("symbol", equalTo("AAPL"))

@@ -202,6 +202,9 @@ public class SeedTickerService {
         entity.setDebtToEquity(data.debtToEquity());
         entity.setDividendYield(data.dividendYield());
         entity.setPayoutRatio(data.payoutRatio());
+        entity.setGrossMargin(data.grossMargin());
+        entity.setOperatingMargin(data.operatingMargin());
+        entity.setNetMargin(data.netMargin());
         ratioSnapshotRepository.save(entity);
     }
 
@@ -215,7 +218,10 @@ public class SeedTickerService {
                 && sameDecimal(snapshot.getCurrentRatio(), data.currentRatio())
                 && sameDecimal(snapshot.getDebtToEquity(), data.debtToEquity())
                 && sameDecimal(snapshot.getDividendYield(), data.dividendYield())
-                && sameDecimal(snapshot.getPayoutRatio(), data.payoutRatio());
+                && sameDecimal(snapshot.getPayoutRatio(), data.payoutRatio())
+                && sameDecimal(snapshot.getGrossMargin(), data.grossMargin())
+                && sameDecimal(snapshot.getOperatingMargin(), data.operatingMargin())
+                && sameDecimal(snapshot.getNetMargin(), data.netMargin());
     }
 
     private static boolean sameDecimal(BigDecimal left, BigDecimal right) {

@@ -93,7 +93,10 @@ public class YahooFinanceAdapter {
                 fd != null ? rawToBigDecimal(fd.debtToEquity()) : null,
                 sd != null ? rawToBigDecimal(sd.dividendYield()) : null,
                 sd != null ? rawToBigDecimal(sd.payoutRatio()) : null,
-                sd != null ? rawToBigDecimal(sd.beta()) : null
+                sd != null ? rawToBigDecimal(sd.beta()) : null,
+                null,
+                null,
+                null
         );
     }
 
