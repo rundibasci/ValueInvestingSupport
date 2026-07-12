@@ -48,11 +48,13 @@ public class FmpAdapter {
         }
 
         List<BigDecimal> revenueHistory = income.stream()
-                .limit(4).map(FmpIncomeStatementEntry::revenue).collect(Collectors.toList());
+                .limit(11).map(FmpIncomeStatementEntry::revenue).collect(Collectors.toList());
         List<BigDecimal> netIncomeHistory = income.stream()
-                .limit(4).map(FmpIncomeStatementEntry::netIncome).collect(Collectors.toList());
+                .limit(11).map(FmpIncomeStatementEntry::netIncome).collect(Collectors.toList());
         List<BigDecimal> fcfHistory = cashflow.stream()
-                .limit(4).map(FmpCashFlowEntry::freeCashFlow).collect(Collectors.toList());
+                .limit(11).map(FmpCashFlowEntry::freeCashFlow).collect(Collectors.toList());
+        List<BigDecimal> epsHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::epsDiluted).collect(Collectors.toList());
 
         return new FundamentalSnapshot(
                 symbol.toUpperCase(),
@@ -68,6 +70,7 @@ public class FmpAdapter {
                 revenueHistory,
                 netIncomeHistory,
                 fcfHistory,
+                epsHistory,
                 netDebt,
                 totalDebt,
                 cash

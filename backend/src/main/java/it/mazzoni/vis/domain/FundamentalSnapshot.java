@@ -17,7 +17,29 @@ public record FundamentalSnapshot(
         List<BigDecimal> revenueHistory,
         List<BigDecimal> netIncomeHistory,
         List<BigDecimal> fcfHistory,
+        List<BigDecimal> epsHistory,
         BigDecimal netDebt,
         BigDecimal totalDebt,
         BigDecimal cash
-) {}
+) {
+    public FundamentalSnapshot(String symbol,
+                               String companyName,
+                               String sector,
+                               String industry,
+                               String country,
+                               String currency,
+                               BigDecimal currentPrice,
+                               BigDecimal epsTtm,
+                               BigDecimal bookValuePerShare,
+                               Long sharesOutstanding,
+                               List<BigDecimal> revenueHistory,
+                               List<BigDecimal> netIncomeHistory,
+                               List<BigDecimal> fcfHistory,
+                               BigDecimal netDebt,
+                               BigDecimal totalDebt,
+                               BigDecimal cash) {
+        this(symbol, companyName, sector, industry, country, currency, currentPrice,
+                epsTtm, bookValuePerShare, sharesOutstanding, revenueHistory,
+                netIncomeHistory, fcfHistory, List.of(), netDebt, totalDebt, cash);
+    }
+}

@@ -67,6 +67,7 @@ public class YahooFinanceAdapter {
                 revenueHistory,
                 netIncomeHistory,
                 fcfHistory,
+                List.of(),
                 netDebt,
                 totalDebt,
                 cash

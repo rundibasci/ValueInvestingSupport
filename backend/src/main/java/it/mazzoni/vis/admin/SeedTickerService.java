@@ -116,10 +116,12 @@ public class SeedTickerService {
         List<BigDecimal> revenueHistory = data.revenueHistory() != null ? data.revenueHistory() : List.of();
         List<BigDecimal> netIncomeHistory = data.netIncomeHistory() != null ? data.netIncomeHistory() : List.of();
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
-        int historySize = Math.max(1, Math.max(revenueHistory.size(), Math.max(netIncomeHistory.size(), fcfHistory.size())));
+        List<BigDecimal> epsHistory = data.epsHistory() != null ? data.epsHistory() : List.of();
+        int historySize = Math.max(1, Math.max(revenueHistory.size(),
+                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), epsHistory.size()))));
         int currentYear = today.getYear();
 
-        fundamentalSnapshotRepository.deleteBySecurityAndPeriodAndFiscalYear(security, Period.ANNUAL, currentYear);
+        fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.ANNUAL);
         fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.TTM);
 
         for (int i = 0; i < historySize; i++) {
@@ -146,6 +148,8 @@ public class SeedTickerService {
             entity.setRevenue(valueAt(revenueHistory, i));
             entity.setNetIncome(valueAt(netIncomeHistory, i));
             entity.setFreeCashFlow(valueAt(fcfHistory, i));
+            entity.setEps(valueAt(epsHistory, i));
+            entity.setEpsDiluted(valueAt(epsHistory, i));
             fundamentalSnapshotRepository.save(entity);
         }
 

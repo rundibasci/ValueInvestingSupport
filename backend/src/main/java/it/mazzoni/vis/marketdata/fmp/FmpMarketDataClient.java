@@ -71,11 +71,11 @@ public class FmpMarketDataClient implements MarketDataClient {
     @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)")
     public FundamentalSnapshot getFundamentals(String symbol) {
         List<FmpIncomeStatementEntry> income = fetchList(
-                "/income-statement", symbol, new ParameterizedTypeReference<>() {});
+                "/income-statement", symbol, 11, new ParameterizedTypeReference<>() {});
         List<FmpBalanceSheetEntry> balance = fetchList(
-                "/balance-sheet-statement", symbol, new ParameterizedTypeReference<>() {});
+                "/balance-sheet-statement", symbol, 11, new ParameterizedTypeReference<>() {});
         List<FmpCashFlowEntry> cashflow = fetchList(
-                "/cash-flow-statement", symbol, new ParameterizedTypeReference<>() {});
+                "/cash-flow-statement", symbol, 11, new ParameterizedTypeReference<>() {});
 
         if (income.isEmpty() && balance.isEmpty() && cashflow.isEmpty()) {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol);
@@ -213,8 +213,13 @@ public class FmpMarketDataClient implements MarketDataClient {
 
     private <T> List<T> fetchList(String path, String symbol,
                                    ParameterizedTypeReference<List<T>> type) {
+        return fetchList(path, symbol, 5, type);
+    }
+
+    private <T> List<T> fetchList(String path, String symbol, int limit,
+                                   ParameterizedTypeReference<List<T>> type) {
         return fmpWebClient.get()
-                .uri(u -> u.path(path).queryParam("symbol", symbol).queryParam("limit", 5).build())
+                .uri(u -> u.path(path).queryParam("symbol", symbol).queryParam("limit", limit).build())
                 .retrieve()
                 .onStatus(status -> status.value() == 404,
                         resp -> Mono.error(new MarketDataException(
