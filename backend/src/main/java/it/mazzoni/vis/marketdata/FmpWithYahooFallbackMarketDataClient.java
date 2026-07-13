@@ -130,6 +130,15 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
+    @Cacheable(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)")
+    public List<RatioSnapshot> getAnnualRatios(String symbol) {
+        List<RatioSnapshot> result = fmpClient.getAnnualRatios(symbol);
+        sourceTracker.record("FMP");
+        statusTracker.recordSuccess("fmp");
+        return result;
+    }
+
+    @Override
     @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)")
     public MarketPriceQuote getQuote(String symbol) {
         try {

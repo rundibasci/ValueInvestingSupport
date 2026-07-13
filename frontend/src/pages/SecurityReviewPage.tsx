@@ -541,11 +541,12 @@ function numericSeries(data: Array<Record<string, number | string | null>>, key:
   return data.map((item) => item[key]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
 }
 
-function textOnlySeries(data: Array<Record<string, number | string | null>>, lines: Array<[string, string]>): JSX.Element {
+function textOnlySeries(data: Array<Record<string, number | string | null>>, lines: Array<[string, string]>, noteKind: 'gap' | 'info' = 'gap'): JSX.Element {
   const latest = [...data].reverse().find((item) => lines.some(([key]) => typeof item[key] === 'number'))
+  const Note = noteKind === 'info' ? InfoNote : DataGap
   return (
     <div className="space-y-3">
-      <DataGap>Historical depth is unavailable or repeated for this metric, so the current value is shown without a chart.</DataGap>
+      <Note>Only the latest stored snapshot is available for this metric, so the current value is shown without a trend chart.</Note>
       <dl className="grid gap-3 sm:grid-cols-2">
         {lines.map(([key, label]) => <Metric key={key} label={label} value={number(latest?.[key] as number | null | undefined)} />)}
       </dl>
@@ -553,7 +554,7 @@ function textOnlySeries(data: Array<Record<string, number | string | null>>, lin
   )
 }
 
-function Chart({ data, lines, bar = false, summary }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; summary: string }): JSX.Element {
+function Chart({ data, lines, bar = false, summary, shallowHistoryNote = 'gap' }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; summary: string; shallowHistoryNote?: 'gap' | 'info' }): JSX.Element {
   const [window, setWindow] = useState<HistoryWindow>('10y')
   if (!data.length) return <DataGap>No historical series is available for this chart.</DataGap>
   const size = historyWindowSize[window]
@@ -561,9 +562,9 @@ function Chart({ data, lines, bar = false, summary }: { data: Array<Record<strin
   const candidateData = visibleData.length >= 2 ? visibleData : data
   const series = lines.map(([key]) => numericSeries(candidateData, key))
   const populatedSeries = series.filter((values) => values.length >= 2)
-  if (!populatedSeries.length) return textOnlySeries(data, lines)
+  if (!populatedSeries.length) return textOnlySeries(data, lines, shallowHistoryNote)
   const allPopulatedSeriesAreFlat = populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1)
-  if (allPopulatedSeriesAreFlat) return textOnlySeries(data, lines)
+  if (allPopulatedSeriesAreFlat) return textOnlySeries(data, lines, shallowHistoryNote)
   const Component = bar ? BarChart : LineChart
   return (
     <div>
@@ -1116,7 +1117,7 @@ export function SecurityReviewPage(): JSX.Element {
               <InfoNote>Short-term debt and long-term debt breakdowns are not tracked separately in the current local model. Total debt, cash, net debt, liquidity, and coverage metrics are shown when stored locally.</InfoNote>
             </Panel>
             <Panel title="Debt trend">
-              <Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt and resilience trend from the stored ratios endpoint." />
+              <Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt and resilience trend from the stored ratios endpoint." shallowHistoryNote="info" />
             </Panel>
           </div>
         </Section>
@@ -1124,7 +1125,7 @@ export function SecurityReviewPage(): JSX.Element {
         <Section id="history" title="Historical Graphs">
           <div className="grid gap-5 xl:grid-cols-2">
             <Panel title="Earnings history"><Chart data={annual} lines={[['revenue', 'Revenue'], ['netIncome', 'Net income'], ['eps', 'EPS'], ['fcf', 'FCF']]} summary="Revenue, net income, EPS, and free cash flow over annual periods." /></Panel>
-            <Panel title="Debt history"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt, liquidity, and interest coverage over time from stored ratio snapshots." /></Panel>
+            <Panel title="Debt history"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt, liquidity, and interest coverage over time from stored ratio snapshots." shallowHistoryNote="info" /></Panel>
             <Panel title="ROIC history"><Chart data={ratioData} lines={[['roic', 'ROIC']]} summary="Return on invested capital over time, labelled as ROIC from the ratios endpoint." /></Panel>
             <Panel title="ROE history"><Chart data={ratioData} lines={[['roe', 'ROE']]} summary="Return on equity over time from the ratios endpoint." /></Panel>
           </div>

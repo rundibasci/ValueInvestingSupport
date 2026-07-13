@@ -282,6 +282,27 @@ class FmpWithYahooFallbackMarketDataClientTest {
     }
 
     // -------------------------------------------------------------------------
+    // getAnnualRatios
+    // -------------------------------------------------------------------------
+
+    @Nested
+    class GetAnnualRatios {
+
+        @Test
+        void whenFmpSucceeds_returnsFullFmpHistory() {
+            List<RatioSnapshot> expected = List.of(ratios(), ratios());
+            when(fmpClient.getAnnualRatios(SYMBOL)).thenReturn(expected);
+
+            List<RatioSnapshot> result = client.getAnnualRatios(SYMBOL);
+
+            assertThat(result).isSameAs(expected);
+            verify(sourceTracker).record("FMP");
+            verifyNoInteractions(yahooClient, yahooAdapter);
+            verify(fmpClient, never()).getRatios(SYMBOL);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // getQuote
     // -------------------------------------------------------------------------
 
