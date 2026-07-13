@@ -69,12 +69,16 @@ public class RealDemoUserSeeder {
     }
 
     private User createUser(String email, UserRole role) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            User user = new User();
-            user.setEmail(email);
-            user.setPasswordHash(passwordEncoder.encode(DEMO_PASSWORD));
-            user.setRole(role);
-            return userRepository.save(user);
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User created = new User();
+            created.setEmail(email);
+            return created;
         });
+        user.setPasswordHash(passwordEncoder.encode(DEMO_PASSWORD));
+        user.setRole(role);
+        if (user.getId() == null) {
+            user.setEmail(email);
+        }
+        return userRepository.save(user);
     }
 }

@@ -34,6 +34,7 @@ import it.mazzoni.vis.moat.ValuationHistoryService;
 import it.mazzoni.vis.moat.dto.CapitalAllocationResponse;
 import it.mazzoni.vis.moat.dto.MoatResponse;
 import it.mazzoni.vis.moat.dto.ValuationBandsResponse;
+import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.dto.AltmanResponse;
 import it.mazzoni.vis.scoring.dto.CyclicalityResponse;
 import it.mazzoni.vis.scoring.dto.EarningsQualityResponse;
@@ -105,6 +106,7 @@ public class SecurityReviewService {
     private final CapitalAllocationService capitalAllocationService;
     private final StabilityService stabilityService;
     private final ValuationHistoryService valuationHistoryService;
+    private final RiskAnalysisService riskAnalysisService;
 
     public SecurityReviewService(SecurityRepository securityRepository,
                                  FundamentalSnapshotRepository fundamentalSnapshotRepository,
@@ -126,7 +128,8 @@ public class SecurityReviewService {
                                  MoatAssessmentService moatAssessmentService,
                                  CapitalAllocationService capitalAllocationService,
                                  StabilityService stabilityService,
-                                 ValuationHistoryService valuationHistoryService) {
+                                 ValuationHistoryService valuationHistoryService,
+                                 RiskAnalysisService riskAnalysisService) {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
@@ -148,6 +151,7 @@ public class SecurityReviewService {
         this.capitalAllocationService = capitalAllocationService;
         this.stabilityService = stabilityService;
         this.valuationHistoryService = valuationHistoryService;
+        this.riskAnalysisService = riskAnalysisService;
     }
 
     @Transactional
@@ -188,18 +192,10 @@ public class SecurityReviewService {
         GrowthResponse growth = growthService.compute(upper, growthAnnuals);
         PeersResponse peers = peers(security);
         ValueScoreResponse score = latestScore != null ? ValueScoreResponse.from(latestScore) : null;
-        PiotroskiResponse piotroski = piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)
-                .map(PiotroskiResponse::from)
-                .orElse(null);
-        AltmanResponse altman = altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)
-                .map(AltmanResponse::from)
-                .orElse(null);
-        CyclicalityResponse cyclicality = cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)
-                .map(CyclicalityResponse::from)
-                .orElse(null);
-        EarningsQualityResponse earningsQuality = earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)
-                .map(EarningsQualityResponse::from)
-                .orElse(null);
+        PiotroskiResponse piotroski = PiotroskiResponse.from(riskAnalysisService.computePiotroski(upper));
+        AltmanResponse altman = AltmanResponse.from(riskAnalysisService.computeAltman(upper));
+        CyclicalityResponse cyclicality = CyclicalityResponse.from(riskAnalysisService.assessCyclicality(upper));
+        EarningsQualityResponse earningsQuality = EarningsQualityResponse.from(riskAnalysisService.computeEarningsQuality(upper));
         var moatResult = moatAssessmentService.analyze(security);
         stabilityService.assess(security);
         MoatResponse moat = MoatResponse.from(moatResult,

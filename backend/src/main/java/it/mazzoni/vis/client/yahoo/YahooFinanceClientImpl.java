@@ -18,6 +18,8 @@ import java.time.Duration;
 @CacheConfig(cacheNames = "yahoo-finance")
 public class YahooFinanceClientImpl implements YahooFinanceClient {
 
+    private static final String CACHE_SCHEMA_VERSION = "yf:v2:";
+
     private static final String MODULES =
             "financialData,defaultKeyStatistics," +
             "incomeStatementHistory,balanceSheetHistory," +
@@ -33,7 +35,7 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     }
 
     @Override
-    @Cacheable(key = "'qs:' + #symbol.toUpperCase()")
+    @Cacheable(key = "'" + CACHE_SCHEMA_VERSION + "qs:' + #symbol.toUpperCase()")
     public QuoteSummaryResponse getQuoteSummary(String symbol) {
         CrumbSession session = crumbProvider.acquireSession();
         try {
@@ -55,7 +57,7 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     }
 
     @Override
-    @Cacheable(key = "'ch:' + #symbol.toUpperCase()")
+    @Cacheable(key = "'" + CACHE_SCHEMA_VERSION + "ch:' + #symbol.toUpperCase()")
     public ChartResponse getChart(String symbol) {
         CrumbSession session = crumbProvider.acquireSession();
         try {

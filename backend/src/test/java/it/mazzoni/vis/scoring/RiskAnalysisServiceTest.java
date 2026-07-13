@@ -56,7 +56,7 @@ class RiskAnalysisServiceTest {
                 ));
         RatioSnapshot latest = ratio(new BigDecimal("1.8"), new BigDecimal("0.40"));
         RatioSnapshot prior = ratio(new BigDecimal("1.2"), new BigDecimal("0.30"));
-        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
                 .thenReturn(List.of(latest, prior));
 
         PiotroskiResult result = service.computePiotroski("ACME");

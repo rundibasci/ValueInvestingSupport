@@ -2,14 +2,23 @@ package it.mazzoni.vis.security;
 
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
+import it.mazzoni.vis.domain.entity.AltmanFormulaVariant;
+import it.mazzoni.vis.domain.entity.AltmanResult;
+import it.mazzoni.vis.domain.entity.AltmanZone;
 import it.mazzoni.vis.domain.entity.CapitalAllocationResult;
 import it.mazzoni.vis.domain.entity.CapitalAllocatorClassification;
+import it.mazzoni.vis.domain.entity.CyclicalityClassification;
+import it.mazzoni.vis.domain.entity.CyclicalityResult;
+import it.mazzoni.vis.domain.entity.EarningsQualityClassification;
+import it.mazzoni.vis.domain.entity.EarningsQualityResult;
 import it.mazzoni.vis.domain.entity.MoatResult;
 import it.mazzoni.vis.domain.entity.MoatStrength;
 import it.mazzoni.vis.domain.entity.Period;
+import it.mazzoni.vis.domain.entity.PiotroskiResult;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
+import it.mazzoni.vis.domain.entity.RiskAvailabilityStatus;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.RoicTrend;
 import it.mazzoni.vis.domain.entity.SharesOutstandingTrend;
@@ -36,6 +45,7 @@ import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
 import it.mazzoni.vis.moat.StabilityService;
 import it.mazzoni.vis.moat.ValuationHistoryService;
+import it.mazzoni.vis.scoring.RiskAnalysisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +83,7 @@ class SecurityReviewServiceTest {
     @Mock CapitalAllocationService capitalAllocationService;
     @Mock StabilityService stabilityService;
     @Mock ValuationHistoryService valuationHistoryService;
+    @Mock RiskAnalysisService riskAnalysisService;
 
     SecurityReviewService service;
 
@@ -99,7 +110,8 @@ class SecurityReviewServiceTest {
                 moatAssessmentService,
                 capitalAllocationService,
                 stabilityService,
-                valuationHistoryService
+                valuationHistoryService,
+                riskAnalysisService
         );
     }
 
@@ -130,10 +142,10 @@ class SecurityReviewServiceTest {
         when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation))
                 .thenReturn(List.of(checklistItem(valuation, "PE_RATIO", "P/E < 15", "FAIL", "20.00")));
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.of(score));
-        when(piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(riskAnalysisService.computePiotroski("AAPL")).thenReturn(piotroski(security));
+        when(riskAnalysisService.computeAltman("AAPL")).thenReturn(altman(security));
+        when(riskAnalysisService.assessCyclicality("AAPL")).thenReturn(cyclicality(security));
+        when(riskAnalysisService.computeEarningsQuality("AAPL")).thenReturn(earningsQuality(security));
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("AAPL")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
@@ -155,6 +167,10 @@ class SecurityReviewServiceTest {
         assertThat(response.valuation().grahamChecklist()).isNotNull();
         assertThat(response.valuation().grahamChecklist().failed()).isEqualTo(1);
         assertThat(response.score()).isNotNull();
+        assertThat(response.piotroski()).isNotNull();
+        assertThat(response.altman()).isNotNull();
+        assertThat(response.cyclicality()).isNotNull();
+        assertThat(response.earningsQuality()).isNotNull();
         assertThat(response.moat()).isNotNull();
         assertThat(response.capitalAllocation()).isNotNull();
         assertThat(response.valuationBands()).isNotNull();
@@ -193,10 +209,10 @@ class SecurityReviewServiceTest {
         when(waccResultRepository.findByValuationResult(valuation)).thenReturn(Optional.empty());
         when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation)).thenReturn(List.of());
         when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.empty());
-        when(piotroskiResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(altmanResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(cyclicalityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
-        when(earningsQualityResultRepository.findTopBySecurityOrderByResultDateDesc(security)).thenReturn(Optional.empty());
+        when(riskAnalysisService.computePiotroski("PG")).thenReturn(piotroski(security));
+        when(riskAnalysisService.computeAltman("PG")).thenReturn(altman(security));
+        when(riskAnalysisService.assessCyclicality("PG")).thenReturn(cyclicality(security));
+        when(riskAnalysisService.computeEarningsQuality("PG")).thenReturn(earningsQuality(security));
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
         when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
@@ -267,6 +283,65 @@ class SecurityReviewServiceTest {
         r.setDividendYield(new BigDecimal("0.50"));
         r.setGrossMargin(new BigDecimal("40.00"));
         return r;
+    }
+
+    private PiotroskiResult piotroski(Security security) {
+        PiotroskiResult result = new PiotroskiResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setTotalScore(7);
+        result.setPositiveNetIncome(true);
+        result.setPositiveOperatingCashFlow(true);
+        result.setImprovingRoa(true);
+        result.setCashFlowQuality(true);
+        result.setLowerLeverage(true);
+        result.setImprovingCurrentRatio(true);
+        result.setNoShareDilution(true);
+        result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        return result;
+    }
+
+    private AltmanResult altman(Security security) {
+        AltmanResult result = new AltmanResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setScore(new BigDecimal("4.20"));
+        result.setZone(AltmanZone.SAFE);
+        result.setFormulaVariant(AltmanFormulaVariant.NON_MANUFACTURING);
+        result.setWorkingCapitalToAssets(new BigDecimal("0.20"));
+        result.setRetainedEarningsToAssets(new BigDecimal("0.15"));
+        result.setEbitToAssets(new BigDecimal("0.12"));
+        result.setMarketValueEquityToLiabilities(new BigDecimal("3.00"));
+        result.setSalesToAssets(new BigDecimal("1.10"));
+        result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        return result;
+    }
+
+    private CyclicalityResult cyclicality(Security security) {
+        CyclicalityResult result = new CyclicalityResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setClassification(CyclicalityClassification.STABLE);
+        result.setYearsAnalyzed(10);
+        result.setRevenueCoefficient(new BigDecimal("0.08"));
+        result.setEarningsCoefficient(new BigDecimal("0.12"));
+        result.setNormalizedEarnings(new BigDecimal("200.00"));
+        result.setCycleAdjustedPe(new BigDecimal("15.00"));
+        result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        return result;
+    }
+
+    private EarningsQualityResult earningsQuality(Security security) {
+        EarningsQualityResult result = new EarningsQualityResult();
+        result.setSecurity(security);
+        result.setResultDate(LocalDate.now());
+        result.setClassification(EarningsQualityClassification.STRONG);
+        result.setFcfToNetIncome(new BigDecimal("1.10"));
+        result.setSloanAccrualsRatio(new BigDecimal("-0.02"));
+        result.setYearsAnalyzed(5);
+        result.setDeteriorating(false);
+        result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        return result;
     }
 
     private PriceQuote quote(Security security) {

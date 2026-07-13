@@ -43,7 +43,7 @@ public class RiskAnalysisService {
     public PiotroskiResult computePiotroski(String symbol) {
         Security security = security(symbol);
         List<FundamentalSnapshot> annuals = annuals(security);
-        List<RatioSnapshot> ratios = ratios(security);
+        List<RatioSnapshot> ratios = annualRatios(security);
         PiotroskiResult result = new PiotroskiResult();
         result.setSecurity(security);
         result.setResultDate(LocalDate.now());
@@ -188,8 +188,8 @@ public class RiskAnalysisService {
         return fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL);
     }
 
-    private List<RatioSnapshot> ratios(Security security) {
-        return ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM);
+    private List<RatioSnapshot> annualRatios(Security security) {
+        return ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL);
     }
 
     private int count(PiotroskiResult r) {

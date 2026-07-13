@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component("cacheKeyHelper")
 public class CacheKeyHelper {
 
-    private static final String RATIOS_SCHEMA_VERSION = "v2";
+    private static final String MARKET_DATA_SCHEMA_VERSION = "v3";
 
     private final String source;
 
@@ -14,7 +14,6 @@ public class CacheKeyHelper {
     }
 
     public String key(String endpoint, String symbol) {
-        String version = endpoint.contains("ratios") ? ":" + RATIOS_SCHEMA_VERSION : "";
-        return "mdc:" + source + ":" + endpoint + version + ":" + symbol.toUpperCase();
+        return "mdc:" + source + ":" + endpoint + ":" + MARKET_DATA_SCHEMA_VERSION + ":" + symbol.toUpperCase();
     }
 }

@@ -57,6 +57,20 @@ public class FmpAdapter {
                 .limit(11).map(FmpIncomeStatementEntry::epsDiluted).collect(Collectors.toList());
         List<Long> sharesOutstandingHistory = income.stream()
                 .limit(11).map(FmpIncomeStatementEntry::sharesOutstandingDil).collect(Collectors.toList());
+        List<BigDecimal> operatingIncomeHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::operatingIncome).collect(Collectors.toList());
+        List<BigDecimal> operatingCashFlowHistory = cashflow.stream()
+                .limit(11).map(FmpCashFlowEntry::operatingCashFlow).collect(Collectors.toList());
+        List<BigDecimal> totalAssetsHistory = balance.stream()
+                .limit(11).map(FmpBalanceSheetEntry::totalAssets).collect(Collectors.toList());
+        List<BigDecimal> totalLiabilitiesHistory = balance.stream()
+                .limit(11).map(FmpBalanceSheetEntry::totalLiabilities).collect(Collectors.toList());
+        List<BigDecimal> totalDebtHistory = balance.stream()
+                .limit(11).map(FmpBalanceSheetEntry::totalDebt).collect(Collectors.toList());
+        List<BigDecimal> cashHistory = balance.stream()
+                .limit(11).map(FmpBalanceSheetEntry::cashAndShortTermInvestments).collect(Collectors.toList());
+        List<BigDecimal> totalEquityHistory = balance.stream()
+                .limit(11).map(FmpBalanceSheetEntry::totalEquity).collect(Collectors.toList());
 
         return new FundamentalSnapshot(
                 symbol.toUpperCase(),
@@ -74,6 +88,13 @@ public class FmpAdapter {
                 fcfHistory,
                 epsHistory,
                 sharesOutstandingHistory,
+                operatingIncomeHistory,
+                operatingCashFlowHistory,
+                totalAssetsHistory,
+                totalLiabilitiesHistory,
+                totalDebtHistory,
+                cashHistory,
+                totalEquityHistory,
                 netDebt,
                 totalDebt,
                 cash

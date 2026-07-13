@@ -135,8 +135,18 @@ public class SeedTickerService {
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
         List<BigDecimal> epsHistory = data.epsHistory() != null ? data.epsHistory() : List.of();
         List<Long> sharesHistory = data.sharesOutstandingHistory() != null ? data.sharesOutstandingHistory() : List.of();
+        List<BigDecimal> operatingIncomeHistory = data.operatingIncomeHistory() != null ? data.operatingIncomeHistory() : List.of();
+        List<BigDecimal> operatingCashFlowHistory = data.operatingCashFlowHistory() != null ? data.operatingCashFlowHistory() : List.of();
+        List<BigDecimal> totalAssetsHistory = data.totalAssetsHistory() != null ? data.totalAssetsHistory() : List.of();
+        List<BigDecimal> totalLiabilitiesHistory = data.totalLiabilitiesHistory() != null ? data.totalLiabilitiesHistory() : List.of();
+        List<BigDecimal> totalDebtHistory = data.totalDebtHistory() != null ? data.totalDebtHistory() : List.of();
+        List<BigDecimal> cashHistory = data.cashHistory() != null ? data.cashHistory() : List.of();
+        List<BigDecimal> totalEquityHistory = data.totalEquityHistory() != null ? data.totalEquityHistory() : List.of();
         int historySize = Math.max(1, Math.max(revenueHistory.size(),
-                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), Math.max(epsHistory.size(), sharesHistory.size())))));
+                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), Math.max(epsHistory.size(),
+                        Math.max(sharesHistory.size(), Math.max(operatingIncomeHistory.size(), Math.max(operatingCashFlowHistory.size(),
+                                Math.max(totalAssetsHistory.size(), Math.max(totalLiabilitiesHistory.size(),
+                                        Math.max(totalDebtHistory.size(), Math.max(cashHistory.size(), totalEquityHistory.size()))))))))))));
         int currentYear = today.getYear();
 
         fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.ANNUAL);
@@ -157,20 +167,25 @@ public class SeedTickerService {
             if (annualShares != null) {
                 entity.setSharesOutstanding(annualShares);
             }
-            if (i == 0) {
-                entity.setTotalDebt(data.totalDebt());
-                entity.setCash(data.cash());
-                Long sharesForEquity = annualShares != null ? annualShares : data.sharesOutstanding();
-                if (data.bookValuePerShare() != null && sharesForEquity != null) {
-                    entity.setTotalEquity(data.bookValuePerShare()
-                            .multiply(BigDecimal.valueOf(sharesForEquity)));
-                }
-            }
             entity.setRevenue(valueAt(revenueHistory, i));
             entity.setNetIncome(valueAt(netIncomeHistory, i));
+            entity.setOperatingIncome(valueAt(operatingIncomeHistory, i));
+            entity.setOperatingCashFlow(valueAt(operatingCashFlowHistory, i));
             entity.setFreeCashFlow(valueAt(fcfHistory, i));
             entity.setEps(valueAt(epsHistory, i));
             entity.setEpsDiluted(valueAt(epsHistory, i));
+            entity.setTotalAssets(valueAt(totalAssetsHistory, i));
+            entity.setTotalLiabilities(valueAt(totalLiabilitiesHistory, i));
+            entity.setTotalDebt(firstNonNull(valueAt(totalDebtHistory, i), i == 0 ? data.totalDebt() : null));
+            entity.setCash(firstNonNull(valueAt(cashHistory, i), i == 0 ? data.cash() : null));
+            BigDecimal totalEquity = valueAt(totalEquityHistory, i);
+            if (totalEquity == null && i == 0) {
+                Long sharesForEquity = annualShares != null ? annualShares : data.sharesOutstanding();
+                if (data.bookValuePerShare() != null && sharesForEquity != null) {
+                    totalEquity = data.bookValuePerShare().multiply(BigDecimal.valueOf(sharesForEquity));
+                }
+            }
+            entity.setTotalEquity(totalEquity);
             fundamentalSnapshotRepository.save(entity);
         }
 
@@ -181,16 +196,20 @@ public class SeedTickerService {
         ttm.setReportDate(today);
         ttm.setRevenue(valueAt(revenueHistory, 0));
         ttm.setNetIncome(valueAt(netIncomeHistory, 0));
+        ttm.setOperatingIncome(valueAt(operatingIncomeHistory, 0));
+        ttm.setOperatingCashFlow(valueAt(operatingCashFlowHistory, 0));
         ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
         ttm.setEps(data.epsTtm());
         ttm.setEpsDiluted(data.epsTtm());
         ttm.setSharesOutstanding(data.sharesOutstanding());
         ttm.setTotalDebt(data.totalDebt());
         ttm.setCash(data.cash());
-        if (data.bookValuePerShare() != null && data.sharesOutstanding() != null) {
-            ttm.setTotalEquity(data.bookValuePerShare()
-                    .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
-        }
+        ttm.setTotalAssets(valueAt(totalAssetsHistory, 0));
+        ttm.setTotalLiabilities(valueAt(totalLiabilitiesHistory, 0));
+        ttm.setTotalEquity(firstNonNull(valueAt(totalEquityHistory, 0),
+                data.bookValuePerShare() != null && data.sharesOutstanding() != null
+                        ? data.bookValuePerShare().multiply(BigDecimal.valueOf(data.sharesOutstanding()))
+                        : null));
         fundamentalSnapshotRepository.save(ttm);
     }
 
