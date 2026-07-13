@@ -21,6 +21,9 @@ import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
+import it.mazzoni.vis.moat.CapitalAllocationService;
+import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationService;
@@ -57,6 +60,9 @@ class SeedServiceTest {
     @Mock InsiderTradeRepository insiderTradeRepository;
     @Mock ValuationService valuationService;
     @Mock ValueScoreService valueScoreService;
+    @Mock RiskAnalysisService riskAnalysisService;
+    @Mock MoatAssessmentService moatAssessmentService;
+    @Mock CapitalAllocationService capitalAllocationService;
     @Mock SourceTracker sourceTracker;
 
     SeedTickerService seedTickerService;
@@ -70,7 +76,8 @@ class SeedServiceTest {
         seedTickerService = new SeedTickerService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
                 priceQuoteRepository, dividendRecordRepository, insiderTradeRepository,
-                valuationService, valueScoreService, defaults, sourceTracker);
+                valuationService, valueScoreService, riskAnalysisService, moatAssessmentService,
+                capitalAllocationService, defaults, sourceTracker);
         seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
@@ -112,6 +119,12 @@ class SeedServiceTest {
         assertThat(results.get(1).symbol()).isEqualTo("KO");
         assertThat(results.get(1).marginOfSafety()).isEqualByComparingTo("18.40");
         assertThat(results.get(1).error()).isNull();
+        verify(riskAnalysisService).computePiotroski("AAPL");
+        verify(riskAnalysisService).computeAltman("AAPL");
+        verify(riskAnalysisService).assessCyclicality("AAPL");
+        verify(riskAnalysisService).computeEarningsQuality("AAPL");
+        verify(moatAssessmentService, times(2)).analyze(any(Security.class));
+        verify(capitalAllocationService, times(2)).analyze(any(Security.class));
     }
 
     @Test

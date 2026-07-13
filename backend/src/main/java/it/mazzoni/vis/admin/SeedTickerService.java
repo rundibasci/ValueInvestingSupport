@@ -22,6 +22,9 @@ import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.SourceTracker;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
+import it.mazzoni.vis.moat.CapitalAllocationService;
+import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationParams;
@@ -49,6 +52,9 @@ public class SeedTickerService {
     private final InsiderTradeRepository insiderTradeRepository;
     private final ValuationService valuationService;
     private final ValueScoreService valueScoreService;
+    private final RiskAnalysisService riskAnalysisService;
+    private final MoatAssessmentService moatAssessmentService;
+    private final CapitalAllocationService capitalAllocationService;
     private final ValuationDefaultsProperties defaults;
     private final SourceTracker sourceTracker;
 
@@ -61,6 +67,9 @@ public class SeedTickerService {
                              InsiderTradeRepository insiderTradeRepository,
                              ValuationService valuationService,
                              ValueScoreService valueScoreService,
+                             RiskAnalysisService riskAnalysisService,
+                             MoatAssessmentService moatAssessmentService,
+                             CapitalAllocationService capitalAllocationService,
                              ValuationDefaultsProperties defaults,
                              SourceTracker sourceTracker) {
         this.marketDataClient = marketDataClient;
@@ -72,6 +81,9 @@ public class SeedTickerService {
         this.insiderTradeRepository = insiderTradeRepository;
         this.valuationService = valuationService;
         this.valueScoreService = valueScoreService;
+        this.riskAnalysisService = riskAnalysisService;
+        this.moatAssessmentService = moatAssessmentService;
+        this.capitalAllocationService = capitalAllocationService;
         this.defaults = defaults;
         this.sourceTracker = sourceTracker;
     }
@@ -93,6 +105,7 @@ public class SeedTickerService {
             ValuationOutcome outcome = valuationService.calculate(symbol, params);
             ValuationResult result = outcome.result();
             it.mazzoni.vis.domain.entity.ValueScore score = valueScoreService.compute(symbol);
+            recomputeDerivedAnalytics(security, symbol);
             BigDecimal currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
                     .map(PriceQuote::getClose)
                     .orElse(null);
@@ -106,6 +119,15 @@ public class SeedTickerService {
         } finally {
             sourceTracker.clear();
         }
+    }
+
+    private void recomputeDerivedAnalytics(Security security, String symbol) {
+        riskAnalysisService.computePiotroski(symbol);
+        riskAnalysisService.computeAltman(symbol);
+        riskAnalysisService.assessCyclicality(symbol);
+        riskAnalysisService.computeEarningsQuality(symbol);
+        moatAssessmentService.analyze(security);
+        capitalAllocationService.analyze(security);
     }
 
     private Security upsertSecurity(String symbol) {

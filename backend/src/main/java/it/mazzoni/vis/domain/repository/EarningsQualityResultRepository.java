@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface EarningsQualityResultRepository extends JpaRepository<EarningsQualityResult, UUID> {
     Optional<EarningsQualityResult> findTopBySecurityOrderByResultDateDesc(Security security);
+    long deleteBySecurity(Security security);
 }

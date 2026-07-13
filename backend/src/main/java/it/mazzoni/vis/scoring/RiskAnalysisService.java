@@ -50,6 +50,7 @@ public class RiskAnalysisService {
         if (annuals.size() < 2) {
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("At least two annual fundamental snapshots are required.");
+            piotroskiResultRepository.deleteBySecurity(security);
             return piotroskiResultRepository.save(result);
         }
 
@@ -70,6 +71,7 @@ public class RiskAnalysisService {
         result.setImprovingAssetTurnover(compare(ratio(latest.getRevenue(), latest.getTotalAssets()), ratio(prior.getRevenue(), prior.getTotalAssets())) > 0);
         result.setTotalScore(count(result));
         result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        piotroskiResultRepository.deleteBySecurity(security);
         return piotroskiResultRepository.save(result);
     }
 
@@ -86,6 +88,7 @@ public class RiskAnalysisService {
             result.setZone(AltmanZone.UNAVAILABLE);
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("Assets and liabilities are required for Altman Z-Score.");
+            altmanResultRepository.deleteBySecurity(security);
             return altmanResultRepository.save(result);
         }
         BigDecimal x1 = workingCapitalToAssets(ratio, latest);
@@ -102,6 +105,7 @@ public class RiskAnalysisService {
             result.setZone(AltmanZone.UNAVAILABLE);
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("Altman component inputs are incomplete.");
+            altmanResultRepository.deleteBySecurity(security);
             return altmanResultRepository.save(result);
         }
         BigDecimal score = result.getFormulaVariant() == AltmanFormulaVariant.MANUFACTURING
@@ -110,6 +114,7 @@ public class RiskAnalysisService {
         result.setScore(score.setScale(4, RoundingMode.HALF_UP));
         result.setZone(zone(score));
         result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        altmanResultRepository.deleteBySecurity(security);
         return altmanResultRepository.save(result);
     }
 
@@ -124,6 +129,7 @@ public class RiskAnalysisService {
             result.setClassification(CyclicalityClassification.UNAVAILABLE);
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("At least three annual snapshots are required.");
+            cyclicalityResultRepository.deleteBySecurity(security);
             return cyclicalityResultRepository.save(result);
         }
         BigDecimal revenueCv = coefficient(annuals.stream().map(FundamentalSnapshot::getRevenue).toList());
@@ -138,6 +144,7 @@ public class RiskAnalysisService {
         result.setClassification(max.compareTo(new BigDecimal("0.40")) >= 0 ? CyclicalityClassification.HIGHLY_CYCLICAL
                 : max.compareTo(new BigDecimal("0.20")) >= 0 ? CyclicalityClassification.MODERATE : CyclicalityClassification.STABLE);
         result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        cyclicalityResultRepository.deleteBySecurity(security);
         return cyclicalityResultRepository.save(result);
     }
 
@@ -152,6 +159,7 @@ public class RiskAnalysisService {
             result.setClassification(EarningsQualityClassification.UNAVAILABLE);
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("Annual fundamentals are required.");
+            earningsQualityResultRepository.deleteBySecurity(security);
             return earningsQualityResultRepository.save(result);
         }
         FundamentalSnapshot latest = annuals.get(0);
@@ -164,6 +172,7 @@ public class RiskAnalysisService {
             result.setClassification(EarningsQualityClassification.UNAVAILABLE);
             result.setAvailabilityStatus(RiskAvailabilityStatus.INSUFFICIENT_DATA);
             result.setAvailabilityMessage("Free cash flow and net income are required.");
+            earningsQualityResultRepository.deleteBySecurity(security);
             return earningsQualityResultRepository.save(result);
         }
         result.setClassification(fcfToNi.compareTo(BigDecimal.ONE) >= 0 ? EarningsQualityClassification.STRONG
@@ -177,6 +186,7 @@ public class RiskAnalysisService {
                     && compare(fcfToNi, priorFcfToNi) < 0 && compare(accruals, priorAccruals) > 0);
         }
         result.setAvailabilityStatus(RiskAvailabilityStatus.AVAILABLE);
+        earningsQualityResultRepository.deleteBySecurity(security);
         return earningsQualityResultRepository.save(result);
     }
 

@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface CyclicalityResultRepository extends JpaRepository<CyclicalityResult, UUID> {
     Optional<CyclicalityResult> findTopBySecurityOrderByResultDateDesc(Security security);
+    long deleteBySecurity(Security security);
 }
