@@ -11,12 +11,14 @@ import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationService;
@@ -49,6 +51,7 @@ class SeedServiceTest {
     @Mock FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
     @Mock PriceQuoteRepository priceQuoteRepository;
+    @Mock DividendRecordRepository dividendRecordRepository;
     @Mock ValuationService valuationService;
     @Mock ValueScoreService valueScoreService;
     @Mock SourceTracker sourceTracker;
@@ -63,7 +66,7 @@ class SeedServiceTest {
                 new BigDecimal("0.04"), new BigDecimal("0.025"));
         seedTickerService = new SeedTickerService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
-                priceQuoteRepository, valuationService, valueScoreService, defaults, sourceTracker);
+                priceQuoteRepository, dividendRecordRepository, valuationService, valueScoreService, defaults, sourceTracker);
         seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
@@ -71,6 +74,9 @@ class SeedServiceTest {
         Mockito.lenient().when(fundamentalSnapshotRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Mockito.lenient().when(ratioSnapshotRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Mockito.lenient().when(priceQuoteRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Mockito.lenient().when(dividendRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Mockito.lenient().when(dividendRecordRepository.findBySecurityAndExDividendDate(
+                any(), any())).thenReturn(Optional.empty());
         Mockito.lenient().when(fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
                 any(), any(), any())).thenReturn(false);
         Mockito.lenient().when(ratioSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
@@ -158,8 +164,7 @@ class SeedServiceTest {
 
         seedService.seedTickers(List.of("AAPL"));
 
-        verify(fundamentalSnapshotRepository).deleteBySecurityAndPeriodAndFiscalYear(
-                any(Security.class), eq(Period.ANNUAL), eq(LocalDate.now().getYear()));
+        verify(fundamentalSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.ANNUAL));
         verify(fundamentalSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.TTM));
         verify(fundamentalSnapshotRepository, times(2)).save(any());
         verify(marketDataClient).getFundamentals("AAPL");
@@ -177,6 +182,17 @@ class SeedServiceTest {
                 any(Security.class), eq(Period.ANNUAL));
         verify(ratioSnapshotRepository).deleteAll(List.of());
         verify(ratioSnapshotRepository, times(1)).save(any());
+    }
+
+    @Test
+    void seedTickers_persistsDividendHistoryForSeededSymbol() {
+        stubFmpData("INGR", "Ingredion Incorporated");
+        stubValuation("INGR", new BigDecimal("145.76"), new BigDecimal("32.25"), Recommendation.STRONG_BUY);
+
+        seedService.seedTickers(List.of("INGR"));
+
+        verify(marketDataClient).getDividendHistory("INGR");
+        verify(dividendRecordRepository, times(1)).save(any());
     }
 
     private void stubFmpData(String symbol, String companyName) {
@@ -202,6 +218,8 @@ class SeedServiceTest {
                         null, null, null, null, null, null, null));
         when(marketDataClient.getQuote(symbol)).thenReturn(
                 new MarketPriceQuote(symbol, new BigDecimal("182.50"), "USD", null, null));
+        when(marketDataClient.getDividendHistory(symbol)).thenReturn(List.of(
+                new FmpDividendEntry("2026-06-30", new BigDecimal("0.82"), "2026-07-24")));
     }
 
     private void stubValuation(String symbol, BigDecimal composite, BigDecimal mos, Recommendation rec) {

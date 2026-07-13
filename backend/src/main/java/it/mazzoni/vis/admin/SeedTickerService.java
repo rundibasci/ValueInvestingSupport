@@ -2,18 +2,22 @@ package it.mazzoni.vis.admin;
 
 import it.mazzoni.vis.config.ValuationDefaultsProperties;
 import it.mazzoni.vis.domain.CompanyProfile;
+import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
+import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
+import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.SourceTracker;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationParams;
@@ -36,6 +40,7 @@ public class SeedTickerService {
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
     private final RatioSnapshotRepository ratioSnapshotRepository;
     private final PriceQuoteRepository priceQuoteRepository;
+    private final DividendRecordRepository dividendRecordRepository;
     private final ValuationService valuationService;
     private final ValueScoreService valueScoreService;
     private final ValuationDefaultsProperties defaults;
@@ -46,6 +51,7 @@ public class SeedTickerService {
                              FundamentalSnapshotRepository fundamentalSnapshotRepository,
                              RatioSnapshotRepository ratioSnapshotRepository,
                              PriceQuoteRepository priceQuoteRepository,
+                             DividendRecordRepository dividendRecordRepository,
                              ValuationService valuationService,
                              ValueScoreService valueScoreService,
                              ValuationDefaultsProperties defaults,
@@ -55,6 +61,7 @@ public class SeedTickerService {
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
         this.priceQuoteRepository = priceQuoteRepository;
+        this.dividendRecordRepository = dividendRecordRepository;
         this.valuationService = valuationService;
         this.valueScoreService = valueScoreService;
         this.defaults = defaults;
@@ -69,6 +76,7 @@ public class SeedTickerService {
             persistFundamentals(security, symbol);
             persistRatios(security, symbol);
             persistPriceQuote(security, symbol);
+            persistDividends(security, symbol);
 
             ValuationParams params = new ValuationParams(
                     defaults.wacc(), defaults.growthY1Y5(), defaults.growthY6Y10(),
@@ -247,6 +255,42 @@ public class SeedTickerService {
         entity.setQuoteDate(today);
         entity.setClose(quote.price());
         priceQuoteRepository.save(entity);
+    }
+
+    private void persistDividends(Security security, String symbol) {
+        List<FmpDividendEntry> entries;
+        try {
+            entries = marketDataClient.getDividendHistory(symbol);
+        } catch (MarketDataException | UnsupportedOperationException e) {
+            return;
+        }
+
+        for (FmpDividendEntry entry : entries) {
+            if (entry.date() == null || entry.dividend() == null) {
+                continue;
+            }
+            LocalDate exDate;
+            try {
+                exDate = LocalDate.parse(entry.date());
+            } catch (Exception ignored) {
+                continue;
+            }
+            if (dividendRecordRepository.findBySecurityAndExDividendDate(security, exDate).isPresent()) {
+                continue;
+            }
+
+            DividendRecord record = new DividendRecord();
+            record.setSecurity(security);
+            record.setExDividendDate(exDate);
+            record.setAmount(entry.dividend());
+            record.setCurrency(security.getCurrency());
+            if (entry.paymentDate() != null && !entry.paymentDate().isBlank()) {
+                try {
+                    record.setPaymentDate(LocalDate.parse(entry.paymentDate()));
+                } catch (Exception ignored) {}
+            }
+            dividendRecordRepository.save(record);
+        }
     }
 
     private static BigDecimal valueAt(List<BigDecimal> values, int index) {

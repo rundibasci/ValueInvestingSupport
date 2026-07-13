@@ -149,6 +149,25 @@ class FmpMarketDataClientTest {
     }
 
     @Test
+    void getDividendHistory_returnsStableDividendRows() {
+        wireMock.stubFor(get(urlPathEqualTo("/dividends"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .willReturn(okJson("""
+                        [
+                          {"symbol":"INGR","date":"2026-06-30","dividend":0.82,"paymentDate":"2026-07-24"},
+                          {"symbol":"INGR","date":"2026-03-31","dividend":0.82,"paymentDate":"2026-04-24"}
+                        ]
+                        """)));
+
+        var result = client.getDividendHistory("INGR");
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).date()).isEqualTo("2026-06-30");
+        assertThat(result.get(0).dividend()).isEqualByComparingTo("0.82");
+        assertThat(result.get(0).paymentDate()).isEqualTo("2026-07-24");
+    }
+
+    @Test
     void getRatios_returnsMappedRatioSnapshot() {
         wireMock.stubFor(get(urlPathEqualTo("/ratios"))
                 .withQueryParam("symbol", equalTo("AAPL"))

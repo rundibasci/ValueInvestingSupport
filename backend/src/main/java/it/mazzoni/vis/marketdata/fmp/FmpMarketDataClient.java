@@ -165,18 +165,21 @@ public class FmpMarketDataClient implements MarketDataClient {
 
     @Override
     public List<FmpDividendEntry> getDividendHistory(String symbol) {
-        FmpDividendHistoryResponse response = fmpWebClient.get()
-                .uri(u -> u.path("/historical-price-full/stock_dividend/{symbol}").build(symbol.toUpperCase()))
+        List<FmpDividendEntry> result = fmpWebClient.get()
+                .uri(u -> u.path("/dividends")
+                        .queryParam("symbol", symbol.toUpperCase())
+                        .build())
                 .retrieve()
                 .onStatus(status -> status.value() == 404,
                         resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol)))
-                .bodyToMono(FmpDividendHistoryResponse.class)
+                .onStatus(status -> status.value() == 402,
+                        resp -> Mono.error(new MarketDataException(MarketDataException.ErrorCode.PLAN_RESTRICTION, symbol)))
+                .bodyToMono(new ParameterizedTypeReference<List<FmpDividendEntry>>() {})
                 .retryWhen(RETRY_SPEC)
                 .onErrorMap(WebClientResponseException.class,
                         e -> new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e))
                 .block();
-        if (response == null || response.historical() == null) return List.of();
-        return response.historical();
+        return result != null ? result : List.of();
     }
 
     @Override
