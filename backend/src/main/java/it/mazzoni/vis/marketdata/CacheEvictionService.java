@@ -11,7 +11,8 @@ public class CacheEvictionService {
             @CacheEvict(cacheNames = "mdc-quote",        key = "@cacheKeyHelper.key('quote', #symbol)"),
             @CacheEvict(cacheNames = "mdc-profile",      key = "@cacheKeyHelper.key('profile', #symbol)"),
             @CacheEvict(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)"),
-            @CacheEvict(cacheNames = "mdc-ratios",       key = "@cacheKeyHelper.key('ratios', #symbol)")
+            @CacheEvict(cacheNames = "mdc-ratios",       key = "@cacheKeyHelper.key('ratios', #symbol)"),
+            @CacheEvict(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)")
     })
     public void evictSymbol(String symbol) {}
 }

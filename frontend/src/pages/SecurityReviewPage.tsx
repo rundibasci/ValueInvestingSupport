@@ -44,7 +44,7 @@ type Detail = {
 }
 type Annual = { fiscalYear: number; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null; bvps: number | null; sharesOutstanding: number | null }
 type Financials = { annuals: Annual[]; quarters: Array<{ period: string; revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null }>; ttm: { revenue: number | null; netIncome: number | null; fcf: number | null; eps: number | null } | null }
-type RatioItem = { date: string; pe: number | null; roic: number | null; roe: number | null; debtToEquity: number | null; grossMargin: number | null; dividendYield: number | null }
+type RatioItem = { date: string; pe: number | null; roic: number | null; roe: number | null; debtToEquity: number | null; currentRatio: number | null; quickRatio: number | null; interestCoverage: number | null; grossMargin: number | null; dividendYield: number | null }
 type Ratios = { ratios: RatioItem[] }
 type DcfSensitivityCell = { wacc: number; terminalRate: number; fairValue: number | null; terminalValuePercentage: number | null; highTerminalDependence: boolean }
 type DcfSensitivity = { waccValues: number[]; terminalRateValues: number[]; cells: DcfSensitivityCell[]; baseWacc: number | null; baseTerminalRate: number | null }
@@ -1110,13 +1110,13 @@ export function SecurityReviewPage(): JSX.Element {
                 <Metric label="Net debt" value={money(health.netDebt, currency)} />
                 <Metric label="Debt / equity" value={ratioPercent(health.debtToEquity)} />
                 <Metric label="Current ratio" value={number(health.currentRatio)} />
-                <Metric label="Quick ratio" value={number(health.quickRatio)} note={health.quickRatio == null ? 'Provider data did not supply quick ratio.' : undefined} />
-                <Metric label="Interest coverage" value={number(health.interestCoverage)} note={health.interestCoverage == null ? 'Provider data did not supply interest coverage.' : undefined} />
+                <Metric label="Quick ratio" value={number(health.quickRatio)} note={health.quickRatio == null ? 'Quick ratio is not stored for the latest local ratio snapshot.' : undefined} />
+                <Metric label="Interest coverage" value={number(health.interestCoverage)} note={health.interestCoverage == null ? 'Interest coverage is not stored for the latest local ratio snapshot.' : undefined} />
               </dl>
-              <DataGap>Short-term debt and long-term debt breakdowns are unavailable in the current data model. The endpoint reports total debt, cash, and net debt when stored locally.</DataGap>
+              <InfoNote>Short-term debt and long-term debt breakdowns are not tracked separately in the current local model. Total debt, cash, net debt, liquidity, and coverage metrics are shown when stored locally.</InfoNote>
             </Panel>
             <Panel title="Debt trend">
-              <Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity']]} summary="Debt trend currently uses debt-to-equity because total debt and cash history are unavailable from the active endpoint." />
+              <Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt and resilience trend from the stored ratios endpoint." />
             </Panel>
           </div>
         </Section>
@@ -1124,7 +1124,7 @@ export function SecurityReviewPage(): JSX.Element {
         <Section id="history" title="Historical Graphs">
           <div className="grid gap-5 xl:grid-cols-2">
             <Panel title="Earnings history"><Chart data={annual} lines={[['revenue', 'Revenue'], ['netIncome', 'Net income'], ['eps', 'EPS'], ['fcf', 'FCF']]} summary="Revenue, net income, EPS, and free cash flow over annual periods." /></Panel>
-            <Panel title="Debt history"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity']]} summary="Debt-to-equity over time; total debt, cash, and net debt are unavailable in the current API." /></Panel>
+            <Panel title="Debt history"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['currentRatio', 'Current ratio'], ['quickRatio', 'Quick ratio'], ['interestCoverage', 'Interest coverage']]} summary="Debt, liquidity, and interest coverage over time from stored ratio snapshots." /></Panel>
             <Panel title="ROIC history"><Chart data={ratioData} lines={[['roic', 'ROIC']]} summary="Return on invested capital over time, labelled as ROIC from the ratios endpoint." /></Panel>
             <Panel title="ROE history"><Chart data={ratioData} lines={[['roe', 'ROE']]} summary="Return on equity over time from the ratios endpoint." /></Panel>
           </div>
@@ -1179,7 +1179,10 @@ export function SecurityReviewPage(): JSX.Element {
           <div className="space-y-5">
             <RiskIntelligence review={review.data} currency={currency} />
             <div className="space-y-3">
-              {review.data.dataQualityNotes.map((note) => <DataGap key={`${note.category}-${note.message}`}>{note.category}: {note.message}</DataGap>)}
+              {review.data.dataQualityNotes.map((note) => {
+                const Note = note.severity === 'INFO' ? InfoNote : DataGap
+                return <Note key={`${note.category}-${note.message}`}>{note.category}: {note.message}</Note>
+              })}
               <DataGap>Valuation outputs are model estimates based on available local data. They are not personalised investment advice, order recommendations, or a guarantee of intrinsic value.</DataGap>
             </div>
           </div>

@@ -51,6 +51,12 @@ public class RatioSnapshot {
     private BigDecimal currentRatio;
 
     @Column(precision = 10, scale = 4)
+    private BigDecimal quickRatio;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal interestCoverage;
+
+    @Column(precision = 10, scale = 4)
     private BigDecimal dividendYield;
 
     @Column(precision = 10, scale = 4)
@@ -103,6 +109,12 @@ public class RatioSnapshot {
 
     public BigDecimal getCurrentRatio() { return currentRatio; }
     public void setCurrentRatio(BigDecimal currentRatio) { this.currentRatio = currentRatio; }
+
+    public BigDecimal getQuickRatio() { return quickRatio; }
+    public void setQuickRatio(BigDecimal quickRatio) { this.quickRatio = quickRatio; }
+
+    public BigDecimal getInterestCoverage() { return interestCoverage; }
+    public void setInterestCoverage(BigDecimal interestCoverage) { this.interestCoverage = interestCoverage; }
 
     public BigDecimal getDividendYield() { return dividendYield; }
     public void setDividendYield(BigDecimal dividendYield) { this.dividendYield = dividendYield; }

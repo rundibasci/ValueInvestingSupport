@@ -82,7 +82,9 @@ public class BulkRatiosSyncJob {
         e.setRoa(data.roa());
         e.setRoic(data.roic());
         e.setCurrentRatio(data.currentRatio());
+        e.setQuickRatio(data.quickRatio());
         e.setDebtToEquity(data.debtToEquity());
+        e.setInterestCoverage(data.interestCoverage());
         e.setDividendYield(data.dividendYield());
         e.setPayoutRatio(data.payoutRatio());
         return e;

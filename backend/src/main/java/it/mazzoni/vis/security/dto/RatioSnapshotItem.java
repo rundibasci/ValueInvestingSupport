@@ -11,6 +11,9 @@ public record RatioSnapshotItem(
         BigDecimal roic,
         BigDecimal roe,
         BigDecimal debtToEquity,
+        BigDecimal currentRatio,
+        BigDecimal quickRatio,
+        BigDecimal interestCoverage,
         BigDecimal grossMargin,
         BigDecimal dividendYield
 ) {
@@ -21,6 +24,9 @@ public record RatioSnapshotItem(
                 r.getRoic(),
                 r.getRoe(),
                 r.getDebtToEquity(),
+                r.getCurrentRatio(),
+                r.getQuickRatio(),
+                r.getInterestCoverage(),
                 r.getGrossMargin(),
                 r.getDividendYield()
         );

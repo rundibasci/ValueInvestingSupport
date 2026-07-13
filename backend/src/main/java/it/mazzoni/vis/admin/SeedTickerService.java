@@ -228,7 +228,9 @@ public class SeedTickerService {
         entity.setRoa(data.roa());
         entity.setRoic(data.roic());
         entity.setCurrentRatio(data.currentRatio());
+        entity.setQuickRatio(data.quickRatio());
         entity.setDebtToEquity(data.debtToEquity());
+        entity.setInterestCoverage(data.interestCoverage());
         entity.setDividendYield(data.dividendYield());
         entity.setPayoutRatio(data.payoutRatio());
         entity.setGrossMargin(data.grossMargin());
@@ -245,7 +247,9 @@ public class SeedTickerService {
                 && sameDecimal(snapshot.getRoa(), data.roa())
                 && sameDecimal(snapshot.getRoic(), data.roic())
                 && sameDecimal(snapshot.getCurrentRatio(), data.currentRatio())
+                && sameDecimal(snapshot.getQuickRatio(), data.quickRatio())
                 && sameDecimal(snapshot.getDebtToEquity(), data.debtToEquity())
+                && sameDecimal(snapshot.getInterestCoverage(), data.interestCoverage())
                 && sameDecimal(snapshot.getDividendYield(), data.dividendYield())
                 && sameDecimal(snapshot.getPayoutRatio(), data.payoutRatio())
                 && sameDecimal(snapshot.getGrossMargin(), data.grossMargin())
