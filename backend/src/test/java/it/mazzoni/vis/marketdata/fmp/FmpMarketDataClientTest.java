@@ -168,6 +168,28 @@ class FmpMarketDataClientTest {
     }
 
     @Test
+    void getInsiderTransactions_returnsStableSearchRows() {
+        wireMock.stubFor(get(urlPathEqualTo("/insider-trading/search"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .withQueryParam("page", equalTo("0"))
+                .withQueryParam("limit", equalTo("50"))
+                .willReturn(okJson("""
+                        [
+                          {"symbol":"INGR","transactionDate":"2026-06-15",
+                           "reportingName":"Jane Insider","title":"Chief Financial Officer",
+                           "transactionType":"S-Sale","securitiesTransacted":1200,"price":99.25}
+                        ]
+                        """)));
+
+        var result = client.getInsiderTransactions("INGR");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).transactionDate()).isEqualTo("2026-06-15");
+        assertThat(result.get(0).reportingName()).isEqualTo("Jane Insider");
+        assertThat(result.get(0).securitiesTransacted()).isEqualTo(1200L);
+    }
+
+    @Test
     void getRatios_returnsMappedRatioSnapshot() {
         wireMock.stubFor(get(urlPathEqualTo("/ratios"))
                 .withQueryParam("symbol", equalTo("AAPL"))

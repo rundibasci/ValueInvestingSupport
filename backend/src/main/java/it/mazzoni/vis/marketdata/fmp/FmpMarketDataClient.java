@@ -185,8 +185,9 @@ public class FmpMarketDataClient implements MarketDataClient {
     @Override
     public List<FmpInsiderTradingEntry> getInsiderTransactions(String symbol) {
         List<FmpInsiderTradingEntry> result = fmpWebClient.get()
-                .uri(u -> u.path("/insider-trading")
+                .uri(u -> u.path("/insider-trading/search")
                         .queryParam("symbol", symbol.toUpperCase())
+                        .queryParam("page", 0)
                         .queryParam("limit", 50)
                         .build())
                 .retrieve()

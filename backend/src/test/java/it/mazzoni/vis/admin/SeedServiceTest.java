@@ -13,12 +13,14 @@ import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.InsiderTradeRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationService;
@@ -52,6 +54,7 @@ class SeedServiceTest {
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
     @Mock PriceQuoteRepository priceQuoteRepository;
     @Mock DividendRecordRepository dividendRecordRepository;
+    @Mock InsiderTradeRepository insiderTradeRepository;
     @Mock ValuationService valuationService;
     @Mock ValueScoreService valueScoreService;
     @Mock SourceTracker sourceTracker;
@@ -66,7 +69,8 @@ class SeedServiceTest {
                 new BigDecimal("0.04"), new BigDecimal("0.025"));
         seedTickerService = new SeedTickerService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
-                priceQuoteRepository, dividendRecordRepository, valuationService, valueScoreService, defaults, sourceTracker);
+                priceQuoteRepository, dividendRecordRepository, insiderTradeRepository,
+                valuationService, valueScoreService, defaults, sourceTracker);
         seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
@@ -77,6 +81,9 @@ class SeedServiceTest {
         Mockito.lenient().when(dividendRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Mockito.lenient().when(dividendRecordRepository.findBySecurityAndExDividendDate(
                 any(), any())).thenReturn(Optional.empty());
+        Mockito.lenient().when(insiderTradeRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        Mockito.lenient().when(insiderTradeRepository.existsBySecurityAndTradeDateAndInsiderName(
+                any(), any(), any())).thenReturn(false);
         Mockito.lenient().when(fundamentalSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
                 any(), any(), any())).thenReturn(false);
         Mockito.lenient().when(ratioSnapshotRepository.existsBySecurityAndPeriodAndReportDate(
@@ -195,6 +202,17 @@ class SeedServiceTest {
         verify(dividendRecordRepository, times(1)).save(any());
     }
 
+    @Test
+    void seedTickers_persistsInsiderTradesForSeededSymbol() {
+        stubFmpData("INGR", "Ingredion Incorporated");
+        stubValuation("INGR", new BigDecimal("145.76"), new BigDecimal("32.25"), Recommendation.STRONG_BUY);
+
+        seedService.seedTickers(List.of("INGR"));
+
+        verify(marketDataClient).getInsiderTransactions("INGR");
+        verify(insiderTradeRepository, times(1)).save(any());
+    }
+
     private void stubFmpData(String symbol, String companyName) {
         Security security = new Security();
         security.setSymbol(symbol);
@@ -220,6 +238,9 @@ class SeedServiceTest {
                 new MarketPriceQuote(symbol, new BigDecimal("182.50"), "USD", null, null));
         when(marketDataClient.getDividendHistory(symbol)).thenReturn(List.of(
                 new FmpDividendEntry("2026-06-30", new BigDecimal("0.82"), "2026-07-24")));
+        when(marketDataClient.getInsiderTransactions(symbol)).thenReturn(List.of(
+                new FmpInsiderTradingEntry(symbol, "2026-06-15", "Jane Insider",
+                        "Chief Financial Officer", "S-Sale", 1200L, new BigDecimal("99.25"))));
     }
 
     private void stubValuation(String symbol, BigDecimal composite, BigDecimal mos, Recommendation rec) {

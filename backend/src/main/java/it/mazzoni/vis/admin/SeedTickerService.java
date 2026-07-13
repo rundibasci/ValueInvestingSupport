@@ -4,13 +4,16 @@ import it.mazzoni.vis.config.ValuationDefaultsProperties;
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.InsiderTrade;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.TransactionType;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.InsiderTradeRepository;
 import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
@@ -18,6 +21,7 @@ import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.SourceTracker;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationParams;
@@ -41,6 +45,7 @@ public class SeedTickerService {
     private final RatioSnapshotRepository ratioSnapshotRepository;
     private final PriceQuoteRepository priceQuoteRepository;
     private final DividendRecordRepository dividendRecordRepository;
+    private final InsiderTradeRepository insiderTradeRepository;
     private final ValuationService valuationService;
     private final ValueScoreService valueScoreService;
     private final ValuationDefaultsProperties defaults;
@@ -52,6 +57,7 @@ public class SeedTickerService {
                              RatioSnapshotRepository ratioSnapshotRepository,
                              PriceQuoteRepository priceQuoteRepository,
                              DividendRecordRepository dividendRecordRepository,
+                             InsiderTradeRepository insiderTradeRepository,
                              ValuationService valuationService,
                              ValueScoreService valueScoreService,
                              ValuationDefaultsProperties defaults,
@@ -62,6 +68,7 @@ public class SeedTickerService {
         this.ratioSnapshotRepository = ratioSnapshotRepository;
         this.priceQuoteRepository = priceQuoteRepository;
         this.dividendRecordRepository = dividendRecordRepository;
+        this.insiderTradeRepository = insiderTradeRepository;
         this.valuationService = valuationService;
         this.valueScoreService = valueScoreService;
         this.defaults = defaults;
@@ -77,6 +84,7 @@ public class SeedTickerService {
             persistRatios(security, symbol);
             persistPriceQuote(security, symbol);
             persistDividends(security, symbol);
+            persistInsiderTrades(security, symbol);
 
             ValuationParams params = new ValuationParams(
                     defaults.wacc(), defaults.growthY1Y5(), defaults.growthY6Y10(),
@@ -291,6 +299,52 @@ public class SeedTickerService {
             }
             dividendRecordRepository.save(record);
         }
+    }
+
+    private void persistInsiderTrades(Security security, String symbol) {
+        List<FmpInsiderTradingEntry> entries;
+        try {
+            entries = marketDataClient.getInsiderTransactions(symbol);
+        } catch (MarketDataException | UnsupportedOperationException e) {
+            return;
+        }
+
+        for (FmpInsiderTradingEntry entry : entries) {
+            if (entry.transactionDate() == null || entry.reportingName() == null) {
+                continue;
+            }
+            LocalDate tradeDate;
+            try {
+                tradeDate = LocalDate.parse(entry.transactionDate());
+            } catch (Exception ignored) {
+                continue;
+            }
+            if (insiderTradeRepository.existsBySecurityAndTradeDateAndInsiderName(
+                    security, tradeDate, entry.reportingName())) {
+                continue;
+            }
+
+            InsiderTrade trade = new InsiderTrade();
+            trade.setSecurity(security);
+            trade.setTradeDate(tradeDate);
+            trade.setInsiderName(entry.reportingName());
+            trade.setTitle(entry.title());
+            trade.setTransactionType(resolveType(entry.transactionType()));
+            trade.setShares(entry.securitiesTransacted());
+            trade.setPricePerShare(entry.price());
+            if (entry.securitiesTransacted() != null && entry.price() != null) {
+                trade.setTradeValue(entry.price().multiply(BigDecimal.valueOf(entry.securitiesTransacted())));
+            }
+            insiderTradeRepository.save(trade);
+        }
+    }
+
+    private static TransactionType resolveType(String fmpType) {
+        if (fmpType == null) return TransactionType.BUY;
+        String upper = fmpType.toUpperCase();
+        return upper.contains("SALE") || upper.contains("SELL") || upper.startsWith("S-")
+                ? TransactionType.SELL
+                : TransactionType.BUY;
     }
 
     private static BigDecimal valueAt(List<BigDecimal> values, int index) {
