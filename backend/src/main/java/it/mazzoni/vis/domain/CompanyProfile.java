@@ -10,5 +10,7 @@ public record CompanyProfile(
         String country,
         String currency,
         String exchange,
-        BigDecimal marketCap
+        BigDecimal marketCap,
+        String description,
+        String website
 ) {}

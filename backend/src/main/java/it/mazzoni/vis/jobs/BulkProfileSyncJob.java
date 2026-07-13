@@ -75,6 +75,8 @@ public class BulkProfileSyncJob {
             security.setCountry(profile.country());
             security.setCurrency(profile.currency());
             if (profile.marketCap() != null) security.setMarketCap(profile.marketCap());
+            if (hasText(profile.description())) security.setDescription(profile.description());
+            if (hasText(profile.website())) security.setWebsite(profile.website());
             profileLoaded = true;
         } catch (MarketDataException e) {
             log.debug("Profile fetch skipped for {}: {}", entry.symbol(), e.getMessage());
@@ -85,5 +87,9 @@ public class BulkProfileSyncJob {
         if (profileLoaded) {
             eventRecorder.success(entry.symbol(), "profile");
         }
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

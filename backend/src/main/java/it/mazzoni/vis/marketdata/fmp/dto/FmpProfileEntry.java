@@ -14,5 +14,7 @@ public record FmpProfileEntry(
         String currency,
         String exchangeShortName,
         BigDecimal mktCap,
-        BigDecimal price
+        BigDecimal price,
+        String description,
+        String website
 ) {}

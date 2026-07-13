@@ -145,7 +145,9 @@ public class YahooFinanceAdapter {
                 ap != null ? ap.country() : null,
                 sd != null ? sd.currency() : null,
                 null,
-                marketCap
+                marketCap,
+                null,
+                null
         );
     }
 

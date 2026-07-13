@@ -54,7 +54,8 @@ class FmpWithYahooFallbackMarketDataClientTest {
 
     private static CompanyProfile profile() {
         return new CompanyProfile(SYMBOL, "Apple Inc.", "Technology", "Consumer Electronics",
-                "US", "USD", "NASDAQ", BigDecimal.valueOf(2_800_000_000_000L));
+                "US", "USD", "NASDAQ", BigDecimal.valueOf(2_800_000_000_000L),
+                "Apple designs consumer electronics and software.", "https://www.apple.com");
     }
 
     private static FundamentalSnapshot fundamentals() {

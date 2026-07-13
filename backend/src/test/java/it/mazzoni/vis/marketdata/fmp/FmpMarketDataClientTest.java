@@ -63,7 +63,9 @@ class FmpMarketDataClientTest {
     private static final String PROFILE_AAPL = """
             [{"symbol":"AAPL","companyName":"Apple Inc.","sector":"Technology",
               "industry":"Consumer Electronics","country":"US","currency":"USD",
-              "exchangeShortName":"NASDAQ","mktCap":2800000000000,"price":182.5}]
+              "exchangeShortName":"NASDAQ","mktCap":2800000000000,"price":182.5,
+              "description":"Apple designs consumer electronics and software.",
+              "website":"https://www.apple.com"}]
             """;
 
     private static final String INCOME_AAPL = """
@@ -112,6 +114,8 @@ class FmpMarketDataClientTest {
         assertThat(result.companyName()).isEqualTo("Apple Inc.");
         assertThat(result.sector()).isEqualTo("Technology");
         assertThat(result.currency()).isEqualTo("USD");
+        assertThat(result.description()).isEqualTo("Apple designs consumer electronics and software.");
+        assertThat(result.website()).isEqualTo("https://www.apple.com");
     }
 
     @Test

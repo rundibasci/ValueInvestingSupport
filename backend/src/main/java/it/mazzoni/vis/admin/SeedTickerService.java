@@ -124,6 +124,8 @@ public class SeedTickerService {
         security.setCountry(profile.country());
         security.setCurrency(profile.currency());
         if (profile.marketCap() != null) security.setMarketCap(profile.marketCap());
+        if (hasText(profile.description())) security.setDescription(profile.description());
+        if (hasText(profile.website())) security.setWebsite(profile.website());
         return securityRepository.save(security);
     }
 
@@ -396,5 +398,9 @@ public class SeedTickerService {
 
     private static <T> T firstNonNull(T preferred, T fallback) {
         return preferred != null ? preferred : fallback;
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

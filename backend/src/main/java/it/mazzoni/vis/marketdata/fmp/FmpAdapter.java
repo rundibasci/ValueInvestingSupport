@@ -23,7 +23,9 @@ public class FmpAdapter {
                 e.country(),
                 e.currency(),
                 e.exchangeShortName(),
-                e.mktCap()
+                e.mktCap(),
+                e.description(),
+                e.website()
         );
     }
 

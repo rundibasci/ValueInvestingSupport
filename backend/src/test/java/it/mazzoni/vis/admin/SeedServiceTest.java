@@ -107,6 +107,7 @@ class SeedServiceTest {
         assertThat(results.get(0).symbol()).isEqualTo("AAPL");
         assertThat(results.get(0).compositeFairValue()).isEqualByComparingTo("210.50");
         assertThat(results.get(0).totalScore()).isEqualByComparingTo("66.00");
+        assertThat(results.get(0).description()).isEqualTo("Apple Inc. makes ingredient solutions.");
         assertThat(results.get(0).error()).isNull();
         assertThat(results.get(1).symbol()).isEqualTo("KO");
         assertThat(results.get(1).marginOfSafety()).isEqualByComparingTo("18.40");
@@ -219,7 +220,8 @@ class SeedServiceTest {
 
         when(marketDataClient.getProfile(symbol)).thenReturn(
                 new CompanyProfile(symbol, companyName, "Technology", "Consumer Electronics",
-                        "US", "USD", "NASDAQ", new BigDecimal("2000000000000")));
+                        "US", "USD", "NASDAQ", new BigDecimal("2000000000000"),
+                        companyName + " makes ingredient solutions.", "https://example.com"));
         when(securityRepository.findBySymbol(symbol)).thenReturn(Optional.of(security));
         Mockito.lenient().when(marketDataClient.getFundamentals(symbol)).thenReturn(
                 new FundamentalSnapshot(symbol, companyName, "Technology", "Consumer Electronics",

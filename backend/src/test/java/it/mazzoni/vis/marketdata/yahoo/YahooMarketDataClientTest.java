@@ -101,7 +101,8 @@ class YahooMarketDataClientTest {
         when(yahooFinanceClient.getChart(SYMBOL)).thenReturn(cr);
         CompanyProfile expected = new CompanyProfile(
                 SYMBOL, "Apple Inc.", "Technology", "Consumer Electronics",
-                "US", "USD", null, BigDecimal.valueOf(2_800_000_000_000L));
+                "US", "USD", null, BigDecimal.valueOf(2_800_000_000_000L),
+                null, null);
         when(adapter.toCompanyProfile(eq(SYMBOL), any(), any())).thenReturn(expected);
 
         CompanyProfile result = client.getProfile(SYMBOL);
