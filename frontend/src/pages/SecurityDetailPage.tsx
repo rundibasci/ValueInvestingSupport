@@ -47,22 +47,35 @@ const historyWindowSize: Record<HistoryWindow, number | null> = { '3y': 3, '5y':
 const historyWindows: HistoryWindow[] = ['3y', '5y', '10y', 'max']
 function availableHistoryWindows(dataLength: number): HistoryWindow[] { return historyWindows.filter((option) => option === 'max' ? dataLength > 3 : dataLength >= (historyWindowSize[option] ?? 0)) }
 function numericSeries(data: Array<Record<string, number | string | null>>, key: string): number[] { return data.map((item) => item[key]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value)) }
+function windowedData(data: Array<Record<string, number | string | null>>, window: HistoryWindow, dateKey?: string): Array<Record<string, number | string | null>> {
+  const size = historyWindowSize[window]
+  if (size == null) return data
+  if (!dateKey) return data.length <= size ? data : data.slice(-size)
+  const latestDate = [...data].reverse().map((item) => item[dateKey]).find((value): value is string => typeof value === 'string' && !Number.isNaN(Date.parse(value)))
+  if (!latestDate) return data.length <= size ? data : data.slice(-size)
+  const cutoff = new Date(`${latestDate}T00:00:00`)
+  cutoff.setFullYear(cutoff.getFullYear() - size)
+  const filtered = data.filter((item) => {
+    const raw = item[dateKey]
+    return typeof raw === 'string' && !Number.isNaN(Date.parse(raw)) && new Date(`${raw}T00:00:00`) >= cutoff
+  })
+  return filtered.length >= 2 ? filtered : data
+}
 function textOnlySeries(data: Array<Record<string, number | string | null>>, lines: Array<[string, string]>): JSX.Element {
   const latest = [...data].reverse().find((item) => lines.some(([key]) => typeof item[key] === 'number'))
   return <div className="space-y-3"><Unavailable>Historical depth is unavailable or repeated for this metric, so the current value is shown without a chart.</Unavailable><dl className="grid gap-3 sm:grid-cols-2">{lines.map(([key, label]) => <Metric key={key} label={label} value={number(latest?.[key] as number | null | undefined)} />)}</dl></div>
 }
-function Chart({ data, lines, bar = false, valueFormatter = number }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; valueFormatter?: (value: number | null | undefined) => string }): JSX.Element {
+function Chart({ data, lines, bar = false, valueFormatter = number, dateKey, allowFlatSeries = false }: { data: Array<Record<string, number | string | null>>; lines: Array<[string, string]>; bar?: boolean; valueFormatter?: (value: number | null | undefined) => string; dateKey?: string; allowFlatSeries?: boolean }): JSX.Element {
   const [window, setWindow] = useState<HistoryWindow>('10y')
   const windowOptions = useMemo(() => availableHistoryWindows(data.length), [data.length])
   useEffect(() => {
     if (data.length && !windowOptions.includes(window)) setWindow('max')
   }, [data.length, window, windowOptions])
   if (!data.length) return <Unavailable />
-  const size = historyWindowSize[window]
-  const visibleData = size == null || data.length <= size ? data : data.slice(-size)
+  const visibleData = windowedData(data, window, dateKey)
   const candidateData = visibleData.length >= 2 ? visibleData : data
   const populatedSeries = lines.map(([key]) => numericSeries(candidateData, key)).filter((values) => values.length >= 2)
-  if (!populatedSeries.length || populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1)) return textOnlySeries(data, lines)
+  if (!populatedSeries.length || (!allowFlatSeries && populatedSeries.every((values) => new Set(values.map((value) => value.toFixed(6))).size <= 1))) return textOnlySeries(data, lines)
   const Component = bar ? BarChart : LineChart
   return <div><div className="mb-3 flex justify-end">{windowOptions.length > 1 && <div className="inline-flex rounded-lg border border-slate-700 bg-slate-950 p-1">{windowOptions.map((option) => <button key={option} type="button" onClick={() => setWindow(option)} className={`rounded-md px-2.5 py-1 text-xs font-semibold ${window === option ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{option}</button>)}</div>}</div><div className="h-72 min-h-72 min-w-0 w-full" role="img" aria-label={`Historical chart: ${lines.map(([, label]) => label).join(', ')}`}><ResponsiveContainer width="100%" height="100%"><Component data={candidateData} margin={{ left: 8, right: 12 }}><CartesianGrid stroke="#334155" strokeDasharray="3 3" /><XAxis dataKey="label" stroke="#94a3b8" /><YAxis stroke="#94a3b8" tickFormatter={(v) => valueFormatter(Number(v))} width={88} /><Tooltip formatter={(v) => valueFormatter(Number(v))} contentStyle={{ background: '#0f172a', border: '1px solid #334155' }} /><Legend />{lines.map(([key, label], index) => bar ? <Bar key={key} dataKey={key} name={label} fill={['#34d399', '#60a5fa', '#fbbf24'][index]} /> : <Line key={key} type="monotone" dataKey={key} name={label} stroke={['#34d399', '#60a5fa', '#fbbf24', '#f472b6'][index]} strokeWidth={2} dot={false} connectNulls />)}</Component></ResponsiveContainer></div></div>
 }
@@ -102,7 +115,7 @@ export function SecurityDetailPage(): JSX.Element {
     if (tab === 'ratios') return ratios.isLoading ? <Loading /> : <div className="space-y-5"><Card title="Returns and valuation"><Chart data={ratioData} lines={[['pe', 'P/E'], ['roic', 'ROIC'], ['roe', 'ROE']]} /></Card><Card title="Capital structure"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['grossMargin', 'Gross margin'], ['dividendYield', 'Dividend yield']]} /></Card></div>
     if (tab === 'health') return financials.isLoading || ratios.isLoading ? <Loading /> : <div className="space-y-5"><Card title="Earnings and cash-generation trend"><Chart data={annual} lines={[['revenue', 'Revenue'], ['netIncome', 'Net income'], ['fcf', 'Free cash flow']]} valueFormatter={(value) => compactMoney(value, currency)} /></Card><Card title="Resilience indicators"><Chart data={ratioData} lines={[['debtToEquity', 'Debt / equity'], ['roic', 'ROIC'], ['grossMargin', 'Gross margin']]} /><p className="mt-4 text-sm leading-6 text-slate-400">These are trend indicators, not universal safety ratings. Compare capital structure and profitability with the company’s sector and business model. Short/long-term debt, liquidity, interest coverage, and payout coverage are not supplied by the current API and are deliberately shown as unavailable.</p></Card></div>
     if (tab === 'valuation') return <ValuationTab symbol={symbol} currency={currency} query={valuation} />
-    if (tab === 'dividends') return dividends.isLoading ? <Loading /> : <div className="space-y-5"><Card title="Dividend history"><Chart data={[...(dividends.data?.history || [])].reverse().map((x) => ({ label: (x.paymentDate || x.exDividendDate || '').slice(0, 7), amount: x.amount }))} lines={[['amount', 'Dividend per share']]} bar /></Card><Card title="Income profile"><dl className="grid gap-3 sm:grid-cols-4"><Metric label="Consecutive years" value={number(dividends.data?.streak)} /><Metric label="3-year CAGR" value={percent(dividends.data?.cagr3y)} /><Metric label="5-year CAGR" value={percent(dividends.data?.cagr5y)} /><Metric label="10-year CAGR" value={percent(dividends.data?.cagr10y)} /></dl><p className="mt-4 text-sm text-slate-400">Payout and coverage data are not supplied by the current endpoint.</p></Card></div>
+    if (tab === 'dividends') return dividends.isLoading ? <Loading /> : <div className="space-y-5"><Card title="Dividend history"><Chart data={[...(dividends.data?.history || [])].reverse().map((x) => ({ date: x.paymentDate || x.exDividendDate || '', label: (x.paymentDate || x.exDividendDate || '').slice(0, 7), amount: x.amount }))} lines={[['amount', 'Dividend per share']]} bar dateKey="date" allowFlatSeries /></Card><Card title="Income profile"><dl className="grid gap-3 sm:grid-cols-4"><Metric label="Consecutive years" value={number(dividends.data?.streak)} /><Metric label="3-year CAGR" value={percent(dividends.data?.cagr3y)} /><Metric label="5-year CAGR" value={percent(dividends.data?.cagr5y)} /><Metric label="10-year CAGR" value={percent(dividends.data?.cagr10y)} /></dl><p className="mt-4 text-sm text-slate-400">Payout and coverage data are not supplied by the current endpoint.</p></Card></div>
     if (tab === 'growth') return growth.isLoading ? <Loading /> : <Card title="Annual compound growth"><GrowthTable data={growth.data} /></Card>
     return insiders.isLoading ? <Loading /> : <Card title="Recent insider transactions"><div className="overflow-x-auto"><table className="min-w-[680px] w-full text-left text-sm"><thead className="border-b border-slate-700 text-slate-400"><tr><th className="pb-3">Date</th><th>Name</th><th>Role</th><th>Type</th><th>Shares</th><th>Value</th></tr></thead><tbody>{insiders.data?.trades.length ? insiders.data.trades.map((trade, i) => <tr key={`${trade.transactionDate}-${i}`} className="border-b border-slate-800"><td className="py-3">{date(trade.transactionDate)}</td><td>{trade.name || '—'}</td><td>{trade.title || '—'}</td><td>{trade.transactionType || '—'}</td><td>{number(trade.shares)}</td><td>{money(trade.totalValue, currency)}</td></tr>) : <tr><td colSpan={6} className="py-5 text-slate-400">No insider-trade history is available.</td></tr>}</tbody></table></div></Card>
   }
