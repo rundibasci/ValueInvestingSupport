@@ -735,6 +735,18 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
   - Stability criteria are individually visible, not hidden inside a composite score
   - Capital allocator classification flags empire builders and net diluters
 
+### Phase MA3: Moat Data Depth & Derived ROIC Fallback
+- **Provider limitation surfaced by real-demo validation:** FMP stable ratio/key-metric endpoints may return only one usable annual ROIC observation for some symbols (observed on `INGR`), leaving `moatStrength` and `roicTrend` correctly marked `INSUFFICIENT_DATA` even when 10+ years of fundamentals are available.
+- **Historical ROIC fallback:** derive annual ROIC internally from persisted annual fundamentals and balance-sheet fields when provider ROIC history is unavailable. Prefer provider ROIC when at least five annual observations exist; otherwise compute a documented fallback using NOPAT and invested-capital proxies with explicit formula/source metadata.
+- **Balance-sheet depth:** persist annual total equity, total debt, cash, operating income/EBIT, tax-rate proxy, and any available working-capital/invested-capital inputs for each historical fiscal year, not only the latest year.
+- **Source transparency:** expose per-year ROIC source (`FMP_RATIO`, `FMP_KEY_METRIC`, `DERIVED_INTERNAL`, `UNAVAILABLE`) and formula notes in the moat endpoint/review packet so users can distinguish provider data from computed fallback.
+- **Validation symbols:** include `INGR` as a regression symbol proving that a 10-year fundamental history no longer leaves the moat section stuck on provider-limited ROIC when enough balance-sheet inputs exist.
+- Acceptance checklist:
+  - `MoatAssessmentService` can classify moat strength from derived ROIC when provider ROIC has fewer than five observations but historical fundamentals are sufficient
+  - Review page shows derived/provider ROIC provenance without presenting derived values as provider facts
+  - `INSUFFICIENT_DATA` remains the output when neither provider nor derived inputs support at least five annual ROIC observations
+  - Tests cover provider-history path, derived fallback path, and true insufficient-data path
+
 ---
 
 ## Group J (continued) — Google Sign-In UI & Validation
@@ -1176,7 +1188,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M10: Google Sign-In (Backend)** | J1 | FMP primary / Yahoo fallback | Google OIDC backend — OAuth2 login, account linking, token handoff |
 | **M11: Valuation Model Depth** | VM1, VM2 | FMP primary / Yahoo fallback | WACC calculator, DCF sensitivity matrix, EPV conservative floor, owner earnings, Graham criteria checklist, composite weight configurability |
 | **M12: Scoring & Risk Intelligence** | SR1, SR2 | FMP primary / Yahoo fallback | MoS gate rule, sector-adaptive score weights, Piotroski F-Score, Altman Z-Score, cyclicality detection, earnings quality ratio |
-| **M13: Moat & Business Quality** | MA1, MA2 | FMP primary / Yahoo fallback | ROIC consistency moat analysis, capital allocation tracking, historical valuation bands, long-term stability scoring |
+| **M13: Moat & Business Quality** | MA1, MA2, MA3 | FMP primary / Yahoo fallback | ROIC consistency moat analysis, capital allocation tracking, historical valuation bands, long-term stability scoring, derived ROIC fallback for provider-limited history |
 | **M14: Google Sign-In (Completion)** | J2, J3 | FMP primary / Yahoo fallback | Google Sign-In UI, account lifecycle, security/integration/operational validation |
 | **M15: Job Control** | JC1, JC2 | FMP primary / Yahoo fallback | Job run history, per-symbol ingestion events, runtime enable/disable, cron update, scoped partial ingestion triggers |
 | **M16: Portfolio Intelligence** | PI1, PI2 | FMP primary / Yahoo fallback | Portfolio-level analytics, liquidity assessment, benchmark comparison, smart rebalancing with cost/urgency/tax awareness |

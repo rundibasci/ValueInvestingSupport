@@ -144,10 +144,15 @@ function DataGap({ children }: { children: ReactNode }): JSX.Element {
   return <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">{children}</p>
 }
 
+function InfoNote({ children }: { children: ReactNode }): JSX.Element {
+  return <p className="rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-sm leading-6 text-slate-300">{children}</p>
+}
+
 function professionalLevelClass(level: string | null | undefined): string {
   const normalized = (level || '').toUpperCase()
   if (normalized === 'HIGH' || normalized === 'PASS') return 'bg-emerald-300/15 text-emerald-100'
   if (normalized === 'LOW' || normalized === 'FAIL' || normalized === 'CRITICAL') return 'bg-rose-400/15 text-rose-100'
+  if (normalized === 'INFO') return 'bg-slate-700/60 text-slate-200'
   return 'bg-amber-300/15 text-amber-100'
 }
 
@@ -200,7 +205,7 @@ function ProfessionalReviewPanel({
               </p>
             ))}
           </div>
-        ) : <DataGap>No cross-verification warnings are currently reported. This does not replace source filing review.</DataGap>}
+        ) : <InfoNote>No cross-verification warnings are currently reported. This does not replace source filing review.</InfoNote>}
       </Panel>
       <Panel title="Checklist evaluation">
         {checklists?.length ? (
@@ -222,7 +227,7 @@ function ProfessionalReviewPanel({
               </div>
             )}
           </div>
-        ) : <DataGap>Create a checklist from the Checklists page before evaluating this symbol.</DataGap>}
+        ) : <InfoNote>Create a checklist from the Checklists page before evaluating this symbol.</InfoNote>}
       </Panel>
       {sector && <p className="lg:col-span-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-sm text-slate-400">Circle-of-competence indicators use your saved sectors. Current sector: {sector}.</p>}
     </div>
@@ -270,6 +275,8 @@ function QualityBadge({ value }: { value: string | null | undefined }): JSX.Elem
     ? 'bg-emerald-300/15 text-emerald-100'
     : caution.includes(normalized)
       ? 'bg-rose-400/15 text-rose-100'
+      : normalized === 'INSUFFICIENT_DATA'
+        ? 'bg-slate-700/60 text-slate-200'
       : 'bg-amber-300/15 text-amber-100'
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes}`}>{normalized.replace(/_/g, ' ').toLowerCase()}</span>
 }

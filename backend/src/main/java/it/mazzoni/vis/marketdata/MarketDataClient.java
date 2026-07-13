@@ -18,6 +18,9 @@ public interface MarketDataClient {
     CompanyProfile getProfile(String symbol);
     FundamentalSnapshot getFundamentals(String symbol);
     RatioSnapshot getRatios(String symbol);
+    default List<RatioSnapshot> getAnnualRatios(String symbol) {
+        return List.of(getRatios(symbol));
+    }
     MarketPriceQuote getQuote(String symbol);
 
     /** Returns all tradable stocks for the given exchange short name (e.g. "NYSE", "NASDAQ"). */

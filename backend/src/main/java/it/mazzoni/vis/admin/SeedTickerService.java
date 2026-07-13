@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -133,8 +134,9 @@ public class SeedTickerService {
         List<BigDecimal> netIncomeHistory = data.netIncomeHistory() != null ? data.netIncomeHistory() : List.of();
         List<BigDecimal> fcfHistory = data.fcfHistory() != null ? data.fcfHistory() : List.of();
         List<BigDecimal> epsHistory = data.epsHistory() != null ? data.epsHistory() : List.of();
+        List<Long> sharesHistory = data.sharesOutstandingHistory() != null ? data.sharesOutstandingHistory() : List.of();
         int historySize = Math.max(1, Math.max(revenueHistory.size(),
-                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), epsHistory.size()))));
+                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), Math.max(epsHistory.size(), sharesHistory.size())))));
         int currentYear = today.getYear();
 
         fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.ANNUAL);
@@ -150,15 +152,18 @@ public class SeedTickerService {
             entity.setPeriod(Period.ANNUAL);
             entity.setFiscalYear(currentYear - i);
             entity.setReportDate(reportDate);
+            Long annualShares = firstNonNull(longAt(sharesHistory, i),
+                    estimateShares(valueAt(netIncomeHistory, i), valueAt(epsHistory, i)));
+            if (annualShares != null) {
+                entity.setSharesOutstanding(annualShares);
+            }
             if (i == 0) {
-                entity.setEps(data.epsTtm());
-                entity.setEpsDiluted(data.epsTtm());
-                entity.setSharesOutstanding(data.sharesOutstanding());
                 entity.setTotalDebt(data.totalDebt());
                 entity.setCash(data.cash());
-                if (data.bookValuePerShare() != null && data.sharesOutstanding() != null) {
+                Long sharesForEquity = annualShares != null ? annualShares : data.sharesOutstanding();
+                if (data.bookValuePerShare() != null && sharesForEquity != null) {
                     entity.setTotalEquity(data.bookValuePerShare()
-                            .multiply(BigDecimal.valueOf(data.sharesOutstanding())));
+                            .multiply(BigDecimal.valueOf(sharesForEquity)));
                 }
             }
             entity.setRevenue(valueAt(revenueHistory, i));
@@ -190,14 +195,18 @@ public class SeedTickerService {
     }
 
     private void persistRatios(Security security, String symbol) {
-        it.mazzoni.vis.domain.RatioSnapshot data = marketDataClient.getRatios(symbol);
+        List<it.mazzoni.vis.domain.RatioSnapshot> annualRatios = marketDataClient.getAnnualRatios(symbol);
+        if (annualRatios == null || annualRatios.isEmpty()) {
+            annualRatios = List.of(marketDataClient.getRatios(symbol));
+        }
+        it.mazzoni.vis.domain.RatioSnapshot data = annualRatios.get(0);
         ratioSnapshotRepository.deleteBySecurityAndPeriod(security, Period.TTM);
-        ratioSnapshotRepository.deleteAll(ratioSnapshotRepository
-                .findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
-                .stream()
-                .filter(snapshot -> sameRatioValues(snapshot, data))
-                .toList());
+        ratioSnapshotRepository.deleteBySecurityAndPeriod(security, Period.ANNUAL);
 
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < annualRatios.size(); i++) {
+            persistRatioSnapshot(security, annualRatios.get(i), Period.ANNUAL, today.minusYears(i));
+        }
         persistRatioSnapshot(security, data, Period.TTM, LocalDate.now());
     }
 
@@ -349,5 +358,20 @@ public class SeedTickerService {
 
     private static BigDecimal valueAt(List<BigDecimal> values, int index) {
         return index < values.size() ? values.get(index) : null;
+    }
+
+    private static Long longAt(List<Long> values, int index) {
+        return index < values.size() ? values.get(index) : null;
+    }
+
+    private static Long estimateShares(BigDecimal netIncome, BigDecimal eps) {
+        if (netIncome == null || eps == null || eps.compareTo(BigDecimal.ZERO) == 0) {
+            return null;
+        }
+        return netIncome.divide(eps, 0, RoundingMode.HALF_UP).longValue();
+    }
+
+    private static <T> T firstNonNull(T preferred, T fallback) {
+        return preferred != null ? preferred : fallback;
     }
 }

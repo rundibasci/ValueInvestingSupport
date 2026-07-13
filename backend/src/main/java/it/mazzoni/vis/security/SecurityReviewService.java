@@ -29,6 +29,7 @@ import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.StabilityService;
 import it.mazzoni.vis.moat.ValuationHistoryService;
 import it.mazzoni.vis.moat.dto.CapitalAllocationResponse;
 import it.mazzoni.vis.moat.dto.MoatResponse;
@@ -102,6 +103,7 @@ public class SecurityReviewService {
     private final GrowthService growthService;
     private final MoatAssessmentService moatAssessmentService;
     private final CapitalAllocationService capitalAllocationService;
+    private final StabilityService stabilityService;
     private final ValuationHistoryService valuationHistoryService;
 
     public SecurityReviewService(SecurityRepository securityRepository,
@@ -123,6 +125,7 @@ public class SecurityReviewService {
                                  GrowthService growthService,
                                  MoatAssessmentService moatAssessmentService,
                                  CapitalAllocationService capitalAllocationService,
+                                 StabilityService stabilityService,
                                  ValuationHistoryService valuationHistoryService) {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
@@ -143,6 +146,7 @@ public class SecurityReviewService {
         this.growthService = growthService;
         this.moatAssessmentService = moatAssessmentService;
         this.capitalAllocationService = capitalAllocationService;
+        this.stabilityService = stabilityService;
         this.valuationHistoryService = valuationHistoryService;
     }
 
@@ -197,6 +201,7 @@ public class SecurityReviewService {
                 .map(EarningsQualityResponse::from)
                 .orElse(null);
         var moatResult = moatAssessmentService.analyze(security);
+        stabilityService.assess(security);
         MoatResponse moat = MoatResponse.from(moatResult,
                 stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(security, moatResult.getResultDate()));
         CapitalAllocationResponse capitalAllocation = CapitalAllocationResponse.from(capitalAllocationService.analyze(security));

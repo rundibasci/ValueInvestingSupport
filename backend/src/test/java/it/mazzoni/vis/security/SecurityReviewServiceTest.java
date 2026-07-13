@@ -34,6 +34,7 @@ import it.mazzoni.vis.security.domain.AnalystEstimateRepository;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
 import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.StabilityService;
 import it.mazzoni.vis.moat.ValuationHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +71,7 @@ class SecurityReviewServiceTest {
     @Mock AnalystEstimateRepository analystEstimateRepository;
     @Mock MoatAssessmentService moatAssessmentService;
     @Mock CapitalAllocationService capitalAllocationService;
+    @Mock StabilityService stabilityService;
     @Mock ValuationHistoryService valuationHistoryService;
 
     SecurityReviewService service;
@@ -96,6 +98,7 @@ class SecurityReviewServiceTest {
                 new GrowthService(),
                 moatAssessmentService,
                 capitalAllocationService,
+                stabilityService,
                 valuationHistoryService
         );
     }

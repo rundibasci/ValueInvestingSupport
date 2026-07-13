@@ -19,6 +19,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -233,6 +235,36 @@ class FmpMarketDataClientTest {
     }
 
     @Test
+    void getAnnualRatios_returnsProviderHistoryWithKeyMetrics() {
+        wireMock.stubFor(get(urlPathEqualTo("/ratios"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .withQueryParam("limit", equalTo("11"))
+                .willReturn(okJson("""
+                        [
+                          {"symbol":"INGR","date":"2025-12-31","priceToEarningsRatio":9.706,
+                           "priceToBookRatio":1.632,"grossProfitMargin":0.253},
+                          {"symbol":"INGR","date":"2024-12-31","priceToEarningsRatio":11.2,
+                           "priceToBookRatio":1.5,"grossProfitMargin":0.247}
+                        ]
+                        """)));
+        wireMock.stubFor(get(urlPathEqualTo("/key-metrics"))
+                .withQueryParam("symbol", equalTo("INGR"))
+                .withQueryParam("limit", equalTo("11"))
+                .willReturn(okJson("""
+                        [
+                          {"symbol":"INGR","date":"2025-12-31","returnOnInvestedCapital":0.118},
+                          {"symbol":"INGR","date":"2024-12-31","returnOnInvestedCapital":0.109}
+                        ]
+                        """)));
+
+        List<RatioSnapshot> result = client.getAnnualRatios("INGR");
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).roic()).isEqualByComparingTo("0.118");
+        assertThat(result.get(1).roic()).isEqualByComparingTo("0.109");
+    }
+
+    @Test
     void getFundamentals_returnsMappedSnapshot() {
         wireMock.stubFor(get(urlPathEqualTo("/income-statement"))
                 .withQueryParam("symbol", equalTo("AAPL"))
@@ -253,6 +285,7 @@ class FmpMarketDataClientTest {
         assertThat(result.companyName()).isEqualTo("Apple Inc.");
         assertThat(result.epsTtm()).isEqualByComparingTo("6.13");
         assertThat(result.revenueHistory()).hasSize(1);
+        assertThat(result.sharesOutstandingHistory()).containsExactly(15_552_752_000L);
         assertThat(result.fcfHistory()).hasSize(1);
     }
 

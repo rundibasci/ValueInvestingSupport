@@ -178,17 +178,16 @@ class SeedServiceTest {
     }
 
     @Test
-    void seedTickers_currentRatiosDoNotCreateSyntheticAnnualHistory() {
+    void seedTickers_persistsProviderAnnualRatioHistory() {
         stubFmpData("AAPL", "Apple Inc.");
         stubValuation("AAPL", new BigDecimal("200.00"), new BigDecimal("10.00"), Recommendation.QUALITY_VALUE);
 
         seedService.seedTickers(List.of("AAPL"));
 
         verify(ratioSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.TTM));
-        verify(ratioSnapshotRepository).findBySecurityAndPeriodOrderByReportDateDesc(
-                any(Security.class), eq(Period.ANNUAL));
-        verify(ratioSnapshotRepository).deleteAll(List.of());
-        verify(ratioSnapshotRepository, times(1)).save(any());
+        verify(ratioSnapshotRepository).deleteBySecurityAndPeriod(any(Security.class), eq(Period.ANNUAL));
+        verify(marketDataClient).getAnnualRatios("AAPL");
+        verify(ratioSnapshotRepository, times(3)).save(any());
     }
 
     @Test
@@ -231,9 +230,17 @@ class SeedServiceTest {
                         List.of(new BigDecimal("111443000000")),
                         new BigDecimal("78075000000"),
                         new BigDecimal("108040000000"), new BigDecimal("29965000000")));
-        when(marketDataClient.getRatios(symbol)).thenReturn(
+        Mockito.lenient().when(marketDataClient.getRatios(symbol)).thenReturn(
                 new RatioSnapshot(symbol, new BigDecimal("28.5"), null, null, null,
                         null, null, null, null, null, null, null));
+        when(marketDataClient.getAnnualRatios(symbol)).thenReturn(List.of(
+                new RatioSnapshot(symbol, new BigDecimal("28.5"), null, new BigDecimal("1.8"),
+                        new BigDecimal("0.20"), null, new BigDecimal("0.14"), null, null,
+                        null, null, null, null, null, null),
+                new RatioSnapshot(symbol, new BigDecimal("25.0"), null, new BigDecimal("1.6"),
+                        new BigDecimal("0.18"), null, new BigDecimal("0.13"), null, null,
+                        null, null, null, null, null, null)
+        ));
         when(marketDataClient.getQuote(symbol)).thenReturn(
                 new MarketPriceQuote(symbol, new BigDecimal("182.50"), "USD", null, null));
         when(marketDataClient.getDividendHistory(symbol)).thenReturn(List.of(

@@ -68,6 +68,7 @@ public class YahooFinanceAdapter {
                 netIncomeHistory,
                 fcfHistory,
                 List.of(),
+                shares != null ? List.of(shares) : List.of(),
                 netDebt,
                 totalDebt,
                 cash

@@ -112,6 +112,27 @@ public class FmpMarketDataClient implements MarketDataClient {
     }
 
     @Override
+    @Cacheable(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)")
+    public List<RatioSnapshot> getAnnualRatios(String symbol) {
+        List<FmpRatiosEntry> ratios = fetchList(
+                "/ratios", symbol, 11, new ParameterizedTypeReference<>() {});
+        if (ratios.isEmpty()) {
+            throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol);
+        }
+        List<FmpKeyMetricsEntry> fetchedKeyMetrics;
+        try {
+            fetchedKeyMetrics = fetchList("/key-metrics", symbol, 11, new ParameterizedTypeReference<>() {});
+        } catch (MarketDataException ignored) {
+            fetchedKeyMetrics = List.of();
+        }
+        List<FmpKeyMetricsEntry> keyMetrics = fetchedKeyMetrics;
+        return ratios.stream()
+                .limit(11)
+                .map(ratio -> adapter.toRatioSnapshot(symbol, ratio, matchingMetric(ratio, keyMetrics)))
+                .toList();
+    }
+
+    @Override
     @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)")
     public MarketPriceQuote getQuote(String symbol) {
         List<FmpQuoteEntry> quotes = fetchList(
@@ -240,6 +261,14 @@ public class FmpMarketDataClient implements MarketDataClient {
                         e -> new MarketDataException(
                                 MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e))
                 .block();
+    }
+
+    private FmpKeyMetricsEntry matchingMetric(FmpRatiosEntry ratio, List<FmpKeyMetricsEntry> keyMetrics) {
+        if (ratio.date() == null) return null;
+        return keyMetrics.stream()
+                .filter(metric -> ratio.date().equals(metric.date()))
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean isRetryable(Throwable t) {

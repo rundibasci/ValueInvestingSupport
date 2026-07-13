@@ -44,9 +44,6 @@ public class DataVerificationService {
             addLargeChangeFlag(flags, "revenue", annuals.get(0).getRevenue(), annuals.get(1).getRevenue());
             addLargeChangeFlag(flags, "eps", annuals.get(0).getEps(), annuals.get(1).getEps());
         }
-        if (flags.isEmpty()) {
-            flags.add(flag("verification", "INFO", "No deterministic verification flags were triggered."));
-        }
         return new VerificationResponse(upper, flags);
     }
 

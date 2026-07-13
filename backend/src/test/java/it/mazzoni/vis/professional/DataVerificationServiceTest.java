@@ -15,6 +15,24 @@ import static org.mockito.Mockito.*;
 
 class DataVerificationServiceTest {
     @Test
+    void returnsNoFlagsWhenVerificationPasses() {
+        Security security = new Security();
+        security.setSymbol("INGR");
+        SecurityRepository securities = mock(SecurityRepository.class);
+        FundamentalSnapshotRepository fundamentals = mock(FundamentalSnapshotRepository.class);
+        when(securities.findBySymbol("INGR")).thenReturn(Optional.of(security));
+
+        FundamentalSnapshot latest = completeSnapshot("2026-07-13", "100", "10");
+        FundamentalSnapshot prior = completeSnapshot("2025-07-13", "95", "9");
+        when(fundamentals.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(latest, prior));
+
+        var response = new DataVerificationService(securities, fundamentals).check("ingr");
+
+        assertThat(response.flags()).isEmpty();
+    }
+
+    @Test
     void flagsMissingCriticalFields() {
         Security security = new Security();
         security.setSymbol("MSFT");
@@ -33,5 +51,16 @@ class DataVerificationServiceTest {
         var response = new DataVerificationService(securities, fundamentals).check("msft");
 
         assertThat(response.flags()).anyMatch(flag -> flag.field().equals("criticalFields"));
+    }
+
+    private FundamentalSnapshot completeSnapshot(String reportDate, String revenue, String eps) {
+        FundamentalSnapshot snapshot = new FundamentalSnapshot();
+        snapshot.setReportDate(LocalDate.parse(reportDate));
+        snapshot.setRevenue(new BigDecimal(revenue));
+        snapshot.setEps(new BigDecimal(eps));
+        snapshot.setTotalEquity(new BigDecimal("50"));
+        snapshot.setFreeCashFlow(new BigDecimal("8"));
+        snapshot.setSharesOutstanding(10_000_000L);
+        return snapshot;
     }
 }
