@@ -102,6 +102,33 @@ class RatiosControllerTest {
                 .andExpect(jsonPath("$.ratios[0].pe").value(28.4));
     }
 
+    @Test
+    void ratios_currentFmpRowWithRepeatedLegacyTail_returnsCurrentRowOnly() throws Exception {
+        Security s = security("INGR");
+        when(securityRepository.findBySymbol("INGR")).thenReturn(Optional.of(s));
+        when(ratioSnapshotRepository.findBySecurity(s))
+                .thenReturn(List.of(
+                        ratioSnapshot(LocalDate.of(2026, 7, 13),
+                                "9.7060", "0.1182", "0.1680", "0.2532"),
+                        ratioSnapshot(LocalDate.of(2025, 12, 31),
+                                "9.3865", null, "0.1619", null),
+                        ratioSnapshot(LocalDate.of(2024, 12, 31),
+                                "9.3865", null, "0.1619", null),
+                        ratioSnapshot(LocalDate.of(2023, 12, 31),
+                                "9.3865", null, "0.1619", null),
+                        ratioSnapshot(LocalDate.of(2022, 12, 31),
+                                "9.3865", null, "0.1619", null),
+                        ratioSnapshot(LocalDate.of(2021, 12, 31),
+                                "9.3865", null, "0.1619", null)));
+
+        mockMvc.perform(get("/api/v1/securities/INGR/ratios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ratios.length()").value(1))
+                .andExpect(jsonPath("$.ratios[0].date").value("2026-07-13"))
+                .andExpect(jsonPath("$.ratios[0].roic").value(0.1182))
+                .andExpect(jsonPath("$.ratios[0].grossMargin").value(0.2532));
+    }
+
     private Security security(String symbol) {
         Security s = new Security();
         s.setSymbol(symbol);
@@ -110,15 +137,23 @@ class RatiosControllerTest {
     }
 
     private RatioSnapshot ratioSnapshot(LocalDate date) {
+        return ratioSnapshot(date, "28.4", "26.4", "147.3", "46.2");
+    }
+
+    private RatioSnapshot ratioSnapshot(LocalDate date, String pe, String roic, String roe, String grossMargin) {
         RatioSnapshot r = new RatioSnapshot();
         r.setPeriod(Period.TTM);
         r.setReportDate(date);
-        r.setPeRatio(new BigDecimal("28.4"));
-        r.setRoic(new BigDecimal("26.4"));
-        r.setRoe(new BigDecimal("147.3"));
+        r.setPeRatio(decimal(pe));
+        r.setRoic(decimal(roic));
+        r.setRoe(decimal(roe));
         r.setDebtToEquity(new BigDecimal("1.87"));
-        r.setGrossMargin(new BigDecimal("46.2"));
+        r.setGrossMargin(decimal(grossMargin));
         r.setDividendYield(new BigDecimal("0.56"));
         return r;
+    }
+
+    private BigDecimal decimal(String value) {
+        return value != null ? new BigDecimal(value) : null;
     }
 }

@@ -60,10 +60,19 @@ public class RatiosController {
     }
 
     private static boolean hasRepeatedCoreHistory(List<RatioSnapshotItem> items) {
-        return items.size() >= 6
+        if (items.size() < 6) {
+            return false;
+        }
+        return repeatedCore(items)
+                || repeatedCore(items.subList(1, items.size()));
+    }
+
+    private static boolean repeatedCore(List<RatioSnapshotItem> items) {
+        return items.size() >= 5
                 && distinctCount(items.stream().map(RatioSnapshotItem::pe).toList())
                 + distinctCount(items.stream().map(RatioSnapshotItem::roic).toList())
-                + distinctCount(items.stream().map(RatioSnapshotItem::roe).toList()) <= 3;
+                + distinctCount(items.stream().map(RatioSnapshotItem::roe).toList())
+                + distinctCount(items.stream().map(RatioSnapshotItem::grossMargin).toList()) <= 4;
     }
 
     private static long distinctCount(List<BigDecimal> values) {
