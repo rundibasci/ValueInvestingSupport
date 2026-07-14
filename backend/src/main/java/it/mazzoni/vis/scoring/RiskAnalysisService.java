@@ -19,6 +19,7 @@ public class RiskAnalysisService {
     private final SecurityRepository securityRepository;
     private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
     private final RatioSnapshotRepository ratioSnapshotRepository;
+    private final PriceQuoteRepository priceQuoteRepository;
     private final PiotroskiResultRepository piotroskiResultRepository;
     private final AltmanResultRepository altmanResultRepository;
     private final CyclicalityResultRepository cyclicalityResultRepository;
@@ -27,6 +28,7 @@ public class RiskAnalysisService {
     public RiskAnalysisService(SecurityRepository securityRepository,
                                FundamentalSnapshotRepository fundamentalSnapshotRepository,
                                RatioSnapshotRepository ratioSnapshotRepository,
+                               PriceQuoteRepository priceQuoteRepository,
                                PiotroskiResultRepository piotroskiResultRepository,
                                AltmanResultRepository altmanResultRepository,
                                CyclicalityResultRepository cyclicalityResultRepository,
@@ -34,6 +36,7 @@ public class RiskAnalysisService {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.ratioSnapshotRepository = ratioSnapshotRepository;
+        this.priceQuoteRepository = priceQuoteRepository;
         this.piotroskiResultRepository = piotroskiResultRepository;
         this.altmanResultRepository = altmanResultRepository;
         this.cyclicalityResultRepository = cyclicalityResultRepository;
@@ -94,7 +97,7 @@ public class RiskAnalysisService {
         BigDecimal x1 = workingCapitalToAssets(ratio, latest);
         BigDecimal x2 = ratio(latest.getNetIncome(), latest.getTotalAssets());
         BigDecimal x3 = ratio(latest.getOperatingIncome(), latest.getTotalAssets());
-        BigDecimal x4 = ratio(security.getMarketCap(), latest.getTotalLiabilities());
+        BigDecimal x4 = ratio(marketValueEquity(security, latest), latest.getTotalLiabilities());
         BigDecimal x5 = ratio(latest.getRevenue(), latest.getTotalAssets());
         result.setWorkingCapitalToAssets(x1);
         result.setRetainedEarningsToAssets(x2);
@@ -243,6 +246,20 @@ public class RiskAnalysisService {
             return null;
         }
         return currentRatio.subtract(BigDecimal.ONE).divide(currentRatio, 4, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal marketValueEquity(Security security, FundamentalSnapshot latest) {
+        if (security.getMarketCap() != null && security.getMarketCap().compareTo(ZERO) > 0) {
+            return security.getMarketCap();
+        }
+        if (latest.getSharesOutstanding() == null || latest.getSharesOutstanding() <= 0) {
+            return null;
+        }
+        return priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
+                .map(PriceQuote::getClose)
+                .filter(close -> close != null && close.compareTo(ZERO) > 0)
+                .map(close -> close.multiply(BigDecimal.valueOf(latest.getSharesOutstanding())))
+                .orElse(null);
     }
 
     private boolean isManufacturing(Security security) {

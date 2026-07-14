@@ -22,6 +22,7 @@ class RiskAnalysisServiceTest {
     @Mock SecurityRepository securityRepository;
     @Mock FundamentalSnapshotRepository fundamentalSnapshotRepository;
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
+    @Mock PriceQuoteRepository priceQuoteRepository;
     @Mock PiotroskiResultRepository piotroskiResultRepository;
     @Mock AltmanResultRepository altmanResultRepository;
     @Mock CyclicalityResultRepository cyclicalityResultRepository;
@@ -33,7 +34,8 @@ class RiskAnalysisServiceTest {
     @BeforeEach
     void setUp() {
         service = new RiskAnalysisService(securityRepository, fundamentalSnapshotRepository, ratioSnapshotRepository,
-                piotroskiResultRepository, altmanResultRepository, cyclicalityResultRepository, earningsQualityResultRepository);
+                priceQuoteRepository, piotroskiResultRepository, altmanResultRepository, cyclicalityResultRepository,
+                earningsQualityResultRepository);
         security = new Security();
         security.setSymbol("ACME");
         security.setCompanyName("Acme Inc.");
@@ -96,6 +98,26 @@ class RiskAnalysisServiceTest {
 
         assertThat(result.getFormulaVariant()).isEqualTo(AltmanFormulaVariant.NON_MANUFACTURING);
         assertThat(result.getZone()).isEqualTo(AltmanZone.DISTRESS);
+    }
+
+    @Test
+    void computeAltman_derivesMarketEquityFromLatestQuoteWhenProfileMarketCapIsMissing() {
+        security.setMarketCap(null);
+        FundamentalSnapshot latest = annual(new BigDecimal("1000"), new BigDecimal("100"),
+                new BigDecimal("140"), new BigDecimal("1000"), new BigDecimal("300"), 100L);
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(Optional.of(latest));
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(List.of(ratio(new BigDecimal("2.0"), new BigDecimal("0.40"))));
+        PriceQuote quote = new PriceQuote();
+        quote.setClose(new BigDecimal("9.00"));
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
+
+        AltmanResult result = service.computeAltman("ACME");
+
+        assertThat(result.getMarketValueEquityToLiabilities()).isEqualByComparingTo("3.0000");
+        assertThat(result.getAvailabilityStatus()).isEqualTo(RiskAvailabilityStatus.AVAILABLE);
+        assertThat(result.getZone()).isEqualTo(AltmanZone.SAFE);
     }
 
     @Test

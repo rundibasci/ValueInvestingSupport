@@ -4,6 +4,11 @@ import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.Period;
+import it.mazzoni.vis.domain.entity.PriceQuote;
+import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +38,19 @@ public class UniverseSelectionService {
 
     private final MarketDataClient marketDataClient;
     private final SecurityRepository securityRepository;
+    private final FundamentalSnapshotRepository fundamentalSnapshotRepository;
+    private final PriceQuoteRepository priceQuoteRepository;
     private final SeedService seedService;
 
     public UniverseSelectionService(MarketDataClient marketDataClient,
                                     SecurityRepository securityRepository,
+                                    FundamentalSnapshotRepository fundamentalSnapshotRepository,
+                                    PriceQuoteRepository priceQuoteRepository,
                                     SeedService seedService) {
         this.marketDataClient = marketDataClient;
         this.securityRepository = securityRepository;
+        this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
+        this.priceQuoteRepository = priceQuoteRepository;
         this.seedService = seedService;
     }
 
@@ -125,15 +136,20 @@ public class UniverseSelectionService {
 
     private List<FmpStockListEntry> loadEntriesForExchange(String exchange) {
         try {
-            return marketDataClient.listSymbols(exchange);
+            List<FmpStockListEntry> entries = marketDataClient.listSymbols(exchange);
+            if (entries != null && !entries.isEmpty()) {
+                return entries;
+            }
+            log.warn("FMP universe list returned no symbols for exchange {}. Falling back to seeded securities.",
+                    exchange);
         } catch (MarketDataException e) {
             log.warn("FMP universe list unavailable for exchange {}: {}. Falling back to seeded securities.",
                     exchange, e.getMessage());
-            return securityRepository.findAll().stream()
-                    .filter(security -> exchangeMatches(security, exchange))
-                    .map(UniverseSelectionService::toStockListEntry)
-                    .toList();
         }
+        return securityRepository.findAll().stream()
+                .filter(security -> exchangeMatches(security, exchange))
+                .map(this::toStockListEntry)
+                .toList();
     }
 
     private static Predicate<FmpStockListEntry> hasSymbol() {
@@ -167,7 +183,7 @@ public class UniverseSelectionService {
 
     private static Predicate<FmpStockListEntry> matchesVolume(Long volumeMin) {
         if (volumeMin == null) return entry -> true;
-        return entry -> entry.volume() == null || entry.volume() >= volumeMin;
+        return entry -> entry.volume() != null && entry.volume() >= volumeMin;
     }
 
     private static Comparator<UniversePreviewRow> comparator(UniverseSortBy sortBy) {
@@ -197,7 +213,18 @@ public class UniverseSelectionService {
                 entry.volume());
     }
 
-    private static FmpStockListEntry toStockListEntry(Security security) {
+    private FmpStockListEntry toStockListEntry(Security security) {
+        PriceQuote latestQuote = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security).orElse(null);
+        BigDecimal marketCap = security.getMarketCap();
+        if (marketCap == null && latestQuote != null && latestQuote.getClose() != null) {
+            Long shares = fundamentalSnapshotRepository
+                    .findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
+                    .map(FundamentalSnapshot::getSharesOutstanding)
+                    .orElse(null);
+            if (shares != null && shares > 0 && latestQuote.getClose().compareTo(BigDecimal.ZERO) > 0) {
+                marketCap = latestQuote.getClose().multiply(BigDecimal.valueOf(shares));
+            }
+        }
         return new FmpStockListEntry(
                 security.getSymbol(),
                 security.getCompanyName(),
@@ -207,8 +234,8 @@ public class UniverseSelectionService {
                 security.getExchange(),
                 "stock",
                 null,
-                security.getMarketCap(),
-                null);
+                marketCap,
+                latestQuote != null ? latestQuote.getVolume() : null);
     }
 
     private static boolean exchangeMatches(Security security, String exchange) {

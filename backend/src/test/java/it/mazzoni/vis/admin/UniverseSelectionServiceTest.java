@@ -1,7 +1,12 @@
 package it.mazzoni.vis.admin;
 
 import it.mazzoni.vis.domain.entity.Recommendation;
+import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
+import it.mazzoni.vis.domain.entity.Period;
+import it.mazzoni.vis.domain.entity.PriceQuote;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
+import it.mazzoni.vis.domain.repository.PriceQuoteRepository;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
@@ -11,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,8 +27,11 @@ class UniverseSelectionServiceTest {
 
     private final MarketDataClient marketDataClient = mock(MarketDataClient.class);
     private final SecurityRepository securityRepository = mock(SecurityRepository.class);
+    private final FundamentalSnapshotRepository fundamentalSnapshotRepository = mock(FundamentalSnapshotRepository.class);
+    private final PriceQuoteRepository priceQuoteRepository = mock(PriceQuoteRepository.class);
     private final SeedService seedService = mock(SeedService.class);
-    private final UniverseSelectionService service = new UniverseSelectionService(marketDataClient, securityRepository, seedService);
+    private final UniverseSelectionService service = new UniverseSelectionService(
+            marketDataClient, securityRepository, fundamentalSnapshotRepository, priceQuoteRepository, seedService);
 
     @Test
     void preview_filtersSortsAndCapsSymbolsBeforeSeeding() {
@@ -100,6 +109,47 @@ class UniverseSelectionServiceTest {
                 null, null, 250000L, 10, UniverseSortBy.SYMBOL_ASC));
 
         assertThat(response.symbols()).extracting(UniversePreviewRow::symbol).containsExactly("KO");
+    }
+
+    @Test
+    void preview_fallsBackToSeededSecuritiesWhenFmpStockListIsEmpty() {
+        when(marketDataClient.listSymbols("NASDAQ")).thenReturn(List.of());
+        when(securityRepository.findAll()).thenReturn(List.of(
+                security("MSFT", "Microsoft", "US", "Technology", "NASDAQ", new BigDecimal("3000000000000")),
+                security("KO", "Coca-Cola", "US", "Consumer Defensive", "NYSE", new BigDecimal("260000000000"))
+        ));
+
+        UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
+                List.of("NASDAQ"), List.of("US"), List.of("Technology"), false,
+                null, null, null, 10, UniverseSortBy.SYMBOL_ASC));
+
+        assertThat(response.symbols()).extracting(UniversePreviewRow::symbol).containsExactly("MSFT");
+    }
+
+    @Test
+    void preview_derivesFallbackMarketCapAndRequiresKnownVolumeForNumericFilters() {
+        when(marketDataClient.listSymbols("NASDAQ")).thenReturn(List.of());
+        Security msft = security("MSFT", "Microsoft", "US", "Technology", "NASDAQ", null);
+        Security unknownVolume = security("NOVOL", "No Volume", "US", "Technology", "NASDAQ", null);
+        when(securityRepository.findAll()).thenReturn(List.of(msft, unknownVolume));
+
+        FundamentalSnapshot fundamentals = new FundamentalSnapshot();
+        fundamentals.setSharesOutstanding(100L);
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(msft, Period.ANNUAL))
+                .thenReturn(Optional.of(fundamentals));
+        PriceQuote quote = new PriceQuote();
+        quote.setClose(new BigDecimal("20"));
+        quote.setVolume(500_000L);
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(msft)).thenReturn(Optional.of(quote));
+
+        UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
+                List.of("NASDAQ"), List.of("US"), List.of(), false,
+                new BigDecimal("1500"), new BigDecimal("2500"), 250_000L, 10,
+                UniverseSortBy.MARKET_CAP_ASC));
+
+        assertThat(response.symbols()).extracting(UniversePreviewRow::symbol).containsExactly("MSFT");
+        assertThat(response.symbols().getFirst().marketCap()).isEqualByComparingTo("2000");
+        assertThat(response.symbols().getFirst().volume()).isEqualTo(500_000L);
     }
 
     @Test
