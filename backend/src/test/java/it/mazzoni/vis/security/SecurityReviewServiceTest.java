@@ -148,7 +148,7 @@ class SecurityReviewServiceTest {
         when(riskAnalysisService.computeEarningsQuality("AAPL")).thenReturn(earningsQuality(security));
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("AAPL")).thenReturn(List.of());
-        when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+        when(securityRepository.findByActiveTrueAndSectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
         when(moatAssessmentService.analyze(security)).thenReturn(moat(security));
         when(stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(any(Security.class), any(LocalDate.class)))
                 .thenReturn(List.of());
@@ -215,7 +215,7 @@ class SecurityReviewServiceTest {
         when(riskAnalysisService.computeEarningsQuality("PG")).thenReturn(earningsQuality(security));
         when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
         when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc("PG")).thenReturn(List.of());
-        when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+        when(securityRepository.findByActiveTrueAndSectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
         when(moatAssessmentService.analyze(security)).thenReturn(moat(security));
         when(stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(any(Security.class), any(LocalDate.class)))
                 .thenReturn(List.of());

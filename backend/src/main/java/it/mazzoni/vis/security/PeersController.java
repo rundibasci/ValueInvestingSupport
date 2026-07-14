@@ -54,7 +54,7 @@ public class PeersController {
         BigDecimal subjectCap = subject.getMarketCap() != null ? subject.getMarketCap() : BigDecimal.ZERO;
 
         List<PeerItem> peers = securityRepository
-                .findBySectorAndSymbolNot(subject.getSector(), subject.getSymbol())
+                .findByActiveTrueAndSectorAndSymbolNot(subject.getSector(), subject.getSymbol())
                 .stream()
                 .sorted(Comparator.comparing(p -> {
                     BigDecimal cap = p.getMarketCap() != null ? p.getMarketCap() : BigDecimal.ZERO;

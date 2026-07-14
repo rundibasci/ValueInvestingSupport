@@ -129,5 +129,8 @@ class YahooDtoDeserializationTest {
         assertThat(meta.regularMarketPrice()).isEqualTo(182.5);
         assertThat(meta.longName()).isEqualTo("Apple Inc.");
         assertThat(meta.currency()).isEqualTo("USD");
+        assertThat(meta.exchangeName()).isEqualTo("NMS");
+        assertThat(response.chart().result().get(0).indicators().quote().get(0).volume())
+                .containsExactly(48_000_000L);
     }
 }

@@ -6,6 +6,7 @@ import it.mazzoni.vis.alerts.AlertDeliveryService;
 import it.mazzoni.vis.alerts.AlertDetectionService;
 import it.mazzoni.vis.domain.entity.JobRunLog;
 import it.mazzoni.vis.domain.repository.JobRunLogRepository;
+import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.jobs.DividendUpdateJob;
 import it.mazzoni.vis.jobs.IngestionEventRecorder;
 import it.mazzoni.vis.jobs.QuoteRefreshJob;
@@ -36,6 +37,7 @@ public class RealDemoStartupRunner {
     private final AlertDeliveryService alertDeliveryService;
     private final IngestionEventRecorder eventRecorder;
     private final JobRunLogRepository jobRunLogRepository;
+    private final SecurityRepository securityRepository;
 
     public RealDemoStartupRunner(RealDemoProperties properties,
                                  SeedService seedService,
@@ -44,7 +46,8 @@ public class RealDemoStartupRunner {
                                  AlertDetectionService alertDetectionService,
                                  AlertDeliveryService alertDeliveryService,
                                  IngestionEventRecorder eventRecorder,
-                                 JobRunLogRepository jobRunLogRepository) {
+                                 JobRunLogRepository jobRunLogRepository,
+                                 SecurityRepository securityRepository) {
         this.properties = properties;
         this.seedService = seedService;
         this.quoteRefreshJob = quoteRefreshJob;
@@ -53,6 +56,7 @@ public class RealDemoStartupRunner {
         this.alertDeliveryService = alertDeliveryService;
         this.eventRecorder = eventRecorder;
         this.jobRunLogRepository = jobRunLogRepository;
+        this.securityRepository = securityRepository;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -64,6 +68,8 @@ public class RealDemoStartupRunner {
         MDC.put("job.run.id", runLog.getId().toString());
         try {
             log.info("real_demo_startup_started symbols={}", String.join(",", symbols));
+            int deactivated = securityRepository.deactivateAll();
+            if (deactivated > 0) log.info("real_demo_deactivated_previous_universe count={}", deactivated);
             List<SeedResult> seedResults = seedService.seedTickers(symbols);
             int processed = recordSeedEvents(seedResults);
             processed += quoteRefreshJob.execute();

@@ -96,6 +96,7 @@ public class SeedTickerService {
             persistFundamentals(security, symbol);
             persistRatios(security, symbol);
             persistPriceQuote(security, symbol);
+            enrichDerivedProfileData(security);
             persistDividends(security, symbol);
             persistInsiderTrades(security, symbol);
 
@@ -140,7 +141,8 @@ public class SeedTickerService {
                 });
         if (profile.companyName() != null) security.setCompanyName(profile.companyName());
         else if (security.getCompanyName() == null) security.setCompanyName(symbol);
-        security.setExchange(profile.exchange());
+        security.setActive(true);
+        if (hasText(profile.exchange())) security.setExchange(profile.exchange());
         security.setSector(profile.sector());
         security.setIndustry(profile.industry());
         security.setCountry(profile.country());
@@ -309,16 +311,30 @@ public class SeedTickerService {
 
     private void persistPriceQuote(Security security, String symbol) {
         LocalDate today = LocalDate.now();
-        if (priceQuoteRepository.existsBySecurityAndQuoteDate(security, today)) {
-            return;
-        }
         it.mazzoni.vis.domain.MarketPriceQuote quote = marketDataClient.getQuote(symbol);
         if (quote.price() == null) return;
-        PriceQuote entity = new PriceQuote();
-        entity.setSecurity(security);
-        entity.setQuoteDate(today);
+        PriceQuote entity = priceQuoteRepository.findBySecurityAndQuoteDate(security, today)
+                .orElseGet(() -> {
+                    PriceQuote created = new PriceQuote();
+                    created.setSecurity(security);
+                    created.setQuoteDate(today);
+                    return created;
+                });
         entity.setClose(quote.price());
+        entity.setVolume(quote.volume());
         priceQuoteRepository.save(entity);
+    }
+
+    private void enrichDerivedProfileData(Security security) {
+        if (security.getMarketCap() != null) return;
+        PriceQuote quote = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security).orElse(null);
+        FundamentalSnapshot annual = fundamentalSnapshotRepository
+                .findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
+                .orElse(null);
+        if (quote == null || quote.getClose() == null || annual == null
+                || annual.getSharesOutstanding() == null || annual.getSharesOutstanding() <= 0) return;
+        security.setMarketCap(quote.getClose().multiply(BigDecimal.valueOf(annual.getSharesOutstanding())));
+        securityRepository.save(security);
     }
 
     private void persistDividends(Security security, String symbol) {

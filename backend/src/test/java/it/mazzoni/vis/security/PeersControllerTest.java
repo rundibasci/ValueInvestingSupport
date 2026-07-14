@@ -62,7 +62,7 @@ class PeersControllerTest {
         Security peer2 = security("GOOGL", "Technology", new BigDecimal("2000000000000"));
 
         when(securityRepository.findBySymbol("AAPL")).thenReturn(Optional.of(subject));
-        when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL"))
+        when(securityRepository.findByActiveTrueAndSectorAndSymbolNot("Technology", "AAPL"))
                 .thenReturn(List.of(peer1, peer2));
 
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(any(Security.class)))
@@ -83,7 +83,7 @@ class PeersControllerTest {
     void peers_noSectorPeers_returns200WithEmptyList() throws Exception {
         Security subject = security("AAPL", "Technology", new BigDecimal("3000000000000"));
         when(securityRepository.findBySymbol("AAPL")).thenReturn(Optional.of(subject));
-        when(securityRepository.findBySectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
+        when(securityRepository.findByActiveTrueAndSectorAndSymbolNot("Technology", "AAPL")).thenReturn(List.of());
 
         mockMvc.perform(get("/api/v1/securities/AAPL/peers"))
                 .andExpect(status().isOk())

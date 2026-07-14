@@ -224,6 +224,8 @@ public class ScreenerService {
 
         List<Predicate> predicates = new ArrayList<>();
 
+        predicates.add(cb.isTrue(sec.get("active")));
+
         // --- INNER JOIN: Security ↔ most-recent ValueScore ---
         predicates.add(cb.equal(vs.get("security"), sec));
         Subquery<LocalDate> maxScoreDate = query.subquery(LocalDate.class);

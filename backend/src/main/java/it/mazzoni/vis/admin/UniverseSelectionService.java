@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -88,6 +90,7 @@ public class UniverseSelectionService {
     public UniversePreviewResponse preview(UniverseSelectionRequest request) {
         UniverseSelectionRequest criteria = request != null ? request : new UniverseSelectionRequest(
                 null, null, null, false, null, null, null, DEFAULT_MAX_SYMBOLS, UniverseSortBy.MARKET_CAP);
+        validate(criteria);
         int maxSymbols = normalizeMaxSymbols(criteria.maxSymbols());
         List<FmpStockListEntry> entries = loadEntries(criteria.exchanges());
         List<UniversePreviewRow> matches = entries.stream()
@@ -147,6 +150,7 @@ public class UniverseSelectionService {
                     exchange, e.getMessage());
         }
         return securityRepository.findAll().stream()
+                .filter(Security::isActive)
                 .filter(security -> exchangeMatches(security, exchange))
                 .map(this::toStockListEntry)
                 .toList();
@@ -239,15 +243,34 @@ public class UniverseSelectionService {
     }
 
     private static boolean exchangeMatches(Security security, String exchange) {
-        return security.getExchange() == null
-                || security.getExchange().isBlank()
-                || security.getExchange().equalsIgnoreCase(exchange);
+        return security.getExchange() != null
+                && !security.getExchange().isBlank()
+                && security.getExchange().equalsIgnoreCase(exchange);
     }
 
     private static int normalizeMaxSymbols(Integer requested) {
         if (requested == null) return DEFAULT_MAX_SYMBOLS;
-        if (requested < 1) return DEFAULT_MAX_SYMBOLS;
-        return Math.min(requested, HARD_MAX_SYMBOLS);
+        return requested;
+    }
+
+    private static void validate(UniverseSelectionRequest criteria) {
+        if (criteria.marketCapMin() != null && criteria.marketCapMin().signum() < 0
+                || criteria.marketCapMax() != null && criteria.marketCapMax().signum() < 0
+                || criteria.volumeMin() != null && criteria.volumeMin() < 0) {
+            throw invalidCriteria("Market cap and volume thresholds cannot be negative.");
+        }
+        if (criteria.marketCapMin() != null && criteria.marketCapMax() != null
+                && criteria.marketCapMin().compareTo(criteria.marketCapMax()) > 0) {
+            throw invalidCriteria("Market cap minimum cannot exceed market cap maximum.");
+        }
+        if (criteria.maxSymbols() != null
+                && (criteria.maxSymbols() < 1 || criteria.maxSymbols() > HARD_MAX_SYMBOLS)) {
+            throw invalidCriteria("maxSymbols must be between 1 and " + HARD_MAX_SYMBOLS + ".");
+        }
+    }
+
+    private static ResponseStatusException invalidCriteria(String message) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 
     private static List<String> normalizeList(List<String> values) {

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -100,7 +101,7 @@ class UniverseSelectionServiceTest {
         when(marketDataClient.listSymbols("NYSE")).thenThrow(new MarketDataException(
                 MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, "NYSE"));
         when(securityRepository.findAll()).thenReturn(List.of(
-                security("KO", "Coca-Cola", "US", "Consumer Staples", null, new BigDecimal("260000000000")),
+                security("KO", "Coca-Cola", "US", "Consumer Staples", "NYSE", new BigDecimal("260000000000")),
                 security("AAPL", "Apple Inc.", "US", "Technology", "NASDAQ", new BigDecimal("3000000000000"))
         ));
 
@@ -157,6 +158,32 @@ class UniverseSelectionServiceTest {
         assertThat(service.templates())
                 .extracting(UniverseTemplateResponse::id)
                 .containsExactly("us-blue-chip", "dividend-aristocrats", "value-candidates", "defensive-quality");
+    }
+
+    @Test
+    void preview_doesNotAssignUnknownExchangeToEveryRequestedExchange() {
+        when(marketDataClient.listSymbols("NYSE")).thenReturn(List.of());
+        when(securityRepository.findAll()).thenReturn(List.of(
+                security("UNKNOWN", "Unknown", "US", "Technology", null, new BigDecimal("1000000000"))));
+
+        UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
+                List.of("NYSE"), List.of("US"), List.of(), false,
+                null, null, null, 10, UniverseSortBy.SYMBOL_ASC));
+
+        assertThat(response.symbols()).isEmpty();
+    }
+
+    @Test
+    void preview_rejectsInvalidNumericCriteria() {
+        assertThatThrownBy(() -> service.preview(new UniverseSelectionRequest(
+                List.of("NYSE"), List.of("US"), List.of(), false,
+                new BigDecimal("100"), new BigDecimal("10"), null, 10,
+                UniverseSortBy.SYMBOL_ASC)))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
+        assertThatThrownBy(() -> service.preview(new UniverseSelectionRequest(
+                List.of("NYSE"), List.of("US"), List.of(), false,
+                null, null, -1L, 0, UniverseSortBy.SYMBOL_ASC)))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
     }
 
     @Test

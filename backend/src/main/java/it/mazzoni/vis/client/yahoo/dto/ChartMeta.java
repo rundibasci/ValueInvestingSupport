@@ -5,5 +5,6 @@ public record ChartMeta(
         String currency,
         Double regularMarketPrice,
         String longName,
-        String shortName
+        String shortName,
+        String exchangeName
 ) {}

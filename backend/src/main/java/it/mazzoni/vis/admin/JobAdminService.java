@@ -198,7 +198,10 @@ public class JobAdminService {
         String effectiveCron = setting.getCronExpression() != null && !setting.getCronExpression().isBlank()
                 ? setting.getCronExpression()
                 : jobsProperties.cronFor(definition.cronKey());
-        SchedulePreview schedulePreview = schedulePreview(effectiveCron);
+        boolean enabled = jobsProperties.enabled() && setting.isEnabled();
+        SchedulePreview schedulePreview = enabled
+                ? schedulePreview(effectiveCron)
+                : new SchedulePreview(null, null);
         JobRunSummaryResponse running = runningRun(definition.jobName()).map(this::toRunSummary).orElse(null);
         JobRunSummaryResponse lastRun = jobRunLogRepository.findTop1ByJobNameOrderByStartedAtDesc(definition.jobName())
                 .map(this::toRunSummary)
@@ -216,17 +219,17 @@ public class JobAdminService {
         return new JobMonitorResponse(
                 definition.jobName(),
                 effectiveCron,
-                jobsProperties.enabled() && setting.isEnabled(),
+                enabled,
                 schedulePreview.nextRunAt(),
                 schedulePreview.error(),
-                running != null ? "RUNNING" : lastRun != null ? lastRun.status() : "IDLE",
+                !enabled ? "DISABLED" : running != null ? "RUNNING" : lastRun != null ? lastRun.status() : "IDLE",
                 durationSource != null ? elapsedSeconds(durationSource) : 0L,
                 lastRun != null ? dataSource(lastRun.id()) : null,
                 running,
                 lastRun,
                 lastSuccess,
                 lastFailure,
-                latestError(lastRun, lastFailure)
+                enabled ? latestError(lastRun, lastFailure) : null
         );
     }
 

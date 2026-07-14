@@ -7,5 +7,6 @@ public record MarketPriceQuote(
         BigDecimal price,
         String currency,
         BigDecimal change,
-        BigDecimal changePercent
+        BigDecimal changePercent,
+        Long volume
 ) {}

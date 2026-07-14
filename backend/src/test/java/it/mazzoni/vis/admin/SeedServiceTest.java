@@ -257,7 +257,7 @@ class SeedServiceTest {
                         null, null, null, null, null, null)
         ));
         when(marketDataClient.getQuote(symbol)).thenReturn(
-                new MarketPriceQuote(symbol, new BigDecimal("182.50"), "USD", null, null));
+                new MarketPriceQuote(symbol, new BigDecimal("182.50"), "USD", null, null, 1_000_000L));
         when(marketDataClient.getDividendHistory(symbol)).thenReturn(List.of(
                 new FmpDividendEntry("2026-06-30", new BigDecimal("0.82"), "2026-07-24")));
         when(marketDataClient.getInsiderTransactions(symbol)).thenReturn(List.of(

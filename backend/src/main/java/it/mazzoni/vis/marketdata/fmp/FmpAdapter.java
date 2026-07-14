@@ -139,7 +139,8 @@ public class FmpAdapter {
                 e.price(),
                 null,
                 e.change(),
-                e.changesPercentage()
+                e.changesPercentage(),
+                e.volume()
         );
     }
 }

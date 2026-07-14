@@ -6,6 +6,8 @@ import it.mazzoni.vis.alerts.AlertDeliveryService;
 import it.mazzoni.vis.alerts.AlertDetectionService;
 import it.mazzoni.vis.domain.entity.JobRunLog;
 import it.mazzoni.vis.domain.repository.JobRunLogRepository;
+import it.mazzoni.vis.domain.repository.SecurityRepository;
+import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.jobs.DividendUpdateJob;
 import it.mazzoni.vis.jobs.IngestionEventRecorder;
 import it.mazzoni.vis.jobs.QuoteRefreshJob;
@@ -35,6 +37,7 @@ class RealDemoStartupRunnerTest {
         AlertDeliveryService alertDeliveryService = mock(AlertDeliveryService.class);
         IngestionEventRecorder eventRecorder = mock(IngestionEventRecorder.class);
         JobRunLogRepository jobRunLogRepository = mock(JobRunLogRepository.class);
+        SecurityRepository securityRepository = mock(SecurityRepository.class);
         when(jobRunLogRepository.save(any(JobRunLog.class))).thenAnswer(invocation -> {
             JobRunLog log = invocation.getArgument(0);
             if (log.getId() == null) {
@@ -53,11 +56,13 @@ class RealDemoStartupRunnerTest {
         when(alertDetectionService.execute()).thenReturn(3);
 
         RealDemoStartupRunner runner = new RealDemoStartupRunner(properties, seedService, quoteRefreshJob,
-                dividendUpdateJob, alertDetectionService, alertDeliveryService, eventRecorder, jobRunLogRepository);
+                dividendUpdateJob, alertDetectionService, alertDeliveryService, eventRecorder, jobRunLogRepository,
+                securityRepository);
 
         runner.runStartupIngestion();
 
         verify(seedService).seedTickers(List.of("KO", "JNJ"));
+        verify(securityRepository).deactivateAll();
         verify(quoteRefreshJob).execute();
         verify(dividendUpdateJob).execute();
         verify(alertDetectionService).execute();
@@ -81,6 +86,7 @@ class RealDemoStartupRunnerTest {
         AlertDeliveryService alertDeliveryService = mock(AlertDeliveryService.class);
         IngestionEventRecorder eventRecorder = mock(IngestionEventRecorder.class);
         JobRunLogRepository jobRunLogRepository = mock(JobRunLogRepository.class);
+        SecurityRepository securityRepository = mock(SecurityRepository.class);
         when(jobRunLogRepository.save(any(JobRunLog.class))).thenAnswer(invocation -> {
             JobRunLog log = invocation.getArgument(0);
             if (log.getId() == null) {
@@ -98,7 +104,8 @@ class RealDemoStartupRunnerTest {
         when(alertDetectionService.execute()).thenReturn(1);
 
         RealDemoStartupRunner runner = new RealDemoStartupRunner(properties, seedService, quoteRefreshJob,
-                dividendUpdateJob, alertDetectionService, alertDeliveryService, eventRecorder, jobRunLogRepository);
+                dividendUpdateJob, alertDetectionService, alertDeliveryService, eventRecorder, jobRunLogRepository,
+                securityRepository);
 
         runner.runStartupIngestion();
 

@@ -87,6 +87,7 @@ public class QuoteRefreshJob {
                 entity.setSecurity(security);
                 entity.setQuoteDate(today);
                 entity.setClose(quote.price());
+                entity.setVolume(quote.volume());
                 priceQuoteRepository.save(entity);
                 eventRecorder.success(symbol, "quote");
                 count++;

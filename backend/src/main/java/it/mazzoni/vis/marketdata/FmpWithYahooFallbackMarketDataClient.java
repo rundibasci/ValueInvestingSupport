@@ -68,7 +68,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
             CompanyProfile result = fmpClient.getProfile(symbol);
             sourceTracker.record("FMP");
             statusTracker.recordSuccess("fmp");
-            return result;
+            return enrichIncompleteProfile(symbol, result);
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("profile", e);
@@ -76,6 +76,26 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         CompanyProfile result = yahooProfile(symbol);
         sourceTracker.record("Yahoo");
         return result;
+    }
+
+    private CompanyProfile enrichIncompleteProfile(String symbol, CompanyProfile profile) {
+        if (profile.exchange() != null && !profile.exchange().isBlank()) {
+            return profile;
+        }
+        try {
+            CompanyProfile yahoo = yahooProfile(symbol);
+            if (yahoo.exchange() == null || yahoo.exchange().isBlank()) {
+                return profile;
+            }
+            sourceTracker.record("Yahoo");
+            return new CompanyProfile(
+                    profile.symbol(), profile.companyName(), profile.sector(), profile.industry(),
+                    profile.country(), profile.currency(), yahoo.exchange(), profile.marketCap(),
+                    profile.description(), profile.website());
+        } catch (MarketDataException e) {
+            log.debug("Yahoo profile enrichment unavailable for {}: {}", symbol, e.getMessage());
+            return profile;
+        }
     }
 
     @Override
@@ -145,7 +165,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
             MarketPriceQuote result = fmpClient.getQuote(symbol);
             sourceTracker.record("FMP");
             statusTracker.recordSuccess("fmp");
-            return result;
+            return enrichIncompleteQuote(symbol, result);
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("quote", e);
@@ -160,6 +180,25 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
         } catch (MarketDataUnavailableException e) {
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
+        }
+    }
+
+    private MarketPriceQuote enrichIncompleteQuote(String symbol, MarketPriceQuote quote) {
+        if (quote.volume() != null && quote.volume() > 0) {
+            return quote;
+        }
+        try {
+            MarketPriceQuote yahoo = yahooAdapter.toPriceQuote(symbol, yahooClient.getChart(symbol));
+            if (yahoo.volume() == null || yahoo.volume() <= 0) {
+                return quote;
+            }
+            sourceTracker.record("Yahoo");
+            return new MarketPriceQuote(
+                    quote.symbol(), quote.price(), quote.currency(), quote.change(),
+                    quote.changePercent(), yahoo.volume());
+        } catch (SymbolNotFoundException | MarketDataUnavailableException e) {
+            log.debug("Yahoo quote enrichment unavailable for {}: {}", symbol, e.getMessage());
+            return quote;
         }
     }
 

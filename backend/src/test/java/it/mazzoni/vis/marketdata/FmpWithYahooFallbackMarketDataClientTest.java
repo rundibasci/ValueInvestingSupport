@@ -72,7 +72,7 @@ class FmpWithYahooFallbackMarketDataClientTest {
     }
 
     private static MarketPriceQuote quote() {
-        return new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null);
+        return new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null, null);
     }
 
     private static QuoteSummaryResponse stubQsr() {
@@ -82,7 +82,7 @@ class FmpWithYahooFallbackMarketDataClientTest {
 
     private static ChartResponse stubCr() {
         return new ChartResponse(new ChartData(List.of(
-                new ChartResult(new ChartMeta(SYMBOL, "USD", 185.0, "Apple Inc.", SYMBOL))), null));
+                new ChartResult(new ChartMeta(SYMBOL, "USD", 185.0, "Apple Inc.", SYMBOL, "NMS"), null)), null));
     }
 
     private static MarketDataException planRestriction() {

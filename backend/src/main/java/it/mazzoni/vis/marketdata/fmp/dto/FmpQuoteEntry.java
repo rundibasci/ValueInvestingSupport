@@ -10,5 +10,6 @@ public record FmpQuoteEntry(
         String name,
         BigDecimal price,
         BigDecimal change,
-        BigDecimal changesPercentage
+        BigDecimal changesPercentage,
+        Long volume
 ) {}

@@ -144,7 +144,7 @@ public class YahooFinanceAdapter {
                 ap != null ? ap.industry() : null,
                 ap != null ? ap.country() : null,
                 sd != null ? sd.currency() : null,
-                null,
+                exchange(cr),
                 marketCap,
                 null,
                 null
@@ -154,12 +154,42 @@ public class YahooFinanceAdapter {
     public MarketPriceQuote toPriceQuote(String symbol, ChartResponse cr) {
         if (cr == null || cr.chart() == null
                 || cr.chart().result() == null || cr.chart().result().isEmpty()) {
-            return new MarketPriceQuote(symbol.toUpperCase(), null, null, null, null);
+            return new MarketPriceQuote(symbol.toUpperCase(), null, null, null, null, null);
         }
         ChartMeta meta = cr.chart().result().get(0).meta();
         BigDecimal price = meta.regularMarketPrice() != null
                 ? BigDecimal.valueOf(meta.regularMarketPrice()) : null;
-        return new MarketPriceQuote(symbol.toUpperCase(), price, meta.currency(), null, null);
+        return new MarketPriceQuote(symbol.toUpperCase(), price, meta.currency(), null, null, latestVolume(cr));
+    }
+
+    private String exchange(ChartResponse response) {
+        if (response == null || response.chart() == null || response.chart().result() == null
+                || response.chart().result().isEmpty() || response.chart().result().get(0).meta() == null) {
+            return null;
+        }
+        String exchange = response.chart().result().get(0).meta().exchangeName();
+        if (exchange == null || exchange.isBlank()) return null;
+        return switch (exchange.trim().toUpperCase()) {
+            case "NMS", "NGM", "NCM", "NASDAQ" -> "NASDAQ";
+            case "NYQ", "NYSE" -> "NYSE";
+            case "ASE", "AMEX" -> "AMEX";
+            default -> exchange.trim().toUpperCase();
+        };
+    }
+
+    private Long latestVolume(ChartResponse response) {
+        ChartResult result = response.chart().result().get(0);
+        if (result.indicators() == null || result.indicators().quote() == null
+                || result.indicators().quote().isEmpty()
+                || result.indicators().quote().get(0).volume() == null) {
+            return null;
+        }
+        List<Long> volumes = result.indicators().quote().get(0).volume();
+        for (int index = volumes.size() - 1; index >= 0; index--) {
+            Long volume = volumes.get(index);
+            if (volume != null && volume > 0) return volume;
+        }
+        return null;
     }
 
     // --- helpers ---

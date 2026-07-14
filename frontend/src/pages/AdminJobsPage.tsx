@@ -34,6 +34,8 @@ function statusClass(status: string | null | undefined): string {
       return "bg-rose-400/15 text-rose-100 ring-1 ring-rose-300/25";
     case "SKIPPED":
       return "bg-amber-300/15 text-amber-100 ring-1 ring-amber-300/25";
+    case "DISABLED":
+      return "bg-slate-700/60 text-slate-200 ring-1 ring-slate-600";
     default:
       return "bg-slate-700/60 text-slate-200 ring-1 ring-slate-600";
   }
@@ -233,7 +235,7 @@ export function AdminJobsPage(): JSX.Element {
                 </td>
                 <td className="px-4 py-4 align-top">
                   <code className="text-xs text-slate-300">{job.cronExpression}</code>
-                  <p className="mt-1 text-xs text-slate-500">Next {formatDate(job.nextRunAt)}</p>
+                  <p className="mt-1 text-xs text-slate-500">{job.enabled ? `Next ${formatDate(job.nextRunAt)}` : "Schedule inactive"}</p>
                   {job.scheduleError && <p className="mt-1 text-xs text-amber-200">{job.scheduleError}</p>}
                 </td>
                 <td className="px-4 py-4 align-top">

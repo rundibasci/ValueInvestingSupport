@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.mazzoni.vis.client.yahoo.dto.ChartResponse;
 import it.mazzoni.vis.client.yahoo.dto.QuoteSummaryResponse;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
+import it.mazzoni.vis.domain.CompanyProfile;
+import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,16 @@ class YahooFinanceAdapterTest {
     void currentPriceComesFromChart() throws Exception {
         FundamentalSnapshot snap = adapter.toFundamentalSnapshot("AAPL", loadQsr(), loadChart());
         assertThat(snap.currentPrice()).isEqualByComparingTo("182.5");
+    }
+
+    @Test
+    void profileNormalizesExchangeAndQuoteMapsVolume() throws Exception {
+        ChartResponse chart = loadChart();
+        CompanyProfile profile = adapter.toCompanyProfile("AAPL", loadQsr(), chart);
+        MarketPriceQuote quote = adapter.toPriceQuote("AAPL", chart);
+
+        assertThat(profile.exchange()).isEqualTo("NASDAQ");
+        assertThat(quote.volume()).isEqualTo(48_000_000L);
     }
 
     @Test

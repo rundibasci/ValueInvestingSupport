@@ -43,14 +43,14 @@ class YahooMarketDataClientTest {
 
     private ChartResponse stubCr() {
         return new ChartResponse(new ChartData(List.of(
-                new ChartResult(new ChartMeta(SYMBOL, "USD", 182.5, "Apple Inc.", "AAPL"))), null));
+                new ChartResult(new ChartMeta(SYMBOL, "USD", 182.5, "Apple Inc.", "AAPL", "NMS"), null)), null));
     }
 
     @Test
     void getQuote_returnsMappedPriceQuote() {
         ChartResponse cr = stubCr();
         when(yahooFinanceClient.getChart(SYMBOL)).thenReturn(cr);
-        MarketPriceQuote expected = new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(182.5), "USD", null, null);
+        MarketPriceQuote expected = new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(182.5), "USD", null, null, null);
         when(adapter.toPriceQuote(eq(SYMBOL), any())).thenReturn(expected);
 
         MarketPriceQuote result = client.getQuote(SYMBOL);

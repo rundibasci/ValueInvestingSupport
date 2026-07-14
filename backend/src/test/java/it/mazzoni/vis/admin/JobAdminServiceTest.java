@@ -99,6 +99,9 @@ class JobAdminServiceTest {
         assertThat(jobRuntimeSettingRepository.findById("quote-refresh")).hasValueSatisfying(setting ->
                 assertThat(setting.isEnabled()).isFalse());
         assertThat(service.listJobs(Map.of("quote-refresh", definition)).getFirst().enabled()).isFalse();
+        assertThat(service.monitorJobs(Map.of("quote-refresh", definition)).getFirst().nextRunAt()).isNull();
+        assertThat(service.monitorJobs(Map.of("quote-refresh", definition)).getFirst().currentStatus()).isEqualTo("DISABLED");
+        assertThat(service.monitorJobs(Map.of("quote-refresh", definition)).getFirst().latestError()).isNull();
     }
 
     @Test
