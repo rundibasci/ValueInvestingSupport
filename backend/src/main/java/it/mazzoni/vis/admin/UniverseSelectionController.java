@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -16,9 +17,11 @@ import java.util.List;
 public class UniverseSelectionController {
 
     private final UniverseSelectionService universeSelectionService;
+    private final SeedRunService seedRunService;
 
-    public UniverseSelectionController(UniverseSelectionService universeSelectionService) {
+    public UniverseSelectionController(UniverseSelectionService universeSelectionService, SeedRunService seedRunService) {
         this.universeSelectionService = universeSelectionService;
+        this.seedRunService = seedRunService;
     }
 
     @GetMapping("/templates")
@@ -32,7 +35,12 @@ public class UniverseSelectionController {
     }
 
     @PostMapping("/seed")
-    public ResponseEntity<UniverseSeedCriteriaResponse> seed(@RequestBody(required = false) UniverseSelectionRequest request) {
-        return ResponseEntity.ok(universeSelectionService.seed(request));
+    public ResponseEntity<?> seed(Authentication auth, @RequestBody(required = false) UniverseSelectionRequest request) {
+        UniversePreviewResponse preview = universeSelectionService.preview(request);
+        List<String> symbols = preview.symbols().stream().map(UniversePreviewRow::symbol).toList();
+        SeedSubmissionResult submission = seedRunService.submit(auth, symbols, "UNIVERSE_CURATION");
+        return submission.asynchronous()
+                ? ResponseEntity.accepted().body(new UniverseSeedAsyncResponse(preview, submission.accepted()))
+                : ResponseEntity.ok(new UniverseSeedCriteriaResponse(preview, submission.synchronousResults()));
     }
 }

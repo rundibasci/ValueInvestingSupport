@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class UniverseSeedControllerTest {
 
-    @Mock SeedService seedService;
+    @Mock SeedRunService seedRunService;
 
     MockMvc mockMvc;
 
@@ -36,7 +38,7 @@ class UniverseSeedControllerTest {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new UniverseSeedController(seedService))
+                .standaloneSetup(new UniverseSeedController(seedRunService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(mapper))
                 .build();
@@ -44,11 +46,11 @@ class UniverseSeedControllerTest {
 
     @Test
     void seed_trimsTickerCsvForAuthenticatedSharedUniverseEndpoint() throws Exception {
-        when(seedService.seedTickers(List.of("AAPL", "MSFT"))).thenReturn(List.of(
+        when(seedRunService.submit(any(), eq(List.of("AAPL", "MSFT")), any())).thenReturn(SeedSubmissionResult.synchronous(List.of(
                 SeedResult.success("AAPL", "Apple Inc.",
                         "Technology", "NASDAQ", "US", null, new BigDecimal("182.50"),
                         new BigDecimal("210.50"), new BigDecimal("13.60"),
-                        null, Recommendation.QUALITY_VALUE, "FMP", LocalDate.of(2026, 6, 27))));
+                        null, Recommendation.QUALITY_VALUE, "FMP", LocalDate.of(2026, 6, 27)))));
 
         mockMvc.perform(post("/api/v1/universe/seed").param("tickers", " AAPL, MSFT "))
                 .andExpect(status().isOk())

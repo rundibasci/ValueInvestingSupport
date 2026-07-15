@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { seedUniverseApi, type SeedResult } from "../api/seedUniverse";
 import { useAuth } from "../auth/AuthProvider";
+import { SeedRunProgress } from "../components/SeedRunProgress";
 
 const tickerPattern = /^[A-Z][A-Z0-9.-]{0,14}$/;
 const disclaimer =
@@ -138,6 +139,7 @@ export function SeedUniversePage(): JSX.Element {
   const [tickers, setTickers] = useState("AAPL, MSFT, KO, JNJ");
   const [selectedPackId, setSelectedPackId] = useState(adminPacks[0].id);
   const [results, setResults] = useState<SeedResult[] | null>(null);
+  const [runId, setRunId] = useState<string | null>(() => localStorage.getItem("seed-universe-run-id"));
   const preview = useMemo(() => parseTickers(tickers), [tickers]);
   const selectedPack =
     adminPacks.find((pack) => pack.id === selectedPackId) ?? adminPacks[0];
@@ -145,14 +147,23 @@ export function SeedUniversePage(): JSX.Element {
 
   const csvMutation = useMutation({
     mutationFn: seedUniverseApi.seedCsv,
-    onSuccess: setResults,
+    onSuccess: (data) => acceptSubmission(data),
   });
   const packMutation = useMutation({
     mutationFn: seedUniverseApi.seedAdminPack,
-    onSuccess: setResults,
+    onSuccess: (data) => acceptSubmission(data),
   });
   const submitting = csvMutation.isPending || packMutation.isPending;
   const error = csvMutation.error ?? packMutation.error;
+
+  function trackRun(id: string): void {
+    setRunId(id);
+    localStorage.setItem("seed-universe-run-id", id);
+  }
+  function acceptSubmission(data: Awaited<ReturnType<typeof seedUniverseApi.seedCsv>>): void {
+    if (Array.isArray(data)) setResults(data);
+    else trackRun(data.seedRunId);
+  }
 
   function submitCsv(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -292,6 +303,8 @@ export function SeedUniversePage(): JSX.Element {
           )}
         </section>
       </div>
+
+      {runId && <SeedRunProgress runId={runId} onRunChange={trackRun} onDismiss={() => { setRunId(null); localStorage.removeItem("seed-universe-run-id"); }} />}
 
       {results && <ResultsTable results={results} />}
 

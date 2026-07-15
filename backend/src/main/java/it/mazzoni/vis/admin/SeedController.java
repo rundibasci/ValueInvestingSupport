@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,21 +17,24 @@ import java.util.List;
 @Profile("!demo")
 public class SeedController {
 
-    private final SeedService seedService;
     private final List<String> defaultTickers;
+    private final SeedRunService seedRunService;
 
-    public SeedController(SeedService seedService,
+    public SeedController(SeedRunService seedRunService,
                           @Value("${SEED_TICKERS:AAPL,MSFT,KO,JNJ}") String seedTickers) {
-        this.seedService = seedService;
+        this.seedRunService = seedRunService;
         this.defaultTickers = Arrays.asList(seedTickers.split(","));
     }
 
     @PostMapping("/seed")
-    public ResponseEntity<List<SeedResult>> seed(
+    public ResponseEntity<?> seed(Authentication auth,
             @RequestParam(required = false) String tickers) {
         List<String> symbols = tickers != null
                 ? Arrays.asList(tickers.split(","))
                 : defaultTickers;
-        return ResponseEntity.ok(seedService.seedTickers(symbols));
+        SeedSubmissionResult submission = seedRunService.submit(auth, symbols, "ADMIN_PACK");
+        return submission.asynchronous()
+                ? ResponseEntity.accepted().body(submission.accepted())
+                : ResponseEntity.ok(submission.synchronousResults());
     }
 }

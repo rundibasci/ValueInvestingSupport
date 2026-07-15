@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UniverseSelectionControllerTest {
 
     @Mock UniverseSelectionService universeSelectionService;
+    @Mock SeedRunService seedRunService;
 
     MockMvc mockMvc;
 
@@ -39,7 +40,7 @@ class UniverseSelectionControllerTest {
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new UniverseSelectionController(universeSelectionService))
+                .standaloneSetup(new UniverseSelectionController(universeSelectionService, seedRunService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(mapper))
                 .build();
@@ -78,10 +79,11 @@ class UniverseSelectionControllerTest {
 
     @Test
     void seed_returnsPreviewAndSeedResults() throws Exception {
-        when(universeSelectionService.seed(any())).thenReturn(new UniverseSeedCriteriaResponse(
-                new UniversePreviewResponse(1, 1, false, null,
+        UniversePreviewResponse preview = new UniversePreviewResponse(1, 1, false, null,
                         List.of(new UniversePreviewRow("KO", "Coca-Cola", "NYSE", "US",
-                                "Consumer Staples", new BigDecimal("260000000000"), 15000000L))),
+                                "Consumer Staples", new BigDecimal("260000000000"), 15000000L)));
+        when(universeSelectionService.preview(any())).thenReturn(preview);
+        when(seedRunService.submit(any(), any(), any())).thenReturn(SeedSubmissionResult.synchronous(
                 List.of(SeedResult.success("KO", "Coca-Cola", "Consumer Staples", "NYSE", "US", null,
                         new BigDecimal("60"), new BigDecimal("70"), new BigDecimal("16.7"),
                         new BigDecimal("78"), Recommendation.QUALITY_VALUE, "FMP", LocalDate.of(2026, 7, 1)))));

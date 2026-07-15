@@ -28,6 +28,45 @@ export type SeedResult = {
   reason: string | null;
   error: string | null;
 };
+export type SeedRunAccepted = {
+  seedRunId: string;
+  status: string;
+  normalizedTickerCount: number;
+  progressUrl: string;
+  outcomesUrl: string;
+  pollingIntervalMs: number;
+  joinedExistingRun: boolean;
+};
+export type SeedRunStatus = {
+  seedRunId: string;
+  scope: string;
+  status: string;
+  total: number;
+  processed: number;
+  succeeded: number;
+  partiallySeeded: number;
+  failed: number;
+  currentSymbol: string | null;
+  terminalReason: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  updatedAt: string;
+  completedAt: string | null;
+  pollingIntervalMs: number;
+};
+export type SeedRunOutcome = {
+  position: number;
+  symbol: string;
+  status: "SUCCESS" | "PARTIAL" | "FAILED";
+  source: string | null;
+  reasonCode: string | null;
+  reason: string | null;
+  fallbackReason: string | null;
+  error: string | null;
+  completedAt: string;
+};
+export type PageResponse<T> = { content: T[]; page: number; size: number; totalElements: number; totalPages: number };
+export type SeedSubmitResponse = SeedResult[] | SeedRunAccepted;
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(path, init);
@@ -51,11 +90,16 @@ function tickersParam(symbols: string[]): string {
 
 export const seedUniverseApi = {
   seedCsv: (symbols: string[]) =>
-    json<SeedResult[]>(`/api/v1/universe/seed?${tickersParam(symbols)}`, {
+    json<SeedSubmitResponse>(`/api/v1/universe/seed?${tickersParam(symbols)}`, {
       method: "POST",
     }),
   seedAdminPack: (symbols: string[]) =>
-    json<SeedResult[]>(`/api/v1/admin/seed?${tickersParam(symbols)}`, {
+    json<SeedSubmitResponse>(`/api/v1/admin/seed?${tickersParam(symbols)}`, {
       method: "POST",
     }),
+  run: (id: string) => json<SeedRunStatus>(`/api/v1/seed/runs/${id}`),
+  outcomes: (id: string, page = 0) =>
+    json<PageResponse<SeedRunOutcome>>(`/api/v1/seed/runs/${id}/outcomes?page=${page}&size=50`),
+  retryFailures: (id: string) =>
+    json<SeedRunAccepted>(`/api/v1/seed/runs/${id}/retry-failures`, { method: "POST" }),
 };
