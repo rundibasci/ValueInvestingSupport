@@ -15,6 +15,9 @@ import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.domain.repository.WatchlistItemRepository;
 import it.mazzoni.vis.portfolio.dto.AllocationWeight;
 import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
+import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
+import it.mazzoni.vis.portfolio.dto.PortfolioPreconditionDiagnostic;
+import it.mazzoni.vis.portfolio.dto.PortfolioPreconditionsResponse;
 import it.mazzoni.vis.portfolio.dto.SimulationExclusion;
 import it.mazzoni.vis.portfolio.dto.SimulationProposalItem;
 import it.mazzoni.vis.portfolio.dto.SimulationRequest;
@@ -31,6 +34,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 @Service
@@ -66,20 +70,68 @@ public class PortfolioSimulationService {
 
     @Transactional(readOnly = true)
     public PortfolioSimulationResponse simulate(Authentication auth, UUID portfolioId, SimulationRequest request) {
-        // Reuse the ownership-safe F2 lookup; it deliberately returns 404 for another user's portfolio.
-        portfolioService.getPortfolioDetail(auth, portfolioId);
-        User user = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-
+        Evaluation evaluation = evaluate(auth, portfolioId, request);
+        if (!evaluation.preconditions.simulationAvailable()) {
+            throw new PortfolioPreconditionException(primaryMessage(evaluation.preconditions), evaluation.preconditions);
+        }
+        List<SimulationExclusion> excluded = evaluation.excluded;
+        List<Candidate> candidates = evaluation.candidates;
         BigDecimal stockCap = defaulted(request.maxStockPercent(), "25");
         BigDecimal sectorCap = defaulted(request.maxSectorPercent(), "40");
         BigDecimal countryCap = defaulted(request.maxCountryPercent(), "50");
+
+        allocate(candidates, request.budget(), stockCap, sectorCap, countryCap);
+        List<Candidate> allocated = candidates.stream().filter(c -> c.shares > 0).toList();
+        if (allocated.isEmpty()) {
+            PortfolioPreconditionsResponse diagnostics = withDiagnostic(evaluation.preconditions,
+                    new PortfolioPreconditionDiagnostic("BUDGET_CANNOT_PURCHASE_SHARE",
+                            "The budget cannot purchase a share while respecting the current caps.", true, true,
+                            "CONSTRAINTS"));
+            throw new PortfolioPreconditionException("Budget cannot purchase a share while respecting constraints", diagnostics);
+        }
+
+        BigDecimal invested = allocated.stream().map(Candidate::actualAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal cash = request.budget().subtract(invested).setScale(2, RoundingMode.HALF_UP);
+        Map<String, BigDecimal> sectorAmounts = amountsBy(allocated, Candidate::sector);
+        Map<String, BigDecimal> countryAmounts = amountsBy(allocated, Candidate::country);
+        return new PortfolioSimulationResponse(portfolioId, money(request.budget()), stockCap, sectorCap, countryCap,
+                money(invested), cash, weighted(allocated, Candidate::mos, invested), weighted(allocated, Candidate::yield, invested),
+                allocated.stream().map(c -> new SimulationProposalItem(c.symbol, c.score, money(c.price), c.shares,
+                        money(c.targetAmount), money(c.actualAmount()), percent(c.actualAmount(), request.budget()),
+                        c.sector, c.country, c.mos, c.yield)).toList(), excluded,
+                weights(sectorAmounts, request.budget()), weights(countryAmounts, request.budget()), DISCLAIMER);
+    }
+
+    @Transactional(readOnly = true)
+    public PortfolioPreconditionsResponse preconditions(Authentication auth, UUID portfolioId, SimulationRequest request) {
+        Evaluation evaluation = evaluate(auth, portfolioId, request);
+        if (!evaluation.preconditions.simulationAvailable()) return evaluation.preconditions;
+        BigDecimal stockCap = defaulted(request.maxStockPercent(), "25");
+        BigDecimal sectorCap = defaulted(request.maxSectorPercent(), "40");
+        BigDecimal countryCap = defaulted(request.maxCountryPercent(), "50");
+        allocate(evaluation.candidates, request.budget(), stockCap, sectorCap, countryCap);
+        if (evaluation.candidates.stream().noneMatch(candidate -> candidate.shares > 0)) {
+            return withDiagnostic(evaluation.preconditions, new PortfolioPreconditionDiagnostic(
+                    "BUDGET_CANNOT_PURCHASE_SHARE",
+                    "The budget cannot purchase a share while respecting the current caps.", true, true, "CONSTRAINTS"));
+        }
+        return evaluation.preconditions;
+    }
+
+    private Evaluation evaluate(Authentication auth, UUID portfolioId, SimulationRequest request) {
+        // Ownership-safe lookup deliberately returns 404 for another user's portfolio.
+        PortfolioDetailResponse portfolio = portfolioService.getPortfolioDetail(auth, portfolioId);
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
         BigDecimal minMos = defaulted(request.minimumMarginOfSafety(), "0");
         BigDecimal minYield = request.minimumDividendYield();
         List<SimulationExclusion> excluded = new ArrayList<>();
         List<Candidate> candidates = new ArrayList<>();
 
-        watchlistItemRepository.findByWatchlist_UserOrderByAddedAtDesc(user).forEach(item -> {
+        var watchlistItems = watchlistItemRepository.findByWatchlist_UserOrderByAddedAtDesc(user);
+
+        watchlistItems.forEach(item -> {
             String symbol = item.getSymbol();
             Security security = securityRepository.findBySymbol(symbol).orElse(null);
             if (security == null) { excluded.add(new SimulationExclusion(symbol, "SECURITY_NOT_FOUND")); return; }
@@ -100,24 +152,61 @@ public class PortfolioSimulationService {
 
         candidates.sort(Comparator.comparing(Candidate::score).reversed().thenComparing(Candidate::symbol));
         excluded.sort(Comparator.comparing(SimulationExclusion::symbol));
-        if (candidates.isEmpty()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No eligible watchlist candidates");
 
-        allocate(candidates, request.budget(), stockCap, sectorCap, countryCap);
-        List<Candidate> allocated = candidates.stream().filter(c -> c.shares > 0).toList();
-        if (allocated.isEmpty()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                "Budget cannot purchase a share while respecting constraints");
-
-        BigDecimal invested = allocated.stream().map(Candidate::actualAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal cash = request.budget().subtract(invested).setScale(2, RoundingMode.HALF_UP);
-        Map<String, BigDecimal> sectorAmounts = amountsBy(allocated, Candidate::sector);
-        Map<String, BigDecimal> countryAmounts = amountsBy(allocated, Candidate::country);
-        return new PortfolioSimulationResponse(portfolioId, money(request.budget()), stockCap, sectorCap, countryCap,
-                money(invested), cash, weighted(allocated, Candidate::mos, invested), weighted(allocated, Candidate::yield, invested),
-                allocated.stream().map(c -> new SimulationProposalItem(c.symbol, c.score, money(c.price), c.shares,
-                        money(c.targetAmount), money(c.actualAmount()), percent(c.actualAmount(), request.budget()),
-                        c.sector, c.country, c.mos, c.yield)).toList(), excluded,
-                weights(sectorAmounts, request.budget()), weights(countryAmounts, request.budget()), DISCLAIMER);
+        Map<String, Long> exclusionCounts = new LinkedHashMap<>();
+        excluded.forEach(item -> exclusionCounts.merge(item.reason(), 1L, Long::sum));
+        int unpricedHoldings = (int) portfolio.holdings().stream()
+                .filter(holding -> holding.currentPrice() == null || holding.currentPrice().signum() <= 0).count();
+        List<PortfolioPreconditionDiagnostic> diagnostics = new ArrayList<>();
+        if (watchlistItems.isEmpty()) {
+            diagnostics.add(new PortfolioPreconditionDiagnostic("NO_WATCHLIST_ITEMS",
+                    "Add companies to the watchlist before running a simulation.", true, true, "WATCHLIST"));
+        } else if (candidates.isEmpty()) {
+            boolean allUnpriced = excluded.stream().allMatch(item ->
+                    "PRICE_UNAVAILABLE".equals(item.reason()) || "SECURITY_NOT_FOUND".equals(item.reason()));
+            boolean constraintOnly = excluded.stream().allMatch(item ->
+                    "BELOW_MINIMUM_MARGIN_OF_SAFETY".equals(item.reason())
+                            || "BELOW_MINIMUM_DIVIDEND_YIELD".equals(item.reason()));
+            String code = allUnpriced ? "NO_PRICED_CANDIDATES"
+                    : constraintOnly ? "CONSTRAINTS_EXCLUDE_ALL" : "NO_ELIGIBLE_CANDIDATES";
+            String message = allUnpriced ? "No watchlist company currently has a usable price."
+                    : constraintOnly ? "The current constraints exclude every data-ready watchlist company."
+                    : "No watchlist company has all data required for simulation.";
+            diagnostics.add(new PortfolioPreconditionDiagnostic(code, message, true, true,
+                    constraintOnly ? "CONSTRAINTS" : "WATCHLIST"));
+        }
+        if (portfolio.holdings().isEmpty()) {
+            diagnostics.add(new PortfolioPreconditionDiagnostic("EMPTY_PORTFOLIO",
+                    "The portfolio has no holdings; rebalance will create an initial allocation.", false, false, "HOLDINGS"));
+        } else if (unpricedHoldings > 0) {
+            diagnostics.add(new PortfolioPreconditionDiagnostic("UNPRICED_PORTFOLIO",
+                    unpricedHoldings + " holding(s) do not have a usable price.", false, true, "HOLDINGS"));
+        }
+        boolean simulationAvailable = diagnostics.stream().noneMatch(PortfolioPreconditionDiagnostic::blocksSimulation);
+        boolean rebalanceAvailable = diagnostics.stream().noneMatch(PortfolioPreconditionDiagnostic::blocksRebalance);
+        PortfolioPreconditionsResponse response = new PortfolioPreconditionsResponse(portfolioId, simulationAvailable,
+                rebalanceAvailable, watchlistItems.size(), candidates.size(), portfolio.holdings().size(),
+                unpricedHoldings, Map.copyOf(exclusionCounts), List.copyOf(diagnostics));
+        return new Evaluation(candidates, excluded, response);
     }
+
+    private static PortfolioPreconditionsResponse withDiagnostic(PortfolioPreconditionsResponse source,
+                                                                  PortfolioPreconditionDiagnostic diagnostic) {
+        List<PortfolioPreconditionDiagnostic> diagnostics = new ArrayList<>(source.diagnostics());
+        diagnostics.add(diagnostic);
+        return new PortfolioPreconditionsResponse(source.portfolioId(), false,
+                !diagnostics.stream().anyMatch(PortfolioPreconditionDiagnostic::blocksRebalance), source.watchlistCount(),
+                source.eligibleCandidateCount(), source.holdingCount(), source.unpricedHoldingCount(),
+                source.exclusionCounts(), List.copyOf(diagnostics));
+    }
+
+    private static String primaryMessage(PortfolioPreconditionsResponse response) {
+        return response.diagnostics().stream().filter(PortfolioPreconditionDiagnostic::blocksSimulation)
+                .map(PortfolioPreconditionDiagnostic::message).findFirst().orElse("Portfolio simulation is unavailable");
+    }
+
+    private record Evaluation(List<Candidate> candidates, List<SimulationExclusion> excluded,
+                              PortfolioPreconditionsResponse preconditions) {}
 
     private void allocate(List<Candidate> candidates, BigDecimal budget, BigDecimal stockCap, BigDecimal sectorCap, BigDecimal countryCap) {
         BigDecimal stockLimit = budget.multiply(stockCap).divide(HUNDRED, 8, RoundingMode.DOWN);

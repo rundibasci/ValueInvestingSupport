@@ -11,6 +11,7 @@ import it.mazzoni.vis.portfolio.dto.SimulationRequest;
 import it.mazzoni.vis.portfolio.dto.RebalanceRequest;
 import it.mazzoni.vis.portfolio.dto.RebalanceProposalResponse;
 import it.mazzoni.vis.portfolio.dto.PortfolioAnalyticsResponse;
+import it.mazzoni.vis.portfolio.dto.PortfolioPreconditionsResponse;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,12 @@ public class PortfolioController {
     public PortfolioSimulationResponse simulate(Authentication auth, @PathVariable UUID id,
                                                 @Valid @RequestBody SimulationRequest request) {
         return portfolioSimulationService.simulate(auth, id, request);
+    }
+
+    @PostMapping("/{id}/simulation-preconditions")
+    public PortfolioPreconditionsResponse simulationPreconditions(Authentication auth, @PathVariable UUID id,
+                                                                  @Valid @RequestBody SimulationRequest request) {
+        return portfolioSimulationService.preconditions(auth, id, request);
     }
 
     /** Retained for existing controller tests; production wiring uses the three-argument constructor. */

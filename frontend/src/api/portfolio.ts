@@ -106,6 +106,24 @@ export type SimulationInput = {
   minimumMarginOfSafety?: number;
   minimumDividendYield?: number;
 };
+export type PreconditionDiagnostic = {
+  code: string;
+  message: string;
+  blocksSimulation: boolean;
+  blocksRebalance: boolean;
+  recoveryAction: "WATCHLIST" | "SCREENER" | "HOLDINGS" | "CONSTRAINTS";
+};
+export type PortfolioPreconditions = {
+  portfolioId: string;
+  simulationAvailable: boolean;
+  rebalanceAvailable: boolean;
+  watchlistCount: number;
+  eligibleCandidateCount: number;
+  holdingCount: number;
+  unpricedHoldingCount: number;
+  exclusionCounts: Record<string, number>;
+  diagnostics: PreconditionDiagnostic[];
+};
 export type Proposal = {
   symbol: string;
   valueScore: number | null;
@@ -159,14 +177,16 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(path, init);
   if (!response.ok) {
     const payload = (await response.json().catch(() => null)) as
-      | { message?: string; detail?: string; error?: string }
+      | { message?: string; detail?: string; error?: string; code?: string; diagnostics?: PortfolioPreconditions }
       | null;
-    throw new Error(
+    const error = new Error(
       payload?.message ||
         payload?.detail ||
         payload?.error ||
         `Request failed (${response.status}).`,
     );
+    Object.assign(error, { status: response.status, code: payload?.code, diagnostics: payload?.diagnostics });
+    throw error;
   }
   return response.json() as Promise<T>;
 }
@@ -204,6 +224,11 @@ export const portfolioApi = {
   },
   simulate: (id: string, input: SimulationInput) =>
     json<Simulation>(`/api/v1/portfolios/${id}/simulate`, body(input)),
+  preconditions: (id: string, input: SimulationInput) =>
+    json<PortfolioPreconditions>(
+      `/api/v1/portfolios/${id}/simulation-preconditions`,
+      body(input),
+    ),
   rebalance: (id: string, simulation: SimulationInput) =>
     json<Rebalance>(
       `/api/v1/portfolios/${id}/rebalance`,

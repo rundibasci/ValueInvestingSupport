@@ -120,6 +120,14 @@ public class PortfolioRebalanceService {
     }
 
     private Map<String, BigDecimal> simulationTargets(Authentication auth, UUID portfolioId, RebalanceRequest req) {
+        var preconditions = simulation.preconditions(auth, portfolioId, req.simulation());
+        if (!preconditions.rebalanceAvailable()) {
+            String message = preconditions.diagnostics().stream()
+                    .filter(diagnostic -> diagnostic.blocksRebalance())
+                    .map(diagnostic -> diagnostic.message())
+                    .findFirst().orElse("Portfolio rebalance is unavailable");
+            throw new PortfolioPreconditionException(message, preconditions);
+        }
         PortfolioSimulationResponse response = simulation.simulate(auth, portfolioId, req.simulation());
         Map<String, BigDecimal> targets = new TreeMap<>();
         for (SimulationProposalItem item : response.proposals()) {

@@ -11,6 +11,8 @@ import it.mazzoni.vis.portfolio.dto.PortfolioDetailResponse;
 import it.mazzoni.vis.portfolio.dto.PortfolioSummaryResponse;
 import it.mazzoni.vis.portfolio.dto.UpdateHoldingRequest;
 import it.mazzoni.vis.portfolio.dto.PortfolioSimulationResponse;
+import it.mazzoni.vis.portfolio.dto.PortfolioPreconditionDiagnostic;
+import it.mazzoni.vis.portfolio.dto.PortfolioPreconditionsResponse;
 import it.mazzoni.vis.portfolio.dto.SimulationRequest;
 import it.mazzoni.vis.portfolio.dto.RebalanceProposalResponse;
 import it.mazzoni.vis.portfolio.dto.RebalanceRequest;
@@ -30,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -208,6 +211,37 @@ class PortfolioControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"budget\":0}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void simulationPreconditions_returnsStructuredDiagnostics() throws Exception {
+        PortfolioPreconditionsResponse response = unavailablePreconditions();
+        when(portfolioSimulationService.preconditions(any(), eq(portfolioId), any(SimulationRequest.class)))
+                .thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/portfolios/{id}/simulation-preconditions", portfolioId)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"budget\":1000}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.simulationAvailable").value(false))
+                .andExpect(jsonPath("$.diagnostics[0].code").value("NO_WATCHLIST_ITEMS"));
+    }
+
+    @Test
+    void simulate_preconditionFailure_returnsStructured422() throws Exception {
+        when(portfolioSimulationService.simulate(any(), eq(portfolioId), any(SimulationRequest.class)))
+                .thenThrow(new PortfolioPreconditionException("Add companies to the watchlist.", unavailablePreconditions()));
+
+        mockMvc.perform(post("/api/v1/portfolios/{id}/simulate", portfolioId)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"budget\":1000}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("PORTFOLIO_PRECONDITION_FAILED"))
+                .andExpect(jsonPath("$.diagnostics.diagnostics[0].code").value("NO_WATCHLIST_ITEMS"));
+    }
+
+    private PortfolioPreconditionsResponse unavailablePreconditions() {
+        return new PortfolioPreconditionsResponse(portfolioId, false, false, 0, 0, 0, 0, Map.of(),
+                List.of(new PortfolioPreconditionDiagnostic("NO_WATCHLIST_ITEMS",
+                        "Add companies to the watchlist.", true, true, "WATCHLIST")));
     }
 
     // --- POST /api/v1/portfolios/{id}/holdings ---
