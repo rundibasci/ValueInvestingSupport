@@ -555,10 +555,13 @@ public class SecurityReviewService {
                 availability("Fundamentals", annual != null, annual != null ? annual.getReportDate() : null, "No seeded fundamental history is available."),
                 availability("Ratios", ratios != null, ratios != null ? ratios.getReportDate() : null, "No seeded ratio history is available."),
                 availability("Quote", price != null, price != null ? price.getQuoteDate() : null, "No local quote is available."),
-                valuationAvailability(valuation),
+                valuationAvailability(annual, valuation),
                 score != null
                         ? new SecurityReviewResponse.AvailabilityItem("Score", AvailabilityResponse.available(score.getScoreDate()))
-                        : new SecurityReviewResponse.AvailabilityItem("Score", AvailabilityResponse.missingComputation("No persisted value score is available.")),
+                        : new SecurityReviewResponse.AvailabilityItem("Score", annual != null && valuation == null
+                        ? new AvailabilityResponse(it.mazzoni.vis.common.AvailabilityStatus.GUARDRAIL_BLOCKED,
+                        "Score is unavailable because no valuation model passed its eligibility guardrails.", annual.getReportDate())
+                        : AvailabilityResponse.missingComputation("No persisted value score is available.")),
                 dividends.history().isEmpty()
                         ? new SecurityReviewResponse.AvailabilityItem("Dividends", AvailabilityResponse.providerLimited("Dividend history is unavailable from the current local data."))
                         : new SecurityReviewResponse.AvailabilityItem("Dividends", AvailabilityResponse.available(dividends.history().get(0).exDividendDate()))
@@ -572,10 +575,13 @@ public class SecurityReviewService {
         );
     }
 
-    private SecurityReviewResponse.AvailabilityItem valuationAvailability(ValuationResult valuation) {
+    private SecurityReviewResponse.AvailabilityItem valuationAvailability(FundamentalSnapshot annual, ValuationResult valuation) {
         if (valuation == null) {
             return new SecurityReviewResponse.AvailabilityItem("Valuation",
-                    AvailabilityResponse.missingComputation("No persisted valuation result is available."));
+                    annual != null
+                            ? new AvailabilityResponse(it.mazzoni.vis.common.AvailabilityStatus.GUARDRAIL_BLOCKED,
+                            "No valuation model passed its eligibility guardrails.", annual.getReportDate())
+                            : AvailabilityResponse.missingComputation("No persisted valuation result is available."));
         }
         if (valuation.getDcfFairValue() == null) {
             return new SecurityReviewResponse.AvailabilityItem("Valuation",

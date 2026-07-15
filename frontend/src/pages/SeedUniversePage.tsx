@@ -106,6 +106,7 @@ function sourceClass(source: string | null | undefined): string {
 
 function statusClass(result: SeedResult): string {
   if (result.error) return "bg-rose-400/15 text-rose-100 ring-1 ring-rose-300/25";
+  if (result.status === "seeded_partial") return "bg-sky-400/15 text-sky-100 ring-1 ring-sky-300/25";
   if (result.status === "unavailable") return "bg-amber-300/15 text-amber-100 ring-1 ring-amber-300/25";
   return "bg-emerald-400/15 text-emerald-100 ring-1 ring-emerald-300/25";
 }
@@ -127,7 +128,7 @@ function categoryCoverage(result: SeedResult): Array<[string, string]> {
     ["Fundamentals", label],
     ["Ratios", label],
     ["Quote", label],
-    ["Valuation", result.error ? "Unavailable" : "Local model"],
+    ["Valuation", result.compositeFairValue == null ? "Guardrail blocked" : "Local model"],
     ["Score", result.totalScore == null ? "Not returned" : "Local model"],
   ];
 }
@@ -342,14 +343,15 @@ function PreviewPanel({ preview }: { preview: Preview }): JSX.Element {
 }
 
 function ResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
-  const successCount = results.filter((result) => !result.error).length;
+  const successCount = results.filter((result) => !result.error && result.status !== "seeded_partial").length;
+  const partialCount = results.filter((result) => result.status === "seeded_partial").length;
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
       <div className="flex flex-col justify-between gap-3 border-b border-slate-800 px-5 py-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-semibold text-white">Seed results</h2>
           <p className="mt-1 text-sm text-slate-400">
-            {successCount}/{results.length} symbols seeded or refreshed.
+            {successCount} fully seeded · {partialCount} partially seeded · {results.length - successCount - partialCount} failed or unavailable.
           </p>
         </div>
         <Link
@@ -441,6 +443,7 @@ function ResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                   >
                     {result.error ?? result.status ?? "seeded"}
                   </span>
+                  {result.reason && <p className="mt-2 max-w-xs text-xs leading-5 text-sky-100">{result.reason}</p>}
                 </td>
                 <td className="space-y-2 px-4 py-4">
                   {!result.error ? (

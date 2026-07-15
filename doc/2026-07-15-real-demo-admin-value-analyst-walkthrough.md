@@ -127,6 +127,10 @@ After this walkthrough, DL1 Portfolio Lifecycle Completion added ownership-scope
 
 DL2 Reversible ADMIN User Lifecycle adds a bounded, newest-first user list and idempotent enable/disable controls to the ADMIN page. The backend prevents self-disable and disabling the final active ADMIN, while preserving roles and every owned record. Disabled accounts cannot start password or OAuth sessions and cannot refresh tokens. Stateless access tokens already issued can remain valid until their existing expiry, for at most 15 minutes; the UI states this explicitly and does not claim immediate logout.
 
+### DL3 Follow-up
+
+DL3 Partial Seed Persistence Without Fabricated Valuation separates valid market-data ingestion from valuation applicability. When profile, fundamentals, ratios, and quote data are saved but every valuation model is correctly blocked by its eligibility guardrails, seed now returns `seeded_partial` with reason `valuation_guardrail_blocked`. The company remains searchable and researchable, provider and Yahoo fallback provenance remain visible, and fair value, margin of safety, score, and recommendation stay unavailable rather than being estimated or replaced with zero. Provider-not-found, persistence, and unexpected failures retain rollback behavior.
+
 ## Disclaimer
 
 Value Investing Support provides decision support and does not provide personalized investment advice.

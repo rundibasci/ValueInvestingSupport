@@ -47,9 +47,9 @@ class RealDemoStartupRunnerTest {
         });
         when(seedService.seedTickers(List.of("KO", "JNJ"))).thenReturn(List.of(
                 new SeedResult("KO", "Coca-Cola Co.", "Consumer Defensive", "NYSE", "US", "desc",
-                        null, null, null, null, null, "yahoo", "seeded", null, LocalDate.now(), null),
+                        null, null, null, null, null, "yahoo", "seeded", null, LocalDate.now(), null, null, null),
                 new SeedResult("JNJ", null, null, null, null, null,
-                        null, null, null, null, null, null, "failed", null, null, "provider unavailable")
+                        null, null, null, null, null, null, "failed", null, null, null, null, "provider unavailable")
         ));
         when(quoteRefreshJob.execute()).thenReturn(1);
         when(dividendUpdateJob.execute()).thenReturn(2);
@@ -96,7 +96,7 @@ class RealDemoStartupRunnerTest {
         });
         when(seedService.seedTickers(List.of("KO"))).thenReturn(List.of(
                 new SeedResult("KO", "Coca-Cola Co.", "Consumer Defensive", "NYSE", "US", "desc",
-                        null, null, null, null, null, "yahoo", "seeded", null, LocalDate.now(), null)
+                        null, null, null, null, null, "yahoo", "seeded", null, LocalDate.now(), null, null, null)
         ));
         when(quoteRefreshJob.execute()).thenReturn(1);
         doThrow(new UnsupportedOperationException("getDividendHistory is not supported by the Yahoo Finance client"))

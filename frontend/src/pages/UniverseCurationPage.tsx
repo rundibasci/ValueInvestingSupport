@@ -104,6 +104,7 @@ function distribution(
 
 function seedStatusClass(result: SeedResult): string {
   if (result.error) return "bg-rose-400/15 text-rose-100 ring-1 ring-rose-300/25";
+  if (result.status === "seeded_partial") return "bg-sky-400/15 text-sky-100 ring-1 ring-sky-300/25";
   if (result.status === "unavailable") return "bg-amber-300/15 text-amber-100 ring-1 ring-amber-300/25";
   return "bg-emerald-400/15 text-emerald-100 ring-1 ring-emerald-300/25";
 }
@@ -561,12 +562,14 @@ function PreviewTable({ preview }: { preview: UniversePreview }): JSX.Element {
 }
 
 function SeedResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
+  const fullCount = results.filter((result) => !result.error && result.status !== "seeded_partial").length;
+  const partialCount = results.filter((result) => result.status === "seeded_partial").length;
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
       <div className="border-b border-slate-800 px-5 py-4">
         <h2 className="text-lg font-semibold text-white">Seed results</h2>
         <p className="mt-1 text-sm text-slate-400">
-          {results.filter((result) => !result.error).length}/{results.length} symbols seeded or refreshed.
+          {fullCount} fully seeded · {partialCount} partially seeded · {results.length - fullCount - partialCount} failed or unavailable.
         </p>
       </div>
       <div className="overflow-x-auto">
@@ -598,6 +601,7 @@ function SeedResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                   <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${seedStatusClass(result)}`}>
                     {result.error ?? result.status ?? "seeded"}
                   </span>
+                  {result.reason && <p className="mt-2 max-w-xs text-xs leading-5 text-sky-100">{result.reason}</p>}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-400">
                   Ingestion-event links appear here when backend seed responses include event identifiers.
