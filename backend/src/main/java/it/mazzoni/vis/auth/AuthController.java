@@ -69,8 +69,9 @@ public class AuthController {
                 .orElseThrow(() -> new AuthException("Invalid or expired refresh token"));
 
         String role = userRepository.findByEmail(email)
+                .filter(it.mazzoni.vis.domain.entity.User::isActive)
                 .map(u -> u.getRole().name())
-                .orElseThrow(() -> new AuthException("User not found"));
+                .orElseThrow(() -> new AuthException("Invalid or expired refresh token"));
 
         return ResponseEntity.ok(new RefreshResponse(
                 jwtService.issueAccessToken(email, role),
