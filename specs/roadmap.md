@@ -1137,6 +1137,79 @@ Goal: make scheduled jobs visible and controllable from a dedicated admin window
 
 ---
 
+## Group DL — Demo Lifecycle & Partial-Data Hardening
+
+Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps found during the real-demo ADMIN/value-analyst walkthrough before stakeholder cloud deployment. The group keeps destructive actions ownership-safe, prefers reversible account controls over physical deletion, preserves valid market data when valuation models are inapplicable, turns expected portfolio validation outcomes into guided user states, and makes large seed operations observable without holding an HTTP request open.
+
+### Phase DL1: Portfolio Lifecycle Completion
+- Add ownership-scoped `DELETE /api/v1/portfolios/{id}` support using the same user-resolution and not-found semantics as portfolio detail and holding mutations.
+- Delete the portfolio and its dependent holdings, rebalance proposals, lines, and analytics snapshots transactionally through the existing cascade rules; do not affect immutable research-decision audit records.
+- Add a portfolio-page delete action with an explicit confirmation that names the portfolio and explains that holdings, simulations, and saved rebalance proposals will be removed.
+- After deletion, invalidate portfolio, detail, analytics, and dashboard queries and select another available portfolio or show the existing empty state.
+- Add backend ownership/cascade tests and frontend success, cancellation, error, and last-portfolio empty-state checks.
+- Acceptance checklist:
+  - A user can delete only a portfolio they own and receives `204` on success.
+  - Another user's portfolio remains undiscoverable and returns the established not-found response.
+  - No direct database cleanup is required after a reversible portfolio QA exercise.
+  - The UI cannot trigger deletion without an explicit confirmation.
+
+### Phase DL2: Reversible ADMIN User Lifecycle
+- Extend `/api/v1/admin/users` with an ADMIN-only paginated list exposing ID, email, role, active state, and creation date without password hashes or authentication secrets.
+- Add an idempotent enable/disable operation based on the existing `app_user.active` field; prefer deactivation over physical user deletion so portfolio ownership and immutable audit history remain intact.
+- Prevent an admin from disabling their own active account and prevent disabling the final active ADMIN.
+- Define session behavior explicitly: disabled users cannot authenticate or refresh credentials; decide and test whether already-issued access tokens are rejected immediately or remain valid only until their short expiry.
+- Upgrade `/admin/users` from create-only form to lifecycle table with create, enable, and disable controls plus confirmation and actionable conflict messages.
+- Add authorization, self-disable, last-admin, pagination, secret-redaction, login, refresh, and UI tests.
+- Acceptance checklist:
+  - ADMIN can create a temporary QA user, verify it, disable it, and re-enable it without database access.
+  - INVESTOR and ADVISOR users cannot list or mutate accounts.
+  - Disabling a user never deletes their portfolios, watchlists, preferences, or audit evidence.
+
+### Phase DL3: Partial Seed Persistence Without Fabricated Valuation
+- Separate successful market-data persistence from valuation applicability so a ticker with valid profile, fundamentals, ratios, and quote data is not rolled back solely because no valuation model passes its guardrails.
+- Catch only the explicit valuation-not-applicable outcome; retain full failure behavior for provider `NOT_FOUND`, unusable core data, persistence errors, and unexpected exceptions.
+- Return a structured partial result such as `seeded_partial` with available profile/price/source fields and null valuation, margin-of-safety, score, and classification fields. Never invent replacement values or relax valuation eligibility rules.
+- Expose a plain-language reason such as `valuation_guardrail_blocked` and ensure search, screener, security detail, and review surfaces distinguish partial seeded history from missing security data.
+- Keep provider provenance, freshness, and Yahoo fallback details visible for the successfully persisted categories.
+- Add tests for full success, valuation-inapplicable partial success, provider not-found rollback, retry after partial seed, and downstream availability semantics.
+- Acceptance checklist:
+  - A symbol like APD or WBA remains researchable when market data is valid but no valuation model applies.
+  - Fair value, MoS, score, or recommendation are never synthesized to turn partial ingestion into apparent analytical completeness.
+  - A genuinely unavailable symbol such as a provider `NOT_FOUND` case does not create a misleading active security.
+
+### Phase DL4: Guided Portfolio Simulation Preconditions
+- Use existing watchlist, portfolio, price, and valuation availability data to explain whether a simulation or simulation-based rebalance has eligible candidates before submission.
+- Disable only commands that are provably impossible, while preserving backend validation as the source of truth and allowing the user to change constraints.
+- Translate `No eligible watchlist candidates`, empty/unpriced portfolio, and constraint-elimination responses into distinct domain messages rather than generic technical errors.
+- Provide direct recovery actions to the watchlist, screener, holdings editor, or simulation constraints without silently weakening the user's conservative criteria.
+- Where backend diagnostics already expose excluded counts or reasons, show them; otherwise add a small structured diagnostics response without duplicating the simulation engine in React.
+- Add frontend tests for no-watchlist, no-priced-candidate, over-restrictive-constraint, unpriced-portfolio, eligible, retry, and API-error states.
+- Acceptance checklist:
+  - Expected `422` domain outcomes are understandable and recoverable from the portfolio page.
+  - The UI never presents a disabled action without explaining what must change.
+  - Suggested recovery actions preserve user-selected value-investing constraints and the decision-support boundary.
+
+### Phase DL5: Asynchronous Bulk Seed Progress
+- Introduce an asynchronous execution path for seed requests above a documented configurable threshold, while preserving the current synchronous response for small lists where it remains fast and predictable.
+- Return `202 Accepted` with a stable `seedRunId`, initial status, submitted/normalized ticker count, and links or route information for progress and final results; reject or join duplicate active submissions according to an explicit idempotency rule.
+- Persist run state independently from the initiating HTTP request using lifecycle states such as `QUEUED`, `RUNNING`, `PARTIAL_SUCCESS`, `SUCCESS`, `FAILED`, and `CANCELLED` only if cancellation is actually supported.
+- Expose an authenticated progress endpoint, for example `GET /api/v1/seed/runs/{seedRunId}`, containing total, processed, succeeded, partially seeded, failed, current symbol when safe, start/update/completion timestamps, and sanitized per-symbol outcomes. Users may inspect their own runs; ADMIN may inspect shared-universe runs according to existing authorization rules.
+- Reuse the existing job-run/event persistence and execution patterns where compatible, but keep seed ownership, shared-universe authorization, and result semantics explicit instead of exposing internal scheduler details directly to the frontend.
+- Make progress updates transactionally durable at bounded intervals so backend restarts or frontend navigation do not lose the run's terminal state. Define retention and pagination for completed runs and per-symbol events.
+- Update seed and universe-curation pages to poll while the run is non-terminal using TanStack Query with bounded backoff, stop automatically on terminal status, resume polling after page reload from the retained `seedRunId`, and invalidate search/screener/security queries as successful symbols become available or when the run completes.
+- Show a progress bar and exact counts, partial-success explanations, provider/fallback context, failed symbols with sanitized reasons, and a retry action scoped only to failed symbols. Do not report completion merely because the initiating request returned successfully.
+- Prevent overlapping submissions from exhausting provider quotas: apply concurrency limits, preserve existing per-ticker transaction isolation, and keep Yahoo fallback observability correlated with the seed run/job run identifier.
+- Add backend tests for threshold selection, authorization, idempotency, durable progress, partial failures, terminal status, restart recovery, and provider throttling; add frontend tests for polling, backoff, reload recovery, completion, partial success, failure, retry, and query invalidation.
+- Acceptance checklist:
+  - Submitting a long ticker list returns quickly with a run identifier instead of waiting for every ticker to finish.
+  - The frontend can poll one documented endpoint until a durable terminal state is reached and stops polling afterward.
+  - Progress counts are monotonic and reconcile with the submitted normalized ticker count.
+  - Individual ticker failures do not hide successful or partially seeded tickers, and retries do not reprocess successful symbols unnecessarily.
+  - Refreshing or leaving the page does not cancel the backend activity or lose the ability to inspect its outcome.
+  - Secrets, raw provider payloads, and credentials never appear in progress or event responses.
+
+---
+
 ## Group K — GCP Distribution & Operational Readiness
 
 Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
@@ -1199,6 +1272,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M21: Real Demo (Curated)** | RD2-1 | Yahoo Finance (free) | Agent 1 validates curated universe workflow end to end with screenshots; comparison with manual-seed experience |
 | **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack including real-portfolio CSV validation, and monitor-agent log correlation from investor-agent findings |
 | **M23: Scheduled Job Monitor Console** | JM1, JM2 | FMP primary / Yahoo fallback | ADMIN window to monitor scheduled jobs, inspect run/event history, and launch jobs immediately with visible progress |
+| **M23.5: Demo Lifecycle Hardening** | DL1, DL2, DL3, DL4, DL5 | FMP primary / Yahoo fallback | Portfolio cleanup, reversible ADMIN account lifecycle, partial seed persistence, guided simulation preconditions, and pollable progress for long seed lists |
 | **M24: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
 | **M25: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M26: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
@@ -1236,3 +1310,5 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M22 recycles investor-agent findings before cloud deployment.** The autonomous investor replay surfaced issues that are small individually but trust-eroding in aggregate: screener empty-state contradiction, API threshold validation fragility, duplicate landmarks, and `BRK.B`/`BRK-B` symbol mismatch. M22 turns those findings into a focused hardening loop with monitor-agent log correlation before K1 exposes the demo to stakeholders in the cloud. The replay and beta-test phases are iterative gates: fixes are followed by repeat investor, monitor, and beta cycles until consecutive clean runs show no unresolved high- or medium-severity problems.
 >
 > **M23 makes scheduled work operable from the product.** JC1/JC2 provide job APIs and runtime controls; JM turns them into an ADMIN-facing monitor window so a stakeholder or operator can verify schedules, observe progress, inspect failures, and launch a job immediately without leaving the React app.
+>
+> **M23.5 closes the reversible-lifecycle, partial-data, and long-running seed gaps exposed by the real demo.** Portfolio deletion removes the need for direct database cleanup, reversible user deactivation makes ADMIN provisioning testable without erasing owned history, partial seed persistence retains valid provider facts without fabricating valuations, guided simulation states turn expected domain rejections into actionable workflow guidance, and asynchronous bulk seeding gives the frontend durable pollable progress for long lists. These are deliberately bounded improvements before cloud exposure, not a redesign of portfolio, identity, valuation, or ingestion architecture.
