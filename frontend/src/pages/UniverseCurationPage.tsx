@@ -11,6 +11,7 @@ import {
   type UniverseTemplate,
 } from "../api/universeCuration";
 import type { SeedResult } from "../api/seedUniverse";
+import { SeedRunProgress } from "../components/SeedRunProgress";
 
 const defaultCriteria: UniverseSelectionCriteria = {
   exchanges: ["NASDAQ", "NYSE"],
@@ -115,6 +116,7 @@ export function UniverseCurationPage(): JSX.Element {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [preview, setPreview] = useState<UniversePreview | null>(null);
   const [seedResults, setSeedResults] = useState<SeedResult[] | null>(null);
+  const [runId, setRunId] = useState<string | null>(() => localStorage.getItem("universe-curation-run-id"));
 
   const templatesQuery = useQuery({
     queryKey: ["universe-curation", "templates"],
@@ -133,7 +135,11 @@ export function UniverseCurationPage(): JSX.Element {
     mutationFn: universeCurationApi.seed,
     onSuccess: (data) => {
       setPreview(data.preview);
-      setSeedResults(data.results);
+      if ("results" in data) setSeedResults(data.results);
+      else {
+        setRunId(data.run.seedRunId);
+        localStorage.setItem("universe-curation-run-id", data.run.seedRunId);
+      }
       void queryClient.invalidateQueries({ queryKey: ["screener"] });
       void queryClient.invalidateQueries({ queryKey: ["security-search"] });
     },
@@ -356,6 +362,8 @@ export function UniverseCurationPage(): JSX.Element {
       </div>
 
       {preview && <PreviewTable preview={preview} />}
+      {runId && <SeedRunProgress runId={runId} onRunChange={(id) => { setRunId(id); localStorage.setItem("universe-curation-run-id", id); }} onDismiss={() => { setRunId(null); localStorage.removeItem("universe-curation-run-id"); }} />}
+
       {seedResults && <SeedResultsTable results={seedResults} />}
     </section>
   );

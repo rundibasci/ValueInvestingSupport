@@ -35,6 +35,13 @@ app:
       dividend-update:   "0 0 6 * * *"
       insider-trading:   "0 0 * * * *"
       alert-detection:   "0 20 0 * * *"
+  seed-runs:
+    async-threshold: ${SEED_ASYNC_THRESHOLD:10}
+    max-symbols: ${SEED_MAX_SYMBOLS:500}
+    worker-concurrency: ${SEED_WORKER_CONCURRENCY:2}
+    queue-capacity: ${SEED_QUEUE_CAPACITY:20}
+    retention-days: ${SEED_RUN_RETENTION_DAYS:30}
+    polling-interval-ms: ${SEED_POLLING_INTERVAL_MS:1500}
   alert-email:
     enabled: ${ALERT_EMAIL_ENABLED:false}
     from: ${ALERT_EMAIL_FROM:}
