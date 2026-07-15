@@ -2,6 +2,7 @@ import { apiFetch } from "./client";
 
 export type SeedStatus =
   | "seeded"
+  | "seeded_partial"
   | "refreshed"
   | "skipped"
   | "failed"
@@ -23,6 +24,8 @@ export type SeedResult = {
   status: SeedStatus | string | null;
   fallbackReason: string | null;
   refreshedAt: string | null;
+  reasonCode: string | null;
+  reason: string | null;
   error: string | null;
 };
 

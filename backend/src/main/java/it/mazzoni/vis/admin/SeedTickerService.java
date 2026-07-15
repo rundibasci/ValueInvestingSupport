@@ -27,6 +27,7 @@ import it.mazzoni.vis.moat.MoatAssessmentService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
+import it.mazzoni.vis.valuation.ValuationNotApplicableException;
 import it.mazzoni.vis.valuation.ValuationParams;
 import it.mazzoni.vis.valuation.ValuationService;
 import org.springframework.context.annotation.Profile;
@@ -103,13 +104,20 @@ public class SeedTickerService {
             ValuationParams params = new ValuationParams(
                     defaults.wacc(), defaults.growthY1Y5(), defaults.growthY6Y10(),
                     defaults.terminalRate(), null, null);
-            ValuationOutcome outcome = valuationService.calculate(symbol, params);
+            ValuationOutcome outcome;
+            try {
+                outcome = valuationService.calculate(symbol, params);
+            } catch (ValuationNotApplicableException exception) {
+                recomputeDerivedAnalytics(security, symbol);
+                BigDecimal currentPrice = currentPrice(security);
+                return SeedResult.partial(symbol, security.getCompanyName(),
+                        security.getSector(), security.getExchange(), security.getCountry(),
+                        security.getDescription(), currentPrice, sourceTracker.summarize(), LocalDate.now());
+            }
             ValuationResult result = outcome.result();
             it.mazzoni.vis.domain.entity.ValueScore score = valueScoreService.compute(symbol);
             recomputeDerivedAnalytics(security, symbol);
-            BigDecimal currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
-                    .map(PriceQuote::getClose)
-                    .orElse(null);
+            BigDecimal currentPrice = currentPrice(security);
             BigDecimal totalScore = score.getTotalScore();
 
             return SeedResult.success(symbol, security.getCompanyName(),
@@ -120,6 +128,12 @@ public class SeedTickerService {
         } finally {
             sourceTracker.clear();
         }
+    }
+
+    private BigDecimal currentPrice(Security security) {
+        return priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
+                .map(PriceQuote::getClose)
+                .orElse(null);
     }
 
     private void recomputeDerivedAnalytics(Security security, String symbol) {

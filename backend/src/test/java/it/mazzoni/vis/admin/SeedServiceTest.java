@@ -26,6 +26,7 @@ import it.mazzoni.vis.moat.MoatAssessmentService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
+import it.mazzoni.vis.valuation.ValuationNotApplicableException;
 import it.mazzoni.vis.valuation.ValuationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -176,6 +177,35 @@ class SeedServiceTest {
         SeedResult aaplResult = results.stream().filter(r -> r.symbol().equals("AAPL")).findFirst().orElseThrow();
         assertThat(aaplResult.error()).isNull();
         assertThat(aaplResult.status()).isEqualTo("seeded");
+    }
+
+    @Test
+    void seedTickers_valuationNotApplicable_returnsPartialMarketDataWithoutFabricatedAnalytics() {
+        stubFmpData("APD", "Air Products and Chemicals");
+        when(valuationService.calculate(eq("APD"), any()))
+                .thenThrow(new ValuationNotApplicableException("APD"));
+        when(sourceTracker.summarize()).thenReturn("profile:fmp,fundamentals:yahoo,ratios:fmp,quote:fmp");
+
+        SeedResult result = seedService.seedTickers(List.of("APD")).getFirst();
+
+        assertThat(result.status()).isEqualTo("seeded_partial");
+        assertThat(result.reasonCode()).isEqualTo("valuation_guardrail_blocked");
+        assertThat(result.reason()).contains("Market data was saved");
+        assertThat(result.companyName()).isEqualTo("Air Products and Chemicals");
+        assertThat(result.source()).contains("yahoo");
+        assertThat(result.fallbackReason()).contains("Yahoo Finance");
+        assertThat(result.compositeFairValue()).isNull();
+        assertThat(result.marginOfSafety()).isNull();
+        assertThat(result.totalScore()).isNull();
+        assertThat(result.recommendation()).isNull();
+        assertThat(result.error()).isNull();
+        verify(securityRepository).save(any(Security.class));
+        verify(fundamentalSnapshotRepository, times(2)).save(any());
+        verify(ratioSnapshotRepository, times(3)).save(any());
+        verify(priceQuoteRepository).save(any());
+        verify(valueScoreService, never()).compute("APD");
+        verify(riskAnalysisService).computePiotroski("APD");
+        verify(moatAssessmentService).analyze(any(Security.class));
     }
 
     @Test
