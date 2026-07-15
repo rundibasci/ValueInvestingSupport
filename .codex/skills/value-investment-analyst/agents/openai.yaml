@@ -1,0 +1,4 @@
+interface:
+  display_name: "Value Investment Analyst"
+  short_description: "Analisi fondamentale prudente e verificabile"
+  default_prompt: "Use $value-investment-analyst to analyze a company using Value Investing Support platform data."

@@ -39,10 +39,15 @@ public class GrowthService {
         BigDecimal end = extractor.apply(annuals.get(0));
         BigDecimal start = extractor.apply(annuals.get(years));
 
-        if (end == null || start == null || start.compareTo(BigDecimal.ZERO) == 0) return null;
-        if (start.compareTo(BigDecimal.ZERO) < 0) return null;
+        if (end == null || start == null) return null;
+        if (end.signum() <= 0 || start.signum() <= 0) return null;
 
-        double result = (Math.pow(end.doubleValue() / start.doubleValue(), 1.0 / years) - 1) * 100;
+        double ratio = end.doubleValue() / start.doubleValue();
+        if (!Double.isFinite(ratio) || ratio <= 0) return null;
+
+        double result = (Math.pow(ratio, 1.0 / years) - 1) * 100;
+        if (!Double.isFinite(result)) return null;
+
         return BigDecimal.valueOf(result).setScale(2, RoundingMode.HALF_UP);
     }
 }

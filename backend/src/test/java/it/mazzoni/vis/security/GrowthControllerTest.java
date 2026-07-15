@@ -79,6 +79,38 @@ class GrowthControllerTest {
     }
 
     @Test
+    void growth_withNegativeLatestValue_returnsUnavailableMetricInsteadOf500() throws Exception {
+        Security s = security("SJM");
+        List<FundamentalSnapshot> snapshots = annuals(4);
+        snapshots.get(0).setEps(new BigDecimal("-0.25"));
+
+        when(securityRepository.findBySymbol("SJM")).thenReturn(Optional.of(s));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(eq(s), eq(Period.ANNUAL)))
+                .thenReturn(snapshots);
+
+        mockMvc.perform(get("/api/v1/securities/SJM/growth"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.revenue.cagr3y").isNumber())
+                .andExpect(jsonPath("$.eps.cagr3y").doesNotExist());
+    }
+
+    @Test
+    void growth_withNonFiniteDoubleRatio_returnsUnavailableMetricInsteadOf500() throws Exception {
+        Security s = security("LARGE");
+        List<FundamentalSnapshot> snapshots = annuals(4);
+        snapshots.get(0).setFreeCashFlow(new BigDecimal("1E+10000"));
+
+        when(securityRepository.findBySymbol("LARGE")).thenReturn(Optional.of(s));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(eq(s), eq(Period.ANNUAL)))
+                .thenReturn(snapshots);
+
+        mockMvc.perform(get("/api/v1/securities/LARGE/growth"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.revenue.cagr3y").isNumber())
+                .andExpect(jsonPath("$.fcf.cagr3y").doesNotExist());
+    }
+
+    @Test
     void growth_unknownSymbol_returns404() throws Exception {
         when(securityRepository.findBySymbol("XYZ")).thenReturn(Optional.empty());
 
