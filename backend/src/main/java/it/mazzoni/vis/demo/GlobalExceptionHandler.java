@@ -3,6 +3,7 @@ package it.mazzoni.vis.demo;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.portfolio.PortfolioPreconditionException;
 import it.mazzoni.vis.valuation.StaleDataException;
 import it.mazzoni.vis.valuation.ValuationDataUnavailableException;
 import it.mazzoni.vis.valuation.ValuationNotApplicableException;
@@ -16,6 +17,15 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(PortfolioPreconditionException.class)
+    public org.springframework.http.ResponseEntity<Map<String, Object>> handlePortfolioPreconditionException(
+            PortfolioPreconditionException ex) {
+        return org.springframework.http.ResponseEntity.unprocessableEntity().body(Map.of(
+                "error", ex.getMessage(),
+                "code", "PORTFOLIO_PRECONDITION_FAILED",
+                "diagnostics", ex.getDiagnostics()));
+    }
 
     @ExceptionHandler(ResponseStatusException.class)
     public org.springframework.http.ResponseEntity<Map<String, String>> handleResponseStatusException(

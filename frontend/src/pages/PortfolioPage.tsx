@@ -14,6 +14,7 @@ import {
   type Portfolio,
   type PortfolioAnalytics,
   type PortfolioDetail,
+  type PortfolioPreconditions,
   type Simulation,
   type SimulationInput,
 } from "../api/portfolio";
@@ -105,6 +106,66 @@ function ErrorNotice({ error }: { error: unknown }): JSX.Element | null {
       {error.message}
     </p>
   ) : null;
+}
+
+function ReadinessPanel({
+  readiness,
+  loading,
+  error,
+  retry,
+}: {
+  readiness?: PortfolioPreconditions;
+  loading: boolean;
+  error: unknown;
+  retry: () => void;
+}): JSX.Element {
+  if (loading) {
+    return <p role="status" className="mt-5 text-sm text-slate-400">Checking portfolio readiness…</p>;
+  }
+  if (error && !readiness) {
+    return (
+      <div role="alert" className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+        Readiness could not be checked. Backend validation will still run when you submit.{" "}
+        <button type="button" onClick={retry} className="font-semibold underline">Retry</button>
+      </div>
+    );
+  }
+  if (!readiness) return <></>;
+  const recovery = (action: string): JSX.Element => {
+    if (action === "WATCHLIST") return <span className="flex gap-3"><Link to="/watchlist" className="font-semibold text-emerald-200 underline">Open watchlist</Link><Link to="/screener" className="font-semibold text-emerald-200 underline">Open screener</Link></span>;
+    if (action === "SCREENER") return <Link to="/screener" className="font-semibold text-emerald-200 underline">Open screener</Link>;
+    if (action === "HOLDINGS") return <a href="#portfolio-holdings" className="font-semibold text-emerald-200 underline">Edit holdings</a>;
+    return <a href="#simulation-constraints" className="font-semibold text-emerald-200 underline">Review constraints</a>;
+  };
+  return (
+    <div className="mt-5 rounded-xl border border-slate-700 bg-slate-950/60 p-4" aria-label="Simulation readiness">
+      <div className="flex flex-wrap gap-3 text-sm">
+        <span className={readiness.simulationAvailable ? "text-emerald-200" : "text-amber-100"}>
+          Simulation: {readiness.simulationAvailable ? "ready" : "not ready"}
+        </span>
+        <span className={readiness.rebalanceAvailable ? "text-emerald-200" : "text-amber-100"}>
+          Rebalance: {readiness.rebalanceAvailable ? "ready" : "not ready"}
+        </span>
+        <span className="text-slate-400">{readiness.eligibleCandidateCount} eligible of {readiness.watchlistCount} watchlist companies</span>
+      </div>
+      {readiness.diagnostics.length > 0 && (
+        <ul className="mt-3 space-y-2 text-sm text-slate-300">
+          {readiness.diagnostics.map((item) => (
+            <li key={item.code} className="flex flex-wrap items-baseline justify-between gap-2">
+              <span>{item.message}</span>
+              {recovery(item.recoveryAction)}
+            </li>
+          ))}
+        </ul>
+      )}
+      {Object.keys(readiness.exclusionCounts).length > 0 && (
+        <p className="mt-3 text-xs text-slate-400">
+          Exclusions: {Object.entries(readiness.exclusionCounts).map(([reason, count]) => `${label(reason)} (${count})`).join(" · ")}
+        </p>
+      )}
+      <p className="mt-3 text-xs text-slate-500">Platform facts describe data readiness only. Your constraints are never changed automatically.</p>
+    </div>
+  );
 }
 
 function ConcentrationWarnings({
@@ -732,6 +793,18 @@ export function PortfolioPage(): JSX.Element {
     queryKey: ["watchlist"],
     queryFn: watchlistApi.list,
   });
+  const localFormValid =
+    Boolean(activeId) &&
+    form.budget > 0 &&
+    (form.maxStockPercent ?? 0) > 0 &&
+    (form.maxSectorPercent ?? 0) > 0 &&
+    (form.maxCountryPercent ?? 0) > 0;
+  const preconditions = useQuery({
+    queryKey: ["portfolio", activeId, "simulation-preconditions", form],
+    queryFn: () => portfolioApi.preconditions(activeId!, form),
+    enabled: localFormValid,
+    staleTime: 5_000,
+  });
   const create = useMutation({
     mutationFn: () => portfolioApi.create(name, description),
     onSuccess: (created) => {
@@ -769,6 +842,9 @@ export function PortfolioPage(): JSX.Element {
       queryKey: ["portfolio", activeId, "analytics"],
     });
     void client.invalidateQueries({ queryKey: ["portfolios"] });
+    void client.invalidateQueries({
+      queryKey: ["portfolio", activeId, "simulation-preconditions"],
+    });
   };
   const addHolding = useMutation({
     mutationFn: () =>
@@ -818,12 +894,16 @@ export function PortfolioPage(): JSX.Element {
       ),
     [analytics.data],
   );
-  const canRun =
-    Boolean(activeId) &&
-    form.budget > 0 &&
-    (form.maxStockPercent ?? 0) > 0 &&
-    (form.maxSectorPercent ?? 0) > 0 &&
-    (form.maxCountryPercent ?? 0) > 0;
+  const commandDiagnostics = (
+    (runSimulation.error ?? runRebalance.error) as
+      | (Error & { diagnostics?: PortfolioPreconditions })
+      | null
+  )?.diagnostics;
+  const readiness = commandDiagnostics ?? preconditions.data;
+  const canSimulate =
+    localFormValid && readiness?.simulationAvailable !== false;
+  const canRebalance =
+    localFormValid && readiness?.rebalanceAvailable !== false;
   const update = (field: keyof SimulationInput, raw: string): void =>
     setForm((current) => ({
       ...current,
@@ -932,7 +1012,7 @@ export function PortfolioPage(): JSX.Element {
         </aside>
 
         <div className="space-y-6">
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+          <section id="simulation-constraints" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-white">
@@ -1129,7 +1209,7 @@ export function PortfolioPage(): JSX.Element {
           ) : null}
           <ErrorNotice error={watchlist.error} />
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+          <section id="portfolio-holdings" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <h2 className="text-xl font-semibold text-white">
               Allocation constraints
             </h2>
@@ -1247,9 +1327,16 @@ export function PortfolioPage(): JSX.Element {
                 />
               </label>
             </div>
+            <ReadinessPanel
+              readiness={readiness}
+              loading={preconditions.isFetching && !preconditions.data}
+              error={preconditions.error}
+              retry={() => void preconditions.refetch()}
+            />
             <div className="mt-5 flex flex-wrap gap-3">
               <button
-                disabled={!canRun || runSimulation.isPending}
+                disabled={!canSimulate || runSimulation.isPending}
+                title={!canSimulate ? readiness?.diagnostics.find((item) => item.blocksSimulation)?.message : undefined}
                 onClick={() => runSimulation.mutate()}
                 className={buttonClass}
               >
@@ -1258,7 +1345,8 @@ export function PortfolioPage(): JSX.Element {
                   : "Run allocation simulation"}
               </button>
               <button
-                disabled={!canRun || runRebalance.isPending}
+                disabled={!canRebalance || runRebalance.isPending}
+                title={!canRebalance ? readiness?.diagnostics.find((item) => item.blocksRebalance)?.message : undefined}
                 onClick={() => runRebalance.mutate()}
                 className="rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-50"
               >
