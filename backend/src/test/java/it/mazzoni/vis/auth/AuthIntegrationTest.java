@@ -175,6 +175,27 @@ class AuthIntegrationTest {
     }
 
     @Test
+    void inactiveUser_cannotLoginOrRefreshButExistingAccessTokenKeepsNormalExpiry() throws Exception {
+        MvcResult loginResult = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequest("user@example.com", "Password1!"))))
+                .andReturn();
+        String accessToken = (String) objectMapper.readValue(loginResult.getResponse().getContentAsString(), Map.class).get("accessToken");
+        String refreshToken = loginResult.getResponse().getCookie("vis_refresh").getValue();
+        User user = userRepository.findByEmail("user@example.com").orElseThrow();
+        user.setActive(false);
+        userRepository.saveAndFlush(user);
+
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequest("user@example.com", "Password1!"))))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/auth/refresh").cookie(new Cookie("vis_refresh", refreshToken)))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/v1/ping").header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void logout_thenRefreshFails() throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

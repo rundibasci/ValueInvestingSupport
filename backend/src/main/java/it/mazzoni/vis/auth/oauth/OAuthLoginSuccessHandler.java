@@ -66,6 +66,11 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
         String name = oidcUser.getFullName();
 
         User user = accountResolver.resolve(sub, email, name);
+        if (!user.isActive()) {
+            securityEvents.recordCallbackRejected("inactive_account");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Unable to complete sign-in");
+            return;
+        }
 
         String accessToken = jwtService.issueAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtService.issueRefreshToken(user.getEmail());

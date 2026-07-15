@@ -157,6 +157,24 @@ class OAuthLoginSuccessHandlerTest {
         assertEquals(admin.getId(), resolved.getId());
     }
 
+    @Test
+    void inactiveExistingUserReceivesNoOAuthCredentials() throws Exception {
+        User user = new User();
+        user.setEmail("inactive@example.com");
+        user.setPasswordHash(passwordEncoder.encode("Password1!"));
+        user.setRole(UserRole.INVESTOR);
+        user.setActive(false);
+        userRepository.save(user);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        successHandler.onAuthenticationSuccess(new MockHttpServletRequest(), response,
+                new TestingAuthenticationToken(oidcUser("inactive-sub", "inactive@example.com", true), null));
+
+        assertEquals(403, response.getStatus());
+        assertNull(response.getHeader(HttpHeaders.SET_COOKIE));
+        assertTrue(store.isEmpty());
+    }
+
     private OidcUser oidcUser(String subject, String email, boolean verified) {
         OidcUser oidcUser = Mockito.mock(OidcUser.class);
         Mockito.when(oidcUser.getSubject()).thenReturn(subject);

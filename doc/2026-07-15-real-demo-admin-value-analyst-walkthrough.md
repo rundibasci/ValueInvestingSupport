@@ -52,11 +52,11 @@ For each of the 64 requested symbols, the walkthrough called profile, company re
 | `/universe-curation` | Templates and defensive-universe preview, seeded fallback under FMP restriction | PASS |
 | `/admin/seed` | ADMIN seed capability and completed requested startup universe | PASS; duplicate network-heavy seed not repeated |
 | `/admin/jobs` | Seven definitions, monitor, cron update/restore, enabled update/restore, disabled manual run, history/events | PASS |
-| `/admin/users` | ADMIN-only create capability and request validation mapped | BLOCKED from mutation: creating a user has no delete/disable counterpart and would leave irreversible test data |
+| `/admin/users` | ADMIN-only paginated list, create, disable and re-enable lifecycle | DL2 follow-up implemented; QA data can be preserved and access reversibly disabled |
 | `/auth/oauth2/callback` | Provider configuration inspected | BLOCKED by design: Google OAuth is disabled in realDemo |
 | unknown route | React wildcard redirects to `/` | Confirmed from route configuration |
 
-The frontend has no `/api/v1/dashboard` aggregate endpoint; the dashboard composes other APIs. A direct 404 for that invented endpoint is therefore not a product failure. Similarly, `/api/v1/admin/users` intentionally supports POST only, so GET 405 is expected.
+The frontend has no `/api/v1/dashboard` aggregate endpoint; the dashboard composes other APIs. A direct 404 for that invented endpoint is therefore not a product failure. The later DL2 follow-up adds bounded `GET`, existing `POST`, and idempotent `PATCH /{id}/active` support to `/api/v1/admin/users`.
 
 ## API and Control Evidence
 
@@ -113,6 +113,8 @@ This sample verdict is not mechanically derived from the platform recommendation
 - No custom DCF was run because the user supplied no assumptions and the skill forbids silently inventing them.
 - ADMIN user creation was not performed because there is no product cleanup operation.
 
+This last limitation describes the original walkthrough state. DL2 now permits a temporary account to be disabled and re-enabled without deleting its owned or historical data.
+
 ## Cleanup
 
 Temporary watchlist and checklist data was deleted; competence preferences and job cron/enabled settings were restored. The temporary holding was deleted. Because the product has no portfolio-delete operation, the temporary QA portfolio was removed directly from the clean demo database after functional verification.
@@ -120,6 +122,10 @@ Temporary watchlist and checklist data was deleted; competence preferences and j
 ### DL1 Follow-up
 
 After this walkthrough, DL1 Portfolio Lifecycle Completion added ownership-scoped `DELETE /api/v1/portfolios/{id}` support and a named confirmation action to the portfolio page. Portfolio-scoped holdings, rebalance proposals/lines, and analytics snapshots are removed through the existing cascade rules, while immutable research-decision audit evidence and shared market data remain intact. Future QA portfolio cleanup can therefore be completed through the product without direct PostgreSQL access.
+
+### DL2 Follow-up
+
+DL2 Reversible ADMIN User Lifecycle adds a bounded, newest-first user list and idempotent enable/disable controls to the ADMIN page. The backend prevents self-disable and disabling the final active ADMIN, while preserving roles and every owned record. Disabled accounts cannot start password or OAuth sessions and cannot refresh tokens. Stateless access tokens already issued can remain valid until their existing expiry, for at most 15 minutes; the UI states this explicitly and does not claim immediate logout.
 
 ## Disclaimer
 

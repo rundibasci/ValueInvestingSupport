@@ -34,6 +34,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,6 +123,7 @@ class AdminUserIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("new@example.com"))
                 .andExpect(jsonPath("$.role").value("INVESTOR"))
+                .andExpect(jsonPath("$.active").value(true))
                 .andExpect(jsonPath("$.id").isNotEmpty());
     }
 
@@ -153,6 +156,65 @@ class AdminUserIntegrationTest {
                         .content(objectMapper.writeValueAsString(
                                 new CreateUserRequest("new3@example.com", "Password1!", "INVESTOR"))))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void listAndLifecycle_asAdmin_preservesUserAndBlocksLoginAndRefresh() throws Exception {
+        User investor = userRepository.findByEmail("investor@example.com").orElseThrow();
+        mockMvc.perform(get("/api/v1/admin/users?page=0&size=20")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].passwordHash").doesNotExist())
+                .andExpect(jsonPath("$.content[?(@.email == 'investor@example.com')].active").value(true));
+
+        mockMvc.perform(patch("/api/v1/admin/users/{id}/active", investor.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(false));
+
+        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequest("investor@example.com", "Investor1!"))))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(patch("/api/v1/admin/users/{id}/active", investor.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(true));
+        org.junit.jupiter.api.Assertions.assertEquals(UserRole.INVESTOR, userRepository.findById(investor.getId()).orElseThrow().getRole());
+    }
+
+    @Test
+    void lifecycle_rejectsSelfDisableAndFinalAdminWithStableCodes() throws Exception {
+        User admin = userRepository.findByEmail("admin@example.com").orElseThrow();
+        mockMvc.perform(patch("/api/v1/admin/users/{id}/active", admin.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("SELF_DISABLE_NOT_ALLOWED"));
+
+        User secondAdmin = new User();
+        secondAdmin.setEmail("second-admin@example.com");
+        secondAdmin.setPasswordHash(passwordEncoder.encode("Admin1234!"));
+        secondAdmin.setRole(UserRole.ADMIN);
+        secondAdmin = userRepository.save(secondAdmin);
+        String secondToken = login("second-admin@example.com", "Admin1234!");
+        mockMvc.perform(patch("/api/v1/admin/users/{id}/active", secondAdmin.getId())
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(patch("/api/v1/admin/users/{id}/active", admin.getId())
+                        .header("Authorization", "Bearer " + secondToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("LAST_ACTIVE_ADMIN"));
     }
 
     private String login(String email, String password) throws Exception {
