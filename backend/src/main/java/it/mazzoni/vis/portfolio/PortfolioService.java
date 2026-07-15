@@ -97,6 +97,13 @@ public class PortfolioService {
         return PortfolioSummaryResponse.from(portfolioRepository.save(p));
     }
 
+    @Transactional
+    public void deletePortfolio(Authentication auth, UUID id) {
+        User user = resolveUser(auth);
+        Portfolio portfolio = resolvePortfolio(id, user);
+        portfolioRepository.delete(portfolio);
+    }
+
     public PortfolioDetailResponse getPortfolioDetail(Authentication auth, UUID id) {
         User user = resolveUser(auth);
         Portfolio portfolio = resolvePortfolio(id, user);

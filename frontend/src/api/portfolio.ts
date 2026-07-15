@@ -186,6 +186,22 @@ export const portfolioApi = {
       "/api/v1/portfolios",
       body({ name, description: description || null }),
     ),
+  remove: async (id: string): Promise<void> => {
+    const response = await apiFetch(`/api/v1/portfolios/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as
+        | { message?: string; detail?: string; error?: string }
+        | null;
+      throw new Error(
+        payload?.message ||
+          payload?.detail ||
+          payload?.error ||
+          `Request failed (${response.status}).`,
+      );
+    }
+  },
   simulate: (id: string, input: SimulationInput) =>
     json<Simulation>(`/api/v1/portfolios/${id}/simulate`, body(input)),
   rebalance: (id: string, simulation: SimulationInput) =>

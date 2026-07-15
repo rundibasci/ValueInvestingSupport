@@ -117,6 +117,10 @@ This sample verdict is not mechanically derived from the platform recommendation
 
 Temporary watchlist and checklist data was deleted; competence preferences and job cron/enabled settings were restored. The temporary holding was deleted. Because the product has no portfolio-delete operation, the temporary QA portfolio was removed directly from the clean demo database after functional verification.
 
+### DL1 Follow-up
+
+After this walkthrough, DL1 Portfolio Lifecycle Completion added ownership-scoped `DELETE /api/v1/portfolios/{id}` support and a named confirmation action to the portfolio page. Portfolio-scoped holdings, rebalance proposals/lines, and analytics snapshots are removed through the existing cascade rules, while immutable research-decision audit evidence and shared market data remain intact. Future QA portfolio cleanup can therefore be completed through the product without direct PostgreSQL access.
+
 ## Disclaimer
 
 Value Investing Support provides decision support and does not provide personalized investment advice.

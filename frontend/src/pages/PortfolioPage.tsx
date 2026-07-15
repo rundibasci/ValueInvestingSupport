@@ -686,7 +686,9 @@ function conservativeFindings(holding: Holding): string[] {
 export function PortfolioPage(): JSX.Element {
   const { session } = useAuth();
   const client = useQueryClient();
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null | undefined>(
+    undefined,
+  );
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [form, setForm] = useState<SimulationInput>(defaults);
@@ -699,6 +701,7 @@ export function PortfolioPage(): JSX.Element {
   const [holdingValidation, setHoldingValidation] = useState<string | null>(
     null,
   );
+  const [portfolioNotice, setPortfolioNotice] = useState<string | null>(null);
   const portfolios = useQuery({
     queryKey: ["portfolios"],
     queryFn: portfolioApi.list,
@@ -713,7 +716,8 @@ export function PortfolioPage(): JSX.Element {
     onSuccess: () =>
       void client.invalidateQueries({ queryKey: ["advisor-acknowledgement"] }),
   });
-  const activeId = selected ?? portfolios.data?.[0]?.id ?? null;
+  const activeId =
+    selected === undefined ? (portfolios.data?.[0]?.id ?? null) : selected;
   const detail = useQuery({
     queryKey: ["portfolio", activeId],
     queryFn: () => portfolioApi.detail(activeId!),
@@ -735,6 +739,20 @@ export function PortfolioPage(): JSX.Element {
       setName("");
       setDescription("");
       void client.invalidateQueries({ queryKey: ["portfolios"] });
+    },
+  });
+  const deletePortfolio = useMutation({
+    mutationFn: (portfolio: Portfolio) => portfolioApi.remove(portfolio.id),
+    onSuccess: async (_, deleted) => {
+      setPortfolioNotice(`Portfolio "${deleted.name}" deleted.`);
+      setSimulation(null);
+      setRebalance(null);
+      client.removeQueries({ queryKey: ["portfolio", deleted.id] });
+      const remaining = (portfolios.data ?? []).filter(
+        (portfolio) => portfolio.id !== deleted.id,
+      );
+      setSelected(remaining[0]?.id ?? null);
+      await client.invalidateQueries({ queryKey: ["portfolios"] });
     },
   });
   const runSimulation = useMutation({
@@ -926,14 +944,41 @@ export function PortfolioPage(): JSX.Element {
                 </p>
               </div>
               {detail.data && (
-                <div className="text-right text-sm">
-                  <p className="text-slate-400">Current value</p>
-                  <p className="font-semibold text-white">
-                    {money(detail.data.totalValue)}
-                  </p>
+                <div className="flex flex-col items-end gap-3 text-right text-sm">
+                  <div>
+                    <p className="text-slate-400">Current value</p>
+                    <p className="font-semibold text-white">
+                      {money(detail.data.totalValue)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={deletePortfolio.isPending}
+                    onClick={() => {
+                      setPortfolioNotice(null);
+                      deletePortfolio.reset();
+                      const confirmed = window.confirm(
+                        `Delete portfolio "${detail.data.name}"? Its holdings, analytics snapshots, and saved rebalance proposals will be permanently removed.`,
+                      );
+                      if (confirmed) deletePortfolio.mutate(detail.data);
+                    }}
+                    className="rounded-lg border border-rose-300/40 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-400/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {deletePortfolio.isPending
+                      ? "Deleting portfolio…"
+                      : "Delete portfolio"}
+                  </button>
                 </div>
               )}
             </div>
+            {portfolioNotice && (
+              <p
+                role="status"
+                className="mt-4 rounded-lg border border-emerald-300/20 bg-emerald-300/5 p-3 text-sm text-emerald-100"
+              >
+                {portfolioNotice}
+              </p>
+            )}
             {detail.data?.holdings?.length ? (
               <div className="mt-5 overflow-x-auto">
                 <table className="w-full min-w-[46rem] text-left text-sm">
@@ -1057,7 +1102,12 @@ export function PortfolioPage(): JSX.Element {
               </p>
             )}
             <ErrorNotice
-              error={detail.error ?? addHolding.error ?? removeHolding.error}
+              error={
+                detail.error ??
+                addHolding.error ??
+                removeHolding.error ??
+                deletePortfolio.error
+              }
             />
           </section>
 

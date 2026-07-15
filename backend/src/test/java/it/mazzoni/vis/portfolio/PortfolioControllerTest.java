@@ -146,6 +146,25 @@ class PortfolioControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    // --- DELETE /api/v1/portfolios/{id} ---
+
+    @Test
+    void deletePortfolio_validId_returns204() throws Exception {
+        doNothing().when(portfolioService).deletePortfolio(any(), eq(portfolioId));
+
+        mockMvc.perform(delete("/api/v1/portfolios/" + portfolioId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deletePortfolio_unknownOrForeignPortfolio_returns404() throws Exception {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"))
+                .when(portfolioService).deletePortfolio(any(), eq(portfolioId));
+
+        mockMvc.perform(delete("/api/v1/portfolios/" + portfolioId))
+                .andExpect(status().isNotFound());
+    }
+
     // --- GET /api/v1/portfolios/{id} ---
 
     @Test

@@ -66,6 +66,12 @@ public class PortfolioController {
         return portfolioService.createPortfolio(auth, req);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(Authentication auth, @PathVariable UUID id) {
+        portfolioService.deletePortfolio(auth, id);
+    }
+
     @GetMapping("/{id}")
     public PortfolioDetailResponse detail(Authentication auth, @PathVariable UUID id) {
         return portfolioService.getPortfolioDetail(auth, id);

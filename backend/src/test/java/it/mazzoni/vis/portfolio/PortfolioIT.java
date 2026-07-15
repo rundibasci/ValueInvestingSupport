@@ -277,6 +277,57 @@ class PortfolioIT {
     }
 
     @Test
+    void deletePortfolio_removesScopedChildrenAndPreservesAuditAndOtherPortfolios() {
+        ResponseEntity<Map<String, Object>> created = post("/api/v1/portfolios",
+                new CreatePortfolioRequest("Delete me", null));
+        UUID portfolioId = UUID.fromString((String) created.getBody().get("id"));
+        post("/api/v1/portfolios/" + portfolioId + "/holdings",
+                new AddHoldingRequest("KO", new BigDecimal("2"), null, "USD"));
+
+        ResponseEntity<Map<String, Object>> retained = post("/api/v1/portfolios",
+                new CreatePortfolioRequest("Keep me", null));
+        UUID retainedPortfolioId = UUID.fromString((String) retained.getBody().get("id"));
+
+        UUID proposalId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO rebalance_proposal(id, portfolio_id, status, holdings_fingerprint, created_at)
+                VALUES (?, ?, 'PENDING', 'fingerprint', NOW())
+                """, proposalId, portfolioId);
+        jdbc.update("""
+                INSERT INTO rebalance_line(id, proposal_id, symbol, captured_price, current_quantity, target_quantity)
+                VALUES (?, ?, 'KO', 60.00, 2.00, 3.00)
+                """, UUID.randomUUID(), proposalId);
+        jdbc.update("""
+                INSERT INTO portfolio_analytics_snapshot(
+                    id, portfolio_id, captured_at, total_market_value, benchmark_symbol, warning_count, payload)
+                VALUES (?, ?, NOW(), 120.00, 'SPY', 0, '{}')
+                """, UUID.randomUUID(), portfolioId);
+        UUID auditId = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO research_snapshot(id, user_id, symbol, action_type, captured_at, rationale)
+                VALUES (?, ?, 'KO', 'ADD_HOLDING', NOW(), 'Retained audit evidence')
+                """, auditId, adminUserId);
+
+        ResponseEntity<Void> response = restTemplate.exchange(
+                url("/api/v1/portfolios/" + portfolioId), HttpMethod.DELETE,
+                new HttpEntity<>(bearerHeaders(adminToken)), Void.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(count("portfolio", "id", portfolioId)).isZero();
+        assertThat(count("holding", "portfolio_id", portfolioId)).isZero();
+        assertThat(count("rebalance_proposal", "portfolio_id", portfolioId)).isZero();
+        assertThat(count("rebalance_line", "proposal_id", proposalId)).isZero();
+        assertThat(count("portfolio_analytics_snapshot", "portfolio_id", portfolioId)).isZero();
+        assertThat(count("portfolio", "id", retainedPortfolioId)).isOne();
+        assertThat(count("research_snapshot", "id", auditId)).isOne();
+
+        ResponseEntity<String> repeated = restTemplate.exchange(
+                url("/api/v1/portfolios/" + portfolioId), HttpMethod.DELETE,
+                new HttpEntity<>(bearerHeaders(adminToken)), String.class);
+        assertThat(repeated.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void unauthenticated_returns401() {
         ResponseEntity<String> response = restTemplate.exchange(
                 url("/api/v1/portfolios"), HttpMethod.GET,
@@ -315,6 +366,12 @@ class PortfolioIT {
                 new ParameterizedTypeReference<>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return (String) response.getBody().get("accessToken");
+    }
+
+    private long count(String table, String column, UUID id) {
+        return jdbc.queryForObject(
+                "SELECT COUNT(*) FROM " + table + " WHERE " + column + " = ?",
+                Long.class, id);
     }
 
     private HttpHeaders bearerHeaders(String token) {
