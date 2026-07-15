@@ -174,3 +174,17 @@ Priority: **High for operational transparency and data provenance**.
 
 Before treating Yahoo fallback as normal behavior, validate the observed FMP `PLAN_RESTRICTION` against the current plan and endpoint contract. Until that validation is complete, fallback should remain available for resilience but should be prominently visible to ADMIN users and monitored as an exception.
 
+## Implementation Status
+
+Implemented on branch `b4-yahoo-fallback-observability`:
+
+- Dedicated `market_data_fallback_event` persistence with Flyway V22.
+- Separate fallback and enrichment events with `SUCCESS`, `FAILED`, and `REJECTED` outcomes.
+- Field-level evidence for missing and accepted profile/quote fields.
+- Job name and job-run correlation through MDC.
+- Sanitized, length-limited diagnostics without provider payloads or credentials.
+- ADMIN event API: `GET /api/v1/admin/market-data-fallbacks`.
+- ADMIN aggregate API: `GET /api/v1/admin/market-data-fallbacks/summary`.
+- Filters for symbol, operation, event type, outcome, trigger, job run, and time range.
+- ADMIN React analysis page at `/admin/fallbacks`.
+- Failure-isolated persistence using a new transaction so observability cannot roll back ingestion.

@@ -15,6 +15,7 @@ const navigation = [
 
 const adminNavigation = [
   { label: 'Jobs', to: '/admin/jobs' },
+  { label: 'Data Fallbacks', to: '/admin/fallbacks' },
   { label: 'Users', to: '/admin/users' },
 ]
 

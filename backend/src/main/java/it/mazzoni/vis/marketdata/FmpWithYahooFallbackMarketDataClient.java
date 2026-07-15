@@ -45,6 +45,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     private final SourceTracker sourceTracker;
     private final MarketDataStatusTracker statusTracker;
     private final ObservabilitySupport observability;
+    private final MarketDataFallbackRecorder fallbackRecorder;
 
     public FmpWithYahooFallbackMarketDataClient(
             @Qualifier("fmpMarketDataClient") MarketDataClient fmpClient,
@@ -52,18 +53,21 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
             YahooFinanceAdapter yahooAdapter,
             SourceTracker sourceTracker,
             MarketDataStatusTracker statusTracker,
-            ObservabilitySupport observability) {
+            ObservabilitySupport observability,
+            MarketDataFallbackRecorder fallbackRecorder) {
         this.fmpClient = fmpClient;
         this.yahooClient = yahooClient;
         this.yahooAdapter = yahooAdapter;
         this.sourceTracker = sourceTracker;
         this.statusTracker = statusTracker;
         this.observability = observability;
+        this.fallbackRecorder = fallbackRecorder;
     }
 
     @Override
     @Cacheable(cacheNames = "mdc-profile", key = "@cacheKeyHelper.key('profile', #symbol)")
     public CompanyProfile getProfile(String symbol) {
+        String fallbackTrigger = null;
         try {
             CompanyProfile result = fmpClient.getProfile(symbol);
             sourceTracker.record("FMP");
@@ -72,27 +76,41 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("profile", e);
+            fallbackTrigger = e.getErrorCode().name();
         }
-        CompanyProfile result = yahooProfile(symbol);
-        sourceTracker.record("Yahoo");
-        return result;
+        long started = System.nanoTime();
+        try {
+            CompanyProfile result = yahooProfile(symbol);
+            sourceTracker.record("Yahoo");
+            recordExplicitSuccess(symbol, "profile", fallbackTrigger, profileFields(), started);
+            return result;
+        } catch (MarketDataException e) {
+            recordFailure(symbol, "profile", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
+            throw e;
+        }
     }
 
     private CompanyProfile enrichIncompleteProfile(String symbol, CompanyProfile profile) {
         if (profile.exchange() != null && !profile.exchange().isBlank()) {
             return profile;
         }
+        long started = System.nanoTime();
         try {
             CompanyProfile yahoo = yahooProfile(symbol);
             if (yahoo.exchange() == null || yahoo.exchange().isBlank()) {
+                recordRejected(symbol, "profile", "exchange", started);
                 return profile;
             }
             sourceTracker.record("Yahoo");
+            recordEnrichmentSuccess(symbol, "profile", "exchange", "exchange", started);
             return new CompanyProfile(
                     profile.symbol(), profile.companyName(), profile.sector(), profile.industry(),
                     profile.country(), profile.currency(), yahoo.exchange(), profile.marketCap(),
                     profile.description(), profile.website());
         } catch (MarketDataException e) {
+            recordFailure(symbol, "profile", "PRIMARY_PROVIDER_ENRICHMENT", "MISSING_FIELD",
+                    "SUCCESS_INCOMPLETE", "exchange", e, started);
             log.debug("Yahoo profile enrichment unavailable for {}: {}", symbol, e.getMessage());
             return profile;
         }
@@ -101,6 +119,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     @Override
     @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)")
     public FundamentalSnapshot getFundamentals(String symbol) {
+        String fallbackTrigger = null;
         try {
             FundamentalSnapshot result = fmpClient.getFundamentals(symbol);
             sourceTracker.record("FMP");
@@ -109,17 +128,24 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("fundamentals", e);
+            fallbackTrigger = e.getErrorCode().name();
         }
+        long started = System.nanoTime();
         try {
             QuoteSummaryResponse qsr = yahooClient.getQuoteSummary(symbol);
             ChartResponse cr = yahooClient.getChart(symbol);
             FundamentalSnapshot result = yahooAdapter.toFundamentalSnapshot(symbol, qsr, cr);
             sourceTracker.record("Yahoo");
             statusTracker.recordFallback("PLAN_RESTRICTION");
+            recordExplicitSuccess(symbol, "fundamentals", fallbackTrigger, "fundamentals", started);
             return result;
         } catch (SymbolNotFoundException e) {
+            recordFailure(symbol, "fundamentals", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
         } catch (MarketDataUnavailableException e) {
+            recordFailure(symbol, "fundamentals", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
         }
     }
@@ -127,6 +153,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     @Override
     @Cacheable(cacheNames = "mdc-ratios", key = "@cacheKeyHelper.key('ratios', #symbol)")
     public RatioSnapshot getRatios(String symbol) {
+        String fallbackTrigger = null;
         try {
             RatioSnapshot result = fmpClient.getRatios(symbol);
             sourceTracker.record("FMP");
@@ -135,16 +162,23 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("ratios", e);
+            fallbackTrigger = e.getErrorCode().name();
         }
+        long started = System.nanoTime();
         try {
             QuoteSummaryResponse qsr = yahooClient.getQuoteSummary(symbol);
             RatioSnapshot result = yahooAdapter.toRatioSnapshot(symbol, qsr);
             sourceTracker.record("Yahoo");
             statusTracker.recordFallback("PLAN_RESTRICTION");
+            recordExplicitSuccess(symbol, "ratios", fallbackTrigger, "ratios", started);
             return result;
         } catch (SymbolNotFoundException e) {
+            recordFailure(symbol, "ratios", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
         } catch (MarketDataUnavailableException e) {
+            recordFailure(symbol, "ratios", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
         }
     }
@@ -161,6 +195,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     @Override
     @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)")
     public MarketPriceQuote getQuote(String symbol) {
+        String fallbackTrigger = null;
         try {
             MarketPriceQuote result = fmpClient.getQuote(symbol);
             sourceTracker.record("FMP");
@@ -169,16 +204,24 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         } catch (MarketDataException e) {
             if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
             recordFallback("quote", e);
+            fallbackTrigger = e.getErrorCode().name();
         }
+        long started = System.nanoTime();
         try {
             ChartResponse cr = yahooClient.getChart(symbol);
             MarketPriceQuote result = yahooAdapter.toPriceQuote(symbol, cr);
             sourceTracker.record("Yahoo");
             statusTracker.recordFallback("PLAN_RESTRICTION");
+            recordExplicitSuccess(symbol, "quote", fallbackTrigger,
+                    "price,currency,change,changePercent,volume", started);
             return result;
         } catch (SymbolNotFoundException e) {
+            recordFailure(symbol, "quote", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.NOT_FOUND, symbol, e);
         } catch (MarketDataUnavailableException e) {
+            recordFailure(symbol, "quote", "PRIMARY_PROVIDER_FALLBACK", fallbackTrigger,
+                    fallbackTrigger, null, e, started);
             throw new MarketDataException(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, symbol, e);
         }
     }
@@ -187,16 +230,22 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         if (quote.volume() != null && quote.volume() > 0) {
             return quote;
         }
+        long started = System.nanoTime();
         try {
             MarketPriceQuote yahoo = yahooAdapter.toPriceQuote(symbol, yahooClient.getChart(symbol));
-            if (yahoo.volume() == null || yahoo.volume() <= 0) {
+            if (yahoo == null || yahoo.volume() == null || yahoo.volume() <= 0) {
+                recordRejected(symbol, "quote", "volume", started);
                 return quote;
             }
             sourceTracker.record("Yahoo");
+            statusTracker.recordFallback("MISSING_FIELD");
+            recordEnrichmentSuccess(symbol, "quote", "volume", "volume", started);
             return new MarketPriceQuote(
                     quote.symbol(), quote.price(), quote.currency(), quote.change(),
                     quote.changePercent(), yahoo.volume());
         } catch (SymbolNotFoundException | MarketDataUnavailableException e) {
+            recordFailure(symbol, "quote", "PRIMARY_PROVIDER_ENRICHMENT", "MISSING_FIELD",
+                    "SUCCESS_INCOMPLETE", "volume", e, started);
             log.debug("Yahoo quote enrichment unavailable for {}: {}", symbol, e.getMessage());
             return quote;
         }
@@ -248,5 +297,49 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
         observability.count("vis.marketdata.fallback",
                 observability.tags("provider", "fmp", "operation", operation, "fallback", "yahoo", "error", reason));
         statusTracker.recordFallback(reason);
+    }
+
+    private void recordExplicitSuccess(String symbol, String operation, String trigger,
+                                       String acceptedFields, long started) {
+        persistEvent(new FallbackEventCommand(
+                symbol, operation, "PRIMARY_PROVIDER_FALLBACK", trigger, trigger,
+                "SUCCESS", null, acceptedFields, null, elapsedMs(started)));
+    }
+
+    private void recordEnrichmentSuccess(String symbol, String operation, String missingFields,
+                                         String acceptedFields, long started) {
+        persistEvent(new FallbackEventCommand(
+                symbol, operation, "PRIMARY_PROVIDER_ENRICHMENT", "MISSING_FIELD", "SUCCESS_INCOMPLETE",
+                "SUCCESS", missingFields, acceptedFields, null, elapsedMs(started)));
+    }
+
+    private void recordRejected(String symbol, String operation, String missingFields, long started) {
+        persistEvent(new FallbackEventCommand(
+                symbol, operation, "PRIMARY_PROVIDER_ENRICHMENT", "MISSING_FIELD", "SUCCESS_INCOMPLETE",
+                "REJECTED", missingFields, null, "Yahoo returned no acceptable value", elapsedMs(started)));
+    }
+
+    private void recordFailure(String symbol, String operation, String eventType, String trigger,
+                               String primaryStatus, String missingFields, Exception error, long started) {
+        persistEvent(new FallbackEventCommand(
+                symbol, operation, eventType, trigger, primaryStatus, "FAILED", missingFields,
+                null, error.getMessage(), elapsedMs(started)));
+    }
+
+    private long elapsedMs(long started) {
+        return Math.max(0, (System.nanoTime() - started) / 1_000_000);
+    }
+
+    private String profileFields() {
+        return "companyName,sector,industry,country,currency,exchange,marketCap,description,website";
+    }
+
+    private void persistEvent(FallbackEventCommand command) {
+        try {
+            fallbackRecorder.recordSafely(command);
+        } catch (RuntimeException e) {
+            log.warn("market_data_fallback_event_write_failed symbol={} operation={} message={}",
+                    command.symbol(), command.operation(), e.getMessage());
+        }
     }
 }

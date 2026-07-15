@@ -34,6 +34,7 @@ class FmpWithYahooFallbackMarketDataClientTest {
     @Mock YahooFinanceClient yahooClient;
     @Mock YahooFinanceAdapter yahooAdapter;
     @Mock SourceTracker sourceTracker;
+    @Mock MarketDataFallbackRecorder fallbackRecorder;
 
     FmpWithYahooFallbackMarketDataClient client;
 
@@ -47,7 +48,8 @@ class FmpWithYahooFallbackMarketDataClientTest {
                 yahooAdapter,
                 sourceTracker,
                 new MarketDataStatusTracker(),
-                new ObservabilitySupport(new SimpleMeterRegistry()));
+                new ObservabilitySupport(new SimpleMeterRegistry()),
+                fallbackRecorder);
     }
 
     // --- shared stubs ---
@@ -72,7 +74,7 @@ class FmpWithYahooFallbackMarketDataClientTest {
     }
 
     private static MarketPriceQuote quote() {
-        return new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null, null);
+        return new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null, 1_000_000L);
     }
 
     private static QuoteSummaryResponse stubQsr() {
@@ -126,6 +128,10 @@ class FmpWithYahooFallbackMarketDataClientTest {
 
             assertThat(result).isSameAs(expected);
             verify(sourceTracker).record("Yahoo");
+            verify(fallbackRecorder).recordSafely(argThat(event ->
+                    "PRIMARY_PROVIDER_FALLBACK".equals(event.eventType())
+                            && "SUCCESS".equals(event.outcome())
+                            && "PLAN_RESTRICTION".equals(event.triggerReason())));
         }
 
         @Test
@@ -160,6 +166,26 @@ class FmpWithYahooFallbackMarketDataClientTest {
                     .isInstanceOf(MarketDataException.class)
                     .satisfies(e -> assertThat(((MarketDataException) e).getErrorCode())
                             .isEqualTo(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE));
+            verify(fallbackRecorder).recordSafely(argThat(event ->
+                    "FAILED".equals(event.outcome()) && "profile".equals(event.operation())));
+        }
+
+        @Test
+        void whenFmpProfileMissesExchange_recordsAcceptedYahooEnrichment() {
+            CompanyProfile incomplete = new CompanyProfile(SYMBOL, "Apple Inc.", "Technology", "Electronics",
+                    "US", "USD", null, BigDecimal.TEN, "Description", "https://apple.com");
+            when(fmpClient.getProfile(SYMBOL)).thenReturn(incomplete);
+            when(yahooClient.getQuoteSummary(SYMBOL)).thenReturn(stubQsr());
+            when(yahooClient.getChart(SYMBOL)).thenReturn(stubCr());
+            when(yahooAdapter.toCompanyProfile(eq(SYMBOL), any(), any())).thenReturn(profile());
+
+            CompanyProfile result = client.getProfile(SYMBOL);
+
+            assertThat(result.exchange()).isEqualTo("NASDAQ");
+            verify(fallbackRecorder).recordSafely(argThat(event ->
+                    "PRIMARY_PROVIDER_ENRICHMENT".equals(event.eventType())
+                            && "SUCCESS".equals(event.outcome())
+                            && "exchange".equals(event.acceptedFields())));
         }
     }
 
@@ -334,6 +360,10 @@ class FmpWithYahooFallbackMarketDataClientTest {
 
             assertThat(result.price()).isEqualByComparingTo("185");
             verify(sourceTracker).record("Yahoo");
+            verify(fallbackRecorder).recordSafely(argThat(event ->
+                    "PRIMARY_PROVIDER_FALLBACK".equals(event.eventType())
+                            && "SUCCESS".equals(event.outcome())
+                            && event.acceptedFields().contains("price")));
             // getQuote only calls getChart, not getQuoteSummary
             verify(yahooClient, never()).getQuoteSummary(any());
         }
@@ -370,6 +400,23 @@ class FmpWithYahooFallbackMarketDataClientTest {
                     .isInstanceOf(MarketDataException.class)
                     .satisfies(e -> assertThat(((MarketDataException) e).getErrorCode())
                             .isEqualTo(MarketDataException.ErrorCode.SERVICE_UNAVAILABLE));
+        }
+
+        @Test
+        void whenFmpQuoteMissesVolume_recordsRejectedYahooEnrichment() {
+            MarketPriceQuote incomplete = new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null, null);
+            when(fmpClient.getQuote(SYMBOL)).thenReturn(incomplete);
+            when(yahooClient.getChart(SYMBOL)).thenReturn(stubCr());
+            when(yahooAdapter.toPriceQuote(eq(SYMBOL), any())).thenReturn(
+                    new MarketPriceQuote(SYMBOL, BigDecimal.valueOf(185), "USD", null, null, null));
+
+            MarketPriceQuote result = client.getQuote(SYMBOL);
+
+            assertThat(result).isSameAs(incomplete);
+            verify(fallbackRecorder).recordSafely(argThat(event ->
+                    "PRIMARY_PROVIDER_ENRICHMENT".equals(event.eventType())
+                            && "REJECTED".equals(event.outcome())
+                            && "volume".equals(event.missingFields())));
         }
     }
 }
