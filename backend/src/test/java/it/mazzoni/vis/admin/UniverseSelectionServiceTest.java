@@ -100,10 +100,15 @@ class UniverseSelectionServiceTest {
     void preview_fallsBackToSeededSecuritiesWhenFmpStockListIsUnavailable() {
         when(marketDataClient.listSymbols("NYSE")).thenThrow(new MarketDataException(
                 MarketDataException.ErrorCode.SERVICE_UNAVAILABLE, "NYSE"));
+        Security ko = security("KO", "Coca-Cola", "US", "Consumer Staples", "NYSE", new BigDecimal("260000000000"));
         when(securityRepository.findAll()).thenReturn(List.of(
-                security("KO", "Coca-Cola", "US", "Consumer Staples", "NYSE", new BigDecimal("260000000000")),
+                ko,
                 security("AAPL", "Apple Inc.", "US", "Technology", "NASDAQ", new BigDecimal("3000000000000"))
         ));
+        PriceQuote koQuote = new PriceQuote();
+        koQuote.setClose(new BigDecimal("60"));
+        koQuote.setVolume(15_000_000L);
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(ko)).thenReturn(Optional.of(koQuote));
 
         UniversePreviewResponse response = service.preview(new UniverseSelectionRequest(
                 List.of("NYSE"), List.of("US"), List.of(), false,

@@ -1,6 +1,8 @@
 package it.mazzoni.vis.domain.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -15,6 +17,7 @@ public class InsiderTrade {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "security_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Security security;
 
     @Column(nullable = false)

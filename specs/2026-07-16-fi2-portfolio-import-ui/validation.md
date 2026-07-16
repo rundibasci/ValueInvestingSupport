@@ -92,16 +92,16 @@
 
 ## Automated Checks
 
-- [ ] Frontend unit/component tests pass under Vitest/React Testing Library.
-- [ ] Multipart, mapping, skip, confirmation, invalidation, history, and download tests pass.
-- [ ] Frontend TypeScript strict typecheck passes.
-- [ ] Frontend production build passes.
-- [ ] FI2 backend history/detail/report tests pass under Java 21.
-- [ ] Existing FI1 parser/preview/commit regression tests pass.
-- [ ] Portfolio CRUD/detail/analytics/precondition tests pass.
-- [ ] PostgreSQL migration and ownership integration tests pass.
-- [ ] Accessibility checks report no blocker-level issues.
-- [ ] `git diff --check` reports no whitespace errors.
+- [ ] Frontend unit/component tests pass under Vitest/React Testing Library. *(Not run — no test runner is configured in this repository; Vitest/RTL was never added despite Decision #10 calling for it. See validation-report.md 2026-07-17 re-verification.)*
+- [ ] Multipart, mapping, skip, confirmation, invalidation, history, and download tests pass. *(Same caveat — no frontend test runner to run these under.)*
+- [x] Frontend TypeScript strict typecheck passes. *(Verified 2026-07-17 with Node v24.18.0: `npm run typecheck` passes clean.)*
+- [x] Frontend production build passes. *(Verified 2026-07-17: `npm run build` passes, production bundle emitted.)*
+- [x] FI2 backend history/detail/report tests pass under Java 21. *(Verified 2026-07-17: full backend suite 410/410 pass under a local Temurin 21 JDK.)*
+- [x] Existing FI1 parser/preview/commit regression tests pass. *(Same full-suite run.)*
+- [x] Portfolio CRUD/detail/analytics/precondition tests pass. *(Same full-suite run.)*
+- [x] PostgreSQL migration and ownership integration tests pass. *(Verified 2026-07-17: `PortfolioIT` passed against Testcontainers PostgreSQL under `-Pintegration-test`; Flyway applied all 25 migrations cleanly.)*
+- [ ] Accessibility checks report no blocker-level issues. *(Not run — requires a real browser session, out of scope for this automated re-verification pass.)*
+- [x] `git diff --check` reports no whitespace errors. *(Verified 2026-07-17.)*
 
 ## Merge Criteria
 
