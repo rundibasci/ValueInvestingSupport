@@ -48,6 +48,10 @@ app:
     preview-retention-hours: ${PORTFOLIO_IMPORT_RETENTION_HOURS:24}
     default-base-currency: ${PORTFOLIO_IMPORT_BASE_CURRENCY:EUR}
     cleanup-cron: ${PORTFOLIO_IMPORT_CLEANUP_CRON:0 15 1 * * *}
+  portfolio-analysis:
+    worker-concurrency: ${PORTFOLIO_ANALYSIS_WORKER_CONCURRENCY:2}
+    queue-capacity: ${PORTFOLIO_ANALYSIS_QUEUE_CAPACITY:20}
+    polling-interval-ms: ${PORTFOLIO_ANALYSIS_POLLING_INTERVAL_MS:1500}
   alert-email:
     enabled: ${ALERT_EMAIL_ENABLED:false}
     from: ${ALERT_EMAIL_FROM:}

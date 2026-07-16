@@ -6,6 +6,7 @@ import { professionalApi } from "../api/professional";
 import { watchlistApi, type WatchlistItem } from "../api/watchlist";
 import { useAuth } from "../auth/AuthProvider";
 import { PortfolioImportPanel } from "../components/PortfolioImportPanel";
+import { PortfolioAnalysisPanel } from "../components/PortfolioAnalysisPanel";
 import {
   portfolioApi,
   type BenchmarkComparison,
@@ -960,6 +961,7 @@ export function PortfolioPage(): JSX.Element {
           setPortfolioNotice("Portfolio import committed. Source values remain available in the reconciliation report.");
         }}
       />
+      {activeId && <PortfolioAnalysisPanel key={activeId} portfolioId={activeId} />}
 
       <section className="grid gap-6 xl:grid-cols-[20rem_1fr]">
         <aside className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
