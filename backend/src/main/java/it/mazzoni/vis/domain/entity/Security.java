@@ -16,6 +16,9 @@ public class Security {
     @Column(nullable = false, unique = true, length = 20)
     private String symbol;
 
+    @Column(unique = true, length = 12)
+    private String isin;
+
     @Column(nullable = false)
     private String companyName;
 
@@ -67,6 +70,9 @@ public class Security {
 
     public String getSymbol() { return symbol; }
     public void setSymbol(String symbol) { this.symbol = symbol; }
+
+    public String getIsin() { return isin; }
+    public void setIsin(String isin) { this.isin = isin; }
 
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }

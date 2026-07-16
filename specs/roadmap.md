@@ -319,6 +319,78 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 
 ---
 
+## Group FI — Portfolio CSV Import
+
+Goal: let an authenticated user load an existing broker portfolio from a CSV export without re-entering every position, seed every resolved security into the shared research universe, and run the platform's complete in-depth analysis and portfolio measurements. The first supported schema is the supplied `Portfolio.csv` structure (`Prodotto,Codice,Quantità,Ultimo,Valore,<currency>,Valore in EUR`), including quoted decimal-comma values, ISIN security codes, multiple currencies, and cash rows. Import is preview-first, user-owned, and non-destructive by default. Requires F2 Portfolio CRUD & Holdings; full analysis reuses the data, valuation, scoring, security-review, and portfolio-intelligence capabilities available at execution time.
+
+### Phase FI1: CSV Parsing, Mapping & Import API
+- `POST /api/v1/portfolios/imports/preview` — multipart CSV upload plus optional target portfolio ID; parse and validate without changing portfolio data
+- Support UTF-8/UTF-8 BOM, comma-delimited rows, quoted decimal-comma amounts, localized headers/accents, blank cells, and the supplied export's data/header mismatch: currency values occur under `Valore`, while native market values occur in the unnamed column before `Valore in EUR`
+- Map the supplied columns as follows:
+  - `Prodotto` → source holding/product name
+  - `Codice` → ISIN/security identifier
+  - `Quantità` → quantity
+  - `Ultimo` → source last price
+  - `Valore` column → source currency (`EUR`, `USD`, etc.) in the supplied row data
+  - unnamed column → source market value in native currency
+  - `Valore in EUR` → source market value converted to the portfolio base currency
+- Resolve listed securities by ISIN first, then by an explicit reviewed symbol mapping when an ISIN is not yet present in the shared universe; never infer a ticker from company name alone
+- Classify rows whose product begins with `CASH & CASH FUND` and has no security code as cash balances by currency rather than unsupported securities
+- Preview response reports normalized rows, resolved symbol/security, cash balances, duplicates, invalid numeric values, unsupported identifiers, missing prices, currency mismatches, warnings, and row-level errors; one bad row does not discard valid rows
+- `POST /api/v1/portfolios/imports/{importId}/commit` — commit a reviewed preview to a new or user-owned existing portfolio using an explicit mode: `MERGE` (default) or `REPLACE`
+- `MERGE` is idempotent for the same uploaded positions and consolidates duplicate holdings by resolved security; `REPLACE` requires explicit confirmation and replaces holdings only after the full file passes commit validation
+- Persist import provenance and audit data: original filename, checksum, uploader, timestamps, selected mode, base currency, row counts, warnings/errors, and source values used for reconciliation
+- Enforce authentication and portfolio ownership on preview and commit; uploaded files and import results must not be visible across users
+- Preserve source price/value fields for reconciliation, but use refreshed platform quotes for ongoing analytics; clearly label source-as-of values versus current platform values
+- Apply upload size, row-count, content-type, formula-injection, and malformed-file guards; do not execute or render uploaded cell content as HTML
+
+### Phase FI2: Portfolio Import UI & Validation
+- Add an **Import CSV** action to the portfolio area with drag/drop and file picker, target portfolio/new portfolio selection, base currency (default `EUR` for the supplied schema), and `MERGE`/`REPLACE` mode
+- Show the expected header structure and localized-number guidance before upload
+- Render a preview table with original row, normalized quantity/price/value, resolved symbol or cash classification, currency, and row status (`ready`, `warning`, `needs mapping`, `invalid`)
+- Allow users to resolve only ambiguous/unmatched security rows through search and explicitly save the ISIN-to-security mapping before commit
+- Show an import summary (positions, cash by currency, native/base-currency totals, duplicates consolidated, skipped rows, warnings, errors) and require confirmation before commit
+- After commit, open the imported portfolio and show current weights alongside source values; retain a downloadable/import-history reconciliation report
+- Provide clear retry and partial-error states without silently dropping rows or modifying an existing portfolio
+- Automated tests cover the supplied CSV fixture, decimal commas, EUR/USD rows, cash rows, BOM/header variants, duplicates, unknown ISINs, malformed values, ownership boundaries, idempotent merge, and confirmed replace
+- Acceptance checklist:
+  - The supplied `Portfolio.csv` previews all rows without changing portfolio state.
+  - ACOMO and the other coded positions are resolved by ISIN or shown as explicit mapping tasks; none are guessed from names.
+  - EUR and USD cash rows become separate cash balances and are not sent through security ingestion.
+  - Native values and `Valore in EUR` reconcile to the preview totals using decimal-safe arithmetic.
+  - Committing creates or updates only the selected user-owned portfolio, and uploading the same file twice in `MERGE` mode does not double quantities.
+  - Unsupported symbols, missing prices, duplicate holdings, and currency mismatches remain visible in the final report.
+  - Valuation, score, MoS, and recommendation outputs retain the decision-support disclaimer and are not treated as broker-provided facts.
+
+### Phase FI3: Imported Portfolio Seed, In-Depth Analysis & Measurements
+- After a successful commit, offer **Seed and analyze portfolio**; start an asynchronous, idempotent analysis run covering every resolved non-cash security in the imported portfolio
+- Reuse the shared-universe ingestion pipeline for each resolved symbol: profile, annual/quarterly fundamentals, ratios, quote, dividends, insider data, and available provider estimates; use FMP as primary and Yahoo Finance as fallback under the existing source policy
+- Do not send cash balances through security ingestion or valuation; include them only in cash allocation, currency exposure, and total portfolio value calculations
+- Reuse platform calculation services rather than introducing import-specific formulas. For every holding, compute or refresh all measurements supported by the installed analytical phases, including:
+  - DCF base/low/high, sensitivity matrix, terminal-value dependence, WACC and its inputs
+  - Graham Number and Graham criteria, DDM eligibility/value, EPV, owner earnings, composite fair value, and margin of safety
+  - Value Score and factor breakdown, MoS gate, sector-adaptive weights, Piotroski F-Score, Altman Z/Z''-Score, cyclicality, normalized earnings, and earnings quality
+  - Revenue, EPS, FCF and dividend growth; profitability, ROE/ROIC, margins, liquidity, leverage, debt coverage, dividend yield/payout/coverage, moat/business-quality, and capital-allocation measurements
+  - Source coverage, freshness, fallback reason, calculation assumptions, guardrails, stale inputs, and unavailable metrics
+- Generate or refresh the same in-depth research packet used by the Security Review page for every imported holding; imported positions link directly to their review page and never use a reduced broker-only analysis
+- Once holding analysis completes, run all available portfolio measurements: current/base-currency value and weights, cash and currency exposure, weighted MoS/value score/yield/quality, sector/country/holding concentration, liquidity, benchmark comparison, and rebalancing diagnostics
+- Track the run with `analysisRunId`; expose overall and per-symbol status (`queued`, `seeding`, `calculating`, `complete`, `partial`, `failed`) plus processed/total counts, provider source, warnings, errors, and timestamps
+- A failure or provider limitation for one symbol does not block other holdings. Mark each unavailable calculation with a reason such as missing history, model eligibility guardrail, provider-plan limitation, stale data, unresolved security, or calculation failure; never substitute zero or fabricate a result
+- Re-running analysis refreshes stale inputs and calculations without duplicating securities, snapshots, holdings, valuations, or scores
+- The portfolio import result and portfolio detail page show analysis progress, per-holding completeness, links to in-depth analysis, portfolio measurement freshness, and a **Retry failed/partial** action
+- Keep broker-source price and EUR value visible for reconciliation alongside refreshed platform price/value; show the variance and the timestamp/source of each value
+- All fair value, MoS, score, risk classification, rebalance, and recommendation-like outputs remain decision support, show assumptions and data dates, and carry the required disclaimer
+- Automated integration tests cover import → commit → seed → calculate → research packet → portfolio analytics, mixed FMP/Yahoo coverage, cash exclusion from security analysis, partial symbol failure, idempotent rerun, and ownership isolation
+- Acceptance checklist:
+  - Committing the supplied CSV can start one analysis run for every resolved coded position while the EUR/USD cash rows remain cash.
+  - Each successfully seeded holding exposes the full available Security Review packet and calculation set, not only current price and portfolio weight.
+  - Portfolio measurements are calculated only after their required holding inputs reach a terminal state and clearly identify partial coverage.
+  - Missing history or provider data produces an explained unavailable state, never a fabricated value or misleading zero.
+  - Repeating the analysis refreshes results without duplicating holdings or analytical records.
+  - The user can trace every measurement to its provider data, freshness date, assumptions, calculation version, and eligibility guardrail.
+
+---
+
 ## Group PFD — Portfolio & Full-Feature HTML Demo
 
 Goal: replace the curl-and-script stakeholder workflow with a single, self-contained HTML page that exercises every endpoint built through Group F — screener, security detail, watchlist, portfolio management, simulation, and rebalancing — in addition to all panels already present in FD1. No new backend endpoints; no build step required. Makes the complete system demonstrable in a browser before the full React UI (Group H) is started.
@@ -1252,6 +1324,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | M4: Screener Live | D1, D2 | FMP primary / Yahoo fallback | Full screener API with Value Score, < 500ms |
 | M5: Security Detail | E1, E2, E3 | FMP primary / Yahoo fallback | All per-stock endpoints live |
 | M6: Portfolio | F1, F2, F3, F4 | FMP primary / Yahoo fallback | Watchlist + Portfolio Builder + Rebalancing |
+| **M6.2: Portfolio CSV Import & Analysis** | FI1, FI2, FI3 | User CSV + FMP primary / Yahoo fallback | Preview and import broker holdings, seed resolved securities, run full in-depth analysis, and calculate holding and portfolio measurements |
 | **M6.5: Full-Feature Demo** | PFD1 | FMP primary / Yahoo fallback | Single HTML page covering every endpoint through F4 — auth, health, screener, security detail, watchlist, portfolio, simulation, rebalancing |
 | M7: Alerts | G1, G2 | FMP primary / Yahoo fallback | Automated alert detection + email delivery |
 | M8: Frontend MVP | H1–H6, H4A, H4B, H8 | FMP primary / Yahoo fallback | Full React UI connected to backend, including shared-universe seeding, market-wide research, in-depth stock review page, and review-page portfolio-add integration |
@@ -1284,6 +1357,8 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M3.6 makes M3.5 browser-accessible.** A single HTML file — no curl, no scripting knowledge — exposes every feature built through Val2. Stakeholders can log in, seed data, inspect valuations, and trigger jobs from a web browser. It intentionally precedes Group H (full React UI) to keep early feedback cycles fast without a build step.
 >
 > **M3.8 validates the full pipeline.** Seed → Valuate → Score → Rank in a single call. Proves the ValueScore formula works end-to-end and gives stakeholders a ranked view before any screener UI exists. `ValueScoreService` introduced here is the same class D1 persists and exposes — no rework at merge.
+>
+> **M6.2 removes manual portfolio re-entry and turns the import into research.** Broker CSV data is treated as untrusted, user-owned input: the platform parses localized values, resolves ISINs, separates cash by currency, and presents a reconciliation preview before any holdings change. After commit, resolved securities flow through the shared seed pipeline, complete Security Review analysis, and all available holding and portfolio calculations. Merge is the safe default, replace is explicitly confirmed, partial data is explained rather than fabricated, and unresolved rows remain visible instead of being guessed or silently discarded.
 >
 > **M6.5 is the complete HTML test harness.** A single `full-demo.html` covers every backend endpoint built through Group F — screener, security detail, watchlist, portfolio, simulation, and rebalancing — in addition to all FD1 panels. Stakeholders and developers can exercise the full system from a browser before the React frontend (Group H) is started, and it remains available as a low-friction regression test page throughout H development.
 >

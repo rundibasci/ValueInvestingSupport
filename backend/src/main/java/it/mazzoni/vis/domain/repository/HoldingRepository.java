@@ -13,6 +13,7 @@ public interface HoldingRepository extends JpaRepository<Holding, UUID> {
     List<Holding> findByPortfolioAndSymbol(Portfolio portfolio, String symbol);
     List<Holding> findByPortfolioOrderByAddedAtDesc(Portfolio portfolio);
     Optional<Holding> findByIdAndPortfolio(UUID id, Portfolio portfolio);
+    void deleteByPortfolio(Portfolio portfolio);
 
     @Query("SELECT DISTINCT h.symbol FROM Holding h")
     List<String> findAllDistinctSymbols();
