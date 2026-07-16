@@ -42,6 +42,12 @@ app:
     queue-capacity: ${SEED_QUEUE_CAPACITY:20}
     retention-days: ${SEED_RUN_RETENTION_DAYS:30}
     polling-interval-ms: ${SEED_POLLING_INTERVAL_MS:1500}
+  portfolio-import:
+    max-upload-bytes: ${PORTFOLIO_IMPORT_MAX_BYTES:1048576}
+    max-rows: ${PORTFOLIO_IMPORT_MAX_ROWS:1000}
+    preview-retention-hours: ${PORTFOLIO_IMPORT_RETENTION_HOURS:24}
+    default-base-currency: ${PORTFOLIO_IMPORT_BASE_CURRENCY:EUR}
+    cleanup-cron: ${PORTFOLIO_IMPORT_CLEANUP_CRON:0 15 1 * * *}
   alert-email:
     enabled: ${ALERT_EMAIL_ENABLED:false}
     from: ${ALERT_EMAIL_FROM:}
