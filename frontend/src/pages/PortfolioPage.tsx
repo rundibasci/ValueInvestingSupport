@@ -5,6 +5,7 @@ import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts";
 import { professionalApi } from "../api/professional";
 import { watchlistApi, type WatchlistItem } from "../api/watchlist";
 import { useAuth } from "../auth/AuthProvider";
+import { PortfolioImportPanel } from "../components/PortfolioImportPanel";
 import {
   portfolioApi,
   type BenchmarkComparison,
@@ -948,6 +949,17 @@ export function PortfolioPage(): JSX.Element {
           the practical trades required to rebalance it.
         </p>
       </section>
+
+      <PortfolioImportPanel
+        portfolios={portfolios.data ?? []}
+        activeId={activeId}
+        onCommitted={(portfolioId) => {
+          setSelected(portfolioId);
+          setSimulation(null);
+          setRebalance(null);
+          setPortfolioNotice("Portfolio import committed. Source values remain available in the reconciliation report.");
+        }}
+      />
 
       <section className="grid gap-6 xl:grid-cols-[20rem_1fr]">
         <aside className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">

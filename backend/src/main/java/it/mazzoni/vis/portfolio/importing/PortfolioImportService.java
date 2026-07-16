@@ -10,8 +10,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -133,6 +134,38 @@ public class PortfolioImportService {
         return commitResponse(portfolioImport);
     }
 
+    @Transactional(readOnly = true)
+    public PortfolioImportHistoryResponse history(Authentication auth, UUID portfolioId, String status, int page, int size) {
+        User user = user(auth);
+        int safePage = Math.max(0, page);
+        int safeSize = Math.max(1, Math.min(size, 100));
+        Portfolio portfolio = portfolioId == null ? null : ownedPortfolio(user, portfolioId);
+        String normalizedStatus = status == null || status.isBlank() ? null : status.strip().toUpperCase(Locale.ROOT);
+        PageRequest pageable = PageRequest.of(safePage, safeSize);
+        Page<PortfolioImport> result;
+        if (portfolio != null && normalizedStatus != null)
+            result = imports.findByUserAndPortfolioAndStatusOrderByCreatedAtDesc(user, portfolio, normalizedStatus, pageable);
+        else if (portfolio != null)
+            result = imports.findByUserAndPortfolioOrderByCreatedAtDesc(user, portfolio, pageable);
+        else if (normalizedStatus != null)
+            result = imports.findByUserAndStatusOrderByCreatedAtDesc(user, normalizedStatus, pageable);
+        else result = imports.findByUserOrderByCreatedAtDesc(user, pageable);
+        return new PortfolioImportHistoryResponse(result.getContent().stream().map(this::historyItem).toList(),
+                result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+    }
+
+    @Transactional(readOnly = true)
+    public PortfolioImportPreviewResponse detail(Authentication auth, UUID importId) {
+        PortfolioImport portfolioImport = ownedImport(auth, importId);
+        return previewResponse(portfolioImport);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] reconciliationReport(Authentication auth, UUID importId) {
+        PortfolioImport portfolioImport = ownedImport(auth, importId);
+        return PortfolioImportReportWriter.write(portfolioImport);
+    }
+
     @Scheduled(cron = "${app.portfolio-import.cleanup-cron:0 15 1 * * *}")
     @Transactional
     public void cleanExpiredPreviews() {
@@ -206,6 +239,13 @@ public class PortfolioImportService {
                 s == null ? null : s.getId(), s == null ? null : s.getSymbol(), r.getClassification(), r.getStatus(),
                 r.getWarningText(), r.getErrorText(), r.getCommittedOutcome());
     }
+    private PortfolioImportHistoryItem historyItem(PortfolioImport i) {
+        Portfolio p = i.getPortfolio();
+        return new PortfolioImportHistoryItem(i.getId(), p == null ? null : p.getId(), p == null ? null : p.getName(),
+                i.getOriginalFilename(), i.getChecksum(), i.getMode(), i.getBaseCurrency(), i.getStatus(),
+                i.getSourceRowCount(), i.getReadyRowCount(), i.getWarningCount(), i.getErrorCount(),
+                i.getCreatedAt(), i.getExpiresAt(), i.getCommittedAt());
+    }
     private Totals totals(List<PortfolioImportRow> source) {
         BigDecimal base = source.stream().map(PortfolioImportRow::getBaseValue).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<String, BigDecimal> nativeTotals = source.stream().filter(r -> r.getNativeCurrency() != null && r.getNativeValue() != null)
@@ -225,6 +265,10 @@ public class PortfolioImportService {
         if (type != null && !type.isBlank() && !ALLOWED_TYPES.contains(type.toLowerCase(Locale.ROOT))) throw badRequest("Unsupported CSV content type");
     }
     private User user(Authentication auth) { return users.findByEmail(auth.getName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED)); }
+    private PortfolioImport ownedImport(Authentication auth, UUID importId) {
+        User user = user(auth);
+        return imports.findByIdAndUser(importId, user).orElseThrow(() -> notFound("Portfolio import not found"));
+    }
     private Portfolio ownedPortfolio(User user, UUID id) { return portfolios.findByIdAndUser(id, user).orElseThrow(() -> notFound("Portfolio not found")); }
     private String currency(String value) { String c = value.strip().toUpperCase(Locale.ROOT); try { Currency.getInstance(c); return c; } catch (Exception ex) { throw badRequest("Invalid base currency"); } }
     private String filename(String value) { if (value == null || value.isBlank()) return "portfolio.csv"; String s = value.replace('\\', '/'); s = s.substring(s.lastIndexOf('/') + 1); return s.length() > 255 ? s.substring(0, 255) : s; }
