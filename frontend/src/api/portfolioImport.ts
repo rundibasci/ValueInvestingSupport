@@ -1,7 +1,7 @@
 import { apiFetch } from "./client";
 
 export type ImportMode = "MERGE" | "REPLACE";
-export type ImportRowStatus = "READY" | "CASH" | "NEEDS_MAPPING" | "WARNING" | "INVALID";
+export type ImportRowStatus = "READY" | "CASH" | "NEEDS_MAPPING" | "NEEDS_ADMIN_MAPPING" | "WARNING" | "INVALID";
 
 export type PortfolioImportRow = {
   rowId: string;
