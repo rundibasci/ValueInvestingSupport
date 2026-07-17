@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,10 +187,23 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     @Override
     @Cacheable(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)")
     public List<RatioSnapshot> getAnnualRatios(String symbol) {
-        List<RatioSnapshot> result = fmpClient.getAnnualRatios(symbol);
-        sourceTracker.record("FMP");
-        statusTracker.recordSuccess("fmp");
-        return result;
+        try {
+            List<RatioSnapshot> result = fmpClient.getAnnualRatios(symbol);
+            sourceTracker.record("FMP");
+            statusTracker.recordSuccess("fmp");
+            return result;
+        } catch (MarketDataException e) {
+            if (e.getErrorCode() != MarketDataException.ErrorCode.PLAN_RESTRICTION) throw e;
+            recordFallback("annual-ratios", e);
+        }
+        // Yahoo has no multi-year ratio history endpoint; fall back to a single
+        // current-snapshot entry via getRatios rather than fabricating years.
+        // Use ArrayList, not List.of(...): the latter returns a JDK-internal
+        // ImmutableCollections type that breaks the Redis cache's typed JSON
+        // (de)serialization on this method's @Cacheable entry.
+        List<RatioSnapshot> fallback = new ArrayList<>();
+        fallback.add(getRatios(symbol));
+        return fallback;
     }
 
     @Override

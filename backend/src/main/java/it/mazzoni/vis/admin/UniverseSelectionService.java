@@ -239,7 +239,9 @@ public class UniverseSelectionService {
                 "stock",
                 null,
                 marketCap,
-                latestQuote != null ? latestQuote.getVolume() : null);
+                latestQuote != null ? latestQuote.getVolume() : null,
+                false,
+                false);
     }
 
     private static boolean exchangeMatches(Security security, String exchange) {

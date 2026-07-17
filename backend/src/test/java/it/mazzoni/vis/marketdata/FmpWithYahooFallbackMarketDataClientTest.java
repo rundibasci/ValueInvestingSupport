@@ -327,6 +327,33 @@ class FmpWithYahooFallbackMarketDataClientTest {
             verifyNoInteractions(yahooClient, yahooAdapter);
             verify(fmpClient, never()).getRatios(SYMBOL);
         }
+
+        @Test
+        void whenFmpPlanRestriction_fallsBackToSingleYahooSnapshot() {
+            when(fmpClient.getAnnualRatios(SYMBOL)).thenThrow(planRestriction());
+            when(fmpClient.getRatios(SYMBOL)).thenThrow(planRestriction());
+            QuoteSummaryResponse qsr = stubQsr();
+            when(yahooClient.getQuoteSummary(SYMBOL)).thenReturn(qsr);
+            RatioSnapshot expected = ratios();
+            when(yahooAdapter.toRatioSnapshot(eq(SYMBOL), any())).thenReturn(expected);
+
+            List<RatioSnapshot> result = client.getAnnualRatios(SYMBOL);
+
+            assertThat(result).containsExactly(expected);
+            verify(sourceTracker).record("Yahoo");
+        }
+
+        @Test
+        void whenFmpNotFound_rethrowsWithoutCallingYahoo() {
+            when(fmpClient.getAnnualRatios(SYMBOL)).thenThrow(notFound());
+
+            assertThatThrownBy(() -> client.getAnnualRatios(SYMBOL))
+                    .isInstanceOf(MarketDataException.class)
+                    .satisfies(e -> assertThat(((MarketDataException) e).getErrorCode())
+                            .isEqualTo(MarketDataException.ErrorCode.NOT_FOUND));
+
+            verifyNoInteractions(yahooClient);
+        }
     }
 
     // -------------------------------------------------------------------------

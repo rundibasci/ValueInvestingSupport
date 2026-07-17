@@ -217,7 +217,7 @@ class UniverseSelectionServiceTest {
                                            BigDecimal marketCap,
                                            Long volume) {
         return new FmpStockListEntry(symbol, name, country, sector, exchange, exchange, "stock",
-                null, marketCap, volume);
+                null, marketCap, volume, false, false);
     }
 
     private static Security security(String symbol,

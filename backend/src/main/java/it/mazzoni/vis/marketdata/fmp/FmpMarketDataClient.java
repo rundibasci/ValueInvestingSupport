@@ -145,8 +145,13 @@ public class FmpMarketDataClient implements MarketDataClient {
 
     @Override
     public List<FmpStockListEntry> listSymbols(String exchange) {
+        // /stock-list no longer returns exchange/type/market-cap fields on the current FMP
+        // stable API; /company-screener does, and supports server-side exchange filtering.
         List<FmpStockListEntry> all = fmpWebClient.get()
-                .uri("/stock-list")
+                .uri(u -> u.path("/company-screener")
+                        .queryParam("exchange", exchange)
+                        .queryParam("limit", 5000)
+                        .build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<FmpStockListEntry>>() {})
                 .retryWhen(RETRY_SPEC)
@@ -155,7 +160,8 @@ public class FmpMarketDataClient implements MarketDataClient {
                 .block();
         if (all == null) return List.of();
         return all.stream()
-                .filter(e -> exchange.equalsIgnoreCase(e.exchangeShortName()) && "stock".equalsIgnoreCase(e.type()))
+                .filter(e -> exchange.equalsIgnoreCase(e.exchangeShortName()))
+                .filter(e -> !Boolean.TRUE.equals(e.isEtf()) && !Boolean.TRUE.equals(e.isFund()))
                 .toList();
     }
 

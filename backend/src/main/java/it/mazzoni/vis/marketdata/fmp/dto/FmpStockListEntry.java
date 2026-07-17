@@ -1,5 +1,6 @@
 package it.mazzoni.vis.marketdata.fmp.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
@@ -7,7 +8,7 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FmpStockListEntry(
         String symbol,
-        String name,
+        @JsonAlias("companyName") String name,
         String country,
         String sector,
         String exchange,
@@ -15,5 +16,7 @@ public record FmpStockListEntry(
         String type,
         BigDecimal price,
         BigDecimal marketCap,
-        Long volume
+        Long volume,
+        Boolean isEtf,
+        Boolean isFund
 ) {}
