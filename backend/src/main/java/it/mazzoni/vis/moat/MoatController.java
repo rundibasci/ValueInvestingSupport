@@ -41,7 +41,7 @@ public class MoatController {
         MoatResult result = moatAssessmentService.analyze(symbol);
         List<StabilityResult> criteria = stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(
                 result.getSecurity(), result.getResultDate());
-        return ResponseEntity.ok(MoatResponse.from(result, criteria));
+        return ResponseEntity.ok(MoatResponse.from(result, moatAssessmentService.observations(result.getSecurity()), criteria));
     }
 
     @GetMapping("/{symbol}/capital-allocation")

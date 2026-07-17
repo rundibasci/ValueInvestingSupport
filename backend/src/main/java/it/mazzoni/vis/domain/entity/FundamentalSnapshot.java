@@ -38,6 +38,12 @@ public class FundamentalSnapshot {
     private BigDecimal operatingIncome;
 
     @Column(precision = 20, scale = 2)
+    private BigDecimal pretaxIncome;
+
+    @Column(precision = 20, scale = 2)
+    private BigDecimal incomeTaxExpense;
+
+    @Column(precision = 20, scale = 2)
     private BigDecimal grossProfit;
 
     @Column(precision = 10, scale = 4)
@@ -95,6 +101,12 @@ public class FundamentalSnapshot {
 
     public BigDecimal getOperatingIncome() { return operatingIncome; }
     public void setOperatingIncome(BigDecimal operatingIncome) { this.operatingIncome = operatingIncome; }
+
+    public BigDecimal getPretaxIncome() { return pretaxIncome; }
+    public void setPretaxIncome(BigDecimal pretaxIncome) { this.pretaxIncome = pretaxIncome; }
+
+    public BigDecimal getIncomeTaxExpense() { return incomeTaxExpense; }
+    public void setIncomeTaxExpense(BigDecimal incomeTaxExpense) { this.incomeTaxExpense = incomeTaxExpense; }
 
     public BigDecimal getGrossProfit() { return grossProfit; }
     public void setGrossProfit(BigDecimal grossProfit) { this.grossProfit = grossProfit; }

@@ -24,6 +24,7 @@ import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.RoicObservationService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
@@ -56,6 +57,7 @@ public class SeedTickerService {
     private final RiskAnalysisService riskAnalysisService;
     private final MoatAssessmentService moatAssessmentService;
     private final CapitalAllocationService capitalAllocationService;
+    private final RoicObservationService roicObservationService;
     private final ValuationDefaultsProperties defaults;
     private final SourceTracker sourceTracker;
 
@@ -71,6 +73,7 @@ public class SeedTickerService {
                              RiskAnalysisService riskAnalysisService,
                              MoatAssessmentService moatAssessmentService,
                              CapitalAllocationService capitalAllocationService,
+                             RoicObservationService roicObservationService,
                              ValuationDefaultsProperties defaults,
                              SourceTracker sourceTracker) {
         this.marketDataClient = marketDataClient;
@@ -85,6 +88,7 @@ public class SeedTickerService {
         this.riskAnalysisService = riskAnalysisService;
         this.moatAssessmentService = moatAssessmentService;
         this.capitalAllocationService = capitalAllocationService;
+        this.roicObservationService = roicObservationService;
         this.defaults = defaults;
         this.sourceTracker = sourceTracker;
     }
@@ -96,6 +100,7 @@ public class SeedTickerService {
             Security security = upsertSecurity(symbol);
             persistFundamentals(security, symbol);
             persistRatios(security, symbol);
+            roicObservationService.refreshAfterIngestion(security, sourceTracker.summarize());
             persistPriceQuote(security, symbol);
             enrichDerivedProfileData(security);
             persistDividends(security, symbol);
@@ -182,11 +187,13 @@ public class SeedTickerService {
         List<BigDecimal> totalDebtHistory = data.totalDebtHistory() != null ? data.totalDebtHistory() : List.of();
         List<BigDecimal> cashHistory = data.cashHistory() != null ? data.cashHistory() : List.of();
         List<BigDecimal> totalEquityHistory = data.totalEquityHistory() != null ? data.totalEquityHistory() : List.of();
-        int historySize = Math.max(1, Math.max(revenueHistory.size(),
-                Math.max(netIncomeHistory.size(), Math.max(fcfHistory.size(), Math.max(epsHistory.size(),
-                        Math.max(sharesHistory.size(), Math.max(operatingIncomeHistory.size(), Math.max(operatingCashFlowHistory.size(),
-                                Math.max(totalAssetsHistory.size(), Math.max(totalLiabilitiesHistory.size(),
-                                        Math.max(totalDebtHistory.size(), Math.max(cashHistory.size(), totalEquityHistory.size()))))))))))));
+        List<BigDecimal> pretaxIncomeHistory = data.pretaxIncomeHistory() != null ? data.pretaxIncomeHistory() : List.of();
+        List<BigDecimal> incomeTaxExpenseHistory = data.incomeTaxExpenseHistory() != null ? data.incomeTaxExpenseHistory() : List.of();
+        int historySize = List.of(revenueHistory.size(), netIncomeHistory.size(), fcfHistory.size(), epsHistory.size(),
+                        sharesHistory.size(), operatingIncomeHistory.size(), operatingCashFlowHistory.size(),
+                        totalAssetsHistory.size(), totalLiabilitiesHistory.size(), totalDebtHistory.size(),
+                        cashHistory.size(), totalEquityHistory.size(), pretaxIncomeHistory.size(), incomeTaxExpenseHistory.size())
+                .stream().mapToInt(Integer::intValue).max().orElse(1);
         int currentYear = today.getYear();
 
         fundamentalSnapshotRepository.deleteBySecurityAndPeriod(security, Period.ANNUAL);
@@ -210,6 +217,8 @@ public class SeedTickerService {
             entity.setRevenue(valueAt(revenueHistory, i));
             entity.setNetIncome(valueAt(netIncomeHistory, i));
             entity.setOperatingIncome(valueAt(operatingIncomeHistory, i));
+            entity.setPretaxIncome(valueAt(pretaxIncomeHistory, i));
+            entity.setIncomeTaxExpense(valueAt(incomeTaxExpenseHistory, i));
             entity.setOperatingCashFlow(valueAt(operatingCashFlowHistory, i));
             entity.setFreeCashFlow(valueAt(fcfHistory, i));
             entity.setEps(valueAt(epsHistory, i));
@@ -237,6 +246,8 @@ public class SeedTickerService {
         ttm.setRevenue(valueAt(revenueHistory, 0));
         ttm.setNetIncome(valueAt(netIncomeHistory, 0));
         ttm.setOperatingIncome(valueAt(operatingIncomeHistory, 0));
+        ttm.setPretaxIncome(valueAt(pretaxIncomeHistory, 0));
+        ttm.setIncomeTaxExpense(valueAt(incomeTaxExpenseHistory, 0));
         ttm.setOperatingCashFlow(valueAt(operatingCashFlowHistory, 0));
         ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
         ttm.setEps(data.epsTtm());

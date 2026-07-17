@@ -1,6 +1,7 @@
 package it.mazzoni.vis.moat.dto;
 
 import it.mazzoni.vis.domain.entity.MoatResult;
+import it.mazzoni.vis.domain.entity.RoicObservation;
 import it.mazzoni.vis.domain.entity.StabilityResult;
 
 import java.math.BigDecimal;
@@ -21,9 +22,11 @@ public record MoatResponse(
         BigDecimal trendSlope,
         BigDecimal reinvestmentRate,
         String availabilityMessage,
+        String methodologyDisclaimer,
+        List<RoicObservationResponse> roicObservations,
         List<StabilityCriterionResponse> stabilityCriteria
 ) {
-    public static MoatResponse from(MoatResult result, List<StabilityResult> criteria) {
+    public static MoatResponse from(MoatResult result, List<RoicObservation> observations, List<StabilityResult> criteria) {
         return new MoatResponse(
                 result.getSecurity().getSymbol(),
                 result.getResultDate(),
@@ -38,6 +41,8 @@ public record MoatResponse(
                 result.getTrendSlope(),
                 result.getReinvestmentRate(),
                 result.getAvailabilityMessage(),
+                "Derived ROIC is an internal estimate based on reported financial inputs and may differ from provider or company calculations. This is decision-support information, not investment advice.",
+                observations.stream().map(RoicObservationResponse::from).toList(),
                 criteria.stream().map(StabilityCriterionResponse::from).toList()
         );
     }

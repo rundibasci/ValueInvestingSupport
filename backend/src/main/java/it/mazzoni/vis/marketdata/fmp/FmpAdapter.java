@@ -73,6 +73,10 @@ public class FmpAdapter {
                 .limit(11).map(FmpBalanceSheetEntry::cashAndShortTermInvestments).collect(Collectors.toList());
         List<BigDecimal> totalEquityHistory = balance.stream()
                 .limit(11).map(FmpBalanceSheetEntry::totalEquity).collect(Collectors.toList());
+        List<BigDecimal> pretaxIncomeHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::incomeBeforeTax).collect(Collectors.toList());
+        List<BigDecimal> incomeTaxExpenseHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::incomeTaxExpense).collect(Collectors.toList());
 
         return new FundamentalSnapshot(
                 symbol.toUpperCase(),
@@ -97,6 +101,8 @@ public class FmpAdapter {
                 totalDebtHistory,
                 cashHistory,
                 totalEquityHistory,
+                pretaxIncomeHistory,
+                incomeTaxExpenseHistory,
                 netDebt,
                 totalDebt,
                 cash
