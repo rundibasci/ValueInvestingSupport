@@ -393,35 +393,37 @@ Goal: let an authenticated user load an existing broker portfolio from a CSV exp
 
 ---
 
-## Group FIH — Portfolio Import Hardening
+## Group FIH — Portfolio Import Hardening (complete)
+
+> **Status:** FIH1–FIH4 are complete and merged (`specs/2026-07-17-fih-portfolio-import-hardening/`). FIH5 was evaluated and deliberately skipped — its own trigger condition ("only if it falls out naturally while writing FIH3's tests") was never met, so `commit()` was left as-is. The `synchronizeHolding()` N+1 batching mentioned under FIH4 was also evaluated and skipped: commit-time symbol-group counts are small (occasional operation, not per-page-load), so only the `preview()` N+1 fix was implemented. One caveat remains open: the admin-approval ISIN flow was verified with automated tests (unit + a real-filter-chain integration test) but not with a live browser walkthrough — see `validation.md`'s Manual Review section.
 
 Goal: the CSV portfolio import (Group FI) is the newest and least-tested write path in the platform, and a code review (`Code Review 2026-07-16` in the project's Obsidian vault) found it has the weakest test coverage of any comparable business-logic class alongside a data-loss bug, an authorization gap, and a performance cliff. This group assesses, fixes, and tests `PortfolioImportService`/`PortfolioImportController` before more product surface (FI3 seeding/analysis, and anything downstream that depends on import) is built on top of it. No new user-facing features — this hardens what FI1/FI2 already shipped.
 
 Source: `Code Review 2026-07-16/Quality.md`, `Security.md`, `Performance.md` in the Obsidian vault at `~/Documents/valueinvestorsupport/ValueInvestingSupport`.
 
-### Phase FIH1: Assessment
+### Phase FIH1: Assessment *(complete)*
 - Re-verify each finding below still reproduces against current `main` (line numbers may have drifted since the review) before changing any code; record actual current locations.
 - Confirm the blast radius of the cost-basis bug: which existing imported portfolios (if any, in shared/demo data) already have a nulled `averageCostBasis` that a user had manually entered, so FIH2's fix doesn't mask data that needs a one-time backfill note.
 - Confirm whether any `Security` rows already have an incorrect ISIN set via the unguarded `applyMappings` path, to scope whether FIH2 needs a data-correction step in addition to the code fix.
 - Produce a short written assessment (in this spec's directory, see `specs/tech-stack.md` for conventions) confirming scope before implementation starts — this group must not silently grow into unrelated import feature work.
 
-### Phase FIH2: Correctness & Security Fixes
+### Phase FIH2: Correctness & Security Fixes *(complete)*
 - **Cost-basis data loss (Quality — Critical):** `PortfolioImportService.synchronizeHolding` unconditionally calls `holding.setAverageCostBasis(null)` on every commit, wiping a manually-entered value on any re-import (e.g. a `MERGE`-mode refresh). Only clear `averageCostBasis` when the holding is newly created; preserve an existing manually-entered value on merge. If the intent is ever to let an import override cost basis, that must be an explicit, visible choice in the preview/commit flow, not a silent default.
 - **Shared `Security` ISIN overwrite (Security — Warning):** `applyMappings` lets any authenticated user permanently set the ISIN on a shared, app-wide `Security` row via their own import's ambiguous-row mapping, with no ownership or role check, affecting every other user's future ISIN lookups. Add a guard: either require admin approval for a new ISIN↔Security binding, or scope the mapping to a per-user alias table instead of mutating shared master data directly.
 - Unit tests proving both fixes: a merge-mode re-import does not clear an existing manually-entered cost basis; a new-holding import still sets cost basis as before (null, since the source CSV has no cost-basis column); a non-admin user's import-mapping ISIN assignment is rejected or routed through the new safeguard.
 
-### Phase FIH3: Test Coverage
+### Phase FIH3: Test Coverage *(complete)*
 - Add the missing test class(es) for `PortfolioImportService` and `PortfolioImportController` — currently only the parser (`PortfolioCsvParserTest`) and report writer (`PortfolioImportReportWriterTest`) are tested; the class owning the actual business logic has none, unlike every comparable class in `portfolio/` (`PortfolioServiceTest`, `PortfolioRebalanceServiceTest`, etc.).
 - Cover at minimum: `MERGE` vs `REPLACE` branching, `REPLACE` requiring explicit confirmation, mapping validation, skipped-row ownership validation, duplicate-position consolidation, and idempotent re-import of the same file.
 - Cover ownership/authorization: a user cannot commit or view another user's import or portfolio.
 - Reuse the supplied `Portfolio.csv` fixture already established in FI2's test suite rather than inventing a new fixture.
 
-### Phase FIH4: Performance Hardening
+### Phase FIH4: Performance Hardening *(complete — preview() fix only; see status note above)*
 - **N+1 in `preview()` (Performance — Warning):** replace the per-row `securities.findByIsin(...)` loop (up to `PortfolioImportProperties.maxRows()`, default 1,000, sequential calls inside one `@Transactional` request) with a single `findByIsinIn(List<String>)` lookup before the loop, resolved from an in-memory map.
 - **N+1 in `synchronizeHolding()` (Performance — Warning):** batch the per-symbol-group `holdings.findByPortfolioAndSymbol(...)` calls the same way, if the group count makes it worthwhile — confirm with a test using a realistic multi-holding fixture (e.g. 30+ distinct symbols) before and after.
 - Add a regression test or benchmark assertion (query count via a Hibernate statistics assertion, or a row-count-scaled timing sanity check) so this doesn't silently regress back to N+1 in a future change.
 
-### Phase FIH5 (optional, do only if time allows without expanding scope): Maintainability Cleanup
+### Phase FIH5 (optional, do only if time allows without expanding scope): Maintainability Cleanup *(skipped — trigger condition not met)*
 - `PortfolioImportService.commit()` currently does portfolio resolution, `REPLACE` confirmation gating, mapping application, skip-set validation, per-row readiness validation, `REPLACE` deletion, holding sync, cash sync, and status finalization all inline. Extract into named steps (e.g. `resolvePortfolio()`, `validateCommitReadiness()`, `applyHoldingsAndCash()`) only if doing so measurably simplifies the FIH3 tests — do not refactor for its own sake ahead of or separate from test coverage.
 
 ### Acceptance checklist
