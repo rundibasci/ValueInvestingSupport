@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface SecurityRepository extends JpaRepository<Security, UUID>, JpaSpecificationExecutor<Security> {
     Optional<Security> findBySymbol(String symbol);
     Optional<Security> findByIsin(String isin);
+    List<Security> findByIsinIn(List<String> isins);
     boolean existsBySymbol(String symbol);
 
     List<Security> findTop10BySymbolContainingIgnoreCaseOrCompanyNameContainingIgnoreCase(String symbol, String companyName);

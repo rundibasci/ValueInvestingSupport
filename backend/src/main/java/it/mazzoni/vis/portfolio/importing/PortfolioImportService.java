@@ -1,5 +1,6 @@
 package it.mazzoni.vis.portfolio.importing;
 
+import it.mazzoni.vis.admin.SecurityIsinService;
 import it.mazzoni.vis.domain.entity.*;
 import it.mazzoni.vis.domain.repository.*;
 import it.mazzoni.vis.portfolio.importing.dto.*;
@@ -34,14 +35,15 @@ public class PortfolioImportService {
     private final SecurityRepository securities;
     private final HoldingRepository holdings;
     private final PortfolioCashBalanceRepository cashBalances;
+    private final SecurityIsinService securityIsinService;
 
     public PortfolioImportService(PortfolioImportProperties properties, PortfolioCsvParser parser,
             UserRepository users, PortfolioRepository portfolios, PortfolioImportRepository imports,
             PortfolioImportRowRepository rows, SecurityRepository securities, HoldingRepository holdings,
-            PortfolioCashBalanceRepository cashBalances) {
+            PortfolioCashBalanceRepository cashBalances, SecurityIsinService securityIsinService) {
         this.properties = properties; this.parser = parser; this.users = users; this.portfolios = portfolios;
         this.imports = imports; this.rows = rows; this.securities = securities; this.holdings = holdings;
-        this.cashBalances = cashBalances;
+        this.cashBalances = cashBalances; this.securityIsinService = securityIsinService;
     }
 
     @Transactional
@@ -61,15 +63,24 @@ public class PortfolioImportService {
         entity.setChecksum(sha256(bytes)); entity.setMode((mode == null ? ImportMode.MERGE : mode).name());
         entity.setBaseCurrency(normalizedBase); entity.setStatus("PREVIEW");
         entity.setCreatedAt(now); entity.setExpiresAt(now.plusHours(properties.previewRetentionHours()));
+        // Batch-resolve all candidate ISINs once instead of one findByIsin query per row.
+        List<String> candidateIsins = parsed.stream()
+                .filter(r -> "SECURITY".equals(r.classification()) && r.status() == ImportRowStatus.NEEDS_MAPPING && r.isin() != null)
+                .map(ParsedPortfolioRow::isin)
+                .distinct()
+                .toList();
+        Map<String, Security> resolvedByIsin = securities.findByIsinIn(candidateIsins).stream()
+                .collect(Collectors.toMap(Security::getIsin, Function.identity()));
         int warnings = 0, errors = 0, ready = 0;
         Set<String> seen = new HashSet<>();
         for (ParsedPortfolioRow parsedRow : parsed) {
             PortfolioImportRow row = toEntity(parsedRow);
             if ("SECURITY".equals(row.getClassification()) && row.getStatus().equals(ImportRowStatus.NEEDS_MAPPING.name())) {
-                securities.findByIsin(row.getIsin()).ifPresent(security -> {
+                Security security = resolvedByIsin.get(row.getIsin());
+                if (security != null) {
                     row.setResolvedSecurity(security);
                     row.setStatus(row.getWarningText() == null ? ImportRowStatus.READY.name() : ImportRowStatus.WARNING.name());
-                });
+                }
             }
             String duplicateKey = "CASH".equals(row.getClassification()) ? "CASH:" + row.getNativeCurrency()
                     : row.getResolvedSecurity() == null ? null : "SECURITY:" + row.getResolvedSecurity().getId();
@@ -110,7 +121,7 @@ public class PortfolioImportService {
             throw badRequest("REPLACE requires explicit confirmation");
         Map<UUID, PortfolioImportRow> byId = portfolioImport.getRows().stream()
                 .collect(Collectors.toMap(PortfolioImportRow::getId, Function.identity()));
-        applyMappings(req.mappings(), byId);
+        applyMappings(user, req.mappings(), byId);
         Set<UUID> skipped = req.skippedRowIds();
         if (!byId.keySet().containsAll(skipped)) throw badRequest("Skipped row does not belong to this import");
         for (PortfolioImportRow row : portfolioImport.getRows()) {
@@ -173,7 +184,7 @@ public class PortfolioImportService {
         imports.deleteByStatusAndExpiresAtBefore("PREVIEW", LocalDateTime.now());
     }
 
-    private void applyMappings(List<IsinMappingRequest> mappings, Map<UUID, PortfolioImportRow> rowsById) {
+    private void applyMappings(User user, List<IsinMappingRequest> mappings, Map<UUID, PortfolioImportRow> rowsById) {
         for (IsinMappingRequest mapping : mappings) {
             PortfolioImportRow row = rowsById.get(mapping.rowId());
             if (row == null || !"SECURITY".equals(row.getClassification()) || row.getIsin() == null)
@@ -182,10 +193,16 @@ public class PortfolioImportService {
             securities.findByIsin(row.getIsin()).ifPresent(existing -> {
                 if (!existing.getId().equals(target.getId())) throw conflict("ISIN is already assigned to another security");
             });
-            if (target.getIsin() != null && !target.getIsin().equals(row.getIsin()))
-                throw conflict("Mapped security already has another ISIN");
-            target.setIsin(row.getIsin()); securities.save(target);
-            row.setResolvedSecurity(target);
+            boolean isNewBinding = target.getIsin() == null;
+            if (isNewBinding && user.getRole() != UserRole.ADMIN) {
+                // Security rows are shared, platform-wide reference data. Only an admin may create a brand-new
+                // ISIN<->Security binding; a regular user's mapping is flagged for admin review instead of applied.
+                row.setStatus(ImportRowStatus.NEEDS_ADMIN_MAPPING.name());
+                row.setWarningText(append(row.getWarningText(), "Binding a new ISIN to this security requires admin approval"));
+                continue;
+            }
+            Security saved = securityIsinService.assignIsin(target.getId(), row.getIsin());
+            row.setResolvedSecurity(saved);
             row.setStatus(row.getWarningText() == null ? ImportRowStatus.READY.name() : ImportRowStatus.WARNING.name());
         }
     }
@@ -193,10 +210,14 @@ public class PortfolioImportService {
     private void synchronizeHolding(Portfolio portfolio, String symbol, List<PortfolioImportRow> source, String baseCurrency) {
         BigDecimal quantity = source.stream().map(PortfolioImportRow::getQuantity).reduce(BigDecimal.ZERO, BigDecimal::add);
         List<Holding> existing = holdings.findByPortfolioAndSymbol(portfolio, symbol);
-        Holding holding = existing.isEmpty() ? new Holding() : existing.getFirst();
+        boolean isNewHolding = existing.isEmpty();
+        Holding holding = isNewHolding ? new Holding() : existing.getFirst();
         if (existing.size() > 1) holdings.deleteAll(existing.subList(1, existing.size()));
         holding.setPortfolio(portfolio); holding.setSymbol(symbol); holding.setQuantity(quantity);
-        holding.setAverageCostBasis(null); holding.setCurrency(source.getFirst().getNativeCurrency() == null ? baseCurrency : source.getFirst().getNativeCurrency());
+        // Only a brand-new holding gets a null cost basis (the supplied CSV format has no cost-basis column).
+        // A pre-existing holding's manually-entered cost basis must survive a MERGE reimport.
+        if (isNewHolding) holding.setAverageCostBasis(null);
+        holding.setCurrency(source.getFirst().getNativeCurrency() == null ? baseCurrency : source.getFirst().getNativeCurrency());
         holdings.save(holding);
     }
 

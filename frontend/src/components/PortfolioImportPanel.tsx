@@ -7,7 +7,7 @@ import { PortfolioAnalysisPanel } from "./PortfolioAnalysisPanel";
 const fieldClass = "mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400";
 const buttonClass = "rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50";
 const formatNumber = (value: number | null | undefined, currency?: string | null): string => value == null ? "—" : new Intl.NumberFormat("en-US", currency ? { style: "currency", currency } : { maximumFractionDigits: 6 }).format(value);
-const statusTone = (status: string): string => status === "INVALID" ? "border-rose-300/30 bg-rose-400/10 text-rose-100" : status === "NEEDS_MAPPING" || status === "WARNING" ? "border-amber-300/30 bg-amber-300/10 text-amber-100" : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100";
+const statusTone = (status: string): string => status === "INVALID" ? "border-rose-300/30 bg-rose-400/10 text-rose-100" : status === "NEEDS_MAPPING" || status === "NEEDS_ADMIN_MAPPING" || status === "WARNING" ? "border-amber-300/30 bg-amber-300/10 text-amber-100" : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100";
 
 function MappingControl({ rowId, isin, onMap }: { rowId: string; isin: string | null; onMap: (rowId: string, result: SecuritySearchResult) => void }): JSX.Element {
   const [query, setQuery] = useState("");
@@ -43,7 +43,7 @@ function PreviewTable({ preview, skipped, mappings, setSkipped, setMapping }: {
       <thead className="uppercase text-slate-400"><tr><th className="p-2">Row</th><th>Product / ISIN</th><th>Quantity</th><th>Source last</th><th>Native value</th><th>{preview.baseCurrency} value</th><th>Resolution</th><th>Status</th><th>Action</th></tr></thead>
       <tbody className="divide-y divide-slate-800">{preview.rows.map((row) => {
         const mapped = mappings.get(row.rowId);
-        const canSkip = row.status === "INVALID" || row.status === "NEEDS_MAPPING";
+        const canSkip = row.status === "INVALID" || row.status === "NEEDS_MAPPING" || row.status === "NEEDS_ADMIN_MAPPING";
         return <tr key={row.rowId} className={skipped.has(row.rowId) ? "opacity-60" : ""}>
           <td className="p-2 text-slate-500">{row.rowNumber}</td>
           <td className="max-w-xs py-2"><span className="block font-medium text-white">{row.productName}</span><span className="text-slate-400">{row.isin || "Cash balance"}</span>{row.warning && <span className="block text-amber-200">{row.warning}</span>}{row.error && <span role="alert" className="block text-rose-200">{row.error}</span>}</td>

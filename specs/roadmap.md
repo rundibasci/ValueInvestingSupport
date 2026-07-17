@@ -319,11 +319,13 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 
 ---
 
-## Group FI — Portfolio CSV Import
+## Group FI — Portfolio CSV Import (complete)
+
+> **Status:** FI1, FI2, and FI3 are complete and merged. Hardening findings from the 2026-07-16 code review are tracked and addressed separately in Group FIH.
 
 Goal: let an authenticated user load an existing broker portfolio from a CSV export without re-entering every position, seed every resolved security into the shared research universe, and run the platform's complete in-depth analysis and portfolio measurements. The first supported schema is the supplied `Portfolio.csv` structure (`Prodotto,Codice,Quantità,Ultimo,Valore,<currency>,Valore in EUR`), including quoted decimal-comma values, ISIN security codes, multiple currencies, and cash rows. Import is preview-first, user-owned, and non-destructive by default. Requires F2 Portfolio CRUD & Holdings; full analysis reuses the data, valuation, scoring, security-review, and portfolio-intelligence capabilities available at execution time.
 
-### Phase FI1: CSV Parsing, Mapping & Import API
+### Phase FI1: CSV Parsing, Mapping & Import API *(complete)*
 - `POST /api/v1/portfolios/imports/preview` — multipart CSV upload plus optional target portfolio ID; parse and validate without changing portfolio data
 - Support UTF-8/UTF-8 BOM, comma-delimited rows, quoted decimal-comma amounts, localized headers/accents, blank cells, and the supplied export's data/header mismatch: currency values occur under `Valore`, while native market values occur in the unnamed column before `Valore in EUR`
 - Map the supplied columns as follows:
@@ -344,7 +346,7 @@ Goal: let an authenticated user load an existing broker portfolio from a CSV exp
 - Preserve source price/value fields for reconciliation, but use refreshed platform quotes for ongoing analytics; clearly label source-as-of values versus current platform values
 - Apply upload size, row-count, content-type, formula-injection, and malformed-file guards; do not execute or render uploaded cell content as HTML
 
-### Phase FI2: Portfolio Import UI & Validation
+### Phase FI2: Portfolio Import UI & Validation *(complete)*
 - Add an **Import CSV** action to the portfolio area with drag/drop and file picker, target portfolio/new portfolio selection, base currency (default `EUR` for the supplied schema), and `MERGE`/`REPLACE` mode
 - Show the expected header structure and localized-number guidance before upload
 - Render a preview table with original row, normalized quantity/price/value, resolved symbol or cash classification, currency, and row status (`ready`, `warning`, `needs mapping`, `invalid`)
@@ -362,7 +364,7 @@ Goal: let an authenticated user load an existing broker portfolio from a CSV exp
   - Unsupported symbols, missing prices, duplicate holdings, and currency mismatches remain visible in the final report.
   - Valuation, score, MoS, and recommendation outputs retain the decision-support disclaimer and are not treated as broker-provided facts.
 
-### Phase FI3: Imported Portfolio Seed, In-Depth Analysis & Measurements
+### Phase FI3: Imported Portfolio Seed, In-Depth Analysis & Measurements *(complete)*
 - After a successful commit, offer **Seed and analyze portfolio**; start an asynchronous, idempotent analysis run covering every resolved non-cash security in the imported portfolio
 - Reuse the shared-universe ingestion pipeline for each resolved symbol: profile, annual/quarterly fundamentals, ratios, quote, dividends, insider data, and available provider estimates; use FMP as primary and Yahoo Finance as fallback under the existing source policy
 - Do not send cash balances through security ingestion or valuation; include them only in cash allocation, currency exposure, and total portfolio value calculations
