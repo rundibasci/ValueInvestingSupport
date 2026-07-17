@@ -115,7 +115,7 @@ class FmpMarketDataClientLiveIT {
 
     @Test
     void listSymbols_eitherReturnsNasdaqListOrServiceUnavailable() {
-        // /stock-list is a bulk endpoint — may require a premium plan. FmpMarketDataClient.listSymbols
+        // /company-screener may require a premium plan on some FMP accounts. FmpMarketDataClient.listSymbols
         // treats a plan-restricted/empty response as an empty list rather than an exception (see
         // UniverseSelectionService's fallback handling, which relies on this same contract), so an
         // empty result is an equally acceptable outcome here.

@@ -9,6 +9,7 @@ import it.mazzoni.vis.domain.FundamentalSnapshot;
 import it.mazzoni.vis.domain.MarketPriceQuote;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.marketdata.MarketDataException;
+import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -291,6 +292,32 @@ class FmpMarketDataClientTest {
         assertThat(result.revenueHistory()).hasSize(1);
         assertThat(result.sharesOutstandingHistory()).containsExactly(15_552_752_000L);
         assertThat(result.fcfHistory()).hasSize(1);
+    }
+
+    @Test
+    void listSymbols_usesCompanyScreenerAndFiltersEtfsAndFunds() {
+        String screenerResponse = """
+                [{"symbol":"AAPL","companyName":"Apple Inc.","sector":"Technology",
+                  "exchange":"NASDAQ Global Select","exchangeShortName":"NASDAQ",
+                  "country":"US","marketCap":2800000000000,"volume":50000000,
+                  "isEtf":false,"isFund":false},
+                 {"symbol":"QQQ","companyName":"Invesco QQQ Trust",
+                  "exchange":"NASDAQ Global Select","exchangeShortName":"NASDAQ",
+                  "country":"US","marketCap":300000000000,"volume":40000000,
+                  "isEtf":true,"isFund":false},
+                 {"symbol":"OTHR","companyName":"Other Exchange Co.",
+                  "exchange":"New York Stock Exchange","exchangeShortName":"NYSE",
+                  "country":"US","marketCap":1000000000,"volume":100000,
+                  "isEtf":false,"isFund":false}]
+                """;
+        wireMock.stubFor(get(urlPathEqualTo("/company-screener"))
+                .withQueryParam("exchange", equalTo("NASDAQ"))
+                .willReturn(okJson(screenerResponse)));
+
+        List<FmpStockListEntry> result = client.listSymbols("NASDAQ");
+
+        assertThat(result).extracting(FmpStockListEntry::symbol).containsExactly("AAPL");
+        assertThat(result.get(0).name()).isEqualTo("Apple Inc.");
     }
 
     @Test
