@@ -14,18 +14,18 @@ Implementation broken into small, shippable phases. Each phase produces working,
 
 ---
 
-## Group Z — Demo (Vertical Slice, Zero Cost)
+## Group Z — Demo (Vertical Slice, Zero Cost) (complete)
 
 Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell you if it's undervalued"* — end to end, with no paid API, no auth, no database persistence. Single REST call + simple UI page.
 
-### Phase Z1: Backend Scaffold (Minimal)
+### Phase Z1: Backend Scaffold (Minimal) *(complete)*
 - Init Spring Boot 3.x project (Maven, Java 21)
 - `docker-compose.yml` with PostgreSQL + Redis (needed from Group A onward; optional for pure demo)
 - `application.yml` with profile `demo` (no auth, no DB required, in-memory cache only)
 - Spring Boot Actuator health endpoint
 - `.env.example`
 
-### Phase Z2: Yahoo Finance Client
+### Phase Z2: Yahoo Finance Client *(complete)*
 - `YahooFinanceClient` using Spring WebClient (no API key)
 - Endpoints used:
   - `quoteSummary` with modules: `financialData`, `defaultKeyStatistics`, `incomeStatementHistory`, `balanceSheetHistory`, `cashflowStatementHistory`, `summaryDetail`, `assetProfile`
@@ -34,14 +34,14 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 - In-memory cache (`Caffeine`) with 15-min TTL — no Redis required for demo
 - Adapter: maps Yahoo Finance DTOs → domain `FundamentalSnapshot` + `RatioSnapshot` records
 
-### Phase Z3: Valuation Engine (Demo-compatible)
+### Phase Z3: Valuation Engine (Demo-compatible) *(complete)*
 - `GrahamCalculator.calculate(eps, bvps) → BigDecimal`
 - `DcfCalculator.calculate(DcfInput) → DcfResult` (pessimistic / base / optimistic scenarios)
 - `MarginOfSafetyCalculator.compute(fairValue, currentPrice) → BigDecimal`
 - RULE-06 guard: DCF skipped (returns null) if < 3 years of positive FCF found in Yahoo data
 - Unit tests with hardcoded reference values (AAPL or similar known stock)
 
-### Phase Z4: Demo Analysis Endpoint
+### Phase Z4: Demo Analysis Endpoint *(complete)*
 - `GET /demo/analyze/{symbol}` — no auth required
 - Calls Yahoo Finance client → maps to domain types → runs valuation → returns JSON
 - Response includes:
@@ -65,7 +65,7 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
   ```
 - Error cases: symbol not found (404), Yahoo Finance unavailable (503 with message)
 
-### Phase Z5: Demo UI (Single Page)
+### Phase Z5: Demo UI (Single Page) *(complete)*
 - Minimal React page (can be a single `index.html` with CDN React for speed, or Vite project)
 - Ticker input field + "Analyze" button
 - Displays: company name, current price, DCF fair value, Graham Number, composite fair value, MoS badge (color-coded), recommendation label
@@ -75,9 +75,9 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 
 ---
 
-## Group A — Foundation
+## Group A — Foundation (complete)
 
-### Phase A1: Backend Project Scaffold
+### Phase A1: Backend Project Scaffold *(complete)*
 - Init Spring Boot 3.x project (Maven, Java 21)
 - `docker-compose.yml` for PostgreSQL + Redis (local dev)
 - `application.yml` with profiles: `local`, `test`, `prod`
@@ -85,7 +85,7 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 - Flyway configured, first empty migration `V1__init.sql`
 - `.env.example` with all required environment variables
 
-### Phase A2: Domain Entities & DB Schema
+### Phase A2: Domain Entities & DB Schema *(complete)*
 - JPA entities: `Security`, `FundamentalSnapshot`, `RatioSnapshot`, `PriceQuote`
 - JPA entities: `ValuationResult`, `ValueScore`, `DividendRecord`, `InsiderTrade`
 - JPA entities: `User`, `Portfolio`, `Holding`, `Watchlist`, `Alert`
@@ -93,7 +93,7 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 - Partitioned `price_quote` table by month
 - Spring Data repositories for each entity
 
-### Phase A3: Authentication
+### Phase A3: Authentication *(complete)*
 - `POST /auth/login` → JWT (RS256) access + refresh tokens
 - `POST /auth/refresh` → new access token
 - `POST /auth/logout` → revoke refresh token
@@ -102,9 +102,9 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 
 ---
 
-## Group B — Data Pipeline
+## Group B — Data Pipeline (complete)
 
-### Phase B1: Market Data Client Abstraction
+### Phase B1: Market Data Client Abstraction *(complete)*
 - `MarketDataClient` interface: `getProfile(symbol)`, `getFundamentals(symbol)`, `getRatios(symbol)`, `getQuote(symbol)`
 - Two implementations behind the same interface:
   - `YahooMarketDataClient` — reuses Z2 Yahoo Finance client; active when `MARKET_DATA_SOURCE=yahoo`; **also serves as runtime fallback** when FMP is unavailable (quota exceeded, HTTP 429/503 after retries, key absent)
@@ -112,13 +112,13 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 - Spring `@Profile` or `@ConditionalOnProperty` to select primary implementation at startup; fallback wiring is always present regardless of active source
 - DTOs and adapters isolated per client; domain entities are shared
 
-### Phase B2: Redis Cache Layer
+### Phase B2: Redis Cache Layer *(complete)*
 - `@Cacheable` wrappers on all market data client calls
 - TTL configuration per data type (15 min quotes, 6h quarterly, 24h annual/profile)
 - Cache key strategy: `mdc:{source}:{endpoint}:{symbol}:{params_hash}`
 - Cache eviction on manual refresh
 
-### Phase B3: Data Ingestion Jobs
+### Phase B3: Data Ingestion Jobs *(complete)*
 - Nightly 02:00 — Bulk Profile Sync (exchange by exchange)
 - Nightly 03:00 — Bulk Fundamentals Sync (income, balance, cash flow)
 - Nightly 03:30 — Bulk Ratios Sync (ratios TTM bulk)
@@ -130,18 +130,18 @@ Goal: demonstrate the core value proposition — *"give me a ticker, I'll tell y
 
 ---
 
-## Group LS — Local Stack Demo
+## Group LS — Local Stack Demo (complete)
 
 Goal: validate the auth + cache stack is working end-to-end before valuation work begins. Runs entirely with H2 in-memory database and Docker Redis — no PostgreSQL container needed. Provides a clickable HTML page to manually test login, JWT handling, and protected endpoint access with the built-in admin user. Requires B1 and B2 only; B3 can follow after.
 
-### Phase LS1: H2 Demo Profile & Admin Seed
+### Phase LS1: H2 Demo Profile & Admin Seed *(complete)*
 - `application-demo.yml` profile: H2 in-memory datasource, Redis at `localhost:6379` (Docker)
 - Flyway H2-compatible dialect — DDL reviewed for H2 compatibility; H2-incompatible syntax guarded per migration file
 - `DemoDataSeeder` `@Component` (active on `demo` profile only): on startup inserts `User { username=admin, password=BCrypt("admin"), role=ADMIN }` if not already present
 - `docker-compose.demo.yml`: Redis only (no PostgreSQL — H2 replaces it)
 - Smoke test: `GET /actuator/health` → returns `UP` with H2 + Redis status indicators
 
-### Phase LS2: HTML Demo Client
+### Phase LS2: HTML Demo Client *(complete)*
 - Single `demo.html` served as Spring Boot static resource (`src/main/resources/static/demo.html`)
 - Login form → `POST /auth/login` (username: `admin` / password: `admin`) → JWT stored in JS memory
 - "Ping Admin" button → `GET /api/v1/admin/ping` with `Authorization: Bearer <token>` header; new admin-only endpoint returning `{ "status": "ok", "role": "ADMIN" }`
@@ -150,22 +150,22 @@ Goal: validate the auth + cache stack is working end-to-end before valuation wor
 
 ---
 
-## Group C — Valuation Engine
+## Group C — Valuation Engine (complete)
 
-### Phase C1: Graham Number & DDM
+### Phase C1: Graham Number & DDM *(complete)*
 - `GrahamCalculator.calculate(eps, bvps) → BigDecimal`
 - `DdmCalculator.calculate(dpsTtm, dividendGrowthRate, requiredReturn) → BigDecimal`
 - RULE-07 guard: DDM throws if < 5 consecutive dividend years
 - Unit tests for both with known reference values
 
-### Phase C2: DCF Engine
+### Phase C2: DCF Engine *(complete)*
 - `DcfCalculator.calculate(DcfInput) → DcfResult`
 - `DcfInput`: fcfTtm, growthY1Y5, growthY6Y10, terminalRate, wacc, shares, netDebt
 - `DcfResult`: fairValue, fairValueLow (WACC+2%), fairValueHigh (WACC-1%), enterpriseValue, parameters snapshot
 - RULE-06 guard: DCF throws if < 3 years of positive FCF
 - Unit tests with reference calculation (AAPL-like inputs → verify formula)
 
-### Phase C3: Composite Fair Value & Margin of Safety
+### Phase C3: Composite Fair Value & Margin of Safety *(complete)*
 - `ValuationService.calculate(symbol, params) → ValuationResult`
 - Composite: DCF 60%, Graham 25%, DDM 15% (weights configurable, DDM only if eligible)
 - `MarginOfSafetyCalculator.compute(fairValue, currentPrice) → BigDecimal`
@@ -174,11 +174,11 @@ Goal: validate the auth + cache stack is working end-to-end before valuation wor
 
 ---
 
-## Group Val — Connected Valuation Demo
+## Group Val — Connected Valuation Demo (complete)
 
 Goal: validate and demonstrate the full production value chain with real FMP data, auth, and DB-backed state — before building the screener. Produces an authenticated, stakeholder-showable endpoint that delivers the core promise: *"give me a ticker, I'll tell you if it's undervalued."* The M0 demo proved the concept; Val proves the production system.
 
-### Phase Val1: Single-Stock Analysis Endpoint
+### Phase Val1: Single-Stock Analysis Endpoint *(complete)*
 - `GET /api/v1/securities/{symbol}/quick-analysis` (auth required, all roles)
 - Reads latest `FundamentalSnapshot` + `RatioSnapshot` from DB (populated by B3 ingestion)
 - Fetches current price from Redis cache; falls back to most recent `PriceQuote` in DB
@@ -189,7 +189,7 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 - MiFID II disclaimer required in response body
 - Unit test: `QuickAnalysisControllerTest` (MockMvc, mocked service)
 
-### Phase Val2: Demo Seed Endpoint & Smoke Test
+### Phase Val2: Demo Seed Endpoint & Smoke Test *(complete)*
 - `POST /api/v1/admin/seed` (ADMIN only) — triggers on-demand FMP ingestion for a configurable ticker list (`SEED_TICKERS` env var, default `AAPL,MSFT,KO,JNJ`)
 - Seeded securities are platform-wide reference data: after seeding, every authenticated user can discover the same symbols through search, screener, security detail, watchlist, and portfolio flows, while personal watchlists/portfolios remain user-owned
 - Add named seed packs for common research universes (default value pack, US large cap, dividend candidates) so an admin can seed a useful shared universe without manually typing every ticker
@@ -200,11 +200,11 @@ Goal: validate and demonstrate the full production value chain with real FMP dat
 
 ---
 
-## Group FD — Interactive Feature Demo
+## Group FD — Interactive Feature Demo (complete)
 
 Goal: replace the curl-only stakeholder workflow with a browser-based clickable interface that exposes every feature built through Val2 — auth, health, seed, quick analysis, DCF custom valuation, cache eviction, and job trigger — in a single self-contained HTML page. No new backend endpoints; no build step required. Makes M3.5 immediately shareable with non-technical stakeholders.
 
-### Phase FD1: Feature Demo Page
+### Phase FD1: Feature Demo Page *(complete)*
 - `feature-demo.html` served as Spring Boot static resource (`src/main/resources/static/feature-demo.html`)
 - **Auth panel:** username + password → `POST /auth/login` → JWT stored in JS memory; Logout → `POST /auth/logout`; decoded role shown in header; ADMIN-only and auth-required sections toggled accordingly
 - **Health panel** *(public)*: **Check Health** → `GET /actuator/health` → overall status chip + per-component rows (`db`, `redis`, `ingestionJobs`, `diskSpace`)
@@ -218,11 +218,11 @@ Goal: replace the curl-only stakeholder workflow with a browser-based clickable 
 
 ---
 
-## Group Score — Full Pipeline Demo
+## Group Score — Full Pipeline Demo (complete)
 
 Goal: validate and demonstrate the complete data → valuation → scoring → ranking chain before building the full screener. An authenticated admin endpoint accepts a ticker list, seeds FMP data for each ticker, runs the valuation engine, computes a composite Value Score, and returns the tickers ranked by score — stakeholder-showable before any screener UI exists.
 
-### Phase Score1: Pipeline Run Endpoint
+### Phase Score1: Pipeline Run Endpoint *(complete)*
 - `POST /api/v1/admin/pipeline-run` (ADMIN only), body: `{ "tickers": ["AAPL", "MSFT", "KO", "JNJ"] }`
 - For each ticker: fetch + persist `FundamentalSnapshot`, `RatioSnapshot`, `PriceQuote` (via `MarketDataClient`), run `ValuationService.calculate()` → persist `ValuationResult`
 - Compute `ValueScore` using the full 5-factor formula (MoS 30, Quality 25, Safety 20, Growth 15, Dividend 10) — same formula that D1 will expose individually; persist `ValueScore`
@@ -241,23 +241,23 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
   ```
 - Re-uses `MarketDataClient`, `ValuationService`; introduces `ValueScoreService` (same class D1 will use — no duplication at merge time)
 
-### Phase Score2: Integration Test & Demo Script
+### Phase Score2: Integration Test & Demo Script *(complete)*
 - Integration test `PipelineDemoIT` (uses `localstack` profile + H2 + Testcontainers Redis or Docker Redis):
   - Login as admin → `POST /api/v1/admin/pipeline-run` with `["AAPL"]` → assert response contains `totalScore` non-null and `marginOfSafety` non-null; assert ticker ranked first in list
 - `scripts/pipeline-demo.sh`: documented curl sequence (login → pipeline-run → print ranked table) — shareable with stakeholders
 
 ---
 
-## Group D — Scoring & Screener
+## Group D — Scoring & Screener (complete)
 
-### Phase D1: Value Score Engine
+### Phase D1: Value Score Engine *(complete)*
 - `ValueScoreService.compute(symbol) → ValueScore`
 - Five sub-scores: MoS (30), Quality (25), Safety (20), Growth (15), Dividend (10)
 - Score formula exactly as per spec section 6.5
 - Persist `ValueScore` to DB
 - `GET /api/v1/securities/{symbol}/score` endpoint
 
-### Phase D2: Stock Screener API
+### Phase D2: Stock Screener API *(complete)*
 - `POST /api/v1/screener` with `ScreenerRequest` (all filters from spec 6.2)
 - Query executes on local DB only (never calls FMP live)
 - Pagination: page + pageSize
@@ -269,16 +269,16 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 
 ---
 
-## Group E — Security Detail API
+## Group E — Security Detail API (complete)
 
-### Phase E1: Company Profile & Financials
+### Phase E1: Company Profile & Financials *(complete)*
 - `GET /api/v1/securities/search?q=` — autocomplete across the shared seeded universe; searches symbol, company name, and description/profile text when available
 - Search response includes symbol, company name, sector, exchange, country when available, and description/profile excerpt so users can research all seeded markets without already knowing the ticker
 - `GET /api/v1/securities/{symbol}` — full profile (company info + latest snapshot)
 - `GET /api/v1/securities/{symbol}/financials` — 10y annual + 8 quarters + TTM
 - `GET /api/v1/securities/{symbol}/ratios` — 10y ratio history
 
-### Phase E2: Financial Health, Dividends, Insiders & Growth
+### Phase E2: Financial Health, Dividends, Insiders & Growth *(complete)*
 - `GET /api/v1/securities/{symbol}/financial-health` — 10y annual + TTM trend view of revenue, net income, FCF, cash, total debt, short-term debt, long-term debt, net debt, current ratio, quick ratio, interest coverage, debt-to-equity, net-debt-to-EBITDA/FCF where meaningful, and dividend coverage
 - Return metric definitions, data availability, and sector/industry context with the series; the API must not assign universal leverage thresholds or an investment recommendation
 - `GET /api/v1/securities/{symbol}/dividends` — full dividend history + streak + growth CAGR
@@ -287,7 +287,7 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 - `GET /api/v1/securities/{symbol}/growth` — CAGR at 3y, 5y, 10y for revenue, FCF, EPS
 - `GET /api/v1/securities/{symbol}/peers` — peer comparison table
 
-### Phase E3: Full Valuation on Security Detail
+### Phase E3: Full Valuation on Security Detail *(complete)*
 - `GET /api/v1/securities/{symbol}/valuation` — all models (DCF, Graham, DDM, FMP DCF)
 - Includes Fair Value composite, MoS, scenario range
 - Analyst estimates + price target consensus aggregated
@@ -295,25 +295,25 @@ Goal: validate and demonstrate the complete data → valuation → scoring → r
 
 ---
 
-## Group F — Portfolio & Watchlist
+## Group F — Portfolio & Watchlist (complete)
 
-### Phase F1: Watchlist
+### Phase F1: Watchlist *(complete)*
 - `GET/POST/PUT/DELETE /api/v1/watchlist` CRUD
 - Alert thresholds per watchlist item (mosMin, mosMax, fundamentalDegrade)
 - `GET /api/v1/watchlist/alerts` — list active alerts
 
-### Phase F2: Portfolio CRUD & Holdings
+### Phase F2: Portfolio CRUD & Holdings *(complete)*
 - `GET/POST /api/v1/portfolios` — create / list portfolios
 - `GET /api/v1/portfolios/{id}` — detail with current weights and MoS
 - `POST/PUT/DELETE /api/v1/portfolios/{id}/holdings` — manage holdings
 
-### Phase F3: Portfolio Builder (Simulation)
+### Phase F3: Portfolio Builder (Simulation) *(complete)*
 - `POST /api/v1/portfolios/{id}/simulate` — propose allocation from watchlist
 - Apply constraints: 25% max/stock, 40% max/sector, 50% max/country
 - Value-weighted by ValueScore normalized
 - Output: proposed weights, shares, cost, weighted yield, average MoS
 
-### Phase F4: Rebalancing
+### Phase F4: Rebalancing *(complete)*
 - `GET /api/v1/portfolios/{id}/rebalance` — diff current vs target weights
 - Suggest buys/sells to realign, respecting hard rules
 
@@ -435,11 +435,11 @@ Source: `Code Review 2026-07-16/Quality.md`, `Security.md`, `Performance.md` in 
 
 ---
 
-## Group PFD — Portfolio & Full-Feature HTML Demo
+## Group PFD — Portfolio & Full-Feature HTML Demo (complete)
 
 Goal: replace the curl-and-script stakeholder workflow with a single, self-contained HTML page that exercises every endpoint built through Group F — screener, security detail, watchlist, portfolio management, simulation, and rebalancing — in addition to all panels already present in FD1. No new backend endpoints; no build step required. Makes the complete system demonstrable in a browser before the full React UI (Group H) is started.
 
-### Phase PFD1: Complete Feature Demo Page
+### Phase PFD1: Complete Feature Demo Page *(complete)*
 - `full-demo.html` served as Spring Boot static resource (`src/main/resources/static/full-demo.html`)
 - Inherits all panels from FD1 (auth, health, seed, quick analysis, DCF custom valuation, cache eviction, job trigger)
 - **Seed panel** *(ADMIN only)*: supports ticker CSV and named shared-universe seed packs; seeded securities become discoverable by all authenticated users
@@ -467,41 +467,41 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ---
 
-## Group G — Alert Engine
+## Group G — Alert Engine (complete)
 
-### Phase G1: Alert Detection Job
+### Phase G1: Alert Detection Job *(complete)*
 - Nightly job: recompute MoS for all watchlist/portfolio symbols after price refresh
 - Detect all 8 alert types (spec section 6.7)
 - Persist `Alert` records; deduplicate (don't re-alert same condition same day)
 
-### Phase G2: Alert Delivery
+### Phase G2: Alert Delivery *(complete)*
 - In-app alert endpoint: `GET /api/v1/watchlist/alerts`
 - Email notification (SMTP / SendGrid) for HIGH priority alerts
 - Alert acknowledgement (`PUT /api/v1/alerts/{id}/ack`)
 
 ---
 
-## Group H — Frontend
+## Group H — Frontend (complete)
 
-### Phase H1: Frontend Scaffold
+### Phase H1: Frontend Scaffold *(complete)*
 - Vite + React 18 + TypeScript + TailwindCSS project
 - React Router v6 routes: `/`, `/screener`, `/securities/:symbol`, `/securities/:symbol/review`, `/portfolio`, `/watchlist`
 - TanStack Query client setup + auth token interceptor
 - Layout: sidebar nav + main content area + header
 
-### Phase H2: Authentication UI
+### Phase H2: Authentication UI *(complete)*
 - Login page → POST `/auth/login`
 - Token storage (memory + httpOnly cookie for refresh)
 - Protected route wrapper
 
-### Phase H3: Screener UI
+### Phase H3: Screener UI *(complete)*
 - Filter panel (all screener filters with range sliders + dropdowns)
 - Market-wide research/search experience across the shared seeded universe, including symbol, company name, sector, exchange, country where available, and description/profile excerpt in results
 - Results table: sortable columns, pagination
 - Preset selector (Graham / Dividend / Quality)
 - Click row → navigate to Security Detail
 
-### Phase H4: Security Detail UI
+### Phase H4: Security Detail UI *(complete)*
 - Overview tab: company profile, sector, country, market cap, management
 - Financials tab: 10y revenue/income/FCF bar charts (Recharts)
 - Ratios tab: PE, ROIC, ROE, debt trend line charts, current ratio, quick ratio when available, and payout ratio
@@ -514,7 +514,7 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Add to Watchlist button
 - Prominent link/button to the separate In-Depth Review page for the same symbol.
 
-### Phase H4A: In-Depth Stock Review Page
+### Phase H4A: In-Depth Stock Review Page *(complete)*
 - Dedicated route: `/securities/:symbol/review`.
 - Dedicated page/component: `SecurityReviewPage`, separate from `SecurityDetailPage`.
 - Accessible to every authenticated role for any symbol in the shared seeded universe.
@@ -547,14 +547,14 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
   - The page can be opened from Screener, Security Detail, Watchlist, Portfolio, and Seed results.
   - Non-admin investors can open the page for seeded symbols.
 
-### Phase H4B: Review Page — Portfolio-Add Integration
+### Phase H4B: Review Page — Portfolio-Add Integration *(complete)*
 - Assess and implement the add-to-portfolio action on the In-Depth Review page.
 - Requires the portfolio CRUD API (F2) and portfolio UI contract (H5) to be available.
 - Replace the disabled "coming soon" add-to-portfolio button with a functional action that adds the symbol to a user-owned portfolio.
 - Reuse the existing portfolio API client and mutation patterns from H5.
 - Validate that adding from the review page does not bypass ownership rules or create duplicate holdings.
 
-### Phase H4C: Review Page — Backend Review Endpoint
+### Phase H4C: Review Page — Backend Review Endpoint *(complete)*
 - Implement a dedicated backend endpoint (e.g. `GET /api/v1/securities/{symbol}/review`) that assembles the full single-stock research packet in one call.
 - Replaces the frontend composition of multiple H4 endpoints with a single optimised server-side aggregation.
 - Motivated by latency or fragility observed during H4A frontend composition.
@@ -562,25 +562,25 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 - Update `SecurityReviewPage` to consume the new endpoint instead of composing individual calls.
 - Preserve all existing research-packet sections, charts, and data-quality labels.
 
-### Phase H5: Portfolio Builder UI
+### Phase H5: Portfolio Builder UI *(complete)*
 - Budget + risk profile + yield target inputs
 - Proposed allocation table with editable weights
 - Real-time constraint validation (sector, stock, country %)
 - Donut chart of sector allocation
 - Save portfolio button
 
-### Phase H6: Watchlist & Alerts UI
+### Phase H6: Watchlist & Alerts UI *(complete)*
 - Watchlist table with MoS badge (color coded: green > 15%, yellow 5–15%, red < 5%)
 - Alert threshold configuration inline
 - Active alerts panel (dismissable)
 
-### Phase H7: Dashboard
+### Phase H7: Dashboard *(complete)*
 - Portfolio summary: total value, MoS average, yield
 - Top movers in portfolio (% change)
 - Active alerts summary
 - Upcoming earnings + dividend calendar (next 30 days)
 
-### Phase H8: Seed & Shared Universe UI
+### Phase H8: Seed & Shared Universe UI *(complete)*
 - Authenticated `INVESTOR`, `ADVISOR`, and `ADMIN` users can seed symbols into the shared research universe.
 - Requires backend/API authorization support for limited non-admin seeding: investors/advisors can seed custom ticker lists, while admin-only controls remain available for named packs, quota/cost governance, and universe maintenance.
 - The UI must make the scope explicit: seeding creates or refreshes platform-wide securities, fundamentals, ratios, quotes, valuations, and scores; it does not create personal watchlist or portfolio entries.
@@ -616,11 +616,11 @@ Goal: replace the curl-and-script stakeholder workflow with a single, self-conta
 
 ---
 
-## Group HD — Full Demo Assessment
+## Group HD — Full Demo Assessment (complete)
 
 Goal: assess the completed frontend MVP as a full clickable product demo before moving into formal quality and observability work. This group verifies that the application feels coherent end to end, that the newest H8 Seed & Shared Universe UI fits the product, and that visible rough edges are captured or fixed before the Production Ready milestone.
 
-### Phase HD1: Full Demo UI Assessment
+### Phase HD1: Full Demo UI Assessment *(complete)*
 - Run the localstack/full-demo environment and React frontend against deterministic local data.
 - Walk through the complete authenticated user journey: login, dashboard, seed universe, screener, security detail, in-depth review, watchlist, portfolio builder, rebalancing, and alerts.
 - Specifically verify the H8 Seed & Shared Universe UI:
@@ -636,7 +636,7 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 - Fix low-risk visual and copy issues immediately when they are clearly scoped and do not change backend behavior.
 - Defer larger UX or product changes into explicit follow-up roadmap items rather than silently expanding this phase.
 
-### Phase HD2: Demo Polish Pass
+### Phase HD2: Demo Polish Pass *(complete)*
 - Apply the scoped polish fixes identified in HD1 across the React frontend and static demo pages where appropriate.
 - Close the open INGR review-page findings from `specs/2026-06-28-full-demo-assessment/ingr-review-bug-notes.md`:
   - Keep the Docker backend image buildable from a Windows checkout by normalizing/executing the Maven wrapper in the Docker build stage or by enforcing repository line endings.
@@ -658,7 +658,7 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
   - The Docker full-demo stack builds and starts on the Windows development checkout.
   - Any remaining UX gaps are documented with severity and owner/phase recommendation.
 
-### Phase HD3: Beta Tester Persona Simulation
+### Phase HD3: Beta Tester Persona Simulation *(complete)*
 - Run a structured beta-test pass with three scripted investor personas after HD2 polish is complete.
 - Each beta-tester agent must use the platform as a real evaluator would: discover candidate stocks, seed or open symbols as needed, inspect review/security detail pages, build a model portfolio, create a watchlist, and document platform impressions.
 - Agent 1: Very prudent value investor.
@@ -685,7 +685,7 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
   - The personas surface different product needs rather than repeating the same value-investor workflow.
   - Any new bugs or UX issues discovered are added to follow-up roadmap items with severity and recommended owner/phase.
 
-### Phase HD4: Beta-Driven Feature Selection And Implementation
+### Phase HD4: Beta-Driven Feature Selection And Implementation *(complete)*
 - Review the three HD3 beta-tester reports and extract candidate product improvements, grouped by persona, workflow, severity, expected user value, implementation complexity, and dependency risk.
 - Use `specs/2026-06-28-hd3-beta-tester-personas/extracted-roadmap-requirements.md` as the initial HD4 backlog.
 - Decide which new features should be added before Quality & Observability, explicitly separating:
@@ -718,16 +718,16 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 
 ---
 
-## Group I — Quality & Observability
+## Group I — Quality & Observability (complete)
 
-### Phase I1: Test Coverage
+### Phase I1: Test Coverage *(complete)*
 - Unit tests: all Calculator classes (DCF, Graham, DDM, ValueScore)
 - Integration tests: Screener API, Valuation endpoint, Auth flow
 - Integration tests for any HD4-selected beta-driven workflows, including score/data-quality states, concentration warning thresholds, watchlist rationale persistence, and screener empty-state diagnostics.
 - Deterministic persona replay tests or scripts for the three HD3 user journeys where practical.
 - Test DB: H2 or Testcontainers PostgreSQL
 
-### Phase I2: Observability
+### Phase I2: Observability *(complete)*
 - Prometheus metrics via Micrometer: FMP API call count/latency, cache hit rate, screener latency
 - Structured JSON logging (Logback)
 - FMP quota monitoring metric (calls consumed vs plan limit)
@@ -735,7 +735,7 @@ Goal: assess the completed frontend MVP as a full clickable product demo before 
 
 ---
 
-## Group J — Google Account Sign-In (Phase J1 complete)
+## Group J — Google Account Sign-In (complete)
 
 Goal: let a user sign in with a Google account while keeping the platform's existing local JWT, role, ownership, and refresh-token model unchanged. Google is used only to prove identity through OpenID Connect; the platform remains the authorization authority.
 
@@ -753,13 +753,13 @@ Goal: let a user sign in with a Google account while keeping the platform's exis
 
 ---
 
-## Group VM — Valuation Model Depth
+## Group VM — Valuation Model Depth (complete)
 
 Goal: strengthen the valuation engine so that its outputs are defensible, transparent, and trustworthy for real investment decisions. Currently the DCF engine accepts WACC without guidance, the composite hides terminal-value dominance, and no alternative conservative model (EPV) exists. This group fills those gaps so every downstream score, recommendation, and MoS is grounded in auditable assumptions.
 
 Source: `specs/value-investor-roadmap-review.md` — items 1.1, 1.2, 1.3, 1.4, 1.5, 1.6.
 
-### Phase VM1: Valuation Engine Backend Enhancements
+### Phase VM1: Valuation Engine Backend Enhancements *(complete)*
 - **WACC Calculator:** add `WaccCalculator.compute(symbol) → WaccResult` that derives a defensible default WACC from: risk-free rate (configurable, default 10Y US Treasury yield from provider data or manual override), equity risk premium (configurable, default 5.5%), beta (from FMP or Yahoo), cost of debt (interest expense / total debt), debt/equity ratio, and effective tax rate. Persist `WaccResult` alongside `ValuationResult` so the assumptions are traceable. Fall back to a sector-median WACC when beta or debt data is unavailable.
 - **DCF Sensitivity Engine:** add `DcfSensitivityService.analyze(DcfInput) → DcfSensitivityResult` that computes a sensitivity matrix: fair value across 3–5 WACC values × 3–5 terminal growth rates. Include terminal value as a percentage of total DCF in every `DcfResult`. Flag when terminal value exceeds 70% with a `highTerminalDependence` boolean.
 - **Earnings Power Value:** add `EpvCalculator.calculate(EpvInput) → BigDecimal` — normalized current earnings power (adjusted net income averaged over 5–7 years to smooth cycles), divided by WACC, minus net debt, divided by shares. EPV assumes zero growth; it provides a conservative floor valuation. Add RULE-08 guard: EPV skipped if fewer than 5 years of earnings history.
@@ -769,7 +769,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 1.1, 1.2, 1.3, 1.4, 1
 - Flyway migration for `wacc_result` columns, `graham_checklist_result` columns or table, EPV columns on `valuation_result`, and user composite-weight preferences
 - Unit tests: WACC calculation with known inputs, sensitivity matrix dimensions, EPV with averaged earnings, owner earnings formula, Graham checklist pass/fail per criterion, composite weight rebalancing
 
-### Phase VM2: Valuation Transparency Frontend
+### Phase VM2: Valuation Transparency Frontend *(complete)*
 - **DCF Sensitivity Table:** on the review page and valuation tab, display a WACC × terminal growth matrix (color-coded: green where fair value > current price by 15%+, yellow 0–15%, red where overvalued). Show the base-case cell highlighted.
 - **Terminal Value Warning:** when terminal value exceeds 70% of total DCF, display a prominent label: "This valuation depends heavily on long-term assumptions (terminal value = X% of total)." Explain in plain language what this means.
 - **WACC Transparency Panel:** show the computed WACC and every input (risk-free rate, ERP, beta, cost of debt, D/E ratio, tax rate) with source badges. Allow the user to override any input and recompute in real time.
@@ -787,13 +787,13 @@ Source: `specs/value-investor-roadmap-review.md` — items 1.1, 1.2, 1.3, 1.4, 1
 
 ---
 
-## Group SR — Scoring & Risk Intelligence
+## Group SR — Scoring & Risk Intelligence (complete)
 
 Goal: make the scoring engine sector-aware, add fundamental risk indicators (Piotroski, Altman, accruals), and prevent overvalued stocks from scoring high. The current fixed-weight formula penalizes non-dividend payers, ignores cyclicality, and allows a stock with negative MoS to still receive a respectable score. This group makes scoring trustworthy across sectors and market conditions.
 
 Source: `specs/value-investor-roadmap-review.md` — items 2.1, 2.2, 2.3, 2.4, 4.4.
 
-### Phase SR1: Scoring & Risk Backend
+### Phase SR1: Scoring & Risk Backend *(complete)*
 - **MoS Gate Rule:** add RULE-09: if margin of safety is negative (stock is overvalued relative to composite fair value), cap total ValueScore at 40 regardless of other sub-scores. A value investing platform must never rank an overvalued stock highly. Persist the gate-applied flag on `ValueScore`.
 - **Sector-Adaptive Weights:** define weight profiles per sector category (at minimum: dividend-paying, non-dividend growth, REIT/utility, financial, cyclical). For non-dividend payers, redistribute the Dividend 10% weight proportionally to Quality and Growth. For REITs, adjust Safety sub-score to use FFO-based metrics instead of standard debt ratios. Weight profiles configurable via `application.yml`. Display which profile was applied.
 - **Piotroski F-Score:** add `PiotroskiService.compute(symbol) → PiotroskiResult` using FMP's Piotroski data when available; compute from fundamentals when FMP data is missing. Return 9-factor score (0–9) with individual factor pass/fail. Persist `PiotroskiResult`. Add `GET /api/v1/securities/{symbol}/piotroski` endpoint. Add F-Score as a screener filter (`piotroskiMin`, `piotroskiMax`).
@@ -802,7 +802,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 2.1, 2.2, 2.3, 2.4, 4
 - **Earnings Quality Ratio:** add `EarningsQualityService.compute(symbol) → EarningsQualityResult` computing: FCF/Net Income ratio (>1.0 = strong, 0.8–1.0 = acceptable, <0.8 = weak), Sloan accruals ratio ((net income − CFO) / total assets), and trend over 5 years. Flag when accruals are rising while FCF/income ratio is falling.
 - Unit tests for MoS gate, each sector weight profile, Piotroski 9 factors, Altman formula (manufacturing and service variants), cyclicality classification thresholds, and accruals calculation
 
-### Phase SR2: Scoring & Risk Frontend
+### Phase SR2: Scoring & Risk Frontend *(complete)*
 - **Score Breakdown with Gate:** on the review page and score display, show the MoS gate status. When the gate is active (negative MoS), display: "Score capped at 40 — stock appears overvalued relative to composite fair value" with a distinct visual treatment (e.g., amber border, strikethrough of raw score showing capped score).
 - **Sector Weight Profile Badge:** show which weight profile was applied (e.g., "Non-Dividend Growth Profile: Quality 30, Safety 23, Growth 22, MoS 25") and why. Allow the user to switch profiles manually for comparison.
 - **Piotroski F-Score Card:** add a card on the review page showing the 9-factor breakdown with pass/fail per factor, total score (0–9), and a brief interpretation (strong ≥ 7, moderate 4–6, weak ≤ 3). Add F-Score column to screener results. Add F-Score to the comparison view.
@@ -826,7 +826,7 @@ Goal: add competitive advantage assessment and management quality signals so the
 
 Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8.3.
 
-### Phase MA1: Moat & Quality Backend
+### Phase MA1: Moat & Quality Backend *(complete)*
 - **ROIC Consistency Analysis:** add `MoatAssessmentService.analyze(symbol) → MoatResult` that computes: 10-year ROIC series, ROIC consistency (percentage of years ROIC > estimated WACC), ROIC trend (improving/stable/declining via linear regression slope), average ROIC spread over WACC, and reinvestment rate (capex + R&D − depreciation) / NOPAT. Classify moat strength: wide (ROIC > WACC for 8+ of 10 years with stable/improving trend), narrow (5–7 years), or none (< 5 years). Persist `MoatResult`.
 - **Capital Allocation Tracker:** add `CapitalAllocationService.analyze(symbol) → CapitalAllocationResult` that computes: shares outstanding trend over 10 years (net buyback or dilution percentage), total shareholder yield (dividend yield + net buyback yield), insider ownership percentage (from FMP insider data), acquisition spending as percentage of FCF (when available). Flag: "net diluter" (shares growing > 2% annually), "disciplined capital allocator" (shares flat/declining + dividend growth), or "empire builder" (heavy acquisition spending with declining ROIC).
 - **Historical Valuation Bands:** add `ValuationHistoryService.compute(symbol) → ValuationBandResult` that computes 5-year and 10-year percentile bands for P/E, P/B, EV/EBITDA, and dividend yield. Return current value, median, 25th/75th percentiles, and where today's value sits within the band. Flag when current valuation is above the 75th percentile ("historically expensive") or below the 25th percentile ("historically cheap").
@@ -836,7 +836,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
 - Add moat strength and shares outstanding trend as screener filters
 - Unit tests: ROIC consistency classification, shares outstanding trend calculation, valuation band percentile computation, stability criteria pass/fail
 
-### Phase MA2: Moat & Quality Frontend
+### Phase MA2: Moat & Quality Frontend *(complete)*
 - **Moat Assessment Card:** on the review page, display moat classification (wide/narrow/none) with a badge, 10-year ROIC chart overlaid with estimated WACC line, ROIC consistency percentage, trend direction, and reinvestment rate. Explain in one line what the classification means: "Wide moat: ROIC has exceeded cost of capital in 9 of 10 years with a stable trend."
 - **Capital Allocation Card:** on the review page, display: shares outstanding 10-year chart (normalized to year 1 = 100 for easy visual), net buyback/dilution percentage, total shareholder yield, insider ownership percentage, and capital allocator classification with badge. Chart should make dilution immediately obvious.
 - **Historical Valuation Band Charts:** on the review page valuation section, display P/E and EV/EBITDA over 5–10 years as a band chart (25th–75th percentile shaded, median line, current value dot). Show whether today's valuation is historically cheap, normal, or expensive. Add these charts alongside the existing DCF/Graham/MoS outputs.
@@ -865,18 +865,18 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
 
 ---
 
-## Group J (continued) — Google Sign-In UI & Validation
+## Group J (continued) — Google Sign-In UI & Validation (complete)
 
 > Resumes J2 and J3 after the analytical engine (VM, SR, MA) is in place. J1 backend is already complete.
 
-### Phase J2: Google Sign-In UI & Account Lifecycle
+### Phase J2: Google Sign-In UI & Account Lifecycle *(complete)*
 - Add a **Continue with Google** action to the React login page (H2) that starts `/oauth2/authorization/google`, plus clear loading, cancelled-login, denied-consent, and provider-unavailable states.
 - Complete the frontend callback route: consume the one-time handoff, initialize the normal authenticated session, clear callback state from the address bar, and redirect to the originally requested protected route or dashboard.
 - Show the authenticated user's name/email and Google-linked status in account settings; do not display or retain Google access tokens in browser storage.
 - Provide an authenticated unlink action only when the user still has a usable local password credential; block unlinking the sole sign-in method with a clear explanation. Reauthentication may be required for sensitive account-linking changes.
 - Keep logout provider-local: ending a platform session must revoke the platform refresh token and clear its cookies, but must not attempt to sign the user out of Google globally.
 
-### Phase J3: Security, Integration & Operational Validation
+### Phase J3: Security, Integration & Operational Validation *(complete)*
 - Unit-test identity resolution and linking: new verified Google user, existing email match, repeat login, unverified email, conflicting provider subject, and role-preservation cases.
 - Integration-test the OAuth callback with a mocked OIDC provider/JWK set: valid login produces the platform JWT/session; invalid issuer, audience, signature, expired token, invalid state/nonce, or unverified email is rejected; callback paths do not weaken `/api/**` authorization.
 - Add browser tests for Google-login initiation, callback success, cancelled/denied login, protected-route return, logout, and unlink safeguards. Continue testing password login and refresh/logout flows unchanged.
@@ -885,11 +885,11 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
 
 ---
 
-## Group JC — Job Control & Ingestion Testability
+## Group JC — Job Control & Ingestion Testability (complete)
 
 Goal: provide admin-level observability and runtime control over ingestion jobs and per-symbol ingestion events. Currently jobs can be triggered on demand but cannot be enabled/disabled individually, their per-symbol outcomes are invisible outside log files, and there is no way to run a scoped partial ingestion (e.g. one symbol, one exchange, or specific data types) for testing. This group fills those gaps so that every subsequent demo and validation phase can verify the data pipeline deterministically.
 
-### Phase JC1: Job Run History & Ingestion Event API
+### Phase JC1: Job Run History & Ingestion Event API *(complete)*
 - `GET /api/v1/admin/jobs` — list all registered jobs with cron expression, enabled/disabled status, and last run summary (status, timestamp, records processed, error count)
 - `GET /api/v1/admin/jobs/{jobName}/history?page=&size=` — paginated `JobRunLog` entries for a job: status, start/end timestamps, records processed, records failed, error messages, data source used (fmp/yahoo/mixed)
 - Add `IngestionEvent` entity persisted during each job run: job run ID, symbol, data type (profile/fundamentals/ratios/quote/dcf/dividend/insider), status (success/skipped/failed), error detail, source (fmp/yahoo), timestamp
@@ -897,7 +897,7 @@ Goal: provide admin-level observability and runtime control over ingestion jobs 
 - Flyway migration for `ingestion_event` table with indexes on `(job_run_id)`, `(symbol)`, and `(status)`
 - Unit tests for event persistence and query filters
 
-### Phase JC2: Job Scheduling Runtime Control
+### Phase JC2: Job Scheduling Runtime Control *(complete)*
 - `PUT /api/v1/admin/jobs/{jobName}/enabled` (body: `{ "enabled": true|false }`) — enable or disable an individual scheduled job at runtime; state persisted to the database so it survives application restarts; disabled jobs skip execution on their next cron trigger and log a `SKIPPED` status
 - `PUT /api/v1/admin/jobs/{jobName}/cron` (body: `{ "cron": "0 0 2 * * *" }`) — update the cron expression for a job at runtime; validated as a legal cron expression before acceptance; change takes effect on the next scheduling cycle
 - Enhance `POST /api/v1/admin/jobs/{jobName}/run` to accept optional scope parameters: `symbols` (CSV), `exchange` (single exchange code), `dataTypes` (CSV of profile/fundamentals/ratios/quote/dcf/dividend/insider); return a `jobRunId` so the caller can poll status and events
@@ -907,13 +907,13 @@ Goal: provide admin-level observability and runtime control over ingestion jobs 
 
 ---
 
-## Group PI — Portfolio Intelligence
+## Group PI — Portfolio Intelligence (complete)
 
 Goal: add portfolio-level risk metrics, liquidity awareness, benchmark context, and practical rebalancing intelligence so the portfolio construction workflow produces results a real investor can act on. Currently the platform analyzes individual stocks thoroughly but the portfolio is just a list of holdings with weights and constraints — no portfolio-level risk, no liquidity check, no benchmark comparison, no tax or cost awareness in rebalancing.
 
 Source: `specs/value-investor-roadmap-review.md` — items 5.1, 5.2, 5.3, 5.4, 5.5.
 
-### Phase PI1: Portfolio Intelligence Backend
+### Phase PI1: Portfolio Intelligence Backend *(complete)*
 - **Portfolio Analytics Engine:** add `PortfolioAnalyticsService.analyze(portfolioId) → PortfolioAnalyticsResult` that computes:
   - Weighted-average MoS, P/E, dividend yield, value score, and Piotroski F-Score across holdings
   - Sector concentration map: weight per sector with flags when any sector exceeds 40%
@@ -933,7 +933,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 5.1, 5.2, 5.3, 5.4, 5
 - Enhance existing `GET /api/v1/portfolios/{id}/rebalance` response with cost estimates, urgency ranking, and holding-period flags
 - Unit tests: weighted-average calculations, liquidity classification thresholds, constraint-breach vs. drift detection, transaction cost estimation
 
-### Phase PI2: Portfolio Intelligence Frontend
+### Phase PI2: Portfolio Intelligence Frontend *(complete)*
 - **Portfolio Analytics Dashboard:** on the portfolio detail page, add an analytics summary section:
   - Weighted-average metrics row: MoS, P/E, yield, value score, F-Score
   - Sector allocation donut chart with concentration warnings highlighted in amber/red
@@ -958,13 +958,13 @@ Source: `specs/value-investor-roadmap-review.md` — items 5.1, 5.2, 5.3, 5.4, 5
 
 ---
 
-## Group PW — Professional Workflow & Compliance
+## Group PW — Professional Workflow & Compliance (complete)
 
 Goal: add the research audit trail, investment checklist framework, data cross-verification, intrinsic value confidence scoring, and ADVISOR role scoping so the platform is suitable for professional use and regulatory defensibility. Currently there is no timestamped record of what the platform showed when a user made a decision, no way for users to apply their own investment criteria, and no verification that provider data is correct.
 
 Source: `specs/value-investor-roadmap-review.md` — items 3.1, 7.1, 7.2, 8.1, 8.2, 8.4.
 
-### Phase PW1: Professional Workflow Backend
+### Phase PW1: Professional Workflow Backend *(complete)*
 - **Research Decision Audit Trail:** add `ResearchSnapshot` entity that captures a timestamped record when a user takes a portfolio or watchlist action (add holding, add to watchlist, remove holding). Record: user ID, symbol, action type, timestamp, current price, composite fair value, MoS, value score, WACC used, data source active (fmp/yahoo/mixed), Piotroski F-Score, moat classification, and any user-entered rationale. Persist immutably (append-only, never updated or deleted). Add `GET /api/v1/audit/decisions?symbol=&from=&to=` endpoint (user sees own decisions only; admin can query all).
 - **Investment Checklist Framework:** add `InvestmentChecklist` entity with user-defined criteria. Each criterion has: label (e.g., "ROIC > 15% for 5+ years"), type (quantitative with operator/threshold, or qualitative pass/fail), and evaluation method (auto-computed from platform data, or manual user entry). Add CRUD endpoints: `GET/POST/PUT/DELETE /api/v1/checklists`. Add `POST /api/v1/checklists/{id}/evaluate/{symbol}` that auto-fills quantitative criteria from platform data and returns a checklist evaluation with pass/fail/no-data per criterion. Persist checklist evaluations for audit trail.
 - **Intrinsic Value Confidence Score:** add `ValuationConfidenceService.compute(symbol) → ConfidenceResult` that computes a confidence level (high/medium/low) based on: years of historical data available (10+ = high, 5–9 = medium, < 5 = low), DCF scenario spread (high − low) / base (< 20% = high, 20–40% = medium, > 40% = low), number of applicable valuation models (3+ = high, 2 = medium, 1 = low), data source completeness (all fields present = high, some missing = medium, major gaps = low), and earnings consistency (stable = high, moderate variation = medium, volatile = low). Return overall confidence and per-factor breakdown. Include in valuation endpoints and review response.
@@ -974,7 +974,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 3.1, 7.1, 7.2, 8.1, 8
 - Flyway migration for `research_snapshot`, `investment_checklist`, `checklist_criterion`, `checklist_evaluation`, `user_preferences` tables
 - Unit tests: audit snapshot immutability, checklist auto-evaluation with known inputs, confidence score computation, data verification flag triggers, competence filter application
 
-### Phase PW2: Professional Workflow Frontend
+### Phase PW2: Professional Workflow Frontend *(complete)*
 - **Research Decision Timeline:** add a "Decision History" section accessible from portfolio detail, watchlist, and a dedicated `/audit` route. Show a chronological timeline of add/remove actions with the platform state at the time of decision: price, fair value, MoS, score, data source, and user rationale. Exportable as CSV for compliance record-keeping.
 - **Investment Checklist Builder:** add a "My Checklist" page where users can create, edit, and manage their investment checklist criteria. On the review page, add an "Apply My Checklist" button that evaluates the current stock against the user's checklist and shows pass/fail per criterion. Auto-computed criteria show the platform value; manual criteria prompt the user for their assessment. Show "X of Y criteria met" summary.
 - **Confidence Badge:** on the review page valuation section, display a confidence badge (high/medium/low with green/yellow/red) next to the composite fair value. Expand to show per-factor breakdown on click. Add confidence level to screener results as an optional column.
@@ -992,11 +992,11 @@ Source: `specs/value-investor-roadmap-review.md` — items 3.1, 7.1, 7.2, 8.1, 8
 
 ---
 
-## Group SC — Seeds Choice & Universe Curation
+## Group SC — Seeds Choice & Universe Curation (complete)
 
 Goal: replace manual ticker-list entry with a structured stock-selection process that narrows the investable universe to a manageable, high-quality set before analysis. The platform should help users decide *which* stocks to analyze, not just analyze whatever tickers the admin happens to type. This group adds universe filtering criteria, pre-built research universes, and a selection workflow that feeds into the existing seed pipeline.
 
-### Phase SC1: Universe Selection Criteria & Filtering API
+### Phase SC1: Universe Selection Criteria & Filtering API *(complete)*
 - `POST /api/v1/admin/universe/preview` — accepts filtering criteria and returns a preview of matching symbols *before* seeding:
   - `exchanges` (list): restrict to specific exchanges (e.g. NYSE, NASDAQ)
   - `countries` (list): restrict to specific countries
@@ -1016,7 +1016,7 @@ Goal: replace manual ticker-list entry with a structured stock-selection process
   - Custom templates configurable via `application.yml`
 - Integration tests for preview filtering, symbol count capping, and template resolution
 
-### Phase SC2: Universe Curation UI & Workflow
+### Phase SC2: Universe Curation UI & Workflow *(complete)*
 - Add a **Universe Curation** page or panel in the React frontend (accessible to `ADMIN` and optionally `ADVISOR`/`INVESTOR` with restrictions)
 - **Filter builder:** exchange multi-select, country multi-select, sector multi-select, market cap range slider, volume minimum input, max symbols input
 - **Template selector:** dropdown of pre-built templates from SC1; selecting a template pre-fills the filter builder
@@ -1033,11 +1033,11 @@ Goal: replace manual ticker-list entry with a structured stock-selection process
 
 ---
 
-## Group RD1 — Real Demo: Full Stack with Live Ingestion
+## Group RD1 — Real Demo: Full Stack with Live Ingestion (complete)
 
 Goal: demonstrate the entire platform end to end with real market data ingested on startup from Yahoo Finance (zero cost, no API key required). All features are activated — auth, ingestion, valuation, scoring, screener, security detail, review page, watchlist, portfolio, alerts, dashboard, and the job control from JC. Agent 1 (prudent value investor) walks through every major workflow and captures screenshots as stakeholder-presentable evidence.
 
-### Phase RD1-1: Yahoo Finance Startup Ingestion Profile
+### Phase RD1-1: Yahoo Finance Startup Ingestion Profile *(complete)*
 - Create a `realDemo` Spring profile that activates all features with `MARKET_DATA_SOURCE=yahoo`
 - On startup, automatically seed a curated ticker list from `REAL_DEMO_TICKERS` env var (default: `AAPL,MSFT,KO,JNJ,PG,PEP,WMT,BRK-B,UNP,XOM`) using the existing seed pipeline: profile → fundamentals → ratios → quote → valuation → score for each symbol
 - Run a single pass of quote refresh, dividend update, and alert detection after seeding completes so that all data is current at first page load
@@ -1046,7 +1046,7 @@ Goal: demonstrate the entire platform end to end with real market data ingested 
 - Admin user auto-seeded (same as demo profile); one `INVESTOR` test user auto-seeded for non-admin workflow testing
 - Document startup steps, expected startup time, and known Yahoo Finance coverage limitations in a `scripts/real-demo-guide.md`
 
-### Phase RD1-2: Agent 1 Full Feature Walkthrough & Screenshots
+### Phase RD1-2: Agent 1 Full Feature Walkthrough & Screenshots *(complete)*
 - Agent 1 (prudent value investor persona from HD3) executes a scripted walkthrough covering every major feature area:
   - **Auth:** login as admin, login as investor, token refresh, logout
   - **Dashboard:** verify portfolio summary, top movers, active alerts, upcoming events
@@ -1070,13 +1070,13 @@ Goal: demonstrate the entire platform end to end with real market data ingested 
 
 ---
 
-## Group L — Conservative Research Workflow Hardening
+## Group L — Conservative Research Workflow Hardening (complete)
 
 Goal: turn the HD3 Agent 1 prudent-value validation journal into repeatable product features and demo evidence. This group strengthens conservative investor workflows around 10-stock validation portfolios, "good business, wrong price" watchlists, score/data-quality confidence, and concentration-aware portfolio construction. It preserves the decision-support boundary: the platform documents research reasoning and risk signals, but does not recommend trades.
 
 Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-validation-journal.md`.
 
-### Phase L1: Prudent Persona Replay Pack
+### Phase L1: Prudent Persona Replay Pack *(complete)*
 - Add a deterministic replay script or documented workflow for the Agent 1 10-symbol set: `BRK.B,JNJ,PG,KO,PEP,WMT,MSFT,ADP,UNP,XOM`.
 - Seed the symbols, open each review packet, and capture score availability, valuation availability, source/freshness status, MoS, recommendation, and data-quality notes.
 - Create a 10-position equal-weight validation portfolio and verify that no single holding breaches the holding concentration threshold.
@@ -1084,21 +1084,21 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 - Add PG, KO, JNJ, and MSFT to the watchlist with rationale notes and confirm persistence after reload.
 - Store replay output under the relevant spec/demo evidence folder; do not describe the model as investable.
 
-### Phase L2: Conservative Portfolio Review Pack
+### Phase L2: Conservative Portfolio Review Pack *(complete)*
 - Add a portfolio review surface or report section that summarizes conservative validation evidence: holding weights, sector weights, MoS, score availability, valuation availability, data-quality blockers, and watchlist rationale coverage.
 - Flag incomplete validation when any holding is missing current price, sector, score status, or valuation status.
 - Show conflicts between business quality and negative margin of safety, especially for defensive or high-quality symbols.
 - Keep all copy factual and decision-support oriented; avoid buy/sell language.
 - Include a printable or exportable journal-style summary suitable for stakeholder review.
 
-### Phase L3: Availability Status Examples And Diagnostics
+### Phase L3: Availability Status Examples And Diagnostics *(complete)*
 - Create deterministic demo fixtures or seeded examples for every availability state: `AVAILABLE`, `STALE`, `PENDING`, `PROVIDER_LIMITED`, `MISSING_SEEDED_HISTORY`, `MISSING_INTERNAL_COMPUTATION`, and `GUARDRAIL_BLOCKED`.
 - Ensure review, screener rows, portfolio holdings, and watchlist-adjacent flows render each state consistently.
 - Add tests for status mapping and UI rendering where practical.
 - Document how each status should be interpreted by conservative users without turning the interpretation into investment advice.
 - Feed any remaining gaps into Group I quality coverage and observability metrics.
 
-### Phase L4: Conservative Workflow Enhancements
+### Phase L4: Conservative Workflow Enhancements *(complete)*
 - Add a conservative research preset that combines positive MoS, score availability, dividend coverage, leverage/liquidity resilience, and data completeness.
 - Add screener empty-state diagnostics for conservative filters, identifying which criteria likely eliminated candidates and suggesting relaxations while preserving the current criteria.
 - Add selected-symbol comparison for the Agent 1 workflow: MoS, value score, quality, leverage/liquidity, growth, dividend indicators, and source/data coverage.
@@ -1112,11 +1112,11 @@ Source artifact: `specs/2026-06-28-beta-feature-selection/agent-1-prudent-valida
 
 ---
 
-## Group RD2 — Real Demo: Curated Universe Validation
+## Group RD2 — Real Demo: Curated Universe Validation (complete)
 
 Goal: validate the seeds-choice process end to end by having Agent 1 use the SC universe curation workflow to build a focused research universe, then test all platform features against that curated set. This confirms that the filtering, seeding, and analysis pipeline works coherently when the user starts from universe selection rather than manual ticker entry.
 
-### Phase RD2-1: Agent 1 Curated Universe Walkthrough & Screenshots
+### Phase RD2-1: Agent 1 Curated Universe Walkthrough & Screenshots *(complete)*
 - Agent 1 (prudent value investor) executes a scripted walkthrough starting from universe curation:
   - **Universe Selection:** use the `defensive-quality` template, preview results, narrow by removing sectors with insufficient coverage, seed the curated universe (~20–30 symbols)
   - **Ingestion Monitoring:** observe seeding progress in the job control panel, verify per-symbol ingestion events, confirm all symbols have profile + fundamentals + quote data from Yahoo Finance
@@ -1138,13 +1138,13 @@ Goal: validate the seeds-choice process end to end by having Agent 1 use the SC 
 
 ---
 
-## Group RCL — Investor Replay Recycling
+## Group RCL — Investor Replay Recycling (complete)
 
 Goal: recycle issues discovered by autonomous investor-style market analysis before cloud distribution. This group turns real user-research friction into focused hardening work: screener result consistency, API input normalization, symbol canonicalization, and log-assisted defect triage. It preserves the decision-support boundary by improving evidence quality and workflow clarity without turning shortlist outputs into trade recommendations.
 
 Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2 replay evidence, and generated `analysis-*` screenshots/JSON artifacts in the workspace root.
 
-### Phase RCL1: Screener And Symbol Recycling Pass
+### Phase RCL1: Screener And Symbol Recycling Pass *(complete)*
 - Normalize screener numeric threshold handling so API requests accept or explicitly reject fractional inputs (`0.15`) versus percentage inputs (`15`) with clear validation errors instead of `500` responses.
 - Add regression coverage for conservative screener requests, empty payloads, fractional threshold payloads, and UI-standard percentage payloads.
 - Resolve screener page inconsistency where `0 active filters` and `0 companyies found` can appear while the Agent 1 comparison table below is populated.
@@ -1160,7 +1160,7 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
   - `BRK.B`/`BRK-B` can be seeded, reviewed, watchlisted, compared, and held without missing-price or missing-review artifacts caused only by symbol format mismatch.
   - Investor replay and log-monitor reports are linked from validation evidence.
 
-### Phase RCL2: Replay-To-Backlog Feedback Loop
+### Phase RCL2: Replay-To-Backlog Feedback Loop *(complete)*
 - Add a repeatable two-agent validation protocol: investor agent explores market/app workflows and reports structured UI/API problems; monitor agent correlates Docker/backend/frontend logs and produces severity-tagged evidence.
 - Store each replay cycle under `specs/YYYY-MM-DD-investor-replay-recycling/` with screenshots, request payloads, relevant log excerpts, shortlist rationale, and decision-support boundary notes.
 - Create a lightweight triage template that classifies findings as data-quality gap, UI contradiction, API validation defect, provider limitation, accessibility issue, or product follow-up.
@@ -1174,7 +1174,7 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
   - Two consecutive replay cycles are clean, or every remaining low-severity/nice-to-have finding is explicitly accepted or deferred with owner, rationale, and target phase.
   - Open findings are visible before K1 stakeholder cloud deployment begins, and no unresolved high- or medium-severity finding is allowed through the K1 readiness gate.
 
-### Phase RCL3: Security Detail Historical Chart And Data Verification Pass
+### Phase RCL3: Security Detail Historical Chart And Data Verification Pass *(complete)*
 - Verify `http://localhost:5173/securities/KO` and related review routes for historical chart readability: quote/history charts must display correctly labeled price data, readable axes, and no misleading flat lines caused by missing or repeated source values.
 - Add a user-selectable history window for security-detail/review charts where appropriate (for example 1y, 3y, 5y, 10y, max), and preserve a sensible default when the available history is shorter than the selected range.
 - Audit ratio, return, valuation, P/E, and capital-structure charts for repeated identical values. If true historical series are unavailable, do not graph synthetic repeated points; show the current value as text with an explicit unavailable-history note instead.
@@ -1193,7 +1193,7 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
   - FCF run produces visible feedback in every outcome.
   - Dividends, growth, and insider values are cross-checked against backend responses and documented in validation evidence.
 
-### Phase RCL4: Beta Tester Functional Fix Pack
+### Phase RCL4: Beta Tester Functional Fix Pack *(complete)*
 - Consolidate beta tester findings from the investor, advisor/compliance, UI/accessibility, and data-quality/API test passes into a single fix pack before GCP stakeholder deployment.
 - Add a dedicated real-portfolio beta tester that uses the local CSV input `C:\Users\Marcello\Downloads\Portfolio.csv` to validate portfolio ingestion/mapping, symbol normalization, position sizing, sector exposure, missing-data handling, and decision-support copy against a user-provided portfolio.
 - Repeat the beta testing pass after each fix batch with the same persona coverage (investor, advisor/compliance, UI/accessibility, data-quality/API, and real-portfolio CSV tester) until two consecutive beta cycles report no new high- or medium-severity defects.
@@ -1225,11 +1225,11 @@ Source artifacts: Agent investor run on 2026-07-03, log-monitor baseline, L1/RD2
 
 ---
 
-## Group JM — Scheduled Job Monitor Console
+## Group JM — Scheduled Job Monitor Console (complete)
 
 Goal: make scheduled jobs visible and controllable from a dedicated admin window before stakeholder cloud deployment. JC1/JC2 provide the job APIs and runtime controls; this group turns them into an operational console where an admin can see what is scheduled, what is currently running, what failed, and launch a job immediately without using curl or demo-only pages.
 
-### Phase JM1: Job Monitor Backend Readiness
+### Phase JM1: Job Monitor Backend Readiness *(complete)*
 - Review the JC1/JC2 admin job APIs and fill any missing fields needed by a production-style monitor window: next scheduled run, last successful run, last failed run, current status, running duration, enabled/disabled state, cron expression, active data source, and latest error summary.
 - Add a normalized `GET /api/v1/admin/jobs/monitor` endpoint if the existing job list API cannot serve the window efficiently without multiple round trips.
 - Ensure `POST /api/v1/admin/jobs/{jobName}/run` supports immediate execution for all registered scheduled jobs and returns a `jobRunId`, even when the job is started from the UI without a custom scope.
@@ -1237,7 +1237,7 @@ Goal: make scheduled jobs visible and controllable from a dedicated admin window
 - Emit structured audit events for manual job launches, enable/disable changes, cron edits, failed runs, skipped runs, and duplicate-run blocks.
 - Add backend tests for monitor summary fields, immediate launch, duplicate-run protection, authorization, and audit-event creation.
 
-### Phase JM2: Scheduled Job Monitor Window
+### Phase JM2: Scheduled Job Monitor Window *(complete)*
 - Add an ADMIN-only React route, for example `/admin/jobs`, reachable from the admin navigation and hidden from INVESTOR users.
 - Show a dense monitor table with job name, enabled state, schedule/cron, next run, last run result, current status, duration, records processed, failed records, data source, and latest error summary.
 - Provide row actions to run now, enable/disable, view history, inspect ingestion events, and open scoped-run options where JC2 supports symbol/exchange/data-type scope.
@@ -1253,11 +1253,11 @@ Goal: make scheduled jobs visible and controllable from a dedicated admin window
 
 ---
 
-## Group DL — Demo Lifecycle & Partial-Data Hardening
+## Group DL — Demo Lifecycle & Partial-Data Hardening (complete)
 
 Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps found during the real-demo ADMIN/value-analyst walkthrough before stakeholder cloud deployment. The group keeps destructive actions ownership-safe, prefers reversible account controls over physical deletion, preserves valid market data when valuation models are inapplicable, turns expected portfolio validation outcomes into guided user states, and makes large seed operations observable without holding an HTTP request open.
 
-### Phase DL1: Portfolio Lifecycle Completion
+### Phase DL1: Portfolio Lifecycle Completion *(complete)*
 - Add ownership-scoped `DELETE /api/v1/portfolios/{id}` support using the same user-resolution and not-found semantics as portfolio detail and holding mutations.
 - Delete the portfolio and its dependent holdings, rebalance proposals, lines, and analytics snapshots transactionally through the existing cascade rules; do not affect immutable research-decision audit records.
 - Add a portfolio-page delete action with an explicit confirmation that names the portfolio and explains that holdings, simulations, and saved rebalance proposals will be removed.
@@ -1269,7 +1269,7 @@ Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps f
   - No direct database cleanup is required after a reversible portfolio QA exercise.
   - The UI cannot trigger deletion without an explicit confirmation.
 
-### Phase DL2: Reversible ADMIN User Lifecycle
+### Phase DL2: Reversible ADMIN User Lifecycle *(complete)*
 - Extend `/api/v1/admin/users` with an ADMIN-only paginated list exposing ID, email, role, active state, and creation date without password hashes or authentication secrets.
 - Add an idempotent enable/disable operation based on the existing `app_user.active` field; prefer deactivation over physical user deletion so portfolio ownership and immutable audit history remain intact.
 - Prevent an admin from disabling their own active account and prevent disabling the final active ADMIN.
@@ -1281,7 +1281,7 @@ Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps f
   - INVESTOR and ADVISOR users cannot list or mutate accounts.
   - Disabling a user never deletes their portfolios, watchlists, preferences, or audit evidence.
 
-### Phase DL3: Partial Seed Persistence Without Fabricated Valuation
+### Phase DL3: Partial Seed Persistence Without Fabricated Valuation *(complete)*
 - Separate successful market-data persistence from valuation applicability so a ticker with valid profile, fundamentals, ratios, and quote data is not rolled back solely because no valuation model passes its guardrails.
 - Catch only the explicit valuation-not-applicable outcome; retain full failure behavior for provider `NOT_FOUND`, unusable core data, persistence errors, and unexpected exceptions.
 - Return a structured partial result such as `seeded_partial` with available profile/price/source fields and null valuation, margin-of-safety, score, and classification fields. Never invent replacement values or relax valuation eligibility rules.
@@ -1293,7 +1293,7 @@ Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps f
   - Fair value, MoS, score, or recommendation are never synthesized to turn partial ingestion into apparent analytical completeness.
   - A genuinely unavailable symbol such as a provider `NOT_FOUND` case does not create a misleading active security.
 
-### Phase DL4: Guided Portfolio Simulation Preconditions
+### Phase DL4: Guided Portfolio Simulation Preconditions *(complete)*
 - Use existing watchlist, portfolio, price, and valuation availability data to explain whether a simulation or simulation-based rebalance has eligible candidates before submission.
 - Disable only commands that are provably impossible, while preserving backend validation as the source of truth and allowing the user to change constraints.
 - Translate `No eligible watchlist candidates`, empty/unpriced portfolio, and constraint-elimination responses into distinct domain messages rather than generic technical errors.
@@ -1305,7 +1305,7 @@ Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps f
   - The UI never presents a disabled action without explaining what must change.
   - Suggested recovery actions preserve user-selected value-investing constraints and the decision-support boundary.
 
-### Phase DL5: Asynchronous Bulk Seed Progress
+### Phase DL5: Asynchronous Bulk Seed Progress *(complete)*
 - Introduce an asynchronous execution path for seed requests above a documented configurable threshold, while preserving the current synchronous response for small lists where it remains fast and predictable.
 - Return `202 Accepted` with a stable `seedRunId`, initial status, submitted/normalized ticker count, and links or route information for progress and final results; reject or join duplicate active submissions according to an explicit idempotency rule.
 - Persist run state independently from the initiating HTTP request using lifecycle states such as `QUEUED`, `RUNNING`, `PARTIAL_SUCCESS`, `SUCCESS`, `FAILED`, and `CANCELLED` only if cancellation is actually supported.
