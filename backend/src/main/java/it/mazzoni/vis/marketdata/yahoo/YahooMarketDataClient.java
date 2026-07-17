@@ -43,7 +43,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-profile", key = "@cacheKeyHelper.key('profile', #symbol)")
+    @Cacheable(cacheNames = "mdc-profile", key = "@cacheKeyHelper.key('profile', #symbol)", sync = true)
     public CompanyProfile getProfile(String symbol) {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
@@ -58,7 +58,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)")
+    @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)", sync = true)
     public FundamentalSnapshot getFundamentals(String symbol) {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
@@ -73,7 +73,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-ratios", key = "@cacheKeyHelper.key('ratios', #symbol)")
+    @Cacheable(cacheNames = "mdc-ratios", key = "@cacheKeyHelper.key('ratios', #symbol)", sync = true)
     public RatioSnapshot getRatios(String symbol) {
         try {
             QuoteSummaryResponse qsr = yahooFinanceClient.getQuoteSummary(symbol);
@@ -87,7 +87,7 @@ public class YahooMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)")
+    @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)", sync = true)
     public MarketPriceQuote getQuote(String symbol) {
         try {
             ChartResponse cr = yahooFinanceClient.getChart(symbol);

@@ -1326,6 +1326,23 @@ Goal: close the low-impact lifecycle, partial-data, and long-running seed gaps f
 
 ---
 
+## Group RH — Redis Cache Compatibility Hardening (complete)
+
+Goal: close the systemic Redis serialization defect found by the 2026-07-17 real-data due diligence before cloud deployment. Seven warm-cache seed failures (`AAPL`, `JNJ`, `KO`, `PEP`, `PG`, `UNP`, `XOM`) demonstrate one cache-contract problem across the raw Yahoo and normalized market-data layers. The fix must be type-safe, versioned, self-healing per entry, observable, and safe for authentication data sharing the Redis database.
+
+### Phase RH1: Redis Cache Compatibility Hardening *(complete)*
+
+- Reproduce every production cache value family with the real Redis cache manager; in-memory cache tests are insufficient.
+- Replace heterogeneous generic serialization with explicit typed cache contracts, including raw Yahoo response families and annual ratio collections.
+- Centralize cache schema versions and roll out incompatible changes through new namespaces rather than `FLUSHDB`.
+- Recover narrowly from deserialization errors by evicting one entry and treating it as one miss; preserve unrelated failures and prevent retry/provider stampedes.
+- Make ADMIN symbol eviction cover both normalized and raw provider cache layers.
+- Add sanitized cache-recovery metrics/logs and preserve source, fallback, freshness, and provenance semantics.
+- Replay the seven observed symbols cold, warm, and after backend restart, then repeat the 310-symbol universe with zero Redis deserialization failures.
+- Source specification: `specs/2026-07-17-rh1-redis-cache-compatibility-hardening/`.
+
+---
+
 ## Group K — GCP Distribution & Operational Readiness
 
 Goal: distribute the platform on Google Cloud without changing its decision-support domain behaviour. The API remains stateless; PostgreSQL and Redis remain the system of record/cache; scheduled work must not be duplicated as the API scales.
@@ -1390,6 +1407,7 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 | **M22: Investor Replay Recycling** | RCL1, RCL2, RCL3, RCL4 | FMP primary / Yahoo fallback | Screener/API/symbol hardening, security-detail chart verification, beta-tester fix pack including real-portfolio CSV validation, and monitor-agent log correlation from investor-agent findings |
 | **M23: Scheduled Job Monitor Console** | JM1, JM2 | FMP primary / Yahoo fallback | ADMIN window to monitor scheduled jobs, inspect run/event history, and launch jobs immediately with visible progress |
 | **M23.5: Demo Lifecycle Hardening** | DL1, DL2, DL3, DL4, DL5 | FMP primary / Yahoo fallback | Portfolio cleanup, reversible ADMIN account lifecycle, partial seed persistence, guided simulation preconditions, and pollable progress for long seed lists |
+| **M23.6: Redis Cache Compatibility Hardening** | RH1 | FMP primary / Yahoo fallback | Type-safe versioned cache contracts, scoped self-healing, complete symbol eviction, and zero deserialization failures on warm-cache universe replay |
 | **M24: GCP Stakeholder Deployment** | K1 | FMP primary / Yahoo fallback | Internal/stakeholder Cloud Run deployment backed by managed PostgreSQL and Redis |
 | **M25: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M26: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
@@ -1431,3 +1449,5 @@ Goal: distribute the platform on Google Cloud without changing its decision-supp
 > **M23 makes scheduled work operable from the product.** JC1/JC2 provide job APIs and runtime controls; JM turns them into an ADMIN-facing monitor window so a stakeholder or operator can verify schedules, observe progress, inspect failures, and launch a job immediately without leaving the React app.
 >
 > **M23.5 closes the reversible-lifecycle, partial-data, and long-running seed gaps exposed by the real demo.** Portfolio deletion removes the need for direct database cleanup, reversible user deactivation makes ADMIN provisioning testable without erasing owned history, partial seed persistence retains valid provider facts without fabricating valuations, guided simulation states turn expected domain rejections into actionable workflow guidance, and asynchronous bulk seeding gives the frontend durable pollable progress for long lists. These are deliberately bounded improvements before cloud exposure, not a redesign of portfolio, identity, valuation, or ingestion architecture.
+
+> **M23.6 closes the Redis cache-contract defect before cloud exposure.** The due-diligence universe reproduced seven deserialization failures when startup-populated Yahoo entries were read again by the asynchronous seed run. RH1 replaces implicit heterogeneous serialization with explicit versioned contracts, adds entry-scoped recovery and complete eviction, and proves warm-cache/restart compatibility without globally flushing Redis or disturbing authentication state.

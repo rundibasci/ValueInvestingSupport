@@ -2,10 +2,10 @@ package it.mazzoni.vis.marketdata;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 @Component("cacheKeyHelper")
 public class CacheKeyHelper {
-
-    private static final String MARKET_DATA_SCHEMA_VERSION = "v10";
 
     private final String source;
 
@@ -14,6 +14,7 @@ public class CacheKeyHelper {
     }
 
     public String key(String endpoint, String symbol) {
-        return "mdc:" + source + ":" + endpoint + ":" + MARKET_DATA_SCHEMA_VERSION + ":" + symbol.toUpperCase();
+        return "mdc:" + source + ":" + endpoint + ":" + CacheSchema.MARKET_DATA_VERSION + ":"
+                + symbol.toUpperCase(Locale.ROOT);
     }
 }
