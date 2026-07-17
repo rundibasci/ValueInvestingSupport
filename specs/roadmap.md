@@ -820,7 +820,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 2.1, 2.2, 2.3, 2.4, 4
 
 ---
 
-## Group MA — Moat & Business Quality Analysis
+## Group MA — Moat & Business Quality Analysis (complete)
 
 Goal: add competitive advantage assessment and management quality signals so the platform can distinguish businesses worth owning long-term from temporarily cheap stocks. Value investing is about buying great businesses at fair prices — without moat analysis, the platform only addresses the "fair price" half. This group adds ROIC consistency analysis, capital allocation tracking, historical valuation bands, shares outstanding trends, and long-term stability scoring.
 
@@ -851,7 +851,7 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
   - Stability criteria are individually visible, not hidden inside a composite score
   - Capital allocator classification flags empire builders and net diluters
 
-### Phase MA3: Moat Data Depth & Derived ROIC Fallback
+### Phase MA3: Moat Data Depth & Derived ROIC Fallback *(complete)*
 - **Provider limitation surfaced by real-demo validation:** FMP stable ratio/key-metric endpoints may return only one usable annual ROIC observation for some symbols (observed on `INGR`), leaving `moatStrength` and `roicTrend` correctly marked `INSUFFICIENT_DATA` even when 10+ years of fundamentals are available.
 - **Historical ROIC fallback:** derive annual ROIC internally from persisted annual fundamentals and balance-sheet fields when provider ROIC history is unavailable. Prefer provider ROIC when at least five annual observations exist; otherwise compute a documented fallback using NOPAT and invested-capital proxies with explicit formula/source metadata.
 - **Balance-sheet depth:** persist annual total equity, total debt, cash, operating income/EBIT, tax-rate proxy, and any available working-capital/invested-capital inputs for each historical fiscal year, not only the latest year.

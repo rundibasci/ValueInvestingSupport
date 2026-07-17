@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component("cacheKeyHelper")
 public class CacheKeyHelper {
 
-    private static final String MARKET_DATA_SCHEMA_VERSION = "v8";
+    private static final String MARKET_DATA_SCHEMA_VERSION = "v10";
 
     private final String source;
 

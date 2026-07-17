@@ -198,7 +198,7 @@ public class SecurityReviewService {
         EarningsQualityResponse earningsQuality = EarningsQualityResponse.from(riskAnalysisService.computeEarningsQuality(upper));
         var moatResult = moatAssessmentService.analyze(security);
         stabilityService.assess(security);
-        MoatResponse moat = MoatResponse.from(moatResult,
+        MoatResponse moat = MoatResponse.from(moatResult, moatAssessmentService.observations(security),
                 stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(security, moatResult.getResultDate()));
         CapitalAllocationResponse capitalAllocation = CapitalAllocationResponse.from(capitalAllocationService.analyze(security));
         ValuationBandsResponse valuationBands = ValuationBandsResponse.from(upper, valuationHistoryService.compute(security));

@@ -22,6 +22,7 @@ public class MoatAssessmentService {
     private final ValuationResultRepository valuationResultRepository;
     private final WaccResultRepository waccResultRepository;
     private final MoatResultRepository moatResultRepository;
+    private final RoicObservationRepository roicObservationRepository;
     private final StabilityService stabilityService;
     private final ValuationEnhancementProperties valuationEnhancementProperties;
 
@@ -31,6 +32,7 @@ public class MoatAssessmentService {
                                  ValuationResultRepository valuationResultRepository,
                                  WaccResultRepository waccResultRepository,
                                  MoatResultRepository moatResultRepository,
+                                 RoicObservationRepository roicObservationRepository,
                                  StabilityService stabilityService,
                                  ValuationEnhancementProperties valuationEnhancementProperties) {
         this.securityRepository = securityRepository;
@@ -39,6 +41,7 @@ public class MoatAssessmentService {
         this.valuationResultRepository = valuationResultRepository;
         this.waccResultRepository = waccResultRepository;
         this.moatResultRepository = moatResultRepository;
+        this.roicObservationRepository = roicObservationRepository;
         this.stabilityService = stabilityService;
         this.valuationEnhancementProperties = valuationEnhancementProperties;
     }
@@ -54,22 +57,22 @@ public class MoatAssessmentService {
 
     @Transactional
     public MoatResult analyze(Security security) {
-        List<RatioSnapshot> ratios = ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL)
-                .stream().filter(r -> r.getRoic() != null).limit(10).toList();
+        List<RoicObservation> observations = roicObservationRepository.findBySecurityOrderByFiscalYearDesc(security)
+                .stream().filter(item -> item.getRoic() != null).limit(10).toList();
         BigDecimal wacc = latestWacc(security);
         MoatResult result = new MoatResult();
         result.setSecurity(security);
         result.setResultDate(LocalDate.now());
         result.setEstimatedWacc(wacc);
-        result.setYearsAnalyzed(ratios.size());
+        result.setYearsAnalyzed(observations.size());
 
-        if (ratios.size() < 5) {
+        if (observations.size() < 5) {
             result.setMoatStrength(MoatStrength.INSUFFICIENT_DATA);
             result.setRoicTrend(RoicTrend.INSUFFICIENT_DATA);
             result.setYearsRoicAboveWacc(0);
             result.setAvailabilityMessage("At least five annual ROIC observations are required.");
         } else {
-            List<BigDecimal> roicValues = ratios.stream().map(RatioSnapshot::getRoic).map(MoatMath::normalizeRatio).toList();
+            List<BigDecimal> roicValues = observations.stream().map(RoicObservation::getRoic).toList();
             int aboveWacc = (int) roicValues.stream().filter(v -> v.compareTo(wacc) > 0).count();
             BigDecimal averageRoic = MoatMath.avg(roicValues);
             BigDecimal spread = averageRoic != null ? averageRoic.subtract(wacc) : null;
@@ -92,6 +95,11 @@ public class MoatAssessmentService {
 
         moatResultRepository.deleteBySecurity(security);
         return moatResultRepository.save(result);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoicObservation> observations(Security security) {
+        return roicObservationRepository.findBySecurityOrderByFiscalYearDesc(security);
     }
 
     private BigDecimal latestWacc(Security security) {

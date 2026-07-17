@@ -26,6 +26,7 @@ class MoatAssessmentServiceTest {
     @Mock ValuationResultRepository valuationResultRepository;
     @Mock WaccResultRepository waccResultRepository;
     @Mock MoatResultRepository moatResultRepository;
+    @Mock RoicObservationRepository roicObservationRepository;
     @Mock StabilityService stabilityService;
 
     MoatAssessmentService service;
@@ -42,6 +43,7 @@ class MoatAssessmentServiceTest {
                 valuationResultRepository,
                 waccResultRepository,
                 moatResultRepository,
+                roicObservationRepository,
                 stabilityService,
                 new ValuationEnhancementProperties(null, null, new BigDecimal("0.09"), null, null, null)
         );
@@ -50,10 +52,10 @@ class MoatAssessmentServiceTest {
 
     @Test
     void analyze_wideMoat_whenRoicExceedsWaccMostYearsWithStableTrend() {
-        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+        when(roicObservationRepository.findBySecurityOrderByFiscalYearDesc(security))
                 .thenReturn(List.of(
-                        ratio("0.18"), ratio("0.18"), ratio("0.17"), ratio("0.17"), ratio("0.16"),
-                        ratio("0.16"), ratio("0.15"), ratio("0.15"), ratio("0.14"), ratio("0.14")
+                        observation("0.18"), observation("0.18"), observation("0.17"), observation("0.17"), observation("0.16"),
+                        observation("0.16"), observation("0.15"), observation("0.15"), observation("0.14"), observation("0.14")
                 ));
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.empty());
         when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL))
@@ -69,8 +71,8 @@ class MoatAssessmentServiceTest {
 
     @Test
     void analyze_insufficient_whenFewerThanFiveRoicYears() {
-        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
-                .thenReturn(List.of(ratio("0.12"), ratio("0.11")));
+        when(roicObservationRepository.findBySecurityOrderByFiscalYearDesc(security))
+                .thenReturn(List.of(observation("0.12"), observation("0.11")));
         when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.empty());
 
         MoatResult result = service.analyze(security);
@@ -80,9 +82,9 @@ class MoatAssessmentServiceTest {
         assertThat(result.getAvailabilityMessage()).contains("five annual ROIC");
     }
 
-    private RatioSnapshot ratio(String roic) {
-        RatioSnapshot ratio = new RatioSnapshot();
-        ratio.setRoic(new BigDecimal(roic));
-        return ratio;
+    private RoicObservation observation(String roic) {
+        RoicObservation observation = new RoicObservation();
+        observation.setRoic(new BigDecimal(roic));
+        return observation;
     }
 }

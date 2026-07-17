@@ -61,7 +61,8 @@ type Altman = { score: number | null; zone: string | null; formulaVariant: strin
 type Cyclicality = { classification: string | null; revenueCoefficient: number | null; earningsCoefficient: number | null; normalizedEarnings: number | null; cycleAdjustedPe: number | null; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
 type EarningsQuality = { fcfToNetIncome: number | null; sloanAccrualsRatio: number | null; classification: string | null; deteriorating: boolean; yearsAnalyzed: number; resultDate: string | null; availabilityStatus: string | null; availabilityMessage: string | null }
 type StabilityCriterion = { criterionCode: string; label: string; status: string; actualValue: number | null; message: string | null }
-type Moat = { symbol: string; resultDate: string | null; moatStrength: string | null; roicTrend: string | null; yearsAnalyzed: number | null; yearsRoicAboveWacc: number | null; roicConsistencyPercentage: number | null; averageRoic: number | null; estimatedWacc: number | null; averageRoicSpread: number | null; trendSlope: number | null; reinvestmentRate: number | null; availabilityMessage: string | null; stabilityCriteria: StabilityCriterion[] }
+type RoicObservation = { fiscalYear: number; observationDate: string | null; roic: number | null; source: string; inputProvider: string | null; formulaNote: string; unavailableReason: string | null }
+type Moat = { symbol: string; resultDate: string | null; moatStrength: string | null; roicTrend: string | null; yearsAnalyzed: number | null; yearsRoicAboveWacc: number | null; roicConsistencyPercentage: number | null; averageRoic: number | null; estimatedWacc: number | null; averageRoicSpread: number | null; trendSlope: number | null; reinvestmentRate: number | null; availabilityMessage: string | null; methodologyDisclaimer: string; roicObservations: RoicObservation[]; stabilityCriteria: StabilityCriterion[] }
 type CapitalAllocation = { symbol: string; resultDate: string | null; sharesOutstandingTrend: string | null; classification: string | null; yearsAnalyzed: number | null; sharesChangePercentage: number | null; sharesCagr: number | null; dividendYield: number | null; netBuybackYield: number | null; totalShareholderYield: number | null; insiderOwnershipPercentage: number | null; acquisitionSpendToFcf: number | null; availabilityMessage: string | null }
 type ValuationBandItem = { metric: string; yearsAnalyzed: number | null; currentValue: number | null; medianValue: number | null; percentile25: number | null; percentile75: number | null; currentPercentile: number | null; position: string | null; availabilityMessage: string | null }
 type ValuationBands = { symbol: string; resultDate: string | null; bands: ValuationBandItem[] }
@@ -430,7 +431,7 @@ function RiskIntelligence({ review, currency }: { review: Review; currency: stri
   )
 }
 
-function BusinessQuality({ review, annual, ratioData }: { review: Review; annual: Array<Annual & { label: string }>; ratioData: Array<RatioItem & { label: string }> }): JSX.Element {
+function BusinessQuality({ review, annual }: { review: Review; annual: Array<Annual & { label: string }> }): JSX.Element {
   const moat = review.moat
   const capital = review.capitalAllocation
   const bands = review.valuationBands?.bands || []
@@ -439,8 +440,8 @@ function BusinessQuality({ review, annual, ratioData }: { review: Review; annual
   const evEbitdaBand = bandByMetric('EVEBITDA')
   const stability = moat?.stabilityCriteria || []
   const stabilityPassed = stability.filter((criterion) => criterion.status === 'PASS').length
-  const roicChart = ratioData.map((item) => ({
-    label: item.label,
+  const roicChart = (moat?.roicObservations || []).slice().reverse().map((item) => ({
+    label: String(item.fiscalYear),
     roic: percentFromRatio(item.roic),
     wacc: percentFromRatio(moat?.estimatedWacc),
   }))
@@ -475,6 +476,22 @@ function BusinessQuality({ review, annual, ratioData }: { review: Review; annual
                 <Metric label="Years analyzed" value={moat.yearsAnalyzed == null ? 'Unavailable' : String(moat.yearsAnalyzed)} />
               </dl>
               <PercentTrendChart data={roicChart} lines={[['roic', 'ROIC'], ['wacc', 'Estimated WACC']]} summary="ROIC history from stored ratios compared with the MA1 estimated cost of capital." />
+              {moat.roicObservations?.length > 0 && (
+                <div className="space-y-2" aria-label="Annual ROIC provenance">
+                  {moat.roicObservations.map((item) => (
+                    <div key={item.fiscalYear} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3 text-xs leading-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-white">{item.fiscalYear}: {ratioPercent(item.roic)}</span>
+                        <span className={`rounded-full px-2 py-0.5 font-semibold ${item.source === 'DERIVED_INTERNAL' ? 'bg-amber-300/15 text-amber-100' : item.source === 'UNAVAILABLE' ? 'bg-slate-700 text-slate-300' : 'bg-emerald-300/15 text-emerald-100'}`}>{item.source.replace(/_/g, ' ').toLowerCase()}</span>
+                      </div>
+                      <p className="mt-1 text-slate-400">{item.formulaNote}</p>
+                      {item.inputProvider && <p className="text-slate-500">Input provider: {item.inputProvider}</p>}
+                      {item.unavailableReason && <p className="text-amber-100">Unavailable: {item.unavailableReason.replace(/_/g, ' ').toLowerCase()}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">{moat.methodologyDisclaimer}</p>
               {moat.availabilityMessage && <p className="text-xs leading-5 text-slate-500">{moat.availabilityMessage}</p>}
             </div>
           ) : <DataGap>Moat assessment is unavailable. Recompute or seed MA1 business-quality data for this symbol.</DataGap>}
@@ -1064,7 +1081,7 @@ export function SecurityReviewPage(): JSX.Element {
         </Section>
 
         <Section id="business-quality" title="Moat And Business Quality">
-          <BusinessQuality review={review.data} annual={annual} ratioData={ratioData} />
+          <BusinessQuality review={review.data} annual={annual} />
         </Section>
 
         <Section id="cash" title="Cash Generation">

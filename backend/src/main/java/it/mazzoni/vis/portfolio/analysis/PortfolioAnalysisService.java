@@ -6,6 +6,8 @@ import it.mazzoni.vis.domain.repository.*;
 import it.mazzoni.vis.portfolio.PortfolioAnalyticsService;
 import it.mazzoni.vis.security.SecurityReviewService;
 import org.slf4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.annotation.Profile;
@@ -30,6 +32,7 @@ import java.util.concurrent.*;
 @Service
 @Profile("!demo")
 public class PortfolioAnalysisService {
+    private static final Logger log = LoggerFactory.getLogger(PortfolioAnalysisService.class);
     static final String ANALYSIS_VERSION = "FI3-1";
     private static final Set<String> ACTIVE = Set.of("QUEUED", "RUNNING");
     private static final Set<String> TERMINAL = Set.of("COMPLETE", "PARTIAL", "FAILED");
@@ -145,26 +148,34 @@ public class PortfolioAnalysisService {
         if (!Boolean.TRUE.equals(transaction.execute(s -> runs.claimQueued(id, LocalDateTime.now()) == 1))) return;
         MDC.put("analysis.run.id", id.toString());
         try {
-            PortfolioAnalysisRun run=runs.findById(id).orElseThrow();
-            Authentication auth=new UsernamePasswordAuthenticationToken(run.getUser().getEmail(), "analysis-worker");
-            for (PortfolioAnalysisOutcome queued : outcomes.findByAnalysisRunOrderByPosition(run)) {
-                transaction.executeWithoutResult(s -> startOutcome(id, queued.getSymbol()));
+            AnalysisContext context=transaction.execute(s->{
+                PortfolioAnalysisRun run=runs.findById(id).orElseThrow();
+                return new AnalysisContext(run.getUser().getEmail(), run.getPortfolio().getId(),
+                        outcomes.findByAnalysisRunOrderByPosition(run).stream().map(PortfolioAnalysisOutcome::getSymbol).toList());
+            });
+            if(context==null)throw new IllegalStateException("Analysis context could not be loaded");
+            Authentication auth=new UsernamePasswordAuthenticationToken(context.userEmail(), "analysis-worker");
+            for (String symbol : context.symbols()) {
+                transaction.executeWithoutResult(s -> startOutcome(id, symbol));
                 SeedResult seeded;
-                try { seeded=seedService.seedTickers(List.of(queued.getSymbol())).getFirst(); }
-                catch (RuntimeException ex) { transaction.executeWithoutResult(s -> finishOutcome(id, queued.getSymbol(), null, ex)); continue; }
-                transaction.executeWithoutResult(s -> calculating(id, queued.getSymbol()));
+                try { seeded=seedService.seedTickers(List.of(symbol)).getFirst(); }
+                catch (RuntimeException ex) { transaction.executeWithoutResult(s -> finishOutcome(id, symbol, null, ex)); continue; }
+                transaction.executeWithoutResult(s -> calculating(id, symbol));
                 RuntimeException reviewError=null;
-                try { reviews.getReview(queued.getSymbol()); } catch (RuntimeException ex) { reviewError=ex; }
+                try { reviews.getReview(symbol); } catch (RuntimeException ex) { reviewError=ex; }
                 RuntimeException finalReviewError=reviewError;
-                transaction.executeWithoutResult(s -> finishOutcome(id, queued.getSymbol(), seeded, finalReviewError));
+                transaction.executeWithoutResult(s -> finishOutcome(id, symbol, seeded, finalReviewError));
             }
             transaction.executeWithoutResult(s -> phase(id, "PORTFOLIO_ANALYTICS"));
             UUID analyticsId=null; RuntimeException analyticsError=null;
-            try { analyticsId=analytics.analyze(auth, run.getPortfolio().getId()).snapshotId(); }
+            try { analyticsId=analytics.analyze(auth, context.portfolioId()).snapshotId(); }
             catch (RuntimeException ex) { analyticsError=ex; }
             UUID finalAnalyticsId=analyticsId; RuntimeException finalAnalyticsError=analyticsError;
             transaction.executeWithoutResult(s -> complete(id, finalAnalyticsId, finalAnalyticsError));
-        } catch (RuntimeException ex) { transaction.executeWithoutResult(s -> fail(id, "Analysis execution stopped unexpectedly; retry unfinished symbols.")); }
+        } catch (RuntimeException ex) {
+            log.error("portfolio_analysis_run_failed runId={} reason={}", id, safe(ex), ex);
+            transaction.executeWithoutResult(s -> fail(id, "Analysis execution stopped unexpectedly: "+safe(ex)));
+        }
         finally { MDC.remove("analysis.run.id"); }
     }
 
@@ -210,4 +221,5 @@ public class PortfolioAnalysisService {
     private static String fingerprint(String value){try{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(Exception e){throw new IllegalStateException(e);}}
     private static String safe(Throwable e){return shorten(e.getMessage()==null?e.getClass().getSimpleName():e.getMessage(),500);}
     private static String shorten(String v,int max){if(v==null)return null;String safe=v.replaceAll("(?i)(api[_-]?key|password|token)\\s*[=:]\\s*\\S+","$1=[redacted]");return safe.length()<=max?safe:safe.substring(0,max);}
+    private record AnalysisContext(String userEmail, UUID portfolioId, List<String> symbols) {}
 }

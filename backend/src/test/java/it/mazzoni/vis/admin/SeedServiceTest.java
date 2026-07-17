@@ -23,6 +23,7 @@ import it.mazzoni.vis.marketdata.fmp.dto.FmpDividendEntry;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpInsiderTradingEntry;
 import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
+import it.mazzoni.vis.moat.RoicObservationService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
@@ -64,6 +65,7 @@ class SeedServiceTest {
     @Mock RiskAnalysisService riskAnalysisService;
     @Mock MoatAssessmentService moatAssessmentService;
     @Mock CapitalAllocationService capitalAllocationService;
+    @Mock RoicObservationService roicObservationService;
     @Mock SourceTracker sourceTracker;
 
     SeedTickerService seedTickerService;
@@ -78,7 +80,7 @@ class SeedServiceTest {
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
                 priceQuoteRepository, dividendRecordRepository, insiderTradeRepository,
                 valuationService, valueScoreService, riskAnalysisService, moatAssessmentService,
-                capitalAllocationService, defaults, sourceTracker);
+                capitalAllocationService, roicObservationService, defaults, sourceTracker);
         seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
