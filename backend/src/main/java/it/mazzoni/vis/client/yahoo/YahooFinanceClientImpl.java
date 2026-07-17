@@ -5,7 +5,7 @@ import it.mazzoni.vis.client.yahoo.dto.ChartResponse;
 import it.mazzoni.vis.client.yahoo.dto.QuoteSummaryResponse;
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
-import org.springframework.cache.annotation.CacheConfig;
+import it.mazzoni.vis.marketdata.CacheSchema;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,10 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.time.Duration;
 
 @Service
-@CacheConfig(cacheNames = "yahoo-finance")
 public class YahooFinanceClientImpl implements YahooFinanceClient {
-
-    private static final String CACHE_SCHEMA_VERSION = "yf:v2:";
 
     private static final String MODULES =
             "financialData,defaultKeyStatistics," +
@@ -35,7 +32,8 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     }
 
     @Override
-    @Cacheable(key = "'" + CACHE_SCHEMA_VERSION + "qs:' + #symbol.toUpperCase()")
+    @Cacheable(cacheNames = CacheSchema.YAHOO_QUOTE_SUMMARY, sync = true,
+            key = "@yahooCacheKeyHelper.key(#symbol)")
     public QuoteSummaryResponse getQuoteSummary(String symbol) {
         CrumbSession session = crumbProvider.acquireSession();
         try {
@@ -57,7 +55,8 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     }
 
     @Override
-    @Cacheable(key = "'" + CACHE_SCHEMA_VERSION + "ch:' + #symbol.toUpperCase()")
+    @Cacheable(cacheNames = CacheSchema.YAHOO_CHART, sync = true,
+            key = "@yahooCacheKeyHelper.key(#symbol)")
     public ChartResponse getChart(String symbol) {
         CrumbSession session = crumbProvider.acquireSession();
         try {

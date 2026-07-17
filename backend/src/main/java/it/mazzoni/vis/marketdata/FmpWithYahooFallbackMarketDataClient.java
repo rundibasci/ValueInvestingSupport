@@ -66,7 +66,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-profile", key = "@cacheKeyHelper.key('profile', #symbol)")
+    @Cacheable(cacheNames = "mdc-profile", key = "@cacheKeyHelper.key('profile', #symbol)", sync = true)
     public CompanyProfile getProfile(String symbol) {
         String fallbackTrigger = null;
         try {
@@ -118,7 +118,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)")
+    @Cacheable(cacheNames = "mdc-fundamentals", key = "@cacheKeyHelper.key('fundamentals', #symbol)", sync = true)
     public FundamentalSnapshot getFundamentals(String symbol) {
         String fallbackTrigger = null;
         try {
@@ -152,7 +152,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-ratios", key = "@cacheKeyHelper.key('ratios', #symbol)")
+    @Cacheable(cacheNames = "mdc-ratios", key = "@cacheKeyHelper.key('ratios', #symbol)", sync = true)
     public RatioSnapshot getRatios(String symbol) {
         String fallbackTrigger = null;
         try {
@@ -185,7 +185,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)")
+    @Cacheable(cacheNames = "mdc-annual-ratios", key = "@cacheKeyHelper.key('annual-ratios', #symbol)", sync = true)
     public List<RatioSnapshot> getAnnualRatios(String symbol) {
         try {
             List<RatioSnapshot> result = fmpClient.getAnnualRatios(symbol);
@@ -207,7 +207,7 @@ public class FmpWithYahooFallbackMarketDataClient implements MarketDataClient {
     }
 
     @Override
-    @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)")
+    @Cacheable(cacheNames = "mdc-quote", key = "@cacheKeyHelper.key('quote', #symbol)", sync = true)
     public MarketPriceQuote getQuote(String symbol) {
         String fallbackTrigger = null;
         try {
