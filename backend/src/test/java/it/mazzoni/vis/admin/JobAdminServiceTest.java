@@ -177,6 +177,21 @@ class JobAdminServiceTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void trigger_failedRunStoresRootCauseMessage() throws Exception {
+        JobDefinition definition = new JobDefinition("quote-refresh", "quote-refresh", () -> {
+            throw new RuntimeException(new RuntimeException("ReadTimeoutException"));
+        });
+
+        JobTriggerResponse response = service.trigger(definition, null);
+
+        awaitCompleted(response.jobRunId());
+        JobRunStatusResponse status = service.runStatus(response.jobRunId()).orElseThrow();
+        assertThat(status.status()).isEqualTo("FAILED");
+        assertThat(status.errorMessage()).isEqualTo("ReadTimeoutException");
+    }
+
+    @Test
     void events_filtersByRunSymbolAndStatus() {
         UUID targetRunId = UUID.randomUUID();
         ingestionEventRepository.save(event(targetRunId, "quote-refresh", "AAPL", "quote", "SUCCESS"));

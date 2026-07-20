@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -43,15 +43,27 @@ public class BulkProfileSyncJob {
         jobRunLogger.run("bulk-profile-sync", this::execute);
     }
 
-    @Transactional
     public int execute() {
         int count = 0;
+        List<RuntimeException> exchangeFailures = new ArrayList<>();
         for (String exchange : jobsProperties.exchanges()) {
-            List<FmpStockListEntry> entries = marketDataClient.listSymbols(exchange);
+            List<FmpStockListEntry> entries;
+            try {
+                entries = marketDataClient.listSymbols(exchange);
+            } catch (RuntimeException e) {
+                log.warn("Bulk profile symbol list failed for exchange {}: {}", exchange, e.getMessage());
+                eventRecorder.failed(exchange, "profile-list", e);
+                exchangeFailures.add(e);
+                continue;
+            }
+
             for (FmpStockListEntry entry : entries) {
                 upsertSecurity(entry);
                 count++;
             }
+        }
+        if (count == 0 && !exchangeFailures.isEmpty()) {
+            throw exchangeFailures.getFirst();
         }
         return count;
     }

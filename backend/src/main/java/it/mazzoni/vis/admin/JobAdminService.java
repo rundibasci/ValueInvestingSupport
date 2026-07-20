@@ -286,7 +286,8 @@ public class JobAdminService {
                 jobRunLogRepository.save(log);
             });
         } catch (Exception e) {
-            String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            String message = failureMessage(e);
+            log.warn("job_manual_run_failed jobName={} jobRunId={} error={}", definition.jobName(), runId, message, e);
             jobRunLogRepository.findById(runId).ifPresent(log -> {
                 log.setCompletedAt(LocalDateTime.now());
                 log.setStatus("FAILED");
@@ -297,6 +298,24 @@ public class JobAdminService {
             MDC.remove("job.name");
             MDC.remove("job.run.id");
         }
+    }
+
+    private String failureMessage(Exception error) {
+        Throwable cursor = error;
+        String fallback = error.getClass().getSimpleName();
+        String message = null;
+        while (cursor != null) {
+            String candidate = cursor.getMessage();
+            if (candidate != null && !candidate.isBlank()) {
+                message = candidate;
+            }
+            fallback = cursor.getClass().getSimpleName();
+            cursor = cursor.getCause();
+        }
+        if (message != null) {
+            return message.length() <= 1000 ? message : message.substring(0, 1000);
+        }
+        return fallback;
     }
 
     private record SchedulePreview(LocalDateTime nextRunAt, String error) {
