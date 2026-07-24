@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class YahooFinanceClientImpl implements YahooFinanceClient {
@@ -35,8 +36,8 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     @Cacheable(cacheNames = CacheSchema.YAHOO_QUOTE_SUMMARY, sync = true,
             key = "@yahooCacheKeyHelper.key(#symbol)")
     public QuoteSummaryResponse getQuoteSummary(String symbol) {
-        CrumbSession session = crumbProvider.acquireSession();
         try {
+            CrumbSession session = crumbProvider.acquireSession();
             return doGetQuoteSummary(symbol, session);
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().value() == 401) {
@@ -51,6 +52,8 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
         } catch (WebClientRequestException e) {
             throw new MarketDataUnavailableException(
                     "Yahoo Finance is unavailable: " + e.getMessage(), e);
+        } catch (IllegalStateException e) {
+            throw translateBlockingTimeout(e);
         }
     }
 
@@ -58,8 +61,8 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
     @Cacheable(cacheNames = CacheSchema.YAHOO_CHART, sync = true,
             key = "@yahooCacheKeyHelper.key(#symbol)")
     public ChartResponse getChart(String symbol) {
-        CrumbSession session = crumbProvider.acquireSession();
         try {
+            CrumbSession session = crumbProvider.acquireSession();
             return doGetChart(symbol, session);
         } catch (WebClientResponseException e) {
             if (e.getStatusCode().value() == 401) {
@@ -74,13 +77,18 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
         } catch (WebClientRequestException e) {
             throw new MarketDataUnavailableException(
                     "Yahoo Finance is unavailable: " + e.getMessage(), e);
+        } catch (IllegalStateException e) {
+            throw translateBlockingTimeout(e);
         }
     }
 
     private QuoteSummaryResponse doGetQuoteSummary(String symbol, CrumbSession session) {
         QuoteSummaryResponse response = webClient.get()
-                .uri("/v10/finance/quoteSummary/" + symbol.toUpperCase()
-                     + "?modules=" + MODULES + "&crumb=" + session.crumb())
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v10/finance/quoteSummary/{symbol}")
+                        .queryParam("modules", MODULES)
+                        .queryParam("crumb", session.crumb())
+                        .build(symbol.toUpperCase()))
                 .header("Cookie", session.cookie())
                 .retrieve()
                 .bodyToMono(QuoteSummaryResponse.class)
@@ -98,8 +106,10 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
 
     private ChartResponse doGetChart(String symbol, CrumbSession session) {
         ChartResponse response = webClient.get()
-                .uri("/v8/finance/chart/" + symbol.toUpperCase()
-                     + "?crumb=" + session.crumb())
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v8/finance/chart/{symbol}")
+                        .queryParam("crumb", session.crumb())
+                        .build(symbol.toUpperCase()))
                 .header("Cookie", session.cookie())
                 .retrieve()
                 .bodyToMono(ChartResponse.class)
@@ -121,5 +131,17 @@ public class YahooFinanceClientImpl implements YahooFinanceClient {
                     "Yahoo Finance unavailable: " + e.getStatusCode(), e);
         }
         return new SymbolNotFoundException(symbol);
+    }
+
+    RuntimeException translateBlockingTimeout(IllegalStateException error) {
+        Throwable cause = error;
+        while (cause != null) {
+            if (cause instanceof TimeoutException) {
+                return new MarketDataUnavailableException(
+                        "Yahoo Finance request timed out after 10 seconds", error);
+            }
+            cause = cause.getCause();
+        }
+        return error;
     }
 }

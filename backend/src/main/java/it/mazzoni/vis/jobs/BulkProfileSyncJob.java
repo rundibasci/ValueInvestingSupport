@@ -4,6 +4,8 @@ import it.mazzoni.vis.config.JobsProperties;
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
+import it.mazzoni.vis.exception.MarketDataUnavailableException;
+import it.mazzoni.vis.exception.SymbolNotFoundException;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
@@ -90,7 +92,7 @@ public class BulkProfileSyncJob {
             if (hasText(profile.description())) security.setDescription(profile.description());
             if (hasText(profile.website())) security.setWebsite(profile.website());
             profileLoaded = true;
-        } catch (MarketDataException e) {
+        } catch (MarketDataException | MarketDataUnavailableException | SymbolNotFoundException e) {
             log.debug("Profile fetch skipped for {}: {}", entry.symbol(), e.getMessage());
             eventRecorder.failed(entry.symbol(), "profile", e);
         }

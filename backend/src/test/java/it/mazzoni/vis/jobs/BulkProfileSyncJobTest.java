@@ -4,6 +4,7 @@ import it.mazzoni.vis.config.JobsProperties;
 import it.mazzoni.vis.domain.CompanyProfile;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.repository.SecurityRepository;
+import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.marketdata.MarketDataClient;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.marketdata.fmp.dto.FmpStockListEntry;
@@ -65,6 +66,26 @@ class BulkProfileSyncJobTest {
 
         verify(eventRecorder).failed("NYSE", "profile-list", nyse);
         verify(eventRecorder).failed("NASDAQ", "profile-list", nasdaq);
+    }
+
+    @Test
+    void execute_persistsSymbolAndContinuesWhenProfileRequestTimesOut() {
+        BulkProfileSyncJob job = job("NASDAQ");
+        FmpStockListEntry apple = entry("AAPL");
+        MarketDataUnavailableException timeout = new MarketDataUnavailableException(
+                "Yahoo Finance request timed out after 10 seconds");
+        when(marketDataClient.listSymbols("NASDAQ")).thenReturn(List.of(apple));
+        when(securityRepository.findBySymbol("AAPL")).thenReturn(Optional.empty());
+        when(marketDataClient.getProfile("AAPL")).thenThrow(timeout);
+
+        int processed = job.execute();
+
+        assertThat(processed).isEqualTo(1);
+        verify(eventRecorder).failed("AAPL", "profile", timeout);
+        ArgumentCaptor<Security> saved = ArgumentCaptor.forClass(Security.class);
+        verify(securityRepository).save(saved.capture());
+        assertThat(saved.getValue().getSymbol()).isEqualTo("AAPL");
+        assertThat(saved.getValue().getExchange()).isEqualTo("NASDAQ");
     }
 
     private BulkProfileSyncJob job(String... exchanges) {
