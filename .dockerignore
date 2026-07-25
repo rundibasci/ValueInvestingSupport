@@ -1,0 +1,40 @@
+# Maven build artifacts
+backend/target/
+.m2/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Secrets
+.env
+**/application-fmpkey.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# Specs and docs (not needed in image)
+specs/
+docs/
+deploy/
+qa-artifacts/
+test-results/
+*.png
