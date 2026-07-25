@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    url: jdbc:postgresql:///${DATABASE_NAME:vis}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DATABASE_POOL_MAX_SIZE:5}
+      minimum-idle: ${DATABASE_POOL_MIN_IDLE:0}
+      connection-timeout: ${DATABASE_CONNECTION_TIMEOUT_MS:10000}
+      data-source-properties:
+        socketFactory: com.google.cloud.sql.postgres.SocketFactory
+        cloudSqlInstance: ${CLOUD_SQL_INSTANCE}
+        cloudSqlRefreshStrategy: lazy
+        ipTypes: ${CLOUD_SQL_IP_TYPES:PUBLIC,PRIVATE}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:5s}
+      timeout: ${REDIS_TIMEOUT:3s}
+
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+spring.lifecycle.timeout-per-shutdown-phase: 60s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+
+logging:
+  level:
+    it.mazzoni.vis: INFO
+
+jwt:
+  private-key: ${JWT_PRIVATE_KEY}
+  public-key: ${JWT_PUBLIC_KEY}
+
+app:
+  jobs:
+    enabled: ${JOBS_ENABLED:true}

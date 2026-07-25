@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProfile name="prod,docker,local,localstack">
+    <springProfile name="prod,k1,docker,local,localstack">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
                 <providers>
@@ -18,7 +18,7 @@
         </appender>
     </springProfile>
 
-    <springProfile name="!prod &amp; !docker &amp; !local &amp; !localstack">
+    <springProfile name="!prod &amp; !k1 &amp; !docker &amp; !local &amp; !localstack">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>${CONSOLE_LOG_PATTERN}</pattern>

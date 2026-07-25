@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.vscode
+.env
+**/.env
+**/*.log
+**/node_modules
+**/dist
+**/target
+**/test-results
+qa-artifacts
+test-results
+specs
+doc
+docs
