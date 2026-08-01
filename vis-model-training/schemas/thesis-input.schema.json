@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://valueinvestingsupport.local/schemas/thesis-input.schema.json",
+  "title": "VIS Investment Thesis Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "symbol",
+    "analysisDate",
+    "marketPrice",
+    "intrinsicValue",
+    "marginOfSafetyPercent",
+    "valueScore",
+    "revenueTrend",
+    "earningsTrend",
+    "freeCashFlowTrend",
+    "dataQuality",
+    "deterministicWarnings"
+  ],
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 15
+    },
+    "companyName": {
+      "type": ["string", "null"]
+    },
+    "analysisDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "marketPrice": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "intrinsicValue": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "marginOfSafetyPercent": {
+      "type": ["number", "null"]
+    },
+    "valueScore": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "dividendYieldPercent": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "payoutRatioPercent": {
+      "type": ["number", "null"]
+    },
+    "netDebtToEbitda": {
+      "type": ["number", "null"]
+    },
+    "revenueTrend": {
+      "$ref": "#/$defs/trend"
+    },
+    "earningsTrend": {
+      "$ref": "#/$defs/trend"
+    },
+    "freeCashFlowTrend": {
+      "$ref": "#/$defs/trend"
+    },
+    "dataQuality": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "STALE",
+        "INCONSISTENT",
+        "INSUFFICIENT"
+      ]
+    },
+    "deterministicWarnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "trend": {
+      "enum": [
+        "STRONGLY_GROWING",
+        "GROWING",
+        "STABLE",
+        "DECLINING",
+        "STRONGLY_DECLINING",
+        "VOLATILE",
+        "NOT_AVAILABLE"
+      ]
+    }
+  }
+}

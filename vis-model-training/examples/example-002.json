@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS2\",\"companyName\":\"Synthetic Company 2\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":40.0,\"intrinsicValue\":55.0,\"marginOfSafetyPercent\":27.27,\"valueScore\":58.0,\"dividendYieldPercent\":8.5,\"payoutRatioPercent\":115.0,\"netDebtToEbitda\":4.8,\"revenueTrend\":\"DECLINING\",\"earningsTrend\":\"STRONGLY_DECLINING\",\"freeCashFlowTrend\":\"STRONGLY_DECLINING\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[\"PAYOUT_NOT_SUSTAINABLE\",\"HIGH_LEVERAGE\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.62,\"summary\":\"The positive margin of safety is offset by deteriorating operating trends, high leverage and weak dividend coverage.\",\"bullCase\":[{\"claim\":\"The market price is below the supplied intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"bearCase\":[{\"claim\":\"Earnings and free cash flow are deteriorating strongly.\",\"evidenceFields\":[\"earningsTrend\",\"freeCashFlowTrend\"]},{\"claim\":\"Leverage and dividend coverage exceed the preferred VIS risk thresholds.\",\"evidenceFields\":[\"netDebtToEbitda\",\"payoutRatioPercent\",\"deterministicWarnings\"]}],\"keyRisks\":[\"Further deterioration of free cash flow.\",\"Potential dividend reduction.\",\"Financial pressure associated with leverage.\"],\"keyAssumptions\":[\"The supplied intrinsic value has not yet incorporated further deterioration.\"],\"invalidationConditions\":[\"Continued decline in free cash flow.\",\"Further increase in leverage.\",\"Reduction or suspension of the dividend.\"],\"dataWarnings\":[],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0002",
+    "scenarioType": "VALUE_TRAP",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

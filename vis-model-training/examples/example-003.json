@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS3\",\"companyName\":\"Synthetic Company 3\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":25.0,\"intrinsicValue\":null,\"marginOfSafetyPercent\":null,\"valueScore\":null,\"dividendYieldPercent\":null,\"payoutRatioPercent\":null,\"netDebtToEbitda\":null,\"revenueTrend\":\"NOT_AVAILABLE\",\"earningsTrend\":\"NOT_AVAILABLE\",\"freeCashFlowTrend\":\"NOT_AVAILABLE\",\"dataQuality\":\"INSUFFICIENT\",\"deterministicWarnings\":[\"MISSING_FINANCIAL_HISTORY\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"INSUFFICIENT_DATA\",\"confidence\":0.15,\"summary\":\"The available evidence is insufficient to construct a reliable investment thesis.\",\"bullCase\":[],\"bearCase\":[],\"keyRisks\":[\"A valuation conclusion cannot be supported with the available data.\"],\"keyAssumptions\":[],\"invalidationConditions\":[],\"dataWarnings\":[\"Financial history and valuation indicators are missing.\"],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0003",
+    "scenarioType": "INSUFFICIENT_DATA",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}
