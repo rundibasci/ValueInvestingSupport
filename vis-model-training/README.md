@@ -2,12 +2,12 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: In corso — TRAIN-01 implementato nella versione seed iniziale (3 casi); TRAIN-00 incompleto; TRAIN-02 prototipale
-> Versione: 1.1.1
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 esplorativo/incompleto (3 casi); TRAIN-02 esplorativo/prototipale
+> Versione: 1.2.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
-> Licenza dati: dichiarata compatibile con il training; registrazione formale in TRAIN-00.2 ancora da completare
+> Licenze e governance: registrate in TRAIN-00; revisione legale esterna ancora obbligatoria prima di distribuzione commerciale o servizio customer-facing
 
 ---
 
@@ -80,9 +80,9 @@ Il progetto segue quattro regole:
 
 | Fase | Nome | Deliverable principale | Stato |
 |---|---|---|---|
-| TRAIN-00 | Decisioni e prerequisiti | ADR e verifica hardware | In corso — modello scelto; documenti e hardware mancanti |
-| TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | In corso — contratti pronti; 3 casi su 10 |
-| TRAIN-02 | Validator del dataset | CLI di validazione | Prototipo — validatore Node senza suite completa |
+| TRAIN-00 | Decisioni e prerequisiti | ADR, governance e verifica hardware | Completo — GO condizionato |
+| TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Esplorativo/incompleto — contratti pronti; 3 casi su 10 |
+| TRAIN-02 | Validator del dataset | CLI di validazione | Esplorativo/prototipale — validatore Node senza suite completa |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Da avviare |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
 | TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
@@ -94,7 +94,7 @@ Il progetto segue quattro regole:
 | TRAIN-11 | Packaging | Artefatti, model card e release | Da avviare |
 | TRAIN-12 | Handoff a VIS | Contratto per integrazione futura | Dettagliata (esplicitata in v1.1.0) |
 
-Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate.
+Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. I contratti TRAIN-01 e il prototipo TRAIN-02 creati prima della chiusura di TRAIN-00 sono classificati come esplorativi e non costituiscono completamento delle rispettive fasi.
 
 ---
 
@@ -127,6 +127,8 @@ La scelta va registrata in:
 docs/adr/ADR-001-model-selection.md
 ```
 
+Stato: completato. Il modello student resta `google/gemma-3-4b-it`; il teacher iniziale selezionato è `google/gemma-3-27b-it`. Entrambi devono essere fissati a una revisione immutabile prima del primo utilizzo.
+
 ### TRAIN-00.2 — Verifica licenze e termini
 
 Registrare:
@@ -144,7 +146,7 @@ File:
 docs/governance/data-and-model-licenses.md
 ```
 
-> **Esito verifica**: confermato — la licenza dei dati disponibili consente l'uso per l'addestramento del modello. Questa conferma copre la generazione e l'uso di esempi derivati; resta comunque valido registrare in `docs/governance/data-and-model-licenses.md` gli estremi della licenza (fonte, versione, eventuali limiti su ridistribuzione o uso commerciale) e, separatamente, le condizioni del teacher model scelto in TRAIN-05, che sono un prerequisito autonomo e non coperto da questa conferma.
+> **Esito verifica**: completato come inventario di conformità ingegneristica in `docs/governance/data-and-model-licenses.md`. Gli output sintetici Gemma usati per il training producono un Model Derivative soggetto ai termini e agli obblighi di distribuzione applicabili. È richiesta revisione legale esterna prima di distribuzione commerciale o servizio customer-facing.
 
 ### TRAIN-00.3 — Verifica hardware
 
@@ -168,6 +170,8 @@ nvidia-smi
 
 Il training QLoRA va inizialmente progettato per una singola GPU. Se la macchina locale non è sufficiente, mantenere invariato il repository e usare temporaneamente un ambiente GPU esterno.
 
+Stato: completato in `docs/hardware/local-environment.md`. Il Mac Apple M4 locale non dispone di NVIDIA/CUDA ed è destinato a sviluppo e validazione; il workflow CUDA/QLoRA userà un ambiente GPU esterno, la cui fattibilità effettiva resta un gate misurato di TRAIN-07.
+
 ### TRAIN-00.4 — Politica dei dati
 
 Gli esempi non devono contenere:
@@ -179,22 +183,28 @@ Gli esempi non devono contenere:
 - output teacher non consentiti dal contratto;
 - informazioni non tracciabili.
 
+La politica completa, inclusi provenienza, review state, retention ed escalation, è registrata in `docs/governance/data-policy.md`.
+
 ## Deliverable
 
 ```text
 docs/adr/ADR-001-model-selection.md
 docs/governance/data-and-model-licenses.md
+docs/governance/data-policy.md
+docs/governance/secret-hygiene.md
 docs/hardware/local-environment.md
 ```
 
 ## Criteri di accettazione
 
 - [x] modello target scelto;
-- [ ] licenza del modello registrata;
-- [ ] teacher autorizzato o sostituito;
-- [ ] hardware documentato;
-- [ ] nessun segreto presente nel repository;
+- [x] licenza del modello registrata;
+- [x] teacher autorizzato per la successiva valutazione TRAIN-05 (`google/gemma-3-27b-it`);
+- [x] hardware documentato;
+- [x] nessun segreto rilevato nei file del sottoprogetto coperti dai controlli TRAIN-00;
 - [x] decisione `GO` o `NO-GO` esplicita (GO).
+
+Il GO è condizionato: non autorizza ancora download, training, distribuzione commerciale o servizio customer-facing. Restano obbligatori i gate delle fasi successive e la revisione legale esterna prevista dal registro licenze.
 
 ---
 
@@ -1656,7 +1666,7 @@ Mitigazione:
 
 ## 12. Primo incremento da implementare
 
-Avviare esclusivamente:
+Primo incremento autorizzato:
 
 ```text
 TRAIN-00
@@ -1667,7 +1677,7 @@ TRAIN-02
 Stato effettivo del primo incremento:
 
 - [x] modello target iniziale scelto;
-- [ ] ADR, licenze e hardware formalmente documentati;
+- [x] ADR, licenze e hardware formalmente documentati;
 - [x] contratti JSON definiti;
 - [ ] 10 esempi manuali (3 implementati);
 - [x] validatore automatico prototipale in Node.js;

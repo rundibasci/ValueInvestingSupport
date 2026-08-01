@@ -29,6 +29,18 @@ test-results/
 .env
 **/application-fmpkey.yml
 
+# VIS model-training local and generated artifacts
+vis-model-training/.venv/
+vis-model-training/.cache/
+vis-model-training/artifacts/
+vis-model-training/checkpoints/
+vis-model-training/outputs/
+vis-model-training/datasets/candidates/
+vis-model-training/**/*.safetensors
+vis-model-training/**/*.bin
+vis-model-training/**/*.gguf
+vis-model-training/**/wandb/
+
 # OS
 .DS_Store
 Thumbs.db
