@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS1\",\"companyName\":\"Synthetic Company 1\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":80.0,\"intrinsicValue\":110.0,\"marginOfSafetyPercent\":27.27,\"valueScore\":82.0,\"dividendYieldPercent\":3.2,\"payoutRatioPercent\":45.0,\"netDebtToEbitda\":1.1,\"revenueTrend\":\"GROWING\",\"earningsTrend\":\"GROWING\",\"freeCashFlowTrend\":\"STABLE\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"POTENTIALLY_UNDERVALUED\",\"confidence\":0.88,\"summary\":\"The valuation indicators suggest a potentially attractive price, supported by positive operating trends and moderate leverage.\",\"bullCase\":[{\"claim\":\"The market price is below the estimated intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]},{\"claim\":\"Revenue and earnings trends are positive.\",\"evidenceFields\":[\"revenueTrend\",\"earningsTrend\"]}],\"bearCase\":[],\"keyRisks\":[],\"keyAssumptions\":[\"The supplied intrinsic value remains valid under the VIS valuation assumptions.\"],\"invalidationConditions\":[\"A material deterioration in revenue, earnings or free cash flow trends.\",\"A substantial reduction in the estimated intrinsic value.\"],\"dataWarnings\":[],\"humanReviewRequired\":false}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0001",
+    "scenarioType": "UNDERVALUED_STRONG_BUSINESS",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}
