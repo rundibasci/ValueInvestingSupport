@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS7\",\"companyName\":\"Synthetic Company 7\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":72.0,\"intrinsicValue\":90.0,\"marginOfSafetyPercent\":20.0,\"valueScore\":61.0,\"dividendYieldPercent\":2.0,\"payoutRatioPercent\":35.0,\"netDebtToEbitda\":5.6,\"revenueTrend\":\"GROWING\",\"earningsTrend\":\"STABLE\",\"freeCashFlowTrend\":\"STABLE\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[\"HIGH_LEVERAGE\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.7,\"summary\":\"The supplied valuation discount and stable operations are offset by a high-leverage warning.\",\"bullCase\":[{\"claim\":\"The market price is below the supplied intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]},{\"claim\":\"Revenue is growing while earnings and free cash flow are stable.\",\"evidenceFields\":[\"revenueTrend\",\"earningsTrend\",\"freeCashFlowTrend\"]}],\"bearCase\":[{\"claim\":\"The leverage indicator and deterministic warning identify material balance-sheet risk.\",\"evidenceFields\":[\"netDebtToEbitda\",\"deterministicWarnings\"]}],\"keyRisks\":[\"High leverage may reduce resilience if operating performance weakens.\"],\"keyAssumptions\":[\"The supplied leverage measure is comparable with the VIS assessment context.\"],\"invalidationConditions\":[\"A material reduction in leverage.\",\"A deterioration in earnings or free cash flow trends.\"],\"dataWarnings\":[],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0007",
+    "scenarioType": "HIGH_LEVERAGE",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

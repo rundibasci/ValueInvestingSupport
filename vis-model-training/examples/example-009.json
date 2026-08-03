@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS9\",\"companyName\":\"Synthetic Company 9\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":75.0,\"intrinsicValue\":100.0,\"marginOfSafetyPercent\":25.0,\"valueScore\":84.0,\"dividendYieldPercent\":2.5,\"payoutRatioPercent\":42.0,\"netDebtToEbitda\":1.4,\"revenueTrend\":\"GROWING\",\"earningsTrend\":\"DECLINING\",\"freeCashFlowTrend\":\"VOLATILE\",\"dataQuality\":\"INCONSISTENT\",\"deterministicWarnings\":[\"CONTRADICTORY_SIGNALS\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.5,\"summary\":\"Attractive valuation indicators conflict with declining earnings, volatile free cash flow and inconsistent data.\",\"bullCase\":[{\"claim\":\"The market price is below the supplied intrinsic value and the value score is strong.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\",\"valueScore\"]},{\"claim\":\"Revenue is growing.\",\"evidenceFields\":[\"revenueTrend\"]}],\"bearCase\":[{\"claim\":\"Earnings are declining while free cash flow is volatile.\",\"evidenceFields\":[\"earningsTrend\",\"freeCashFlowTrend\"]},{\"claim\":\"The supplied data quality and warning identify contradictory signals.\",\"evidenceFields\":[\"dataQuality\",\"deterministicWarnings\"]}],\"keyRisks\":[\"Conflicting operating signals reduce confidence in the valuation conclusion.\"],\"keyAssumptions\":[\"The supplied valuation indicators and operating trends refer to the same analysis period.\"],\"invalidationConditions\":[\"Resolution of the inconsistent data with refreshed evidence.\",\"Convergence of earnings and free cash flow trends.\"],\"dataWarnings\":[\"The supplied evidence is internally inconsistent.\"],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0009",
+    "scenarioType": "CONTRADICTORY_SIGNALS",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

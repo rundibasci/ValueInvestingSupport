@@ -4,7 +4,7 @@
 
 TRAIN è un percorso di sviluppo parallelo a VIS. VIS resta il motore deterministico e autorevole per raccolta dati, DCF, valore intrinseco, margin of safety, Value Score e warning. Il modello linguistico interpreta esclusivamente il contesto già calcolato da VIS e produce una tesi strutturata, verificabile e sottoposta a revisione umana.
 
-Il target futuro è `google/gemma-3-4b-it`, adattato tramite Supervised Fine-Tuning con QLoRA e adapter PEFT mantenendo congelato il modello base. TRAIN-01 definisce soltanto il comportamento e il contratto dati necessari alle fasi successive.
+Il target futuro è `google/gemma-3-4b-it`, adattato tramite Supervised Fine-Tuning con QLoRA e adapter PEFT mantenendo congelato il modello base. TRAIN-00 ha successivamente classificato i primi tre esempi e il validatore Node come lavoro esplorativo: TRAIN-01 si completa portando il catalogo manuale a dieci casi, senza anticipare la CLI Python e la suite di test di TRAIN-02.
 
 ## Scope
 
@@ -53,7 +53,14 @@ vis-model-training/
 ├── examples/
 │   ├── example-001.json
 │   ├── example-002.json
-│   └── example-003.json
+│   ├── example-003.json
+│   ├── example-004.json
+│   ├── example-005.json
+│   ├── example-006.json
+│   ├── example-007.json
+│   ├── example-008.json
+│   ├── example-009.json
+│   └── example-010.json
 └── datasets/
     └── seed-dataset-v1.jsonl
 ```
@@ -85,8 +92,11 @@ Ogni elemento di `bullCase` e `bearCase` contiene `claim` ed `evidenceFields`. `
 - `system-prompt-v1.txt` contiene le dodici regole del piano TRAIN-01, incluse grounding, non-ricalcolo, separazione fra valutazione e qualità, revisione umana e solo-JSON.
 - Ogni esempio è un documento conversazionale con messaggi `system`, `user`, `assistant` e blocco `metadata`.
 - `user.content` e `assistant.content` sono stringhe contenenti JSON serializzato.
-- `seed-dataset-v1.jsonl` contiene esattamente i tre esempi, uno per riga, senza array esterno.
-- Gli esempi usano simboli e aziende sintetici per ridurre il richiamo di conoscenza pregressa: caso positivo, potenziale value trap e dati insufficienti.
+- `seed-dataset-v1.jsonl` contiene esattamente i dieci esempi, uno per riga, senza array esterno e nello stesso ordine dei file sorgente.
+- Gli esempi usano simboli e aziende sintetici per ridurre il richiamo di conoscenza pregressa.
+- I tre casi esistenti restano invariati salvo correzioni documentate: impresa solida e sottovalutata, potenziale value trap e dati insufficienti.
+- I sette casi aggiuntivi coprono: impresa solida ma sopravvalutata, fair value, dividendo elevato ma insostenibile, leva finanziaria elevata, FCF negativo o in deterioramento, indicatori contraddittori e dati obsoleti.
+- Ogni scenario deve essere distinguibile tramite `metadata.scenarioType`, usare un identificatore e un simbolo sintetico univoci e contenere soltanto evidenze presenti nell'input.
 
 ## Decisions
 
@@ -94,7 +104,7 @@ Ogni elemento di `bullCase` e `bearCase` contiene `claim` ed `evidenceFields`. `
 2. **TRAIN-01 è contract-only.** Non scarica modelli, non installa dipendenze AI e non richiede GPU.
 3. **VIS conserva l'autorità numerica.** Il modello interpreta valori e warning forniti, senza ricalcolarli.
 4. **Dataset conversazionale.** Il formato `messages` è compatibile con il chat template di Gemma e con TRL.
-5. **Esempi sintetici.** `VIS1`, `VIS2` e `VIS3` evitano contaminazione da conoscenze su società reali.
+5. **Esempi sintetici.** I simboli `VIS1`–`VIS10` evitano contaminazione da conoscenze su società reali.
 6. **Output chiuso e auditabile.** JSON Schema, enumerazioni e riferimenti di evidenza limitano output liberi e affermazioni non tracciabili.
 7. **Boundary decision-support.** Non sono ammesse istruzioni operative. Il README chiarisce che gli output richiedono revisione umana e non sono consulenza finanziaria.
 
@@ -106,14 +116,17 @@ Ogni elemento di `bullCase` e `bearCase` contiene `claim` ed `evidenceFields`. `
 - Scelta dei parametri LoRA o configurazione `BitsAndBytesConfig`.
 - Ambiente Conda, CUDA, GPU, `SFTTrainer`, fine-tuning o salvataggio adapter.
 - Generazione massiva tramite frontier model.
+- Implementazione della CLI Python, dei codici errore stabili, dei report CI e della suite di almeno 15 test previsti da TRAIN-02.
 - Benchmark quantitativo, conversione modello, inferenza o integrazione Ollama/VIS.
 
-Questi elementi appartengono a TRAIN-02 e alle fasi successive.
+Questi elementi appartengono a TRAIN-02 e alle fasi successive. Il validatore Node esistente può essere esteso soltanto quanto necessario a verificare i dieci record e i gate di TRAIN-01; non deve trasformarsi nell'implementazione anticipata di TRAIN-02.
 
 ## Compatibility and Risks
 
 - TRAIN-01 non modifica runtime, API, database, frontend o Compose di VIS.
 - Lo schema iniziale è volutamente piccolo; l'evoluzione deve essere versionata per non rendere ambigui prompt e dataset già prodotti.
 - Esempi manuali errati possono insegnare correlazioni scorrette. Ogni claim deve quindi essere verificato contro i campi citati.
+- I sette nuovi casi devono variare segnali, classificazioni e condizioni di revisione senza introdurre nuove proprietà fuori schema o duplicare superficialmente i tre casi esistenti.
+- I casi intenzionalmente contraddittori, obsoleti o rischiosi devono esporre warning coerenti e richiedere revisione umana; nessun dato mancante o problematico può essere sostituito con uno zero inventato.
 - `format: date` richiede una validazione JSON Schema che abiliti esplicitamente il format checker.
 - La classificazione non elimina il rischio che un testo venga interpretato come consiglio: prompt, README e future superfici VIS devono mantenere il confine di decision support e il disclaimer MiFID II.

@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS10\",\"companyName\":\"Synthetic Company 10\",\"analysisDate\":\"2025-08-01\",\"marketPrice\":90.0,\"intrinsicValue\":105.0,\"marginOfSafetyPercent\":14.29,\"valueScore\":70.0,\"dividendYieldPercent\":3.0,\"payoutRatioPercent\":50.0,\"netDebtToEbitda\":1.8,\"revenueTrend\":\"STABLE\",\"earningsTrend\":\"STABLE\",\"freeCashFlowTrend\":\"STABLE\",\"dataQuality\":\"STALE\",\"deterministicWarnings\":[\"STALE_ANALYSIS_DATA\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.4,\"summary\":\"The supplied valuation and operating evidence cannot support a current conclusion because the analysis data is stale.\",\"bullCase\":[{\"claim\":\"The supplied market price is below the supplied intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"bearCase\":[{\"claim\":\"The data quality and deterministic warning identify stale analysis data.\",\"evidenceFields\":[\"dataQuality\",\"deterministicWarnings\"]}],\"keyRisks\":[\"Current conditions may differ from the stale evidence.\"],\"keyAssumptions\":[],\"invalidationConditions\":[\"Refresh the analysis with current data before reassessing the thesis.\"],\"dataWarnings\":[\"The supplied analysis data is stale.\"],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0010",
+    "scenarioType": "STALE_DATA",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

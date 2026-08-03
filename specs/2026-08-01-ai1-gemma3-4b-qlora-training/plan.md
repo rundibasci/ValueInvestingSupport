@@ -1,43 +1,40 @@
 # TRAIN-01 — Implementation Plan
 
-## 1. Struttura del percorso parallelo
+## 1. Allineare i contratti della fase
 
-1. Creare `vis-model-training/` separata dal backend Java.
-2. Aggiungere un README che descriva scopo, confine VIS/modello, struttura, versionamento e validazione manuale.
-3. Creare le directory `schemas/`, `prompts/`, `examples/` e `datasets/`.
+1. Trattare i tre esempi, gli schemi e il prompt esistenti come baseline esplorativa da preservare.
+2. Aggiornare README e documentazione TRAIN-01 da tre a dieci casi, eliminando i gate ormai superati che richiedono esattamente tre record.
+3. Confermare che il completamento resta contract-only e non include runtime VIS, dipendenze AI, modello, GPU o deliverable TRAIN-02.
 
-## 2. Contratti JSON Schema
+## 2. Definire i sette scenari mancanti
 
-1. Creare `schemas/thesis-input.schema.json` copiando fedelmente il contratto Draft 2020-12 fornito in TRAIN-01.
-2. Creare `schemas/thesis-output.schema.json` copiando fedelmente classificazioni, campi obbligatori e definizione delle evidenze forniti in TRAIN-01.
-3. Verificare `additionalProperties: false`, tipi nullable, range numerici, enumerazioni e riferimenti `$ref`.
-4. Verificare che le sole classificazioni ammesse non siano raccomandazioni di investimento.
+1. Assegnare `VIS4`–`VIS10` e identificatori univoci ai casi: impresa solida ma sopravvalutata, fair value, dividendo elevato ma insostenibile, leva elevata, FCF negativo/in deterioramento, indicatori contraddittori e dati obsoleti.
+2. Definire per ciascun caso segnali di input, classificazione attesa, livello di confidence, warning deterministici e requisito di revisione umana.
+3. Verificare che la matrice complessiva copra tutte le cinque classificazioni ammesse e distingua attrattività del prezzo, qualità dell'impresa e qualità dei dati.
 
-## 3. System prompt versionato
+## 3. Creare gli esempi manuali
 
-1. Creare `prompts/system-prompt-v1.txt` con il testo e le dodici regole definite dal piano.
-2. Verificare che proibisca dati inventati, ricalcoli, istruzioni buy/sell/hold e testo fuori dal JSON.
-3. Verificare che imponga evidenze, separazione valutazione/qualità e revisione umana per dati problematici.
+1. Aggiungere `example-004.json`–`example-010.json` conservando il formato conversazionale e i metadati dei casi esistenti.
+2. Usare esclusivamente società e simboli sintetici, senza conoscenza esterna o eventi aziendali reali.
+3. Collegare ogni claim di `bullCase` e `bearCase` a campi non nulli presenti nell'input e mantenere ogni numero dell'output riconducibile all'input.
+4. Impostare warning, `dataWarnings` e `humanReviewRequired` coerentemente nei casi rischiosi, contraddittori o obsoleti.
 
-## 4. Esempi manuali sintetici
+## 4. Ricostruire il seed dataset
 
-1. Creare `example-001.json` per `UNDERVALUED_STRONG_BUSINESS` usando `VIS1`.
-2. Creare `example-002.json` per `VALUE_TRAP` usando `VIS2`.
-3. Creare `example-003.json` per `INSUFFICIENT_DATA` usando `VIS3`.
-4. Conservare esattamente il formato conversazionale e i metadati forniti.
-5. Controllare manualmente che nessun claim introduca informazioni esterne o numeri non presenti nell'input.
+1. Aggiornare `datasets/seed-dataset-v1.jsonl` con i dieci documenti sorgente, uno per riga e in ordine numerico.
+2. Non racchiudere i record in un array e preservare la serializzazione JSON dei messaggi incorporati.
+3. Verificare corrispondenza byte-logica fra ogni file esempio e la relativa riga JSONL, inclusi metadati e ordine dei messaggi.
 
-## 5. Seed dataset JSONL
+## 5. Adeguare i controlli TRAIN-01
 
-1. Creare `datasets/seed-dataset-v1.jsonl` con i tre documenti, uno per riga.
-2. Non racchiudere le righe in un array JSON.
-3. Verificare che le stringhe JSON nei contenuti `user` e `assistant` siano serializzate correttamente.
-4. Verificare che il file contenga esattamente tre righe non vuote e corrisponda agli esempi sorgente.
+1. Estendere `scripts/validate-dataset.mjs` al conteggio di dieci record e alla tassonomia completa, senza introdurre la CLI Python o la suite di TRAIN-02.
+2. Validare sintassi, schemi Draft 2020-12, unicità degli identificatori, `evidenceFields`, numeri supportati dall'input, classificazioni e revisione umana.
+3. Aggiungere controlli espliciti contro raccomandazioni `BUY`/`SELL`/`HOLD`, Markdown e testo fuori dal JSON.
+4. Eseguire un controllo negativo con una copia temporanea corrotta o una fixture effimera, senza commettere dataset di test appartenenti a TRAIN-02.
 
-## 6. Validazione e readiness
+## 6. Documentazione e merge readiness
 
-1. Analizzare sintatticamente schemi, esempi, JSON incorporato e righe JSONL usando strumenti già disponibili, senza introdurre dipendenze AI.
-2. Validare input e output incorporati contro i rispettivi schemi con un validatore JSON Schema Draft 2020-12 disponibile localmente; in assenza, documentare chiaramente il controllo manuale anziché installare librerie AI.
-3. Verificare i riferimenti `evidenceFields`, la coerenza delle classificazioni e `humanReviewRequired` nei casi dubbi.
-4. Verificare assenza di buy/sell/hold, dati aziendali reali e contenuti esterni.
-5. Eseguire `git diff --check` e confermare che nessuna superficie runtime VIS sia cambiata.
+1. Aggiornare `vis-model-training/README.md` marcando TRAIN-01 completa soltanto dopo il superamento di tutti i gate; lasciare TRAIN-02 prototipale/incompleta.
+2. Eseguire tutti i comandi di validazione, `git diff --check` e il controllo di igiene del repository.
+3. Confermare che backend, frontend, Compose, dipendenze applicative e configurazione runtime VIS non siano cambiati.
+4. Riesaminare manualmente i dieci casi e registrare l'esito nella checklist di validazione prima del merge.

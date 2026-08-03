@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 esplorativo/incompleto (3 casi); TRAIN-02 esplorativo/prototipale
-> Versione: 1.2.0
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo (10 casi); TRAIN-02 esplorativo/prototipale
+> Versione: 1.3.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -81,7 +81,7 @@ Il progetto segue quattro regole:
 | Fase | Nome | Deliverable principale | Stato |
 |---|---|---|---|
 | TRAIN-00 | Decisioni e prerequisiti | ADR, governance e verifica hardware | Completo — GO condizionato |
-| TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Esplorativo/incompleto — contratti pronti; 3 casi su 10 |
+| TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Completo — 10 casi validati |
 | TRAIN-02 | Validator del dataset | CLI di validazione | Esplorativo/prototipale — validatore Node senza suite completa |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Da avviare |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
@@ -94,7 +94,7 @@ Il progetto segue quattro regole:
 | TRAIN-11 | Packaging | Artefatti, model card e release | Da avviare |
 | TRAIN-12 | Handoff a VIS | Contratto per integrazione futura | Dettagliata (esplicitata in v1.1.0) |
 
-Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. I contratti TRAIN-01 e il prototipo TRAIN-02 creati prima della chiusura di TRAIN-00 sono classificati come esplorativi e non costituiscono completamento delle rispettive fasi.
+Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. I contratti TRAIN-01 e il prototipo TRAIN-02 creati prima della chiusura di TRAIN-00 nacquero come lavoro esplorativo; TRAIN-01 è ora completata attraverso il gate a dieci casi, mentre TRAIN-02 resta prototipale e incompleta.
 
 ---
 
@@ -226,7 +226,14 @@ vis-model-training/
 ├── examples/
 │   ├── example-001.json
 │   ├── example-002.json
-│   └── example-003.json
+│   ├── example-003.json
+│   ├── example-004.json
+│   ├── example-005.json
+│   ├── example-006.json
+│   ├── example-007.json
+│   ├── example-008.json
+│   ├── example-009.json
+│   └── example-010.json
 └── datasets/
     └── seed-dataset-v1.jsonl
 ```
@@ -320,9 +327,9 @@ Il target di completamento è di almeno 10 casi manuali:
 9. dati obsoleti;
 10. dati insufficienti.
 
-Usare inizialmente simboli sintetici (`VIS001`, `VIS002`) per impedire al modello di ricorrere a conoscenze pregresse.
+Usare simboli sintetici (`VIS1`–`VIS10`) per impedire al modello di ricorrere a conoscenze pregresse.
 
-Stato attuale: sono implementati 3 casi sintetici (`VIS1`, `VIS2`, `VIS3`): impresa solida e sottovalutata, potenziale value trap e dati insufficienti. Restano da aggiungere 7 scenari per soddisfare il target.
+Stato attuale: sono implementati e validati tutti i 10 casi sintetici richiesti. I record coprono le cinque classificazioni ammesse e mantengono distinti attrattività della valutazione, qualità dell'impresa e qualità dei dati.
 
 ## Deliverable
 
@@ -333,17 +340,24 @@ vis-model-training/prompts/system-prompt-v1.txt
 vis-model-training/examples/example-001.json
 vis-model-training/examples/example-002.json
 vis-model-training/examples/example-003.json
+vis-model-training/examples/example-004.json
+vis-model-training/examples/example-005.json
+vis-model-training/examples/example-006.json
+vis-model-training/examples/example-007.json
+vis-model-training/examples/example-008.json
+vis-model-training/examples/example-009.json
+vis-model-training/examples/example-010.json
 vis-model-training/datasets/seed-dataset-v1.jsonl
 ```
 
 ## Criteri di accettazione
 
 - [x] schemi validi;
-- [ ] 10 casi manuali (3 implementati);
-- [x] tutti gli output attualmente presenti conformi;
-- [x] nessuna informazione esterna nei casi attualmente presenti;
-- [x] ogni claim attualmente presente ha almeno un'evidenza;
-- [x] ogni scenario attualmente presente appartiene a una categoria dichiarata.
+- [x] 10 casi manuali implementati;
+- [x] tutti gli output presenti conformi;
+- [x] nessuna informazione esterna nei casi presenti;
+- [x] ogni claim presente ha almeno un'evidenza non nulla;
+- [x] ogni scenario appartiene a una categoria dichiarata e tutte le classificazioni sono coperte.
 
 ---
 
@@ -1679,7 +1693,7 @@ Stato effettivo del primo incremento:
 - [x] modello target iniziale scelto;
 - [x] ADR, licenze e hardware formalmente documentati;
 - [x] contratti JSON definiti;
-- [ ] 10 esempi manuali (3 implementati);
+- [x] 10 esempi manuali implementati e validati;
 - [x] validatore automatico prototipale in Node.js;
 - [ ] validator TRAIN-02 completo con CLI, report e test automatici;
 - [x] nessun training ancora eseguito.

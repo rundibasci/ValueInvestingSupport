@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS8\",\"companyName\":\"Synthetic Company 8\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":50.0,\"intrinsicValue\":65.0,\"marginOfSafetyPercent\":23.08,\"valueScore\":49.0,\"dividendYieldPercent\":1.5,\"payoutRatioPercent\":30.0,\"netDebtToEbitda\":2.2,\"revenueTrend\":\"STABLE\",\"earningsTrend\":\"DECLINING\",\"freeCashFlowTrend\":\"STRONGLY_DECLINING\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[\"NEGATIVE_FREE_CASH_FLOW\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.68,\"summary\":\"The valuation discount is offset by declining earnings and a severe deterioration in free cash flow.\",\"bullCase\":[{\"claim\":\"The market price is below the supplied intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"bearCase\":[{\"claim\":\"Earnings are declining and free cash flow is deteriorating strongly.\",\"evidenceFields\":[\"earningsTrend\",\"freeCashFlowTrend\"]},{\"claim\":\"The deterministic analysis reports negative free cash flow.\",\"evidenceFields\":[\"deterministicWarnings\"]}],\"keyRisks\":[\"Weak cash generation may undermine the supplied intrinsic value.\",\"Continued earnings deterioration may reduce financial flexibility.\"],\"keyAssumptions\":[\"The supplied intrinsic value has not yet incorporated further cash-flow deterioration.\"],\"invalidationConditions\":[\"A sustained recovery in free cash flow.\",\"Removal of the negative free-cash-flow warning after refreshed analysis.\"],\"dataWarnings\":[],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0008",
+    "scenarioType": "FCF_DETERIORATION",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

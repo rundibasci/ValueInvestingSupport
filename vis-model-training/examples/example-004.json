@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS4\",\"companyName\":\"Synthetic Company 4\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":150.0,\"intrinsicValue\":100.0,\"marginOfSafetyPercent\":-50.0,\"valueScore\":78.0,\"dividendYieldPercent\":2.1,\"payoutRatioPercent\":38.0,\"netDebtToEbitda\":0.8,\"revenueTrend\":\"GROWING\",\"earningsTrend\":\"STRONGLY_GROWING\",\"freeCashFlowTrend\":\"GROWING\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"POTENTIALLY_OVERVALUED\",\"confidence\":0.9,\"summary\":\"Strong operating trends and moderate leverage are offset by a market price above the supplied intrinsic value.\",\"bullCase\":[{\"claim\":\"Revenue, earnings and free cash flow trends are positive.\",\"evidenceFields\":[\"revenueTrend\",\"earningsTrend\",\"freeCashFlowTrend\"]},{\"claim\":\"The supplied leverage indicator is moderate.\",\"evidenceFields\":[\"netDebtToEbitda\"]}],\"bearCase\":[{\"claim\":\"The market price is above the supplied intrinsic value and the margin of safety is negative.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"keyRisks\":[\"The current valuation leaves limited protection if operating performance weakens.\"],\"keyAssumptions\":[\"The supplied intrinsic value remains valid under the VIS valuation assumptions.\"],\"invalidationConditions\":[\"A material increase in the supplied intrinsic value.\",\"A material decline in the market price.\"],\"dataWarnings\":[],\"humanReviewRequired\":false}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0004",
+    "scenarioType": "OVERVALUED_STRONG_BUSINESS",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

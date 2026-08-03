@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS5\",\"companyName\":\"Synthetic Company 5\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":100.0,\"intrinsicValue\":102.0,\"marginOfSafetyPercent\":1.96,\"valueScore\":68.0,\"dividendYieldPercent\":2.8,\"payoutRatioPercent\":48.0,\"netDebtToEbitda\":1.6,\"revenueTrend\":\"STABLE\",\"earningsTrend\":\"STABLE\",\"freeCashFlowTrend\":\"STABLE\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"FAIRLY_VALUED\",\"confidence\":0.84,\"summary\":\"The market price is close to the supplied intrinsic value, while the operating evidence is stable.\",\"bullCase\":[{\"claim\":\"Revenue, earnings and free cash flow trends are stable.\",\"evidenceFields\":[\"revenueTrend\",\"earningsTrend\",\"freeCashFlowTrend\"]}],\"bearCase\":[{\"claim\":\"The supplied margin of safety offers little valuation protection.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"keyRisks\":[\"Stable operating trends may not provide a catalyst for intrinsic value growth.\"],\"keyAssumptions\":[\"The supplied intrinsic value remains valid under the VIS valuation assumptions.\"],\"invalidationConditions\":[\"A material divergence between market price and intrinsic value.\",\"A deterioration in operating trends.\"],\"dataWarnings\":[],\"humanReviewRequired\":false}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0005",
+    "scenarioType": "FAIR_VALUE",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}

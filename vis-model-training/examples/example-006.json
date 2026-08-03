@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are the Investment Thesis Agent of ValueInvestingSupport. Use only supplied evidence and return valid JSON."
+    },
+    {
+      "role": "user",
+      "content": "{\"symbol\":\"VIS6\",\"companyName\":\"Synthetic Company 6\",\"analysisDate\":\"2026-08-01\",\"marketPrice\":60.0,\"intrinsicValue\":70.0,\"marginOfSafetyPercent\":14.29,\"valueScore\":52.0,\"dividendYieldPercent\":9.0,\"payoutRatioPercent\":135.0,\"netDebtToEbitda\":3.9,\"revenueTrend\":\"STABLE\",\"earningsTrend\":\"DECLINING\",\"freeCashFlowTrend\":\"DECLINING\",\"dataQuality\":\"COMPLETE\",\"deterministicWarnings\":[\"PAYOUT_NOT_SUSTAINABLE\"]}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"classification\":\"UNDER_REVIEW\",\"confidence\":0.72,\"summary\":\"The elevated dividend yield is not supported by the supplied payout ratio and declining cash generation.\",\"bullCase\":[{\"claim\":\"The market price is below the supplied intrinsic value.\",\"evidenceFields\":[\"marketPrice\",\"intrinsicValue\",\"marginOfSafetyPercent\"]}],\"bearCase\":[{\"claim\":\"The elevated dividend yield is paired with an unsustainable payout warning.\",\"evidenceFields\":[\"dividendYieldPercent\",\"payoutRatioPercent\",\"deterministicWarnings\"]},{\"claim\":\"Earnings and free cash flow trends are declining.\",\"evidenceFields\":[\"earningsTrend\",\"freeCashFlowTrend\"]}],\"keyRisks\":[\"The dividend may not be sustained by earnings and free cash flow.\",\"Declining cash generation may weaken valuation support.\"],\"keyAssumptions\":[\"The supplied payout ratio and deterministic warning reflect the current dividend policy.\"],\"invalidationConditions\":[\"Improved dividend coverage supported by earnings and free cash flow.\",\"Removal of the deterministic payout warning after refreshed analysis.\"],\"dataWarnings\":[],\"humanReviewRequired\":true}"
+    }
+  ],
+  "metadata": {
+    "exampleId": "VIS-TRAIN-0006",
+    "scenarioType": "DIVIDEND_RISK",
+    "source": "MANUAL",
+    "datasetVersion": "1.0"
+  }
+}
