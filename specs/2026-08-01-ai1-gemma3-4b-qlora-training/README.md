@@ -15,15 +15,14 @@ warning deterministici                      rischi e condizioni invalidanti
 
 VIS resta l'autorità sui dati e sui calcoli. Gemma non recupera dati, non ricalcola metriche e non emette ordini di investimento. La sua funzione futura è trasformare l'evidenza strutturata in una tesi concisa e verificabile, con revisione umana quando necessaria.
 
-## Sequenza delle fasi
+## Sequenza aggiornata delle fasi
 
-1. **TRAIN-01 — Task e formato dataset (questa spec):** schemi, system prompt, tre esempi sintetici e seed dataset JSONL. Nessun modello, libreria AI o GPU.
-2. **TRAIN-02 — Infrastruttura QLoRA:** `docker-compose.training.yml` dedicato, ambiente GPU NVIDIA, dipendenze pinning e smoke test per `google/gemma-3-4b-it`.
-3. **TRAIN-03 — Dataset expansion e quality gate:** ampliamento controllato, validazione automatica, deduplicazione e split train/validation/test.
-4. **TRAIN-04 — Fine-tuning e valutazione:** SFT QLoRA, adapter PEFT, metriche strutturali e revisione qualitativa esperta.
-5. **TRAIN-05 — Inferenza e integrazione VIS:** servizio separato, contratti API, osservabilità e fallback sicuro. Richiederà una specifica autonoma.
+1. **TRAIN-00 — Decisioni e prerequisiti:** ADR, governance, licenze e verifica hardware; completo con GO condizionato.
+2. **TRAIN-01 — Task e formato dataset (questa spec):** schemi, system prompt, dieci esempi sintetici e seed dataset JSONL; completo.
+3. **TRAIN-02 — Validator del dataset:** package e CLI Python, validazioni strutturali/semantiche, codici errore, report e suite automatica di almeno 15 test.
+4. **TRAIN-03 — Benchmark del modello base:** baseline riproducibile di Gemma prima di qualsiasi fine-tuning.
 
-Solo TRAIN-01 è approvabile e implementabile attraverso i documenti di questa directory. Le fasi successive indicano la direzione ma non autorizzano ancora codice o infrastruttura.
+La roadmap autorevole completa vive in `vis-model-training/README.md`. I documenti di questa directory definiscono TRAIN-01, ora completata; TRAIN-02 richiede una specifica autonoma prima dell'implementazione.
 
 ## Documenti
 
@@ -44,7 +43,14 @@ vis-model-training/
 ├── examples/
 │   ├── example-001.json
 │   ├── example-002.json
-│   └── example-003.json
+│   ├── example-003.json
+│   ├── example-004.json
+│   ├── example-005.json
+│   ├── example-006.json
+│   ├── example-007.json
+│   ├── example-008.json
+│   ├── example-009.json
+│   └── example-010.json
 └── datasets/
     └── seed-dataset-v1.jsonl
 ```

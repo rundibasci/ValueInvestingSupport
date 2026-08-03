@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo (10 casi); TRAIN-02 esplorativo/prototipale
-> Versione: 1.3.0
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo (10 casi); TRAIN-02 completo
+> Versione: 1.4.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -82,7 +82,7 @@ Il progetto segue quattro regole:
 |---|---|---|---|
 | TRAIN-00 | Decisioni e prerequisiti | ADR, governance e verifica hardware | Completo — GO condizionato |
 | TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Completo — 10 casi validati |
-| TRAIN-02 | Validator del dataset | CLI di validazione | Esplorativo/prototipale — validatore Node senza suite completa |
+| TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Da avviare |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
 | TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
@@ -94,7 +94,7 @@ Il progetto segue quattro regole:
 | TRAIN-11 | Packaging | Artefatti, model card e release | Da avviare |
 | TRAIN-12 | Handoff a VIS | Contratto per integrazione futura | Dettagliata (esplicitata in v1.1.0) |
 
-Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. I contratti TRAIN-01 e il prototipo TRAIN-02 creati prima della chiusura di TRAIN-00 nacquero come lavoro esplorativo; TRAIN-01 è ora completata attraverso il gate a dieci casi, mentre TRAIN-02 resta prototipale e incompleta.
+Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. Il prototipo Node resta disponibile come oracle temporaneo, mentre TRAIN-02 è completata dalla CLI Python generica e dalla relativa suite di regressione.
 
 ---
 
@@ -369,22 +369,35 @@ Impedire che esempi formalmente o semanticamente errati entrino nel dataset.
 
 ## Stato attuale
 
-È presente `vis-model-training/scripts/validate-dataset.mjs`, un validatore prototipale basato esclusivamente sui moduli integrati di Node.js. Verifica i due contratti, i JSON incorporati, i riferimenti `evidenceFields`, i tre scenari seed e la corrispondenza esatta fra esempi e JSONL.
+È implementato un package Python con CLI parametrica, validazione Draft 2020-12, regole semantiche, codici errore stabili, report testuale/JSON e 31 test automatici. `vis-model-training/scripts/validate-dataset.mjs` resta un oracle temporaneo di parità per i dieci casi TRAIN-01.
 
-Non sono ancora implementati la struttura Python prevista sotto `src/vis_training/`, la CLI parametrica, i codici errore stabili, i report JSON/testuali e la suite di almeno 15 test. TRAIN-02 non è quindi completato.
+## Prerequisiti soddisfatti
+
+- TRAIN-01 deve restare completa con 10 esempi sorgente e 10 record JSONL validi; il validatore Node costituisce la baseline comportamentale da preservare durante la migrazione.
+- Usare Python 3.9 o successivo in `vis-model-training/.venv/`, senza installazioni globali e senza dipendenze nel runtime VIS.
+- Le dipendenze di TRAIN-02 sono dichiarate in `pyproject.toml` e bloccate in `requirements.lock`; `jsonschema 4.25.1` e `pytest 8.4.2` sono verificati su Python 3.9.6.
+- Codici diagnostici, report JSON `1.0`, formato testuale ed exit code `0`–`3` sono contratti versionati della CLI.
+- Usare fixture positive e negative prive di segreti o dati societari reali; i dataset corrotti devono vivere nelle fixture di test, non nel seed dataset ufficiale.
+- Definire un comando CI deterministico che installi le dipendenze bloccate, esegua i test e validi il dataset seed senza rete, modello o GPU.
 
 ## Struttura
 
 ```text
-src/vis_training/
-  validation/
-    schema_validator.py
-    semantic_validator.py
-    dataset_validator.py
-tests/
-  validation/
+pyproject.toml
+requirements.lock
+src/vis_training/validation/
+  codes.py
+  models.py
+  schema_validator.py
+  semantic_validator.py
+  dataset_validator.py
+tests/validation/
+  test_dataset_validator.py
 scripts/
+  __init__.py
   validate_dataset.py
+reports/validation/
+  train-02-parity.md
 ```
 
 ## Validazioni strutturali
@@ -414,8 +427,12 @@ scripts/
 ## CLI
 
 ```bash
-python -m scripts.validate_dataset \
-  --dataset datasets/seed/seed-dataset-v1.jsonl \
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python -m pip install --no-deps --no-build-isolation .
+
+.venv/bin/python -m scripts.validate_dataset \
+  --dataset datasets/seed-dataset-v1.jsonl \
   --input-schema schemas/thesis-input.schema.json \
   --output-schema schemas/thesis-output.schema.json
 ```
@@ -438,11 +455,11 @@ warnings: 0
 
 ## Criteri di accettazione
 
-- [ ] almeno 15 test;
+- [x] 31 test automatici;
 - [x] dataset seed attuale valido al 100%;
-- [ ] un dataset volutamente corrotto viene rifiutato;
-- [x] uscita non zero in caso di errore rilevato dal prototipo;
-- [ ] report utilizzabile in CI.
+- [x] dataset volutamente corrotti vengono rifiutati con codici stabili;
+- [x] exit code `1`, `2` e `3` distinguono validazione, configurazione e failure interna;
+- [x] report testuale e JSON utilizzabili in CI.
 
 ---
 
@@ -1695,7 +1712,7 @@ Stato effettivo del primo incremento:
 - [x] contratti JSON definiti;
 - [x] 10 esempi manuali implementati e validati;
 - [x] validatore automatico prototipale in Node.js;
-- [ ] validator TRAIN-02 completo con CLI, report e test automatici;
+- [x] validator TRAIN-02 completo con CLI, report e test automatici;
 - [x] nessun training ancora eseguito.
 
 Questo evita di investire tempo nella GPU prima di aver stabilizzato il problema e i criteri di qualità.
