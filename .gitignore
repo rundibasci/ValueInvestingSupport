@@ -35,11 +35,17 @@ vis-model-training/.cache/
 vis-model-training/artifacts/
 vis-model-training/checkpoints/
 vis-model-training/outputs/
+vis-model-training/.huggingface/
+vis-model-training/runpod-workspace/
+vis-model-training/reports/baseline/*/raw/
+vis-model-training/reports/baseline/*/run-state/
 vis-model-training/datasets/candidates/
 vis-model-training/**/*.safetensors
 vis-model-training/**/*.bin
 vis-model-training/**/*.gguf
 vis-model-training/**/wandb/
+vis-model-training/**/.env*
+!vis-model-training/**/.env.example
 
 # OS
 .DS_Store

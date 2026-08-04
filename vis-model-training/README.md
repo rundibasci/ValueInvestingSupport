@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo (10 casi); TRAIN-02 completo
-> Versione: 1.4.0
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 tooling locale implementato, run RunPod pendente
+> Versione: 1.5.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -83,7 +83,7 @@ Il progetto segue quattro regole:
 | TRAIN-00 | Decisioni e prerequisiti | ADR, governance e verifica hardware | Completo — GO condizionato |
 | TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Completo — 10 casi validati |
 | TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
-| TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Da avviare |
+| TRAIN-03 | Benchmark del modello base | Baseline riproducibile | In corso — gate locale superato, RunPod pendente |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
 | TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
 | TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Da avviare |
@@ -468,6 +468,21 @@ warnings: 0
 ## Obiettivo
 
 Misurare Gemma 3 prima del fine tuning.
+
+## Stato implementativo
+
+Il tooling locale è disponibile e non crea risorse a pagamento automaticamente:
+
+```text
+datasets/benchmark/base-benchmark-v1.jsonl       50 casi sintetici
+datasets/benchmark/base-benchmark-v1.freeze.json freeze manifest SHA-256
+config/benchmark-v1.json                         modello, revision e decoding
+docker/train-03.Dockerfile                       ambiente CUDA digestato
+src/vis_training/benchmark/                      catalogo, runner, metriche, review
+docs/runpod/train-03-runbook.md                   procedura Secure Cloud
+```
+
+La fase resta incompleta finché la run canonica BF16 non viene eseguita su RunPod Secure Cloud, le metriche e almeno 20 review manuali non sono concluse e le risorse fatturabili non vengono rimosse dopo l'esportazione verificata.
 
 ## Motivazione
 

@@ -1,0 +1,26 @@
+{
+  "formatVersion": "1.0",
+  "modelId": "google/gemma-3-4b-it",
+  "modelRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+  "tokenizerRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+  "modelMetadataSource": "https://huggingface.co/api/models/google/gemma-3-4b-it",
+  "modelMetadataRetrievedAt": "2026-08-04",
+  "precision": "bfloat16",
+  "device": "cuda",
+  "seed": 20260804,
+  "decoding": {
+    "temperature": 0.0,
+    "doSample": false,
+    "maxNewTokens": 1024,
+    "batchSize": 1
+  },
+  "canonicalEnvironment": {
+    "provider": "RunPod",
+    "cloudTier": "Secure Cloud",
+    "gpu": "NVIDIA L4",
+    "minimumGpuMemoryGiB": 24,
+    "minimumSystemMemoryGiB": 48,
+    "minimumDiskGiB": 100,
+    "containerImage": "pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime@sha256:c16f4c749e2d9e96878875cdf6cc45cddda1d1a36fddd371dd6f2360f1b6e2a2"
+  }
+}

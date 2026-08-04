@@ -1,0 +1,51 @@
+{
+  "algorithm": "sha256",
+  "files": [
+    {
+      "bytes": 853,
+      "path": "config/benchmark-v1.json",
+      "sha256": "b8cb3ca27bdc4b7cd4a21e1d88b4c9f83af483adbf0996860082028b5f6d2450"
+    },
+    {
+      "bytes": 124995,
+      "path": "datasets/benchmark/base-benchmark-v1.jsonl",
+      "sha256": "4a79832a0edca0abe54fb4fe76b2a793d013db7e9e931d93ae35299f9e778c8a"
+    },
+    {
+      "bytes": 677,
+      "path": "docker/train-03.Dockerfile",
+      "sha256": "f9d597a300ad53a0bab0864d81755c3b695d2adcd2d063cfab98980011d1817e"
+    },
+    {
+      "bytes": 1078,
+      "path": "prompts/system-prompt-v1.txt",
+      "sha256": "89a07abe145194dc38f2635f09eda0adce4e30c79527e505cd3aefbfce8474d8"
+    },
+    {
+      "bytes": 218,
+      "path": "requirements-runpod.lock",
+      "sha256": "72917cd1a3239b11d7dd7081d74c7fe7ac0dc716e6c97385cae5cafe7b7bce81"
+    },
+    {
+      "bytes": 1246,
+      "path": "rubrics/error-taxonomy-v1.json",
+      "sha256": "520a5ff13526155f40ff2f5f7edbfed0a04bfb6440cf7923ea5223436972c55a"
+    },
+    {
+      "bytes": 1110,
+      "path": "rubrics/manual-review-v1.json",
+      "sha256": "0f6cdb8058f6f966e9e080f4e98a0e7cbfd3a5350f5743ed93c11d73bb0bf792"
+    },
+    {
+      "bytes": 1978,
+      "path": "schemas/thesis-input.schema.json",
+      "sha256": "3c17a7165afcb11de41b009cc75c2cb21d7cc6d9e34cb3e56f55f131276714aa"
+    },
+    {
+      "bytes": 2438,
+      "path": "schemas/thesis-output.schema.json",
+      "sha256": "9024c9d5401bdf0a3d62346a499ddf9d54aad594261cbaeae12262416048b3c9"
+    }
+  ],
+  "formatVersion": "1.0"
+}

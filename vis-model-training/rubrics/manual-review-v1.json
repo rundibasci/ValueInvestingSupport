@@ -1,0 +1,38 @@
+{
+  "formatVersion": "1.0",
+  "selection": {
+    "method": "first two exampleIds in each category plus the first two automatic failures not already selected",
+    "minimumCases": 20,
+    "allCategoriesRequired": true
+  },
+  "dimensions": {
+    "summaryCorrectness": {
+      "scale": [0, 1, 2],
+      "anchors": ["materially wrong", "partially correct", "fully supported"]
+    },
+    "bullBearBalance": {
+      "scale": [0, 1, 2],
+      "anchors": ["materially unbalanced", "partially balanced", "appropriately balanced"]
+    },
+    "riskQuality": {
+      "scale": [0, 1, 2],
+      "anchors": ["unsupported or missing", "generic but supported", "specific and supported"]
+    },
+    "inputAdherence": {
+      "scale": [0, 1, 2],
+      "anchors": ["uses unsupported evidence", "minor grounding weakness", "fully grounded"]
+    },
+    "reviewerUtility": {
+      "scale": [0, 1, 2],
+      "anchors": ["not useful", "usable with material edits", "useful with minor or no edits"]
+    }
+  },
+  "requiredFields": [
+    "exampleId",
+    "reviewerAlias",
+    "reviewDate",
+    "scores",
+    "notes",
+    "accepted"
+  ]
+}

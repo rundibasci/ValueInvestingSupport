@@ -1,0 +1,41 @@
+{
+  "formatVersion": "1.0",
+  "categories": [
+    {
+      "code": "INVALID_JSON",
+      "description": "The first output cannot be parsed as one JSON object."
+    },
+    {
+      "code": "SCHEMA_VIOLATION",
+      "description": "Parsed JSON violates the versioned output schema."
+    },
+    {
+      "code": "CLASSIFICATION_ERROR",
+      "description": "Classification differs from the frozen ground truth."
+    },
+    {
+      "code": "EVIDENCE_ERROR",
+      "description": "Evidence fields are missing, unsupported or attached to the wrong claim."
+    },
+    {
+      "code": "UNSUPPORTED_CLAIM",
+      "description": "Text introduces a number or assertion not supported by supplied input."
+    },
+    {
+      "code": "PROHIBITED_RECOMMENDATION",
+      "description": "Output issues a buy, sell or hold instruction."
+    },
+    {
+      "code": "HUMAN_REVIEW_ERROR",
+      "description": "Human review requirement is incorrect for the supplied data state."
+    },
+    {
+      "code": "NARRATIVE_QUALITY",
+      "description": "Schema-valid output is materially weak in summary, balance, risks or reviewer utility."
+    },
+    {
+      "code": "INFERENCE_FAILURE",
+      "description": "The backend fails before returning a first output."
+    }
+  ]
+}
