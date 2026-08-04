@@ -15,4 +15,4 @@ ENV HF_HOME=/workspace/.huggingface \
     PYTHONDONTWRITEBYTECODE=1 \
     TOKENIZERS_PARALLELISM=false
 
-CMD ["bash"]
+CMD ["sleep", "infinity"]

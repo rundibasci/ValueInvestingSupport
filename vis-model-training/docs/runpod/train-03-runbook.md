@@ -20,6 +20,7 @@ Create a Pod manually with:
 - Image: either the TRAIN-03 image built from `docker/train-03.Dockerfile` or its pinned official base `pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime@sha256:c16f4c749e2d9e96878875cdf6cc45cddda1d1a36fddd371dd6f2360f1b6e2a2`
 - Mounted secret: `HF_TOKEN`
 - Exposed services: SSH only when required; do not expose Jupyter publicly
+- Container start command: `sleep infinity` when using the pinned official base image; the custom TRAIN-03 image already defines this command
 
 Record region, displayed hourly price, storage price and the non-secret Pod identifier. Do not start if the selected GPU, cloud tier or price differs from the approved values.
 

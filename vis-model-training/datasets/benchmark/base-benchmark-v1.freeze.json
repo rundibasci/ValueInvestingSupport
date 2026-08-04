@@ -12,9 +12,9 @@
       "sha256": "4a79832a0edca0abe54fb4fe76b2a793d013db7e9e931d93ae35299f9e778c8a"
     },
     {
-      "bytes": 677,
+      "bytes": 690,
       "path": "docker/train-03.Dockerfile",
-      "sha256": "f9d597a300ad53a0bab0864d81755c3b695d2adcd2d063cfab98980011d1817e"
+      "sha256": "5c410f82de2c10c2f92bc110eff9f3ac680f6e058c0f6b52e833c49841d93be0"
     },
     {
       "bytes": 1078,

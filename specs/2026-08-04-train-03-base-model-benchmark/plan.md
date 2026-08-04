@@ -34,7 +34,7 @@
 
 ## 5. RunPod runbook e smoke test
 
-1. Documentare creazione manuale di un Pod Secure Cloud L4 24 GB con regione, volume, immagine digestata, porte minime e regole di accesso.
+1. Documentare creazione manuale di un Pod Secure Cloud L4 24 GB con regione, volume, immagine digestata, processo persistente `sleep infinity`, porte minime e regole di accesso.
 2. Documentare inserimento di `HF_TOKEN` tramite RunPod Secrets, senza valori di esempio realistici o comandi che lo scrivano nella shell history.
 3. Preparare comandi per checkout del commit approvato, installazione/verifica, download checkpoint e stampa del manifest ambientale.
 4. Eseguire una prova infrastrutturale e uno smoke test su pochi casi non canonici, verificando BF16, VRAM, spazio disco, latenza e recupero artefatti.
