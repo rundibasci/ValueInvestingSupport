@@ -68,6 +68,11 @@ def _aggregate(records: Iterable[Dict[str, Any]], output_validator: Any) -> Dict
     output_lengths = []
     failed_ids = defaultdict(list)
     for item in items:
+        if isinstance(item.get("latencyMs"), (int, float)):
+            latencies.append(item["latencyMs"])
+        raw_output = item.get("rawOutput")
+        if isinstance(raw_output, str):
+            output_lengths.append(len(raw_output))
         parsed = item.get("parsedOutput")
         expected = item.get("expected")
         example_id = item.get("exampleId")
@@ -110,20 +115,15 @@ def _aggregate(records: Iterable[Dict[str, Any]], output_validator: Any) -> Dict
             if codes.PROHIBITED_RECOMMENDATION in diagnostic_codes:
                 prohibited += 1
                 failed_ids["prohibitedRecommendation"].append(example_id)
-        if isinstance(item.get("latencyMs"), (int, float)):
-            latencies.append(item["latencyMs"])
-        raw_output = item.get("rawOutput")
-        if isinstance(raw_output, str):
-            output_lengths.append(len(raw_output))
-
     return {
         "cases": total,
+        "semanticAssessableCases": valid_json,
         "jsonValidityRate": _safe_rate(valid_json, total),
         "schemaComplianceRate": _safe_rate(schema_valid, total),
         "classificationAccuracy": _safe_rate(classification_correct, total),
         "evidenceFieldPrecision": _safe_rate(evidence_correct, evidence_total),
-        "unsupportedNumericClaimRate": _safe_rate(unsupported_numeric, total),
-        "prohibitedRecommendationRate": _safe_rate(prohibited, total),
+        "unsupportedNumericClaimRate": _safe_rate(unsupported_numeric, valid_json),
+        "prohibitedRecommendationRate": _safe_rate(prohibited, valid_json),
         "humanReviewAccuracy": _safe_rate(human_review_correct, total),
         "exactFieldCoverageRate": _safe_rate(exact_coverage, total),
         "averageOutputLengthCharacters": round(mean(output_lengths), 3) if output_lengths else None,
@@ -183,7 +183,7 @@ def compute_metrics(
     report = {
         "formatVersion": METRICS_FORMAT_VERSION,
         "definitions": {
-            "rates": "numerator divided by all evaluated cases unless the metric denominator is evidence fields",
+            "rates": "classification, schema, review and coverage use all evaluated cases; evidence precision uses emitted evidence fields; semantic text rates use parsed JSON cases",
             "nonParsableOutputs": "count as failures for JSON, schema, classification, review and field coverage",
             "evidenceFieldPrecision": "expected section/index/field matches divided by all emitted evidence fields",
             "rounding": "rates use six decimal places; averages use three",

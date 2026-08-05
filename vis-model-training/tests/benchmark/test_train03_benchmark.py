@@ -174,6 +174,11 @@ def test_metrics_count_non_json_as_failure(tmp_path):
     report = compute_metrics(output, DATASET, OUTPUT_SCHEMA)
     assert report["global"]["jsonValidityRate"] == 0.0
     assert report["global"]["classificationAccuracy"] == 0.0
+    assert report["global"]["semanticAssessableCases"] == 0
+    assert report["global"]["unsupportedNumericClaimRate"] is None
+    assert report["global"]["prohibitedRecommendationRate"] is None
+    assert report["global"]["averageLatencyMs"] is not None
+    assert report["global"]["averageOutputLengthCharacters"] is not None
 
 
 def test_metrics_recover_exact_markdown_wrapper_without_changing_canonical_rate(tmp_path):
