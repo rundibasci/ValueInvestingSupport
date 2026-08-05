@@ -34,6 +34,8 @@ def select_review_ids(results: Iterable[Dict[str, Any]], *, minimum: int = 20) -
         if item.get("parseError") or item.get("generationError")
     ]
     for example_id in failures:
+        if len(selected) >= minimum:
+            break
         if example_id not in selected:
             selected.append(example_id)
     for item in sorted(records, key=lambda value: value["exampleId"]):

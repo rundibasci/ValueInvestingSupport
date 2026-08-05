@@ -231,3 +231,19 @@ def test_completed_review_validation(tmp_path):
         item["scores"] = {key: 2 for key in item["scores"]}
         item["accepted"] = True
     assert validate_completed_review(form) == []
+
+
+def test_review_selection_caps_repeated_failure_mode_at_minimum(tmp_path):
+    records = []
+    for document in iter_jsonl(DATASET):
+        records.append({
+            "exampleId": document["metadata"]["exampleId"],
+            "category": document["metadata"]["benchmarkCategory"],
+            "parseError": "INVALID_JSON",
+            "generationError": None,
+        })
+    results = tmp_path / "all-failed.jsonl"
+    results.write_text("".join(json.dumps(item) + "\n" for item in records), encoding="utf-8")
+    form = prepare_review_form(results, tmp_path / "review.json", minimum=20)
+    assert len(form["reviews"]) == 20
+    assert len({item["category"] for item in form["reviews"]}) == 9
