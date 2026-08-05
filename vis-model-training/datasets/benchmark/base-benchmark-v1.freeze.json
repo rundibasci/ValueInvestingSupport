@@ -2,14 +2,14 @@
   "algorithm": "sha256",
   "files": [
     {
-      "bytes": 913,
+      "bytes": 1097,
       "path": "config/benchmark-v1.json",
-      "sha256": "50b2806a710c6cfd59550f117170bc6163b7a273fa2ec71d9158fbe658ba4a0d"
+      "sha256": "7e59f7c346636191aa4aace4f13df130f0d7a6b8ca1d272d30ef1b7852aa9fda"
     },
     {
-      "bytes": 124995,
+      "bytes": 201495,
       "path": "datasets/benchmark/base-benchmark-v1.jsonl",
-      "sha256": "4a79832a0edca0abe54fb4fe76b2a793d013db7e9e931d93ae35299f9e778c8a"
+      "sha256": "012e84f161d6aa345c23c32d6edb4f8d38f550609dda0d80fb1c0f988dfd5c41"
     },
     {
       "bytes": 718,
@@ -17,9 +17,9 @@
       "sha256": "ff24e0a302a659461b822fded258ca19235dbe01afec5211c2b1e8f6df7b7638"
     },
     {
-      "bytes": 1078,
-      "path": "prompts/system-prompt-v1.txt",
-      "sha256": "89a07abe145194dc38f2635f09eda0adce4e30c79527e505cd3aefbfce8474d8"
+      "bytes": 2520,
+      "path": "prompts/system-prompt-v2.txt",
+      "sha256": "04dbfaff103927ed9e2ba67325b08a7915002b0268b423946ceb0390e02a394f"
     },
     {
       "bytes": 218,

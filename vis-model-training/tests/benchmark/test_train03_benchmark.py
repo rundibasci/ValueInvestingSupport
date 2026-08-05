@@ -74,7 +74,7 @@ def _expected_by_symbol(path=DATASET):
 
 
 def test_catalog_has_exact_category_distribution():
-    prompt = (ROOT / "prompts" / "system-prompt-v1.txt").read_text(encoding="utf-8")
+    prompt = (ROOT / "prompts" / "system-prompt-v2.txt").read_text(encoding="utf-8")
     generated = list(documents(prompt))
     counts = Counter(item["metadata"]["benchmarkCategory"] for item in generated)
     assert len(generated) == 50
@@ -84,7 +84,7 @@ def test_catalog_has_exact_category_distribution():
 
 def test_committed_benchmark_matches_catalog_and_is_valid():
     committed = list(iter_jsonl(DATASET))
-    prompt = (ROOT / "prompts" / "system-prompt-v1.txt").read_text(encoding="utf-8")
+    prompt = (ROOT / "prompts" / "system-prompt-v2.txt").read_text(encoding="utf-8")
     assert committed == list(documents(prompt))
     report = validate_dataset(DATASET, INPUT_SCHEMA, OUTPUT_SCHEMA)
     assert (report.records, report.valid, report.invalid, report.errors) == (50, 50, 0, 0)

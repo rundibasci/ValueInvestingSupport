@@ -2,6 +2,8 @@
 
 This runbook never creates paid resources automatically. The operator confirms the displayed RunPod price before deployment and records the estimate in the run notes.
 
+The canonical run uses `prompts/system-prompt-v2.txt`. Prompt v1 was rejected during the non-canonical smoke test because it referred to a supplied output schema without actually placing that contract in model context. No prompt-v1 output is eligible for canonical metrics.
+
 ## 1. Prerequisites
 
 1. In Hugging Face, sign in and accept the Gemma license for `google/gemma-3-4b-it`.

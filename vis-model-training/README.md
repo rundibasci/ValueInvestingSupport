@@ -477,12 +477,15 @@ Il tooling locale è disponibile e non crea risorse a pagamento automaticamente:
 datasets/benchmark/base-benchmark-v1.jsonl       50 casi sintetici
 datasets/benchmark/base-benchmark-v1.freeze.json freeze manifest SHA-256
 config/benchmark-v1.json                         modello, revision e decoding
+prompts/system-prompt-v2.txt                     contratto output completo usato dalla baseline
 docker/train-03.Dockerfile                       ambiente CUDA digestato
 src/vis_training/benchmark/                      catalogo, runner, metriche, review
 docs/runpod/train-03-runbook.md                   procedura Secure Cloud
 ```
 
 La fase resta incompleta finché la run canonica BF16 non viene eseguita su RunPod Secure Cloud, le metriche e almeno 20 review manuali non sono concluse e le risorse fatturabili non vengono rimosse dopo l'esportazione verificata.
+
+Il primo smoke test non canonico ha invalidato `system-prompt-v1.txt` per TRAIN-03: il testo citava uno schema output non effettivamente presente nel contesto. La baseline canonica usa esclusivamente `system-prompt-v2.txt`; nessun output ottenuto con v1 entra nelle metriche.
 
 ## Motivazione
 

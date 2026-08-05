@@ -3,6 +3,8 @@
   "modelId": "google/gemma-3-4b-it",
   "modelRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
   "tokenizerRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+  "promptVersion": "system-prompt-v2",
+  "promptPath": "prompts/system-prompt-v2.txt",
   "modelMetadataSource": "https://huggingface.co/api/models/google/gemma-3-4b-it",
   "modelMetadataRetrievedAt": "2026-08-04",
   "precision": "bfloat16",
@@ -10,6 +12,7 @@
   "seed": 20260804,
   "torchDynamoDisabled": true,
   "processorUseFast": false,
+  "promptV1SmokeDisposition": "invalidated-before-canonical-run-output-schema-was-not-supplied",
   "decoding": {
     "temperature": 0.0,
     "doSample": false,
