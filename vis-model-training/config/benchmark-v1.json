@@ -8,6 +8,8 @@
   "precision": "bfloat16",
   "device": "cuda",
   "seed": 20260804,
+  "torchDynamoDisabled": true,
+  "processorUseFast": false,
   "decoding": {
     "temperature": 0.0,
     "doSample": false,

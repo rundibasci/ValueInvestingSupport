@@ -21,6 +21,7 @@ Create a Pod manually with:
 - Mounted secret: `HF_TOKEN`
 - Exposed services: SSH only when required; do not expose Jupyter publicly
 - Container start command: `sleep infinity` when using the pinned official base image; the custom TRAIN-03 image already defines this command
+- Environment: `TORCHDYNAMO_DISABLE=1` and processor `use_fast=False`; this avoids the L4 Inductor failure observed during the TRAIN-03 smoke test and fixes processor behavior across Transformers releases
 
 Record region, displayed hourly price, storage price and the non-secret Pod identifier. Do not start if the selected GPU, cloud tier or price differs from the approved values.
 

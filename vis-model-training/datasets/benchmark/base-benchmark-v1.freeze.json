@@ -2,9 +2,9 @@
   "algorithm": "sha256",
   "files": [
     {
-      "bytes": 853,
+      "bytes": 913,
       "path": "config/benchmark-v1.json",
-      "sha256": "b8cb3ca27bdc4b7cd4a21e1d88b4c9f83af483adbf0996860082028b5f6d2450"
+      "sha256": "50b2806a710c6cfd59550f117170bc6163b7a273fa2ec71d9158fbe658ba4a0d"
     },
     {
       "bytes": 124995,
@@ -12,9 +12,9 @@
       "sha256": "4a79832a0edca0abe54fb4fe76b2a793d013db7e9e931d93ae35299f9e778c8a"
     },
     {
-      "bytes": 690,
+      "bytes": 718,
       "path": "docker/train-03.Dockerfile",
-      "sha256": "5c410f82de2c10c2f92bc110eff9f3ac680f6e058c0f6b52e833c49841d93be0"
+      "sha256": "ff24e0a302a659461b822fded258ca19235dbe01afec5211c2b1e8f6df7b7638"
     },
     {
       "bytes": 1078,

@@ -11,6 +11,7 @@ RUN python -m pip install --no-cache-dir --requirement /tmp/requirements-runpod.
 
 ENV HF_HOME=/workspace/.huggingface \
     CUBLAS_WORKSPACE_CONFIG=:4096:8 \
+    TORCHDYNAMO_DISABLE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     TOKENIZERS_PARALLELISM=false

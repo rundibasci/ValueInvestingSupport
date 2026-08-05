@@ -11,6 +11,7 @@ class HuggingFaceBackend(GenerationBackend):
     def __init__(self, model_id: str, revision: str, *, device: str = "cuda", seed: int = 20260804) -> None:
         if not revision or revision in {"main", "latest"}:
             raise ValueError("An immutable model revision is required")
+        os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
         try:
             import torch
             import transformers
@@ -34,7 +35,7 @@ class HuggingFaceBackend(GenerationBackend):
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
         self.processor = AutoProcessor.from_pretrained(
-            model_id, revision=revision, token=token
+            model_id, revision=revision, token=token, use_fast=False
         )
         self.model = Gemma3ForConditionalGeneration.from_pretrained(
             model_id,
@@ -82,6 +83,8 @@ class HuggingFaceBackend(GenerationBackend):
             "precision": "bfloat16",
             "seed": self.seed,
             "deterministicAlgorithms": True,
+            "torchDynamoDisabled": os.environ.get("TORCHDYNAMO_DISABLE") == "1",
+            "processorUseFast": False,
             "python": platform.python_version(),
             "torch": torch.__version__,
             "transformers": self._transformers_version,

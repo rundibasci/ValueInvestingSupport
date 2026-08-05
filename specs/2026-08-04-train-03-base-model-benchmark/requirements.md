@@ -29,6 +29,7 @@ TRAIN-03 costruisce un benchmark congelato e separato dal training, esegue il mo
 
 - Eseguire un runner batch text-only con `temperature=0.0`, `do_sample=false`, `max_new_tokens=1024` e batch size iniziale `1`.
 - Fissare seed applicativi e framework, modalità evaluation e ogni opzione di attenzione; registrare eventuali limiti di determinismo residui del backend CUDA.
+- Disabilitare TorchDynamo/Inductor per la baseline L4 dopo l'`InductorError` riprodotto nello smoke test e fissare esplicitamente il processor lento con `use_fast=false`.
 - Applicare esattamente il prompt e il template chat versionati, senza retry che nascondano il primo output.
 - Conservare separatamente primo output grezzo, esito del parsing, output parsato quando valido, latenza, conteggio token ed errore sanitizzato per ogni caso.
 - Consentire una run pilota non canonica su un sottoinsieme prima della run completa; i relativi output non entrano nel report finale.
