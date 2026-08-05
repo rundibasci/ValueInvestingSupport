@@ -176,6 +176,27 @@ def test_metrics_count_non_json_as_failure(tmp_path):
     assert report["global"]["classificationAccuracy"] == 0.0
 
 
+def test_metrics_recover_exact_markdown_wrapper_without_changing_canonical_rate(tmp_path):
+    document = next(iter(iter_jsonl(DATASET)))
+    expected = json.loads(document["messages"][2]["content"])
+    record = {
+        "exampleId": document["metadata"]["exampleId"],
+        "category": document["metadata"]["benchmarkCategory"],
+        "expected": expected,
+        "rawOutput": "```json\n" + json.dumps(expected) + "\n```<end_of_turn>",
+        "parsedOutput": None,
+        "parseError": "INVALID_JSON",
+        "generationError": None,
+        "latencyMs": 1.0,
+    }
+    results = tmp_path / "results.jsonl"
+    results.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    report = compute_metrics(results, DATASET, OUTPUT_SCHEMA)
+    assert report["global"]["jsonValidityRate"] == 0.0
+    assert report["recoverableDiagnostics"]["recoveredWrappedJson"] == 1
+    assert report["recoverableDiagnostics"]["global"]["schemaComplianceRate"] == 1.0
+
+
 def test_metrics_reject_duplicate_result_ids(tmp_path):
     document = next(iter(iter_jsonl(DATASET)))
     expected = json.loads(document["messages"][2]["content"])

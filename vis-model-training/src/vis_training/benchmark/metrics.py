@@ -1,6 +1,7 @@
 """Predeclared TRAIN-03 automatic metric definitions and aggregation."""
 
 import json
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 from statistics import mean
@@ -14,6 +15,27 @@ from vis_training.validation.semantic_validator import validate_semantics
 from .io import iter_jsonl, read_json, write_json
 
 METRICS_FORMAT_VERSION = "1.0"
+_WRAPPED_JSON = re.compile(
+    r"^\s*```(?:json)?\s*(\{.*\})\s*```(?:<end_of_turn>)?\s*$",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def _recover_wrapped_json(raw_output: Any) -> Optional[Dict[str, Any]]:
+    """Recover only the exact Markdown/end-token wrapper seen in smoke output.
+
+    This is diagnostic and never changes canonical JSON validity or stored output.
+    """
+    if not isinstance(raw_output, str):
+        return None
+    match = _WRAPPED_JSON.fullmatch(raw_output)
+    if not match:
+        return None
+    try:
+        candidate = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return None
+    return candidate if isinstance(candidate, dict) else None
 
 
 def _evidence_pairs(output: Dict[str, Any]) -> set:
@@ -145,6 +167,19 @@ def compute_metrics(
         records.append(enriched)
         categories[result.get("category") or "UNSPECIFIED"].append(enriched)
     category_counts = Counter(item.get("category") or "UNSPECIFIED" for item in records)
+    recoverable_records = []
+    recovered_count = 0
+    for item in records:
+        diagnostic = dict(item)
+        if not isinstance(diagnostic.get("parsedOutput"), dict):
+            recovered = _recover_wrapped_json(diagnostic.get("rawOutput"))
+            if recovered is not None:
+                diagnostic["parsedOutput"] = recovered
+                recovered_count += 1
+        recoverable_records.append(diagnostic)
+    recoverable_by_category = defaultdict(list)
+    for item in recoverable_records:
+        recoverable_by_category[item.get("category") or "UNSPECIFIED"].append(item)
     report = {
         "formatVersion": METRICS_FORMAT_VERSION,
         "definitions": {
@@ -152,12 +187,21 @@ def compute_metrics(
             "nonParsableOutputs": "count as failures for JSON, schema, classification, review and field coverage",
             "evidenceFieldPrecision": "expected section/index/field matches divided by all emitted evidence fields",
             "rounding": "rates use six decimal places; averages use three",
+            "recoverableDiagnostics": "secondary analysis strips only an exact ```json ... ```<end_of_turn> wrapper; canonical metrics remain unchanged",
         },
         "categoryCounts": dict(sorted(category_counts.items())),
         "global": _aggregate(records, validator),
         "byCategory": {
             category: _aggregate(items, validator)
             for category, items in sorted(categories.items())
+        },
+        "recoverableDiagnostics": {
+            "recoveredWrappedJson": recovered_count,
+            "global": _aggregate(recoverable_records, validator),
+            "byCategory": {
+                category: _aggregate(items, validator)
+                for category, items in sorted(recoverable_by_category.items())
+            },
         },
     }
     if output_path is not None:

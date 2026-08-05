@@ -80,6 +80,8 @@ python -m vis_training.benchmark.cli metrics \
   --output outputs/train-03/metrics.json
 ```
 
+Canonical JSON validity remains strict. `recoverableDiagnostics` may strip only the exact Markdown plus `<end_of_turn>` wrapper observed in the base-model outputs, solely to measure the schema and content inside it; it never changes stored outputs or canonical rates.
+
 Do not retry individual cases into the canonical file. Resume is allowed only for missing IDs and preserves every completed first output.
 
 ## 6. Export and cleanup
