@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 completo
-> Versione: 1.6.0
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 completo; TRAIN-04 completo
+> Versione: 1.7.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -84,7 +84,7 @@ Il progetto segue quattro regole:
 | TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Completo — 10 casi validati |
 | TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Completo — baseline RunPod e review umana concluse |
-| TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
+| TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Completo — 500 scenari riproducibili |
 | TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
 | TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Da avviare |
 | TRAIN-07 | Ambiente QLoRA | Ambiente riproducibile e smoke test | Da avviare |
@@ -586,6 +586,21 @@ Il training non inizia finché:
 
 Creare input sintetici controllati senza dipendere da aziende reali.
 
+## Stato implementativo
+
+TRAIN-04 è completo. Il generatore Python rule-based non usa rete, provider, modelli o GPU e produce esattamente 500 record input-only con seed canonico `20260806`:
+
+```text
+config/scenario-catalog-v1.json             14 categorie e 28 varianti
+config/scenarios-v1.json                    distribuzione e configurazione canonica
+src/vis_training/scenarios/                 generator, invarianti, contaminazione e CLI
+datasets/candidates/scenarios-v1.jsonl      500 scenari sintetici
+reports/scenarios/distribution-v1.json      distribuzione e hash
+reports/scenarios/checksums-v1.sha256       integrità artifact
+```
+
+La distribuzione è esattamente 300 casi ordinari, 125 difficili e 75 avversariali o incompleti. I 500 ID e simboli sono univoci, tutti gli input rispettano lo schema TRAIN-01 e le incoerenze sono ammesse soltanto nelle varianti dichiarate. La rigenerazione è byte-identica e il dataset ha SHA-256 `299b704a77ad8799f9b755a18f9462b32480f9732a654e44ff87e1bd8152ddad`.
+
 ## Principio
 
 Lo scenario viene generato da regole; il teacher produce solo l'output atteso.
@@ -654,11 +669,11 @@ reports/scenarios/distribution-v1.json
 
 ## Criteri di accettazione
 
-- [ ] generazione riproducibile tramite seed;
-- [ ] nessuna incoerenza non intenzionale;
-- [ ] distribuzione documentata;
-- [ ] almeno 14 categorie;
-- [ ] test sulle soglie e sui casi limite.
+- [x] generazione riproducibile tramite seed;
+- [x] nessuna incoerenza non intenzionale;
+- [x] distribuzione documentata;
+- [x] almeno 14 categorie;
+- [x] test sulle soglie e sui casi limite.
 
 ---
 

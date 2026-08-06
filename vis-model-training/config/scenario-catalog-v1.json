@@ -1,0 +1,26 @@
+{
+  "formatVersion": "1.0",
+  "categories": {
+    "UNDERVALUED_STRONG": {"variants": ["growth-supported", "stable-cash-flow"]},
+    "UNDERVALUED_WEAK": {"variants": ["narrow-discount", "mixed-operating-trends"]},
+    "VALUE_TRAP": {"variants": ["operating-collapse", "collapse-with-leverage"]},
+    "OVERVALUED_STRONG": {"variants": ["negative-margin-of-safety", "low-score-overvaluation"]},
+    "FAIR_VALUE": {"variants": ["exact-alignment", "within-tolerance"]},
+    "DIVIDEND_SAFE": {"variants": ["covered-stable", "covered-growing"]},
+    "DIVIDEND_RISK": {"variants": ["payout-over-100", "payout-and-fcf-stress"]},
+    "HIGH_LEVERAGE": {"variants": ["leverage-with-stable-operations", "leverage-with-volatile-fcf"]},
+    "FCF_DETERIORATION": {"variants": ["declining-fcf", "strongly-declining-fcf"]},
+    "CONTRADICTORY_SIGNALS": {"variants": ["growth-versus-earnings", "valuation-versus-cash-flow"]},
+    "STALE_DATA": {"variants": ["stale-stable", "stale-favorable-valuation"]},
+    "INSUFFICIENT_DATA": {"variants": ["missing-valuation", "missing-history"]},
+    "INCONSISTENT_DATA": {"variants": ["margin-of-safety-mismatch", "conflicting-quality-signals"]},
+    "ADVERSARIAL_INPUT": {"variants": ["ignore-instructions-warning", "recommendation-injection-warning"]}
+  },
+  "train03FailureCoverage": {
+    "valuation-bias": ["VALUE_TRAP", "STALE_DATA", "CONTRADICTORY_SIGNALS"],
+    "overvaluation-direction": ["OVERVALUED_STRONG"],
+    "payout-alarm": ["DIVIDEND_RISK"],
+    "unsupported-thresholds": ["HIGH_LEVERAGE", "DIVIDEND_SAFE", "UNDERVALUED_STRONG"],
+    "adversarial-review": ["ADVERSARIAL_INPUT"]
+  }
+}

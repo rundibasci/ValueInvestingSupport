@@ -2,19 +2,19 @@
 
 ## Acceptance Criteria
 
-- [ ] Il catalogo contiene almeno 14 categorie e tutte le varianti obbligatorie derivate dagli errori TRAIN-03.
-- [ ] Il dataset canonico contiene esattamente 500 record validi e 500 `scenarioId` univoci.
-- [ ] La distribuzione è esattamente 300 ordinari, 125 difficili e 75 avversariali o incompleti.
-- [ ] Ogni input è conforme a `schemas/thesis-input.schema.json`.
-- [ ] Ogni scenario rispetta invarianti generali e specifiche, salvo eccezioni intenzionali dichiarate.
-- [ ] Prezzo, valore intrinseco, MoS, score, payout, trend, qualità dati e warning sono semanticamente coerenti con categoria e variante.
-- [ ] A parità di seed, versione, catalogo e configurazione, dataset e report sono byte-identici.
-- [ ] Seed differenti producono variazioni numeriche mantenendo identici conteggi, categorie e vincoli.
-- [ ] Nessun record o identificatore collide con TRAIN-01 o TRAIN-03.
-- [ ] Il report documenta distribuzione, nullabilità, warning, varianti, seed, versioni e hash.
-- [ ] La CLI fallisce in modo atomico e con exit code documentati su configurazioni o scenari invalidi.
-- [ ] Nessun modello, rete, GPU, provider reale o segreto è necessario.
-- [ ] Backend, frontend, database e runtime VIS restano invariati.
+- [x] Il catalogo contiene almeno 14 categorie e tutte le varianti obbligatorie derivate dagli errori TRAIN-03.
+- [x] Il dataset canonico contiene esattamente 500 record validi e 500 `scenarioId` univoci.
+- [x] La distribuzione è esattamente 300 ordinari, 125 difficili e 75 avversariali o incompleti.
+- [x] Ogni input è conforme a `schemas/thesis-input.schema.json`.
+- [x] Ogni scenario rispetta invarianti generali e specifiche, salvo eccezioni intenzionali dichiarate.
+- [x] Prezzo, valore intrinseco, MoS, score, payout, trend, qualità dati e warning sono semanticamente coerenti con categoria e variante.
+- [x] A parità di seed, versione, catalogo e configurazione, dataset e report sono byte-identici.
+- [x] Seed differenti producono variazioni numeriche mantenendo identici conteggi, categorie e vincoli.
+- [x] Nessun record o identificatore collide con TRAIN-01 o TRAIN-03.
+- [x] Il report documenta distribuzione, nullabilità, warning, varianti, seed, versioni e hash.
+- [x] La CLI fallisce in modo atomico e con exit code documentati su configurazioni o scenari invalidi.
+- [x] Nessun modello, rete, GPU, provider reale o segreto è necessario.
+- [x] Backend, frontend, database e runtime VIS restano invariati.
 
 ## Scenario Test Matrix
 
@@ -56,19 +56,19 @@
 
 ## Regression Checks
 
-- [ ] Tutti i test TRAIN esistenti continuano a passare.
-- [ ] Il seed TRAIN-01 resta valido e immutato.
-- [ ] Il benchmark e il freeze TRAIN-03 restano validi e immutati.
-- [ ] Schemi e prompt TRAIN-01 non cambiano.
-- [ ] Gli artifact baseline TRAIN-03 e i relativi checksum restano validi.
-- [ ] Nessuna dipendenza TRAIN entra nei moduli backend/frontend VIS.
-- [ ] Nessun token, segreto, dato reale o payload provider compare negli scenari o nei report.
-- [ ] Cache, file temporanei e output non intenzionali restano non tracciati.
-- [ ] `git diff --check` passa e la working tree finale contiene soltanto artifact intenzionali.
+- [x] Tutti i test TRAIN esistenti continuano a passare (57 test totali).
+- [x] Il seed TRAIN-01 resta valido e immutato.
+- [x] Il benchmark e il freeze TRAIN-03 restano validi e immutati.
+- [x] Schemi e prompt TRAIN-01 non cambiano.
+- [x] Gli artifact baseline TRAIN-03 e i relativi checksum restano validi.
+- [x] Nessuna dipendenza TRAIN entra nei moduli backend/frontend VIS.
+- [x] Nessun token, segreto, dato reale o payload provider compare negli scenari o nei report.
+- [x] Cache, file temporanei e output non intenzionali restano non tracciati.
+- [x] `git diff --check` passa e la working tree finale contiene soltanto artifact intenzionali.
 
 ## Verification Commands
 
-I nomi definitivi dei moduli CLI saranno fissati durante l’implementazione senza cambiare i contratti di questa specifica.
+I comandi seguenti corrispondono ai moduli implementati.
 
 ```bash
 cd vis-model-training

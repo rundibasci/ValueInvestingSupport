@@ -1,0 +1,23 @@
+{
+  "analysisDate": "2026-08-06",
+  "formatVersion": "1.0",
+  "generatorVersion": "1.0.0",
+  "seed": 20260806,
+  "totalCount": 500,
+  "allocations": [
+    {"scenarioType": "UNDERVALUED_STRONG", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "UNDERVALUED_WEAK", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "OVERVALUED_STRONG", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "FAIR_VALUE", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "DIVIDEND_SAFE", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "HIGH_LEVERAGE", "difficulty": "ORDINARY", "count": 43},
+    {"scenarioType": "FCF_DETERIORATION", "difficulty": "ORDINARY", "count": 42},
+    {"scenarioType": "VALUE_TRAP", "difficulty": "DIFFICULT", "count": 32},
+    {"scenarioType": "DIVIDEND_RISK", "difficulty": "DIFFICULT", "count": 31},
+    {"scenarioType": "CONTRADICTORY_SIGNALS", "difficulty": "DIFFICULT", "count": 31},
+    {"scenarioType": "INCONSISTENT_DATA", "difficulty": "DIFFICULT", "count": 31},
+    {"scenarioType": "STALE_DATA", "difficulty": "ADVERSARIAL_OR_INCOMPLETE", "count": 25},
+    {"scenarioType": "INSUFFICIENT_DATA", "difficulty": "ADVERSARIAL_OR_INCOMPLETE", "count": 25},
+    {"scenarioType": "ADVERSARIAL_INPUT", "difficulty": "ADVERSARIAL_OR_INCOMPLETE", "count": 25}
+  ]
+}
