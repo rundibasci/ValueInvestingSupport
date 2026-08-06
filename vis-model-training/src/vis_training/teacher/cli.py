@@ -48,7 +48,7 @@ def main(argv=None):
         elif args.command == "runpod-critic":
             raw = load_local_config(args.root, args.config)["config"]
             backend = HuggingFaceBackend(raw["critic"]["modelId"], raw["critic"]["modelRevision"], raw["teacher"]["tokenizerRevision"])
-            result = CriticRunner(args.root, args.config, backend).run(args.scenarios, args.candidates, args.output)
+            result = CriticRunner(args.root, args.config, backend, run_id="train-05-smoke-critic-v2").run(args.scenarios, args.candidates, args.output)
         elif args.command == "report": result = write_report(args.candidates, args.critics, args.output, hourly_rate=args.hourly_rate)
         elif args.command == "smoke-plan": result = write_smoke_plan(args.scenarios, args.output, args.count, dataset_output=args.dataset_output)
         elif args.command == "prepare-review": result = prepare_review(args.candidates, args.output, args.minimum)

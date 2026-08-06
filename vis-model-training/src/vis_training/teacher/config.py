@@ -77,8 +77,8 @@ def build_manifest(root: Path, config_path: Path, backend_manifest: Dict[str, An
         "candidateCountPerScenario": config["candidateCountPerScenario"],
         "generationParameters": config["decoding"],
         "licenseReviewId": config["licenseReviewId"],
-        "teacherPromptVersion": "teacher-prompt-v1",
-        "criticPromptVersion": "critic-prompt-v1",
+        "teacherPromptVersion": config["teacherPromptVersion"],
+        "criticPromptVersion": config["criticPromptVersion"],
         "artifactSha256": {label: sha256_file(path) for label, path in sorted(loaded["paths"].items())},
         "automaticTrainingPromotion": False,
     }

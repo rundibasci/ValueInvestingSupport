@@ -111,7 +111,7 @@ class CandidateRunner:
             "parseError": parse_error, "structuralErrors": structural_errors, "semanticErrors": semantic_errors,
             "criticEligible": parsed is not None, "inputTokens": input_tokens, "outputTokens": output_tokens, "latencyMs": latency_ms,
             "provenance": {"source": "SYNTHETIC_TEACHER", "teacherProvider": backend["provider"], "teacherModel": backend["model"],
-                           "teacherModelVersion": backend["revision"], "promptVersion": manifest["teacherPromptVersion"],
+                           "teacherModelVersion": backend["revision"], "promptVersion": self.config["teacherPromptVersion"],
                            "promptSha256": sha256_file(self.paths["teacherPromptPath"]), "generationParameters": self.config["decoding"],
                            "generatedAt": self.clock(), "licenseReviewId": self.config["licenseReviewId"], "runId": manifest["runId"],
                            "hardwareProfile": manifest["hardwareProfile"]},

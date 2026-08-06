@@ -17,10 +17,11 @@ class CriticBackend(Protocol):
 
 
 class CriticRunner:
-    def __init__(self, root: Path, config_path: Path, backend: CriticBackend):
+    def __init__(self, root: Path, config_path: Path, backend: CriticBackend, *, run_id: str = "train-05-local-critic"):
         self.root, self.config_path, self.backend = Path(root), Path(config_path), backend
         loaded = load_local_config(self.root, self.config_path)
         self.config, self.paths = loaded["config"], loaded["paths"]
+        self.run_id = run_id
         self.prompt = self.paths["criticPromptPath"].read_text(encoding="utf-8")
         self.schema = read_object(self.paths["criticSchemaPath"])
 
@@ -70,5 +71,6 @@ class CriticRunner:
                 "status": "REVIEWED" if parsed is not None else "CRITIC_FAILED", "rawReview": raw, "parsedReview": parsed,
                 "criticError": error, "inputTokens": input_tokens, "outputTokens": output_tokens, "latencyMs": latency_ms,
                 "provenance": {"criticProvider": backend["provider"], "criticModel": backend["model"], "criticModelVersion": backend["revision"],
-                               "promptVersion": "critic-prompt-v1", "promptSha256": sha256_file(self.paths["criticPromptPath"]),
+                               "promptVersion": self.config["criticPromptVersion"], "promptSha256": sha256_file(self.paths["criticPromptPath"]),
+                               "runId": self.run_id,
                                "reviewedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}}
