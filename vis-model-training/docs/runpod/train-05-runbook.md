@@ -42,6 +42,20 @@ cd vis-model-training
 .venv/bin/vis-teacher --root . smoke-plan \
   --scenarios datasets/candidates/scenarios-v1.jsonl \
   --output outputs/train-05/smoke-plan.json \
+  --dataset-output outputs/train-05/smoke-scenarios.jsonl \
   --count 20
 .venv/bin/python -m pytest tests/teacher
+```
+
+Sul Pod, dopo installazione e cattura ambiente:
+
+```bash
+vis-teacher --root . runpod-generate \
+  --scenarios outputs/train-05/smoke-scenarios.jsonl \
+  --output outputs/train-05/smoke-candidates.jsonl \
+  --manifest outputs/train-05/smoke-manifest.json
+vis-teacher --root . runpod-critic \
+  --scenarios outputs/train-05/smoke-scenarios.jsonl \
+  --candidates outputs/train-05/smoke-candidates.jsonl \
+  --output outputs/train-05/smoke-critics.jsonl
 ```

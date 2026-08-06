@@ -1,5 +1,6 @@
 """Configuration, governance, prompt, and manifest validation."""
 
+import re
 from pathlib import Path
 from typing import Any, Dict
 
@@ -8,6 +9,7 @@ from .io import read_object, sha256_file
 
 
 REQUIRED_LICENSE_STATUS = "ENGINEERING_EVALUATION_ONLY"
+IMMUTABLE_REVISION = re.compile(r"^[a-f0-9]{40}$")
 
 
 def load_local_config(root: Path, config_path: Path) -> Dict[str, Any]:
@@ -22,6 +24,11 @@ def load_local_config(root: Path, config_path: Path) -> Dict[str, Any]:
     critic = config.get("critic", {})
     if teacher.get("modelId") != "google/gemma-3-27b-it" or critic.get("modelId") != teacher.get("modelId"):
         raise TeacherConfigurationError("Teacher and critic must use the approved Gemma 3 27B checkpoint")
+    revisions = (teacher.get("modelRevision"), teacher.get("tokenizerRevision"), critic.get("modelRevision"))
+    if any(value is not None and not IMMUTABLE_REVISION.fullmatch(value) for value in revisions):
+        raise TeacherConfigurationError("Model and tokenizer revisions must be immutable 40-character Git SHAs")
+    if critic.get("sameCheckpointRequired") and critic.get("modelRevision") != teacher.get("modelRevision"):
+        raise TeacherConfigurationError("Teacher and critic revisions must match")
     if not config.get("retention", {}).get("bulkGenerationRequiresExplicitApproval"):
         raise TeacherConfigurationError("Bulk generation approval guard is required")
     license_path = root / config["licenseReviewPath"]

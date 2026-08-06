@@ -5,15 +5,15 @@
     "provider": "RunPod",
     "cloudTier": "Secure Cloud",
     "modelId": "google/gemma-3-27b-it",
-    "modelRevision": null,
-    "tokenizerRevision": null,
+    "modelRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "tokenizerRevision": "005ad3404e59d6023443cb575daa05336842228a",
     "precision": "bfloat16",
     "minimumGpuMemoryGiB": 80
   },
   "critic": {
     "provider": "RunPod",
     "modelId": "google/gemma-3-27b-it",
-    "modelRevision": null,
+    "modelRevision": "005ad3404e59d6023443cb575daa05336842228a",
     "sameCheckpointRequired": true
   },
   "decoding": {

@@ -23,9 +23,10 @@ SCENARIOS = ROOT / "datasets/candidates/scenarios-v1.jsonl"
 def records(path): return list(iter_jsonl(path))
 
 
-def test_config_is_locally_ready_but_cloud_smoke_is_revision_blocked():
+def test_config_and_pinned_revisions_are_smoke_ready():
     result = readiness(ROOT, CONFIG)
-    assert result["localToolingReady"] is True and result["smokeReady"] is False
+    assert result["localToolingReady"] is True and result["smokeReady"] is True
+    assert result["smokeBlockers"] == []
     assert len(result["artifactSha256"]) == 5
 
 
