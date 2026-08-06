@@ -8,6 +8,7 @@ from vis_training.teacher.config import readiness
 from vis_training.teacher.critic import CriticRunner
 from vis_training.teacher.errors import TeacherDataError, TeacherManifestMismatch
 from vis_training.teacher.fake_backend import FakeCriticBackend, FakeTeacherBackend, expected_thesis
+from vis_training.teacher.huggingface_backend import HuggingFaceBackend
 from vis_training.teacher.io import append_jsonl, iter_jsonl
 from vis_training.teacher.pipeline import CandidateRunner
 from vis_training.teacher.report import build_report
@@ -28,6 +29,14 @@ def test_config_and_pinned_revisions_are_smoke_ready():
     assert result["localToolingReady"] is True and result["smokeReady"] is True
     assert result["smokeBlockers"] == []
     assert len(result["artifactSha256"]) == 5
+
+
+def test_huggingface_backend_manifest_is_pinned():
+    revision = "005ad3404e59d6023443cb575daa05336842228a"
+    manifest = HuggingFaceBackend("google/gemma-3-27b-it", revision, revision).manifest()
+    assert manifest["revision"] == revision and manifest["tokenizerRevision"] == revision
+    converted = HuggingFaceBackend._processor_messages([{"role": "user", "content": "hello"}])
+    assert converted == [{"role": "user", "content": [{"type": "text", "text": "hello"}]}]
 
 
 def test_candidate_pipeline_two_slots_resume_and_manifest_guard(tmp_path):

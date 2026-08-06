@@ -28,6 +28,14 @@ class HuggingFaceBackend:
             self.model_id, revision=self.revision, torch_dtype=torch.bfloat16, device_map="auto", attn_implementation="eager"
         ).eval()
 
+    @staticmethod
+    def _processor_messages(messages):
+        return [
+            {**message, "content": [{"type": "text", "text": message["content"]}]}
+            if isinstance(message.get("content"), str) else message
+            for message in messages
+        ]
+
     def _infer(self, messages, *, max_new_tokens: int, seed: Optional[int] = None):
         self._load()
         import torch
@@ -36,7 +44,8 @@ class HuggingFaceBackend:
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(seed)
         started = time.perf_counter()
-        inputs = self._processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt")
+        processor_messages = self._processor_messages(messages)
+        inputs = self._processor.apply_chat_template(processor_messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt")
         inputs = {key: value.to(self._model.device) for key, value in inputs.items()}
         input_tokens = int(inputs["input_ids"].shape[-1])
         with torch.inference_mode():
