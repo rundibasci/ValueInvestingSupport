@@ -1,6 +1,6 @@
 # Gemma 3 4B IT — Base Baseline v1
 
-Status: canonical RunPod execution pending.
+Status: TRAIN-03 canonical baseline complete.
 
 The baseline directory will contain only reviewed, sanitized, compact artifacts:
 
@@ -14,4 +14,4 @@ cost.json               duration and compute/storage cost without billing detail
 checksums.sha256        exported artifact integrity
 ```
 
-Raw outputs and resumable run state remain under ignored `outputs/` or `raw/` paths until they have been sanitized and intentionally promoted. This README does not mark TRAIN-03 complete.
+Raw outputs remain under ignored `outputs/`; they are not committed. The compact artifacts in this directory were sanitized, reviewed and intentionally promoted. `cost.json` records the known hourly rate and canonical inference estimate; the final provider invoice total was not captured and is not inferred.

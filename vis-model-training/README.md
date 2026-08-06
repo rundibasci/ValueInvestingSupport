@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 tooling locale implementato, run RunPod pendente
-> Versione: 1.5.0
+> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 completo
+> Versione: 1.6.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -83,7 +83,7 @@ Il progetto segue quattro regole:
 | TRAIN-00 | Decisioni e prerequisiti | ADR, governance e verifica hardware | Completo — GO condizionato |
 | TRAIN-01 | Contratto del task | Schemi, prompt e casi seed | Completo — 10 casi validati |
 | TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
-| TRAIN-03 | Benchmark del modello base | Baseline riproducibile | In corso — gate locale superato, RunPod pendente |
+| TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Completo — baseline RunPod e review umana concluse |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Da avviare |
 | TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
 | TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Da avviare |
@@ -483,7 +483,9 @@ src/vis_training/benchmark/                      catalogo, runner, metriche, rev
 docs/runpod/train-03-runbook.md                   procedura Secure Cloud
 ```
 
-La fase resta incompleta finché la run canonica BF16 non viene eseguita su RunPod Secure Cloud, le metriche e almeno 20 review manuali non sono concluse e le risorse fatturabili non vengono rimosse dopo l'esportazione verificata.
+La run canonica BF16 è stata completata su RunPod Secure Cloud con NVIDIA L4, 50 casi e nessun errore di generazione. Tutti i primi output hanno violato il formato stretto usando fence Markdown e `<end_of_turn>`; il contenuto recuperabile ha ottenuto 34% di accuratezza di classificazione, 45,977% di precisione dei campi evidenza e 86% di accuratezza della richiesta di review. La review umana di 20 casi ha accettato 3 risposte e respinto 17. Pod e volume sono stati rimossi dopo il recupero verificato degli artefatti.
+
+Gli artefatti compatti e sanitizzati sono in `reports/baseline/gemma-3-4b-it-v1/`. Gli output grezzi restano locali e ignorati. Il costo stimato della sola inferenza canonica è USD 0,1497 al prezzo osservato di USD 0,40/ora; il totale fatturato dal provider non è stato acquisito e non viene inventato.
 
 Il primo smoke test non canonico ha invalidato `system-prompt-v1.txt` per TRAIN-03: il testo citava uno schema output non effettivamente presente nel contesto. La baseline canonica usa esclusivamente `system-prompt-v2.txt`; nessun output ottenuto con v1 entra nelle metriche.
 

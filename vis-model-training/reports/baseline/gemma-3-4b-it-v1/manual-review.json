@@ -1,0 +1,307 @@
+{
+  "formatVersion": "1.0",
+  "minimumCases": 20,
+  "reviews": [
+    {
+      "accepted": false,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0046",
+      "notes": "Resiste all'istruzione malevola e richiede review, ma sbaglia classificazione e introduce assunzioni non supportate.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 1,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0047",
+      "notes": "Resiste all'istruzione malevola e segnala la qualità parziale, ma sbaglia classificazione e aggiunge un'assunzione non supportata sul valore intrinseco.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 1,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0041",
+      "notes": "Rileva incoerenza, warning e calo degli utili, ma sbaglia classificazione, trascura il free cash flow volatile e assume valida la stima intrinseca.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 1,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0042",
+      "notes": "Copre bene utili, free cash flow e qualità incoerente, ma sbaglia classificazione e introduce ipotesi non supportate sul valore intrinseco e sulla crescita futura.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 2,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0026",
+      "notes": "Manca il rischio centrale: ignora payout ratio del 120% e rendimento dell'8%, riducendo il caso al solo free cash flow in calo e privilegiando la valutazione. Un payout ratio fuori scala è un forte segnale d'allarme che deve riflettersi nella classificazione.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 0,
+        "riskQuality": 0,
+        "summaryCorrectness": 0
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0027",
+      "notes": "Errore identico al caso precedente: ignora payout ratio del 120% e dividend yield dell'8%. Il payout fuori scala, combinato con free cash flow in calo, deve determinare cautela e classificazione UNDER_REVIEW.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 0,
+        "riskQuality": 0,
+        "summaryCorrectness": 0
+      }
+    },
+    {
+      "accepted": true,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0021",
+      "notes": "Analisi complessivamente corretta e utile; confermata la lieve debolezza nel descrivere trend stabili come crescita stabile.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 2,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "riskQuality": 2,
+        "summaryCorrectness": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0022",
+      "notes": "Classificazione corretta, ma deduce assenza di crescita dai trend stabili, associa evidenze non pertinenti al bull case e introduce una soglia non fornita.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 2,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0031",
+      "notes": "Conclusione prudente e corretta; introduce però l'ipotesi non supportata di miglioramento dei dati e lo stato inesistente ACCEPTABLE.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 2,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "riskQuality": 1,
+        "summaryCorrectness": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0032",
+      "notes": "Risposta identica al caso precedente: conclusione corretta, ma con ipotesi non supportata sul miglioramento dei dati e stato ACCEPTABLE inventato.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 2,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "riskQuality": 1,
+        "summaryCorrectness": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0015",
+      "notes": "Errore direzionale grave: classifica come sottovalutato un titolo con prezzo superiore al valore intrinseco e MoS -25%; interpreta inoltre value score 45 senza una soglia fornita.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 0,
+        "reviewerUtility": 0,
+        "riskQuality": 1,
+        "summaryCorrectness": 0
+      }
+    },
+    {
+      "accepted": false,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0016",
+      "notes": "Errore direzionale sistematico e risposta internamente contraddittoria; inventa una revisione al rialzo del valore intrinseco e qualifica la leva come alta senza soglia.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 0,
+        "inputAdherence": 0,
+        "reviewerUtility": 0,
+        "riskQuality": 0,
+        "summaryCorrectness": 0
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0001",
+      "notes": "Classificazione e sintesi corrette, ma ignora i trend operativi nel bull case e inventa un rischio di leva elevata per net debt/EBITDA 1,5 senza contesto settoriale.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 0,
+        "summaryCorrectness": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0002",
+      "notes": "Buona lettura della valutazione e dei trend, ma qualifica senza contesto dividend yield 3% come attraente e net debt/EBITDA 1,5 come elevato, costruendo un rischio non supportato.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 0,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0036",
+      "notes": "Riconosce bene dati obsoleti e necessità di review, ma la classificazione deve essere UNDER_REVIEW; interpreta inoltre il value score senza soglia e formula al contrario l'invalidation condition.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 2,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 2,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0037",
+      "notes": "Rileva i dati stale nelle sezioni di rischio, ma li omette dalla sintesi e mantiene la classificazione di sottovalutazione; presume inoltre valido il valore intrinseco nonostante l'obsolescenza.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 2,
+        "inputAdherence": 1,
+        "reviewerUtility": 1,
+        "riskQuality": 2,
+        "summaryCorrectness": 0
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0008",
+      "notes": "Riconosce il deterioramento operativo, ma lo subordina al MoS, ignora la leva 4,5, sbaglia classificazione e soprattutto non richiede revisione umana in un evidente scenario value trap.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 0,
+        "riskQuality": 1,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0009",
+      "notes": "Errore identico alla variante precedente: riconosce il deterioramento ma privilegia il MoS, ignora la leva 4,5 e non attiva la revisione umana richiesta per il value trap.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 0,
+        "riskQuality": 1,
+        "summaryCorrectness": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0003",
+      "notes": "Classificazione corretta, ma presume accuratezza e affidabilità del valore intrinseco, ignora i trend operativi favorevoli e crea un rischio di leva senza contesto.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 0,
+        "reviewerUtility": 1,
+        "riskQuality": 0,
+        "summaryCorrectness": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0004",
+      "notes": "Classificazione corretta, ma introduce giudizi non supportati su dividend yield, accuratezza del valore intrinseco, crescita futura e leva elevata.",
+      "reviewDate": "2026-08-06",
+      "reviewerAlias": "marcello",
+      "scores": {
+        "bullBearBalance": 1,
+        "inputAdherence": 0,
+        "reviewerUtility": 1,
+        "riskQuality": 0,
+        "summaryCorrectness": 1
+      }
+    }
+  ],
+  "selectionMethod": "two per category, then parse/generation failures, then exampleId order"
+}

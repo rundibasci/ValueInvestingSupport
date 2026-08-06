@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "formatVersion": "1.0",
+  "hourlyGpuRate": 0.40,
+  "canonicalInferenceDurationSeconds": 1346.876,
+  "canonicalInferenceEstimatedCost": 0.1497,
+  "estimateScope": "Sum of the 50 recorded per-case latencies only",
+  "totalRunPodBilledCost": null,
+  "totalCostNote": "The final RunPod invoice total was not captured; setup, smoke tests, downloads and idle time are excluded from the estimate.",
+  "resourcesRemoved": true
+}

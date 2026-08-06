@@ -1,6 +1,6 @@
 # Gemma 3 4B IT — TRAIN-03 Error Analysis
 
-Status: automatic analysis complete; manual review pending.
+Status: complete; automatic analysis and human review recorded.
 
 ## Canonical Run
 
@@ -80,4 +80,15 @@ The following targets are fixed before training and will be evaluated again in T
 
 ## Manual Review Gate
 
-The deterministic sample contains 20 cases and covers all nine categories. TRAIN-03 remains incomplete until a human reviewer scores summary correctness, bull/bear balance, risk quality, input adherence and reviewer utility, records accept/reject decisions, and confirms or amends the qualitative findings above.
+The deterministic sample contains 20 cases and covers all nine categories. Reviewer alias `marcello` completed the review on 2026-08-06.
+
+| Review result | Value |
+|---|---:|
+| Accepted cases | 3/20 (15%) |
+| Summary correctness | 1.00/2 |
+| Bull/bear balance | 1.20/2 |
+| Risk quality | 0.90/2 |
+| Input adherence | 0.80/2 |
+| Reviewer utility | 0.85/2 |
+
+The human review confirms the automatic error taxonomy. In particular, payout ratio 120% was ignored in both dividend-risk samples even though it is a strong alarm that must affect classification; both overvaluation samples reversed valuation direction; both value-trap samples failed to request human review; and unsupported threshold judgments appeared repeatedly for leverage, yield and value score.

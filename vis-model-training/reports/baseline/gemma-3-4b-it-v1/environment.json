@@ -1,0 +1,51 @@
+{
+  "bf16Supported": true,
+  "config": {
+    "canonicalEnvironment": {
+      "cloudTier": "Secure Cloud",
+      "containerImage": "pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime@sha256:c16f4c749e2d9e96878875cdf6cc45cddda1d1a36fddd371dd6f2360f1b6e2a2",
+      "gpu": "NVIDIA L4",
+      "minimumDiskGiB": 100,
+      "minimumGpuMemoryGiB": 24,
+      "minimumSystemMemoryGiB": 48,
+      "provider": "RunPod"
+    },
+    "decoding": {
+      "batchSize": 1,
+      "doSample": false,
+      "maxNewTokens": 1024,
+      "temperature": 0.0
+    },
+    "device": "cuda",
+    "formatVersion": "1.0",
+    "modelId": "google/gemma-3-4b-it",
+    "modelMetadataRetrievedAt": "2026-08-04",
+    "modelMetadataSource": "https://huggingface.co/api/models/google/gemma-3-4b-it",
+    "modelRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+    "precision": "bfloat16",
+    "processorUseFast": false,
+    "promptPath": "prompts/system-prompt-v2.txt",
+    "promptV1SmokeDisposition": "invalidated-before-canonical-run-output-schema-was-not-supplied",
+    "promptVersion": "system-prompt-v2",
+    "seed": 20260804,
+    "tokenizerRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+    "torchDynamoDisabled": true
+  },
+  "cudaAvailable": true,
+  "cudaRuntime": "12.8",
+  "diskFreeBytes": 652749642268672,
+  "diskTotalBytes": 1933969042374656,
+  "formatVersion": "1.0",
+  "gitCommit": "da322eb1ea7f7364da7ac0ad2ee347f32962612b",
+  "gpuMemoryBytes": 23659151360,
+  "gpuName": "NVIDIA L4",
+  "inferenceGitCommit": "9f82276",
+  "platform": "Linux-6.8.0-50-generic-x86_64-with-glibc2.35",
+  "python": "3.11.13",
+  "secretPresence": {
+    "HF_TOKEN": true
+  },
+  "toolingGitCommit": "da322eb1ea7f7364da7ac0ad2ee347f32962612b",
+  "torch": "2.7.1+cu128",
+  "transformers": "4.53.1"
+}

@@ -1,0 +1,25 @@
+{
+  "formatVersion": "1.0",
+  "provider": "RunPod",
+  "cloudTier": "Secure Cloud",
+  "gpu": "NVIDIA L4",
+  "precision": "bfloat16",
+  "modelId": "google/gemma-3-4b-it",
+  "modelRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+  "tokenizerRevision": "093f9f388b31de276ce2de164bdc2081324b9767",
+  "promptVersion": "system-prompt-v2",
+  "promptSha256": "04dbfaff103927ed9e2ba67325b08a7915002b0268b423946ceb0390e02a394f",
+  "datasetSha256": "012e84f161d6aa345c23c32d6edb4f8d38f550609dda0d80fb1c0f988dfd5c41",
+  "configSha256": "7e59f7c346636191aa4aace4f13df130f0d7a6b8ca1d272d30ef1b7852aa9fda",
+  "containerImage": "pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime@sha256:c16f4c749e2d9e96878875cdf6cc45cddda1d1a36fddd371dd6f2360f1b6e2a2",
+  "inferenceGitCommit": "9f82276",
+  "toolingGitCommit": "da322eb1ea7f7364da7ac0ad2ee347f32962612b",
+  "cases": 50,
+  "decoding": {
+    "temperature": 0.0,
+    "doSample": false,
+    "maxNewTokens": 1024,
+    "batchSize": 1,
+    "seed": 20260804
+  }
+}

@@ -2,20 +2,20 @@
 
 ## Acceptance Criteria
 
-- [ ] Il benchmark contiene almeno 50 casi validi e rispetta la distribuzione minima delle nove categorie.
-- [ ] Benchmark, ground truth, rubrica, schemi, prompt e formule metriche sono congelati e hashati prima della run canonica.
-- [ ] Nessun caso benchmark è incluso nel seed TRAIN-01 o in dataset destinati al training.
-- [ ] Modello, tokenizer, immagine e dipendenze sono fissati a revision/versioni immutabili.
-- [ ] Il runner preserva il primo output, supporta resume senza sovrascrittura e registra manifest e risultato per ogni caso.
-- [ ] La run canonica usa RunPod Secure Cloud, NVIDIA L4 24 GB e BF16 oppure documenta un fallback preventivamente approvato.
-- [ ] Decoding canonico: `temperature=0.0`, `do_sample=false`, `max_new_tokens=1024`, batch size `1`.
-- [ ] Tutte le metriche automatiche della roadmap sono prodotte globalmente e per categoria con denominatori documentati.
-- [ ] Almeno 20 casi sono revisionati manualmente con la rubrica versionata e coprono tutte le categorie.
-- [ ] Gli errori principali sono classificati e almeno tre comportamenti da migliorare sono espliciti e misurabili.
-- [ ] Report e manifest sono sanitizzati, recuperati localmente e verificati prima della rimozione delle risorse RunPod.
-- [ ] Pod, volume e risorse fatturabili non necessarie sono rimossi dopo l'esecuzione e il costo consuntivo è registrato.
-- [ ] Nessun token, segreto, peso, cache modello o dato di pagamento è commesso o incluso nei report.
-- [ ] Runtime, API, database e frontend VIS restano invariati.
+- [x] Il benchmark contiene almeno 50 casi validi e rispetta la distribuzione minima delle nove categorie.
+- [x] Benchmark, ground truth, rubrica, schemi, prompt e formule metriche sono congelati e hashati prima della run canonica.
+- [x] Nessun caso benchmark è incluso nel seed TRAIN-01 o in dataset destinati al training.
+- [x] Modello, tokenizer, immagine e dipendenze sono fissati a revision/versioni immutabili.
+- [x] Il runner preserva il primo output, supporta resume senza sovrascrittura e registra manifest e risultato per ogni caso.
+- [x] La run canonica usa RunPod Secure Cloud, NVIDIA L4 24 GB e BF16 oppure documenta un fallback preventivamente approvato.
+- [x] Decoding canonico: `temperature=0.0`, `do_sample=false`, `max_new_tokens=1024`, batch size `1`.
+- [x] Tutte le metriche automatiche della roadmap sono prodotte globalmente e per categoria con denominatori documentati.
+- [x] Almeno 20 casi sono revisionati manualmente con la rubrica versionata e coprono tutte le categorie.
+- [x] Gli errori principali sono classificati e almeno tre comportamenti da migliorare sono espliciti e misurabili.
+- [x] Report e manifest sono sanitizzati, recuperati localmente e verificati prima della rimozione delle risorse RunPod.
+- [x] Pod, volume e risorse fatturabili non necessarie sono rimossi dopo l'esecuzione e il costo consuntivo è registrato.
+- [x] Nessun token, segreto, peso, cache modello o dato di pagamento è commesso o incluso nei report.
+- [x] Runtime, API, database e frontend VIS restano invariati.
 
 ## Benchmark Test Matrix
 
@@ -51,14 +51,14 @@
 
 ## Regression Checks
 
-- [ ] I 31 test TRAIN-02 continuano a passare.
-- [ ] La CLI Python valida il seed TRAIN-01 e il benchmark TRAIN-03.
-- [ ] Il validatore Node continua a passare sui dieci casi TRAIN-01.
-- [ ] Schemi e prompt esistenti non cambiano salvo decisione esplicita e versionata.
-- [ ] Nessuna dipendenza TRAIN entra nei moduli backend/frontend VIS.
-- [ ] `.venv`, cache Hugging Face, pesi, checkpoint, output temporanei e secrets non sono tracciati.
-- [ ] I report non contengono token, percorsi host sensibili, payload non sanitizzati o dati di pagamento.
-- [ ] `git diff --check` passa e la working tree finale contiene soltanto artefatti intenzionali.
+- [x] I 31 test TRAIN-02 continuano a passare (46 test totali passano).
+- [x] La CLI Python valida il seed TRAIN-01 e il benchmark TRAIN-03.
+- [x] Il validatore Node continua a passare sui dieci casi TRAIN-01.
+- [x] Schemi e prompt esistenti non cambiano salvo decisione esplicita e versionata.
+- [x] Nessuna dipendenza TRAIN entra nei moduli backend/frontend VIS.
+- [x] `.venv`, cache Hugging Face, pesi, checkpoint, output temporanei e secrets non sono tracciati.
+- [x] I report non contengono token, percorsi host sensibili, payload non sanitizzati o dati di pagamento.
+- [x] `git diff --check` passa e la working tree finale contiene soltanto artefatti intenzionali.
 
 ## Verification Commands
 
