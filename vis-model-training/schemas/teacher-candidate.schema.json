@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://valueinvestingsupport.local/schemas/teacher-candidate.schema.json",
+  "title": "VIS TRAIN-05 Teacher Candidate Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatVersion", "candidateId", "scenarioId", "scenarioType", "difficulty", "candidateIndex", "status", "rawOutput", "parsedOutput", "generationError", "parseError", "structuralErrors", "semanticErrors", "criticEligible", "inputTokens", "outputTokens", "latencyMs", "provenance"],
+  "properties": {
+    "formatVersion": {"const": "1.0"},
+    "candidateId": {"type": "string", "pattern": "^TC-SCN-[0-9]{6}-0[12]$"},
+    "scenarioId": {"type": "string", "pattern": "^SCN-[0-9]{6}$"},
+    "scenarioType": {"type": "string"},
+    "difficulty": {"type": "string"},
+    "candidateIndex": {"type": "integer", "minimum": 1, "maximum": 2},
+    "status": {"enum": ["GENERATION_FAILED", "PARSE_REJECTED", "STRUCTURAL_REJECTED", "SEMANTIC_REJECTED", "CRITIC_PENDING"]},
+    "rawOutput": {"type": ["string", "null"]},
+    "parsedOutput": {"type": ["object", "null"]},
+    "generationError": {"type": ["string", "null"]},
+    "parseError": {"type": ["string", "null"]},
+    "structuralErrors": {"type": "array", "items": {"type": "string"}},
+    "semanticErrors": {"type": "array", "items": {"type": "string"}},
+    "criticEligible": {"type": "boolean"},
+    "inputTokens": {"type": ["integer", "null"], "minimum": 0},
+    "outputTokens": {"type": ["integer", "null"], "minimum": 0},
+    "latencyMs": {"type": ["number", "null"], "minimum": 0},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "teacherProvider", "teacherModel", "teacherModelVersion", "promptVersion", "promptSha256", "generationParameters", "generatedAt", "licenseReviewId", "runId", "hardwareProfile"],
+      "properties": {
+        "source": {"const": "SYNTHETIC_TEACHER"},
+        "teacherProvider": {"type": "string", "minLength": 1},
+        "teacherModel": {"type": "string", "minLength": 1},
+        "teacherModelVersion": {"type": "string", "minLength": 1},
+        "promptVersion": {"type": "string", "minLength": 1},
+        "promptSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "generationParameters": {"type": "object"},
+        "generatedAt": {"type": "string", "format": "date-time"},
+        "licenseReviewId": {"type": "string", "minLength": 1},
+        "runId": {"type": "string", "minLength": 1},
+        "hardwareProfile": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

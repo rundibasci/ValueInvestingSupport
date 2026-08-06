@@ -2,8 +2,8 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00 completo con GO condizionato; TRAIN-01 completo; TRAIN-02 completo; TRAIN-03 completo; TRAIN-04 completo
-> Versione: 1.7.0
+> Stato: TRAIN-00–04 completi; TRAIN-05 tooling locale completo, smoke/bulk/review cloud non eseguiti
+> Versione: 1.8.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -85,7 +85,7 @@ Il progetto segue quattro regole:
 | TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Completo — baseline RunPod e review umana concluse |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Completo — 500 scenari riproducibili |
-| TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Da avviare |
+| TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | In corso — tooling locale offline pronto |
 | TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Da avviare |
 | TRAIN-07 | Ambiente QLoRA | Ambiente riproducibile e smoke test | Da avviare |
 | TRAIN-08 | Training pilota | Primo adapter LoRA | Da avviare |

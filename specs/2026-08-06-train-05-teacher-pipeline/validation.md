@@ -2,6 +2,15 @@
 
 ## Acceptance Criteria
 
+### Local tooling gate (2026-08-06)
+
+- [x] Configurazione, prompt teacher/critic, contratti candidate/critic e license review sono versionati.
+- [x] Pipeline fake offline produce due slot per scenario ed è resumable senza sovrascrittura.
+- [x] Parsing, schema, validazione semantica/finanziaria e critic separato sono coperti da test.
+- [x] CLI locale prepara report, smoke stratificato e review umana senza creare risorse cloud.
+- [x] Il runbook impone stop dopo smoke e nuova approvazione economica prima del bulk.
+- [ ] Revisioni immutabili del checkpoint/tokenizer e ambiente GPU saranno congelati prima dello smoke.
+
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
 - [ ] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
 - [ ] La pipeline locale completa funziona con backend fake senza rete, GPU o costi.

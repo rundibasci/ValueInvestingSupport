@@ -1,0 +1,103 @@
+import json
+from pathlib import Path
+
+import pytest
+from jsonschema import Draft202012Validator
+
+from vis_training.teacher.config import readiness
+from vis_training.teacher.critic import CriticRunner
+from vis_training.teacher.errors import TeacherDataError, TeacherManifestMismatch
+from vis_training.teacher.fake_backend import FakeCriticBackend, FakeTeacherBackend, expected_thesis
+from vis_training.teacher.io import append_jsonl, iter_jsonl
+from vis_training.teacher.pipeline import CandidateRunner
+from vis_training.teacher.report import build_report
+from vis_training.teacher.review import check_review, prepare_review
+from vis_training.teacher.smoke import select_smoke
+from vis_training.teacher.validation import financial_safety_errors
+
+ROOT = Path(__file__).parents[2]
+CONFIG = ROOT / "config/teacher-v1.json"
+SCENARIOS = ROOT / "datasets/candidates/scenarios-v1.jsonl"
+
+
+def records(path): return list(iter_jsonl(path))
+
+
+def test_config_is_locally_ready_but_cloud_smoke_is_revision_blocked():
+    result = readiness(ROOT, CONFIG)
+    assert result["localToolingReady"] is True and result["smokeReady"] is False
+    assert len(result["artifactSha256"]) == 5
+
+
+def test_candidate_pipeline_two_slots_resume_and_manifest_guard(tmp_path):
+    output, manifest = tmp_path / "candidates.jsonl", tmp_path / "manifest.json"
+    backend = FakeTeacherBackend()
+    runner = CandidateRunner(ROOT, CONFIG, backend, clock=lambda: "2026-08-06T00:00:00Z")
+    assert runner.run(SCENARIOS, output, manifest, limit=2)["processed"] == 4
+    original = output.read_bytes()
+    assert runner.run(SCENARIOS, output, manifest, limit=2)["skipped"] == 4
+    assert output.read_bytes() == original and len(backend.calls) == 4
+    assert {x["candidateIndex"] for x in records(output)} == {1, 2}
+    with pytest.raises(TeacherManifestMismatch):
+        runner.run(SCENARIOS, output, manifest, run_id="changed", limit=2)
+
+
+def test_failures_are_accounted_and_duplicate_state_is_rejected(tmp_path):
+    output, manifest = tmp_path / "candidates.jsonl", tmp_path / "manifest.json"
+    ids = ["TC-SCN-000001-01", "TC-SCN-000001-02"]
+    backend = FakeTeacherBackend(failure_ids=[ids[0]], invalid_json_ids=[ids[1]])
+    CandidateRunner(ROOT, CONFIG, backend).run(SCENARIOS, output, manifest, limit=1)
+    assert [x["status"] for x in records(output)] == ["GENERATION_FAILED", "PARSE_REJECTED"]
+    assert "secret payload" not in output.read_text()
+    append_jsonl(output, records(output)[0])
+    with pytest.raises(TeacherDataError): CandidateRunner(ROOT, CONFIG, backend).run(SCENARIOS, output, manifest, limit=1)
+
+
+def test_structural_semantic_and_financial_gates(tmp_path):
+    scenario = records(SCENARIOS)[0]
+    invalid = expected_thesis(scenario); invalid.pop("summary")
+    wrong = expected_thesis(scenario); wrong["summary"] = "This is a good value score."
+    backend = FakeTeacherBackend(overrides={"TC-SCN-000001-01": invalid, "TC-SCN-000001-02": wrong})
+    output = tmp_path / "c.jsonl"
+    CandidateRunner(ROOT, CONFIG, backend).run(SCENARIOS, output, tmp_path / "m.json", limit=1)
+    assert [x["status"] for x in records(output)] == ["STRUCTURAL_REJECTED", "SEMANTIC_REJECTED"]
+    scenarios = {x["scenarioType"]: x for x in records(SCENARIOS)}
+    over = expected_thesis(scenarios["OVERVALUED_STRONG"]); over["classification"] = "POTENTIALLY_UNDERVALUED"
+    assert "OVERVALUATION_DIRECTION_INCORRECT" in financial_safety_errors(scenarios["OVERVALUED_STRONG"], over)
+    dividend = expected_thesis(scenarios["DIVIDEND_RISK"]); dividend["bearCase"] = []
+    assert "DIVIDEND_RISK_EVIDENCE_OMITTED" in financial_safety_errors(scenarios["DIVIDEND_RISK"], dividend)
+
+
+def test_critic_reviews_only_parseable_and_never_mutates_candidate(tmp_path):
+    candidates, manifest, critics = tmp_path / "c.jsonl", tmp_path / "m.json", tmp_path / "r.jsonl"
+    CandidateRunner(ROOT, CONFIG, FakeTeacherBackend(invalid_json_ids=["TC-SCN-000001-02"])).run(SCENARIOS, candidates, manifest, limit=1)
+    before = candidates.read_bytes()
+    backend = FakeCriticBackend()
+    assert CriticRunner(ROOT, CONFIG, backend).run(SCENARIOS, candidates, critics)["processed"] == 1
+    assert candidates.read_bytes() == before and len(backend.calls) == 1
+    assert CriticRunner(ROOT, CONFIG, backend).run(SCENARIOS, candidates, critics)["skipped"] == 1
+
+
+def test_critic_rejects_replacement_shape(tmp_path):
+    schema = json.loads((ROOT / "schemas/critic-review.schema.json").read_text())
+    review = {"verdict": "ACCEPT", "scores": {"grounding": 2, "classification": 2, "riskCoverage": 2, "decisionSupportSafety": 2}, "errorCodes": [], "rationale": "ok", "evidenceFields": [], "replacementOutput": {}}
+    assert list(Draft202012Validator(schema).iter_errors(review))
+
+
+def test_report_smoke_and_review_artifacts(tmp_path):
+    candidates, manifest, critics = tmp_path / "c.jsonl", tmp_path / "m.json", tmp_path / "r.jsonl"
+    CandidateRunner(ROOT, CONFIG, FakeTeacherBackend()).run(SCENARIOS, candidates, manifest, limit=20)
+    CriticRunner(ROOT, CONFIG, FakeCriticBackend()).run(SCENARIOS, candidates, critics)
+    report = build_report(candidates, critics, hourly_rate=0.4)
+    assert report["denominators"] == {"candidateSlots": 40, "parseableCandidates": 40, "criticEligibleCandidates": 40, "criticReviews": 40}
+    assert report["usage"]["estimatedCostUsd"] is not None and report["automaticTrainingPromotion"] is False
+    smoke = select_smoke(SCENARIOS)
+    assert len(smoke) == 20 and len({x["scenarioType"] for x in smoke}) == 14
+    smoke_scenarios = tmp_path / "smoke.jsonl"
+    for scenario in smoke: append_jsonl(smoke_scenarios, scenario)
+    full_candidates = tmp_path / "full.jsonl"
+    CandidateRunner(ROOT, CONFIG, FakeTeacherBackend()).run(smoke_scenarios, full_candidates, tmp_path / "full-manifest.json")
+    form_path = tmp_path / "review.json"
+    form = prepare_review(full_candidates, form_path, 30)
+    assert len(form["reviews"]) == 30 and len({x["scenarioType"] for x in form["reviews"]}) == 14
+    assert check_review(form_path)["complete"] is False

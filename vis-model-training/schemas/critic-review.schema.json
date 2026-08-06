@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://valueinvestingsupport.local/schemas/critic-review.schema.json",
+  "title": "VIS TRAIN-05 Critic Review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "scores", "errorCodes", "rationale", "evidenceFields"],
+  "properties": {
+    "verdict": {"enum": ["ACCEPT", "REJECT", "REVIEW"]},
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grounding", "classification", "riskCoverage", "decisionSupportSafety"],
+      "properties": {
+        "grounding": {"type": "integer", "minimum": 0, "maximum": 2},
+        "classification": {"type": "integer", "minimum": 0, "maximum": 2},
+        "riskCoverage": {"type": "integer", "minimum": 0, "maximum": 2},
+        "decisionSupportSafety": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "errorCodes": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Z0-9_]+$"}},
+    "rationale": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "evidenceFields": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+  }
+}

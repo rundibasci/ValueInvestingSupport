@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vis-model-training"
-version = "0.4.0"
+version = "0.5.0"
 description = "Dataset validation, benchmark, and deterministic scenario tools for the VIS Investment Thesis Agent"
 requires-python = ">=3.9"
 dependencies = [
@@ -19,6 +19,7 @@ dev = [
 [project.scripts]
 vis-benchmark = "vis_training.benchmark.cli:main"
 vis-scenarios = "vis_training.scenarios.cli:main"
+vis-teacher = "vis_training.teacher.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src", "."]
