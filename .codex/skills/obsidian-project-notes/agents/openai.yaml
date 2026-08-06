@@ -1,0 +1,4 @@
+interface:
+  display_name: "Obsidian Project Notes"
+  short_description: "Write dated project handoff notes to Obsidian"
+  default_prompt: "Use $obsidian-project-notes to record the current project phase in Obsidian."
