@@ -1,0 +1,112 @@
+{
+  "formatVersion": "1.0",
+  "phase": "TRAIN-05",
+  "runType": "RUNPOD_SMOKE",
+  "executedAt": "2026-08-06",
+  "gitRevisions": {
+    "teacher": "c7c638c",
+    "criticPromptV2": "9124183"
+  },
+  "model": {
+    "id": "google/gemma-3-27b-it",
+    "revision": "005ad3404e59d6023443cb575daa05336842228a",
+    "tokenizerRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "precision": "bfloat16"
+  },
+  "environment": {
+    "provider": "RunPod",
+    "cloudTier": "Secure Cloud",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "gpuMemoryMiB": 81559,
+    "driverVersion": "580.159.03",
+    "visibleCudaVersion": "13.0",
+    "pytorchVersion": "2.7.1+cu128",
+    "pytorchCudaRuntime": "12.8",
+    "bfloat16Supported": true,
+    "workspaceGiB": 94,
+    "hourlyRateUsd": 3.5
+  },
+  "teacher": {
+    "scenarioCount": 20,
+    "categoryCount": 14,
+    "candidateSlots": 40,
+    "parseableCandidates": 40,
+    "structurallyValidCandidates": 40,
+    "criticEligibleCandidates": 40,
+    "candidateStatuses": {
+      "CRITIC_PENDING": 16,
+      "SEMANTIC_REJECTED": 24
+    }
+  },
+  "critic": {
+    "attemptV1": {
+      "promptVersion": "critic-prompt-v1",
+      "canonicalReviews": 11,
+      "failedReviews": 29
+    },
+    "attemptV2": {
+      "promptVersion": "critic-prompt-v2",
+      "canonicalReviews": 15,
+      "wrappedJsonRecovered": 25,
+      "unrecoverableReviews": 0,
+      "usableReviews": 40,
+      "verdicts": {
+        "REVIEW": 40
+      }
+    }
+  },
+  "usageForTeacherAndCriticV2": {
+    "inputTokens": 86396,
+    "outputTokens": 16678,
+    "averageLatencyMs": 17886.698,
+    "modelLatencyHours": 0.397482,
+    "modelLatencyEstimatedCostUsd": 1.3912
+  },
+  "bulkProjectionOnSameH100": {
+    "scenarioCount": 500,
+    "candidateSlots": 1000,
+    "assumedCriticReviews": 1000,
+    "linearScaleFactorFromSmoke": 25,
+    "projectedInputTokens": 2159900,
+    "projectedOutputTokens": 416950,
+    "projectedModelLatencyHours": 9.93705,
+    "projectedComputeCostUsd": 34.78,
+    "excludes": [
+      "interactive idle time",
+      "provider price changes",
+      "download and environment setup",
+      "retries or recovery work"
+    ]
+  },
+  "knownWallClock": {
+    "minimumMeasuredSeconds": 2919.227,
+    "minimumEstimatedCostUsd": 2.8381,
+    "excludes": [
+      "successful two-candidate retry wall time not recorded",
+      "interactive idle time",
+      "package installation and restart time"
+    ],
+    "providerBilledTotalUsd": null
+  },
+  "artifactArchives": [
+    {
+      "name": "train05-smoke-v2-artifacts.tar.gz",
+      "sha256": "60684aaa7f70c4f85a692085e9dd34f7bc0c9f4bbda76cd4505142b20a09e63a"
+    },
+    {
+      "name": "train05-smoke-v3-artifacts.tar.gz",
+      "sha256": "9decbff4b13f27a4451da379c9192a8ca2e02f96700c9b41ee6a0d21957c89e0"
+    }
+  ],
+  "resourceCleanup": {
+    "podDeleted": true,
+    "networkVolumeDeleted": true
+  },
+  "automaticTrainingPromotion": false,
+  "bulkAuthorized": false,
+  "notes": [
+    "Raw model outputs and derived recovery artifacts remain gitignored.",
+    "Recovery strips only one complete JSON Markdown fence and revalidates the enclosed object against the critic schema.",
+    "Canonical and recovered critic rates remain reported separately."
+  ]
+}

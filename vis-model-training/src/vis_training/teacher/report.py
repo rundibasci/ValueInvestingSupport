@@ -15,14 +15,17 @@ def build_report(candidates_path: Path, critics_path: Optional[Path] = None, *, 
     for item in candidates:
         statuses[item["status"]] += 1
         categories[item["scenarioType"]][item["status"]] += 1
-    reviewed = [item for item in critics if item["status"] == "REVIEWED"]
+    reviewed = [item for item in critics if item.get("parsedReview") is not None]
     verdicts = Counter(item["parsedReview"]["verdict"] for item in reviewed)
     latencies = [item["latencyMs"] for item in candidates + critics if item.get("latencyMs") is not None]
     total_latency_ms = sum(latencies)
     report = {
         "formatVersion": "1.0", "source": "SYNTHETIC_TEACHER", "automaticTrainingPromotion": False,
         "denominators": {"candidateSlots": len(candidates), "parseableCandidates": sum(x.get("parsedOutput") is not None for x in candidates),
-                         "criticEligibleCandidates": sum(bool(x.get("criticEligible")) for x in candidates), "criticReviews": len(critics)},
+                         "criticEligibleCandidates": sum(bool(x.get("criticEligible")) for x in candidates), "criticReviews": len(critics),
+                         "canonicalCriticReviews": sum(x.get("status") == "REVIEWED" for x in critics),
+                         "recoveredCriticReviews": sum(x.get("status") == "RECOVERED_REVIEW" for x in critics),
+                         "usableCriticReviews": len(reviewed)},
         "candidateStatuses": dict(sorted(statuses.items())),
         "critic": {"statuses": dict(sorted(Counter(x["status"] for x in critics).items())), "verdicts": dict(sorted(verdicts.items()))},
         "byScenarioType": {key: dict(sorted(value.items())) for key, value in sorted(categories.items())},

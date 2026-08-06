@@ -12,6 +12,7 @@ from .fake_backend import FakeCriticBackend, FakeTeacherBackend
 from .huggingface_backend import HuggingFaceBackend
 from .pipeline import CandidateRunner
 from .report import write_report
+from .recovery import recover_wrapped_critic
 from .review import check_review, prepare_review
 from .smoke import write_smoke_plan
 
@@ -30,6 +31,7 @@ def _parser():
     smoke = commands.add_parser("smoke-plan"); smoke.add_argument("--scenarios", type=Path, required=True); smoke.add_argument("--output", type=Path, required=True); smoke.add_argument("--dataset-output", type=Path); smoke.add_argument("--count", type=int, default=20)
     review = commands.add_parser("prepare-review"); review.add_argument("--candidates", type=Path, required=True); review.add_argument("--output", type=Path, required=True); review.add_argument("--minimum", type=int, default=30)
     check = commands.add_parser("check-review"); check.add_argument("--review", type=Path, required=True)
+    recover = commands.add_parser("recover-critic"); recover.add_argument("--input", type=Path, required=True); recover.add_argument("--output", type=Path, required=True); recover.add_argument("--schema", type=Path, default=Path("schemas/critic-review.schema.json"))
     return parser
 
 
@@ -55,6 +57,7 @@ def main(argv=None):
         elif args.command == "check-review":
             result = check_review(args.review)
             print(json.dumps(result, sort_keys=True)); return 0 if result["complete"] else 3
+        elif args.command == "recover-critic": result = recover_wrapped_critic(args.input, args.output, args.schema if args.schema.is_absolute() else args.root / args.schema)
         print(json.dumps(result, sort_keys=True)); return 0
     except TeacherToolingError as error:
         print(json.dumps({"error": type(error).__name__, "message": str(error)}, sort_keys=True), file=sys.stderr); return error.exit_code

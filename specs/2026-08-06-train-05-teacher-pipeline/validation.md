@@ -9,13 +9,24 @@
 - [x] Parsing, schema, validazione semantica/finanziaria e critic separato sono coperti da test.
 - [x] CLI locale prepara report, smoke stratificato e review umana senza creare risorse cloud.
 - [x] Il runbook impone stop dopo smoke e nuova approvazione economica prima del bulk.
-- [ ] Revisioni immutabili del checkpoint/tokenizer e ambiente GPU saranno congelati prima dello smoke.
+- [x] Revisioni immutabili del checkpoint/tokenizer e ambiente GPU sono congelati e registrati dallo smoke.
+
+### RunPod smoke gate (2026-08-06)
+
+- [x] Checkpoint e tokenizer sono fissati alla revisione immutabile `005ad3404e59d6023443cb575daa05336842228a`.
+- [x] Lo smoke Secure Cloud H100 80 GB copre 20 scenari, 14 categorie e 40 candidate slot.
+- [x] Tutti i 40 candidati sono parseable, conformi allo schema e critic-eligible; 24 restano semantic rejection esplicite.
+- [x] Il critic v2 produce 15 review canonical e 25 review JSON fenced recuperabili; 40/40 sono schema-valid dopo recupero deterministico auditabile.
+- [x] Token, latenza, tariffa, stima minima dei costi, ambiente e checksum sono registrati nel report sanitizzato.
+- [x] Pod e network volume sono eliminati dopo trasferimento e verifica locale degli artifact.
+- [ ] Il totale effettivamente fatturato dal provider deve essere registrato quando disponibile.
+- [ ] Il bulk da 500 scenari/1.000 candidati richiede ancora una nuova approvazione economica esplicita.
 
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
-- [ ] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
-- [ ] La pipeline locale completa funziona con backend fake senza rete, GPU o costi.
-- [ ] Lo smoke usa 20 scenari stratificati, genera 40 candidati e contabilizza ogni critic eleggibile.
-- [ ] VRAM, latenza, token, costo e throughput smoke sono registrati e producono una stima bulk.
+- [x] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
+- [x] La pipeline locale completa funziona con backend fake senza rete, GPU o costi.
+- [x] Lo smoke usa 20 scenari stratificati, genera 40 candidati e contabilizza ogni critic eleggibile.
+- [x] VRAM, latenza, token e costo smoke sono registrati; la stima bulk resta da finalizzare dopo il totale provider.
 - [ ] Il bulk viene avviato soltanto dopo una nuova approvazione economica esplicita.
 - [ ] Il bulk contabilizza esattamente 1.000 candidate slot univoci per 500 scenari.
 - [ ] Primo output e failure di ogni candidate slot sono preservati senza sostituzione.

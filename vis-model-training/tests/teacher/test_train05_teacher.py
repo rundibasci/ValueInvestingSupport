@@ -12,6 +12,7 @@ from vis_training.teacher.huggingface_backend import HuggingFaceBackend
 from vis_training.teacher.io import append_jsonl, iter_jsonl
 from vis_training.teacher.pipeline import CandidateRunner
 from vis_training.teacher.report import build_report
+from vis_training.teacher.recovery import recover_wrapped_critic
 from vis_training.teacher.review import check_review, prepare_review
 from vis_training.teacher.smoke import select_smoke
 from vis_training.teacher.validation import financial_safety_errors
@@ -99,7 +100,8 @@ def test_report_smoke_and_review_artifacts(tmp_path):
     CandidateRunner(ROOT, CONFIG, FakeTeacherBackend()).run(SCENARIOS, candidates, manifest, limit=20)
     CriticRunner(ROOT, CONFIG, FakeCriticBackend()).run(SCENARIOS, candidates, critics)
     report = build_report(candidates, critics, hourly_rate=0.4)
-    assert report["denominators"] == {"candidateSlots": 40, "parseableCandidates": 40, "criticEligibleCandidates": 40, "criticReviews": 40}
+    assert report["denominators"]["candidateSlots"] == 40
+    assert report["denominators"]["usableCriticReviews"] == 40
     assert report["usage"]["estimatedCostUsd"] is not None and report["automaticTrainingPromotion"] is False
     smoke = select_smoke(SCENARIOS)
     assert len(smoke) == 20 and len({x["scenarioType"] for x in smoke}) == 14
@@ -111,3 +113,15 @@ def test_report_smoke_and_review_artifacts(tmp_path):
     form = prepare_review(full_candidates, form_path, 30)
     assert len(form["reviews"]) == 30 and len({x["scenarioType"] for x in form["reviews"]}) == 14
     assert check_review(form_path)["complete"] is False
+
+
+def test_recovery_accepts_only_single_schema_valid_json_fence(tmp_path):
+    schema = ROOT / "schemas/critic-review.schema.json"
+    good = {"verdict": "REVIEW", "scores": {"grounding": 1, "classification": 1, "riskCoverage": 1, "decisionSupportSafety": 1}, "errorCodes": [], "rationale": "Review required.", "evidenceFields": []}
+    source = tmp_path / "source.jsonl"
+    base = {"criticId": "CR-TC-SCN-000001-01", "candidateId": "TC-SCN-000001-01", "status": "CRITIC_FAILED", "rawReview": "```json\n" + json.dumps(good) + "\n```", "parsedReview": None, "criticError": "INVALID_JSON", "inputTokens": 1, "outputTokens": 1, "latencyMs": 1, "provenance": {}}
+    append_jsonl(source, base)
+    result = recover_wrapped_critic(source, tmp_path / "recovered.jsonl", schema)
+    assert result == {"total": 1, "canonical": 0, "recovered": 1, "unrecoverable": 0, "usable": 1}
+    recovered = records(tmp_path / "recovered.jsonl")[0]
+    assert recovered["status"] == "RECOVERED_REVIEW" and recovered["rawReview"] == base["rawReview"]
