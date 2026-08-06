@@ -86,7 +86,8 @@
       "interactive idle time",
       "package installation and restart time"
     ],
-    "providerBilledTotalUsd": null
+    "providerBilledTotalUsd": 5.0,
+    "providerBillingNote": "Total reported from the RunPod account after interruptions and restarts; exceeds timed-command estimate because interactive and interrupted runtime was billed."
   },
   "artifactArchives": [
     {

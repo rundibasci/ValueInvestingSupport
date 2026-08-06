@@ -19,7 +19,7 @@
 - [x] Il critic v2 produce 15 review canonical e 25 review JSON fenced recuperabili; 40/40 sono schema-valid dopo recupero deterministico auditabile.
 - [x] Token, latenza, tariffa, stima minima dei costi, ambiente e checksum sono registrati nel report sanitizzato.
 - [x] Pod e network volume sono eliminati dopo trasferimento e verifica locale degli artifact.
-- [ ] Il totale effettivamente fatturato dal provider deve essere registrato quando disponibile.
+- [x] Il totale effettivamente fatturato dal provider è registrato: 5,00 USD, incluse interruzioni e riavvii.
 - [ ] Il bulk da 500 scenari/1.000 candidati richiede ancora una nuova approvazione economica esplicita.
 
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
