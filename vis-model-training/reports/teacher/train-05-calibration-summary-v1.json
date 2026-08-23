@@ -1,0 +1,84 @@
+{
+  "formatVersion": "1.0",
+  "phase": "TRAIN-05",
+  "runType": "RUNPOD_CALIBRATION",
+  "executedAt": "2026-08-23",
+  "gitRevision": "5286031",
+  "model": {
+    "id": "google/gemma-3-27b-it",
+    "revision": "005ad3404e59d6023443cb575daa05336842228a",
+    "tokenizerRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "precision": "bfloat16"
+  },
+  "environment": {
+    "provider": "RunPod",
+    "cloudTier": "Secure Cloud",
+    "gpu": "NVIDIA A100-SXM4-80GB",
+    "gpuMemoryMiB": 81920,
+    "driverVersion": "570.172.08",
+    "pytorchVersion": "2.7.1+cu128",
+    "pytorchCudaRuntime": "12.8",
+    "image": "pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime@sha256:c16f4c749e2d9e96878875cdf6cc45cddda1d1a36fddd371dd6f2360f1b6e2a2",
+    "hourlyRateUsd": 1.59
+  },
+  "teacher": {
+    "scenarioCount": 50,
+    "categoryCount": 14,
+    "candidateSlots": 100,
+    "parseableCandidates": 100,
+    "criticEligibleCandidates": 100,
+    "candidateStatuses": {
+      "CRITIC_PENDING": 49,
+      "SEMANTIC_REJECTED": 51
+    }
+  },
+  "critic": {
+    "reviewSlots": 100,
+    "canonicalReviews": 36,
+    "wrappedJsonRecovered": 64,
+    "unrecoverableReviews": 0,
+    "usableReviews": 100,
+    "verdicts": {
+      "REVIEW": 100
+    }
+  },
+  "usage": {
+    "inputTokens": 214882,
+    "outputTokens": 40516,
+    "averageLatencyMs": 20962.226,
+    "modelLatencyHours": 1.164568,
+    "modelLatencyEstimatedCostUsd": 1.8517
+  },
+  "wallClock": {
+    "teacherStartedAt": "2026-08-23T19:35:53Z",
+    "teacherEndedAt": "2026-08-23T20:29:59Z",
+    "criticStartedAt": "2026-08-23T20:30:14Z",
+    "criticEndedAt": "2026-08-23T20:54:13Z"
+  },
+  "providerBilling": {
+    "podBilledTimeMs": 4666100,
+    "podBilledCostUsd": 2.0849349312484264,
+    "programBudgetCapUsd": 50.0,
+    "calibrationBudgetCapUsd": 10.0
+  },
+  "artifacts": {
+    "archive": {
+      "name": "train05-calibration-artifacts.tar.gz",
+      "sha256": "63a27e5c14ea7ac378f502671815e82ff72b19858796ac0cb61755587d7bf722"
+    },
+    "recoveredCriticsSha256": "b2789a0c0876e4dfe868e52e049bbfc9e547464f6743ec871e482c686b8fb835",
+    "recoveredReportSha256": "e92e8edad42af0f14afb2a64caa8d12857dafbdd419a65906868a714b2c65188"
+  },
+  "resourceCleanup": {
+    "podDeleted": true,
+    "networkVolumesFound": 0
+  },
+  "automaticTrainingPromotion": false,
+  "bulkStarted": false,
+  "notes": [
+    "Canonical and recovered critic rates are reported separately.",
+    "Recovery strips only one complete JSON Markdown fence and revalidates the enclosed object against the critic schema.",
+    "Raw outputs and recovered run artifacts remain gitignored.",
+    "The calibration stop gate remains active before bulk generation."
+  ]
+}

@@ -27,10 +27,10 @@
 - [x] Calibration e bulk autorizzati entro un tetto complessivo di 50 USD.
 - [x] Calibration limitata a 50 scenari/100 slot, tutte le 14 categorie e massimo 10 USD.
 - [x] Stop obbligatorio dopo la calibration prima del bulk canonico.
-- [ ] Accesso RunPod e secret Hugging Face configurati senza esposizione locale o nei log.
-- [ ] Tutti i 100 slot sono contabilizzati o la run è fermata al limite di 10 USD.
-- [ ] Critic, report, costo, checksum, trasferimento e cleanup sono completati.
-- [ ] Risultati presentati all'utente prima di qualsiasi bulk.
+- [x] Accesso RunPod e secret Hugging Face configurati senza esposizione locale o nei log.
+- [x] Tutti i 100 slot sono contabilizzati o la run è fermata al limite di 10 USD.
+- [x] Critic, report, costo, checksum, trasferimento e cleanup sono completati.
+- [x] Risultati presentati all'utente prima di qualsiasi bulk.
 
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
 - [x] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
