@@ -14,7 +14,7 @@ from vis_training.teacher.pipeline import CandidateRunner
 from vis_training.teacher.report import build_report
 from vis_training.teacher.recovery import recover_wrapped_critic
 from vis_training.teacher.review import check_review, prepare_review
-from vis_training.teacher.smoke import select_smoke
+from vis_training.teacher.smoke import select_calibration, select_smoke, write_calibration_plan
 from vis_training.teacher.validation import financial_safety_errors
 
 ROOT = Path(__file__).parents[2]
@@ -113,6 +113,28 @@ def test_report_smoke_and_review_artifacts(tmp_path):
     form = prepare_review(full_candidates, form_path, 30)
     assert len(form["reviews"]) == 30 and len({x["scenarioType"] for x in form["reviews"]}) == 14
     assert check_review(form_path)["complete"] is False
+
+
+def test_calibration_selection_is_deterministic_and_balanced():
+    first = select_calibration(SCENARIOS, 50)
+    second = select_calibration(SCENARIOS, 50)
+    assert [x["scenarioId"] for x in first] == [x["scenarioId"] for x in second]
+    assert len(first) == 50 and len({x["scenarioId"] for x in first}) == 50
+    counts = {}
+    for scenario in first:
+        counts[scenario["scenarioType"]] = counts.get(scenario["scenarioType"], 0) + 1
+    assert len(counts) == 14
+    assert max(counts.values()) - min(counts.values()) <= 1
+
+
+def test_calibration_plan_records_budget_and_stop_gate(tmp_path):
+    plan = write_calibration_plan(SCENARIOS, tmp_path / "plan.json", dataset_output=tmp_path / "scenarios.jsonl")
+    assert plan["candidateSlotCount"] == 100
+    assert plan["programBudgetCapUsd"] == 50.0
+    assert plan["calibrationBudgetCapUsd"] == 10.0
+    assert plan["requiresStopBeforeBulk"] is True
+    with pytest.raises(TeacherDataError):
+        write_calibration_plan(SCENARIOS, tmp_path / "invalid.json", program_budget_cap_usd=5, calibration_budget_cap_usd=10)
 
 
 def test_recovery_accepts_only_single_schema_valid_json_fence(tmp_path):

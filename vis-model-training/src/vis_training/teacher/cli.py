@@ -14,7 +14,7 @@ from .pipeline import CandidateRunner
 from .report import write_report
 from .recovery import recover_wrapped_critic
 from .review import check_review, prepare_review
-from .smoke import write_smoke_plan
+from .smoke import write_calibration_plan, write_smoke_plan
 
 
 def _parser():
@@ -24,11 +24,12 @@ def _parser():
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("validate-config")
     generate = commands.add_parser("local-generate"); generate.add_argument("--scenarios", type=Path, required=True); generate.add_argument("--output", type=Path, required=True); generate.add_argument("--manifest", type=Path, required=True); generate.add_argument("--limit", type=int)
-    real_generate = commands.add_parser("runpod-generate"); real_generate.add_argument("--scenarios", type=Path, required=True); real_generate.add_argument("--output", type=Path, required=True); real_generate.add_argument("--manifest", type=Path, required=True); real_generate.add_argument("--limit", type=int)
+    real_generate = commands.add_parser("runpod-generate"); real_generate.add_argument("--scenarios", type=Path, required=True); real_generate.add_argument("--output", type=Path, required=True); real_generate.add_argument("--manifest", type=Path, required=True); real_generate.add_argument("--limit", type=int); real_generate.add_argument("--run-id", default="train-05-smoke")
     critic = commands.add_parser("local-critic"); critic.add_argument("--scenarios", type=Path, required=True); critic.add_argument("--candidates", type=Path, required=True); critic.add_argument("--output", type=Path, required=True)
-    real_critic = commands.add_parser("runpod-critic"); real_critic.add_argument("--scenarios", type=Path, required=True); real_critic.add_argument("--candidates", type=Path, required=True); real_critic.add_argument("--output", type=Path, required=True)
+    real_critic = commands.add_parser("runpod-critic"); real_critic.add_argument("--scenarios", type=Path, required=True); real_critic.add_argument("--candidates", type=Path, required=True); real_critic.add_argument("--output", type=Path, required=True); real_critic.add_argument("--run-id", default="train-05-smoke-critic-v2")
     report = commands.add_parser("report"); report.add_argument("--candidates", type=Path, required=True); report.add_argument("--critics", type=Path); report.add_argument("--output", type=Path, required=True); report.add_argument("--hourly-rate", type=float)
     smoke = commands.add_parser("smoke-plan"); smoke.add_argument("--scenarios", type=Path, required=True); smoke.add_argument("--output", type=Path, required=True); smoke.add_argument("--dataset-output", type=Path); smoke.add_argument("--count", type=int, default=20)
+    calibration = commands.add_parser("calibration-plan"); calibration.add_argument("--scenarios", type=Path, required=True); calibration.add_argument("--output", type=Path, required=True); calibration.add_argument("--dataset-output", type=Path); calibration.add_argument("--count", type=int, default=50); calibration.add_argument("--program-budget-cap-usd", type=float, default=50.0); calibration.add_argument("--calibration-budget-cap-usd", type=float, default=10.0)
     review = commands.add_parser("prepare-review"); review.add_argument("--candidates", type=Path, required=True); review.add_argument("--output", type=Path, required=True); review.add_argument("--minimum", type=int, default=30)
     check = commands.add_parser("check-review"); check.add_argument("--review", type=Path, required=True)
     recover = commands.add_parser("recover-critic"); recover.add_argument("--input", type=Path, required=True); recover.add_argument("--output", type=Path, required=True); recover.add_argument("--schema", type=Path, default=Path("schemas/critic-review.schema.json"))
@@ -45,14 +46,15 @@ def main(argv=None):
             if not config["smokeReady"]: raise TeacherToolingError("RunPod inference blocked by readiness gate")
             raw = load_local_config(args.root, args.config)["config"]
             backend = HuggingFaceBackend(raw["teacher"]["modelId"], raw["teacher"]["modelRevision"], raw["teacher"]["tokenizerRevision"])
-            result = CandidateRunner(args.root, args.config, backend).run(args.scenarios, args.output, args.manifest, run_id="train-05-smoke", hardware_profile="RUNPOD_SECURE_CLOUD", limit=args.limit)
+            result = CandidateRunner(args.root, args.config, backend).run(args.scenarios, args.output, args.manifest, run_id=args.run_id, hardware_profile="RUNPOD_SECURE_CLOUD", limit=args.limit)
         elif args.command == "local-critic": result = CriticRunner(args.root, args.config, FakeCriticBackend()).run(args.scenarios, args.candidates, args.output)
         elif args.command == "runpod-critic":
             raw = load_local_config(args.root, args.config)["config"]
             backend = HuggingFaceBackend(raw["critic"]["modelId"], raw["critic"]["modelRevision"], raw["teacher"]["tokenizerRevision"])
-            result = CriticRunner(args.root, args.config, backend, run_id="train-05-smoke-critic-v2").run(args.scenarios, args.candidates, args.output)
+            result = CriticRunner(args.root, args.config, backend, run_id=args.run_id).run(args.scenarios, args.candidates, args.output)
         elif args.command == "report": result = write_report(args.candidates, args.critics, args.output, hourly_rate=args.hourly_rate)
         elif args.command == "smoke-plan": result = write_smoke_plan(args.scenarios, args.output, args.count, dataset_output=args.dataset_output)
+        elif args.command == "calibration-plan": result = write_calibration_plan(args.scenarios, args.output, args.count, dataset_output=args.dataset_output, program_budget_cap_usd=args.program_budget_cap_usd, calibration_budget_cap_usd=args.calibration_budget_cap_usd)
         elif args.command == "prepare-review": result = prepare_review(args.candidates, args.output, args.minimum)
         elif args.command == "check-review":
             result = check_review(args.review)

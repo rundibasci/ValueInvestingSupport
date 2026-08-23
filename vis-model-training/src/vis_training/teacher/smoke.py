@@ -27,9 +27,61 @@ def select_smoke(scenarios_path: Path, count: int = 20) -> List[Dict[str, Any]]:
     return selected
 
 
+def select_calibration(scenarios_path: Path, count: int = 50) -> List[Dict[str, Any]]:
+    """Select a deterministic, category-balanced calibration set."""
+    groups = defaultdict(list)
+    for scenario in iter_jsonl(scenarios_path):
+        groups[scenario["scenarioType"]].append(scenario)
+    if count < len(groups):
+        raise TeacherDataError(
+            f"Calibration count {count} cannot cover all {len(groups)} categories"
+        )
+    ordered_groups = {
+        category: sorted(items, key=lambda item: item["scenarioId"])
+        for category, items in sorted(groups.items())
+    }
+    selected = []
+    ordinal = 0
+    while len(selected) < count:
+        added = False
+        for items in ordered_groups.values():
+            if ordinal < len(items) and len(selected) < count:
+                selected.append(items[ordinal])
+                added = True
+        if not added:
+            break
+        ordinal += 1
+    if len(selected) != count:
+        raise TeacherDataError(
+            f"Cannot construct stratified calibration set of {count}; selected {len(selected)}"
+        )
+    return selected
+
+
 def write_smoke_plan(scenarios_path: Path, output_path: Path, count: int = 20, *, dataset_output: Path = None) -> Dict[str, Any]:
     selected = select_smoke(scenarios_path, count)
     plan = {"formatVersion": "1.0", "createsCloudResources": False, "requiresExplicitExecutionApproval": True,
+            "scenarioCount": len(selected), "candidateSlotCount": len(selected) * 2,
+            "scenarios": [{"scenarioId": x["scenarioId"], "scenarioType": x["scenarioType"], "difficulty": x["difficulty"]} for x in selected]}
+    write_json(output_path, plan)
+    if dataset_output is not None:
+        dataset_output = Path(dataset_output)
+        dataset_output.parent.mkdir(parents=True, exist_ok=True)
+        dataset_output.write_text("".join(canonical_json(item) + "\n" for item in selected), encoding="utf-8")
+    return plan
+
+
+def write_calibration_plan(scenarios_path: Path, output_path: Path, count: int = 50, *, dataset_output: Path = None,
+                           program_budget_cap_usd: float = 50.0, calibration_budget_cap_usd: float = 10.0) -> Dict[str, Any]:
+    if program_budget_cap_usd <= 0 or calibration_budget_cap_usd <= 0:
+        raise TeacherDataError("Budget caps must be positive")
+    if calibration_budget_cap_usd > program_budget_cap_usd:
+        raise TeacherDataError("Calibration budget cap cannot exceed program budget cap")
+    selected = select_calibration(scenarios_path, count)
+    plan = {"formatVersion": "1.0", "planType": "CALIBRATION", "createsCloudResources": False,
+            "requiresExplicitExecutionApproval": True, "requiresStopBeforeBulk": True,
+            "programBudgetCapUsd": program_budget_cap_usd,
+            "calibrationBudgetCapUsd": calibration_budget_cap_usd,
             "scenarioCount": len(selected), "candidateSlotCount": len(selected) * 2,
             "scenarios": [{"scenarioId": x["scenarioId"], "scenarioType": x["scenarioType"], "difficulty": x["difficulty"]} for x in selected]}
     write_json(output_path, plan)
