@@ -84,6 +84,33 @@ PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . \
 
 L'esecuzione RunPod della v2 resta vietata finché test locali, soglie di go/no-go e autorizzazione operativa non sono confermati. Il bulk resta separato e bloccato.
 
+### Gate go/no-go v2
+
+Le soglie sono versionate in `config/calibration-v2-gate.json`. Il gate richiede:
+
+- 50 scenari, 14 categorie e 100 candidate slot;
+- almeno 98% di candidate parseable e review critic utilizzabili;
+- almeno 95% di review critic canonical JSON e 90% di verdetti decisivi (`ACCEPT` o `REJECT`);
+- almeno 30 review umane sulle 14 categorie, 80% accept e massimo 5% falsi positivi del validator;
+- medie minime: grounding 1,80, classification 1,80, risk coverage 1,60 e decision-support safety 1,80;
+- massimo 5% di score zero per classification e decision-support safety;
+- cleanup completo, bulk non iniziato e promozione automatica disabilitata.
+
+Produrre il riepilogo sanitizzato e valutare il gate dopo la review umana:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . summarize-review \
+  --review outputs/train-05/calibration-v2-human-review.json \
+  --output reports/teacher/train-05-calibration-human-review-summary-v2.json
+PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . calibration-gate \
+  --report reports/teacher/train-05-calibration-summary-v2.json \
+  --human-summary reports/teacher/train-05-calibration-human-review-summary-v2.json \
+  --thresholds config/calibration-v2-gate.json \
+  --output reports/teacher/train-05-calibration-gate-v2.json
+```
+
+Exit code `0` significa `GO`; exit code `4` significa `NO_GO`. Un `GO` certifica la qualità minima della calibration, ma non crea risorse, non avvia il bulk e non sostituisce l'autorizzazione operativa dell'utente.
+
 ## Verifica locale
 
 ```bash

@@ -1,0 +1,28 @@
+{
+  "formatVersion": "1.0",
+  "gateId": "TRAIN-05-CALIBRATION-V2-GATE",
+  "minimumScenarioCount": 50,
+  "minimumCategoryCount": 14,
+  "expectedCandidateSlots": 100,
+  "minimumParseableRate": 0.98,
+  "minimumUsableCriticRate": 0.98,
+  "minimumCanonicalCriticRate": 0.95,
+  "minimumDecisiveCriticRate": 0.90,
+  "minimumHumanReviewCount": 30,
+  "minimumHumanCategoryCount": 14,
+  "minimumHumanAcceptRate": 0.80,
+  "maximumValidatorFalsePositiveRate": 0.05,
+  "minimumAverageScores": {
+    "grounding": 1.80,
+    "classification": 1.80,
+    "riskCoverage": 1.60,
+    "decisionSupportSafety": 1.80
+  },
+  "maximumZeroScoreRates": {
+    "classification": 0.05,
+    "decisionSupportSafety": 0.05
+  },
+  "requireResourceCleanup": true,
+  "requireBulkNotStarted": true,
+  "requireAutomaticTrainingPromotionDisabled": true
+}

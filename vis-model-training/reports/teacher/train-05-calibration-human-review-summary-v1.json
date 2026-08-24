@@ -3,6 +3,7 @@
   "phase": "TRAIN-05",
   "reviewGate": "calibration-human-review",
   "status": "COMPLETE_BULK_BLOCKED",
+  "automaticTrainingPromotion": false,
   "reviewedCandidateCount": 30,
   "categoryCount": 14,
   "decisions": {

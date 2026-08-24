@@ -5,6 +5,8 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from vis_training.teacher.config import readiness
+from vis_training.teacher.calibration_gate import evaluate_calibration_gate
+from vis_training.teacher.cli import main as teacher_cli_main
 from vis_training.teacher.critic import CriticRunner
 from vis_training.teacher.errors import TeacherDataError, TeacherManifestMismatch
 from vis_training.teacher.fake_backend import FakeCriticBackend, FakeTeacherBackend, expected_thesis
@@ -13,13 +15,16 @@ from vis_training.teacher.io import append_jsonl, iter_jsonl
 from vis_training.teacher.pipeline import CandidateRunner
 from vis_training.teacher.report import build_report
 from vis_training.teacher.recovery import recover_wrapped_critic
-from vis_training.teacher.review import check_review, prepare_review
+from vis_training.teacher.review import check_review, prepare_review, summarize_review
 from vis_training.teacher.smoke import select_calibration, select_smoke, write_calibration_plan
 from vis_training.teacher.validation import financial_safety_errors
 
 ROOT = Path(__file__).parents[2]
 CONFIG = ROOT / "config/teacher-v2.json"
 SCENARIOS = ROOT / "datasets/candidates/scenarios-v1.jsonl"
+CALIBRATION_REPORT = ROOT / "reports/teacher/train-05-calibration-summary-v1.json"
+HUMAN_SUMMARY = ROOT / "reports/teacher/train-05-calibration-human-review-summary-v1.json"
+CALIBRATION_GATE = ROOT / "config/calibration-v2-gate.json"
 
 
 def records(path): return list(iter_jsonl(path))
@@ -169,6 +174,79 @@ def test_calibration_plan_records_budget_and_stop_gate(tmp_path):
     assert plan["requiresStopBeforeBulk"] is True
     with pytest.raises(TeacherDataError):
         write_calibration_plan(SCENARIOS, tmp_path / "invalid.json", program_budget_cap_usd=5, calibration_budget_cap_usd=10)
+
+
+def test_calibration_v1_is_blocked_by_versioned_quality_gate():
+    result = evaluate_calibration_gate(
+        json.loads(CALIBRATION_REPORT.read_text()),
+        json.loads(HUMAN_SUMMARY.read_text()),
+        json.loads(CALIBRATION_GATE.read_text()),
+    )
+    assert result["decision"] == "NO_GO"
+    assert result["bulkAuthorizedByGate"] is False
+    assert {
+        "canonical_critic_rate",
+        "decisive_critic_rate",
+        "human_accept_rate",
+        "validator_false_positive_rate",
+        "average_grounding",
+        "zero_score_rate_classification",
+    } <= set(result["failedCriteria"])
+
+
+def test_human_review_summary_is_reproducible_and_sanitized(tmp_path):
+    scenario_types = sorted({item["scenarioType"] for item in records(SCENARIOS)})
+    reviews = []
+    for index in range(30):
+        reviews.append({
+            "candidateId": f"TC-TEST-{index:03d}",
+            "scenarioType": scenario_types[index % 14],
+            "candidateStatus": "SEMANTIC_REJECTED" if index == 0 else "CRITIC_PENDING",
+            "reviewerAlias": "reviewer",
+            "reviewedAt": "2026-08-24T00:00:00Z",
+            "accepted": index < 24,
+            "scores": {"grounding": 2, "classification": 0 if index < 3 else 2, "riskCoverage": 2, "decisionSupportSafety": 2},
+            "notes": "Synthetic gate fixture.",
+        })
+    review = tmp_path / "review.json"
+    review.write_text(json.dumps({"formatVersion": "1.0", "minimumReviews": 30, "automaticTrainingPromotion": False, "reviews": reviews}))
+    summary = summarize_review(review, tmp_path / "summary.json")
+    assert summary["reviewedCandidateCount"] == 30
+    assert summary["categoryCount"] == 14
+    assert summary["decisions"] == {"ACCEPT": 24, "REJECT": 6}
+    assert summary["candidateStatusByDecision"]["SEMANTIC_REJECTED"]["ACCEPT"] == 1
+    assert summary["scores"]["classification"]["distribution"]["0"] == 3
+    assert summary["sanitization"]["containsRawModelOutput"] is False
+
+
+def test_calibration_gate_accepts_a_report_meeting_every_threshold():
+    report = json.loads(CALIBRATION_REPORT.read_text())
+    human = json.loads(HUMAN_SUMMARY.read_text())
+    thresholds = json.loads(CALIBRATION_GATE.read_text())
+    report["critic"].update(canonicalReviews=98, wrappedJsonRecovered=2, usableReviews=100,
+                             verdicts={"ACCEPT": 80, "REJECT": 18, "REVIEW": 2})
+    human["decisions"] = {"ACCEPT": 27, "REJECT": 3}
+    human["candidateStatusByDecision"]["SEMANTIC_REJECTED"]["ACCEPT"] = 1
+    for name, average in {"grounding": 1.9, "classification": 1.9, "riskCoverage": 1.7, "decisionSupportSafety": 1.9}.items():
+        human["scores"][name] = {"average": average, "distribution": {"0": 1, "1": 1, "2": 28}}
+    result = evaluate_calibration_gate(report, human, thresholds)
+    assert result["decision"] == "GO"
+    assert result["failedCriteria"] == []
+    assert all(item["passed"] for item in result["criteria"])
+
+
+def test_calibration_gate_cli_returns_four_and_can_write_report(tmp_path, capsys):
+    output = tmp_path / "gate.json"
+    exit_code = teacher_cli_main([
+        "--root", str(ROOT), "calibration-gate",
+        "--report", str(CALIBRATION_REPORT),
+        "--human-summary", str(HUMAN_SUMMARY),
+        "--thresholds", str(CALIBRATION_GATE),
+        "--output", str(output),
+    ])
+    assert exit_code == 4
+    assert json.loads(output.read_text())["decision"] == "NO_GO"
+    assert json.loads(capsys.readouterr().out)["bulkAuthorizedByGate"] is False
 
 
 def test_recovery_accepts_only_single_schema_valid_json_fence(tmp_path):

@@ -13,8 +13,9 @@ from .huggingface_backend import HuggingFaceBackend
 from .pipeline import CandidateRunner
 from .report import write_report
 from .recovery import recover_wrapped_critic
-from .review import check_review, prepare_review
+from .review import check_review, prepare_review, summarize_review
 from .smoke import write_calibration_plan, write_smoke_plan
+from .calibration_gate import evaluate_files
 
 
 def _parser():
@@ -32,7 +33,9 @@ def _parser():
     calibration = commands.add_parser("calibration-plan"); calibration.add_argument("--scenarios", type=Path, required=True); calibration.add_argument("--output", type=Path, required=True); calibration.add_argument("--dataset-output", type=Path); calibration.add_argument("--count", type=int, default=50); calibration.add_argument("--program-budget-cap-usd", type=float, default=50.0); calibration.add_argument("--calibration-budget-cap-usd", type=float, default=10.0)
     review = commands.add_parser("prepare-review"); review.add_argument("--candidates", type=Path, required=True); review.add_argument("--output", type=Path, required=True); review.add_argument("--minimum", type=int, default=30)
     check = commands.add_parser("check-review"); check.add_argument("--review", type=Path, required=True)
+    summary = commands.add_parser("summarize-review"); summary.add_argument("--review", type=Path, required=True); summary.add_argument("--output", type=Path, required=True)
     recover = commands.add_parser("recover-critic"); recover.add_argument("--input", type=Path, required=True); recover.add_argument("--output", type=Path, required=True); recover.add_argument("--schema", type=Path, default=Path("schemas/critic-review.schema.json"))
+    gate = commands.add_parser("calibration-gate"); gate.add_argument("--report", type=Path, required=True); gate.add_argument("--human-summary", type=Path, required=True); gate.add_argument("--thresholds", type=Path, default=Path("config/calibration-v2-gate.json")); gate.add_argument("--output", type=Path)
     return parser
 
 
@@ -59,7 +62,12 @@ def main(argv=None):
         elif args.command == "check-review":
             result = check_review(args.review)
             print(json.dumps(result, sort_keys=True)); return 0 if result["complete"] else 3
+        elif args.command == "summarize-review": result = summarize_review(args.review, args.output)
         elif args.command == "recover-critic": result = recover_wrapped_critic(args.input, args.output, args.schema if args.schema.is_absolute() else args.root / args.schema)
+        elif args.command == "calibration-gate":
+            resolve = lambda path: path if path.is_absolute() else args.root / path
+            result = evaluate_files(resolve(args.report), resolve(args.human_summary), resolve(args.thresholds), resolve(args.output) if args.output else None)
+            print(json.dumps(result, sort_keys=True)); return 0 if result["decision"] == "GO" else 4
         print(json.dumps(result, sort_keys=True)); return 0
     except TeacherToolingError as error:
         print(json.dumps({"error": type(error).__name__, "message": str(error)}, sort_keys=True), file=sys.stderr); return error.exit_code

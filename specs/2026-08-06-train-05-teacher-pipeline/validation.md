@@ -32,6 +32,16 @@
 - [x] Critic, report, costo, checksum, trasferimento e cleanup sono completati.
 - [x] Risultati presentati all'utente prima di qualsiasi bulk.
 
+### Calibration v2 quality gate (2026-08-24)
+
+- [x] Soglie go/no-go versionate prima della nuova inferenza.
+- [x] Gate deterministico offline con exit code distinto per `GO` e `NO_GO`.
+- [x] Calibration v1 verificata come `NO_GO` dal nuovo gate.
+- [x] Fixture positiva verificata per impedire un gate impossibile da superare.
+- [ ] Calibration v2 eseguita con teacher prompt v2 e critic prompt v3.
+- [ ] Review umana v2 completa su almeno 30 casi e tutte le 14 categorie.
+- [ ] Report v2 supera il gate automatico prima di qualsiasi bulk.
+
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
 - [x] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
 - [x] La pipeline locale completa funziona con backend fake senza rete, GPU o costi.

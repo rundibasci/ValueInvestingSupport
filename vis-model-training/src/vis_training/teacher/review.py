@@ -1,11 +1,12 @@
 """Deterministic human-review sampling and completion gate."""
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
+from statistics import mean
 from typing import Any, Dict, List
 
 from .errors import TeacherDataError
-from .io import iter_jsonl, write_json
+from .io import iter_jsonl, read_object, sha256_file, write_json
 
 
 def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30) -> Dict[str, Any]:
@@ -33,7 +34,6 @@ def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30) 
 
 
 def check_review(path: Path) -> Dict[str, Any]:
-    from .io import read_object
     form = read_object(path); reviews = form.get("reviews", []); minimum = form.get("minimumReviews", 30)
     incomplete = []
     for review in reviews:
@@ -42,3 +42,41 @@ def check_review(path: Path) -> Dict[str, Any]:
             incomplete.append(review.get("candidateId"))
     categories = {x.get("scenarioType") for x in reviews}
     return {"complete": len(reviews) >= minimum and not incomplete and len(categories) >= 14, "reviewCount": len(reviews), "categoryCount": len(categories), "incompleteCandidateIds": incomplete}
+
+
+def summarize_review(path: Path, output_path: Path) -> Dict[str, Any]:
+    completion = check_review(path)
+    if not completion["complete"]:
+        raise TeacherDataError("Human review is incomplete and cannot be summarized")
+    form = read_object(path)
+    reviews = form["reviews"]
+    decisions = Counter("ACCEPT" if item["accepted"] else "REJECT" for item in reviews)
+    status_decisions = defaultdict(Counter)
+    for item in reviews:
+        status_decisions[item["candidateStatus"]]["ACCEPT" if item["accepted"] else "REJECT"] += 1
+    score_summary = {}
+    for name in ("grounding", "classification", "riskCoverage", "decisionSupportSafety"):
+        values = [item["scores"][name] for item in reviews]
+        score_summary[name] = {
+            "average": round(mean(values), 3),
+            "distribution": {str(score): values.count(score) for score in (0, 1, 2)},
+        }
+    summary = {
+        "schemaVersion": 1,
+        "phase": "TRAIN-05",
+        "reviewGate": "calibration-human-review",
+        "status": "COMPLETE",
+        "automaticTrainingPromotion": False,
+        "reviewedCandidateCount": len(reviews),
+        "categoryCount": completion["categoryCount"],
+        "decisions": {name: decisions.get(name, 0) for name in ("ACCEPT", "REJECT")},
+        "candidateStatusByDecision": {
+            status: {name: counts.get(name, 0) for name in ("ACCEPT", "REJECT")}
+            for status, counts in sorted(status_decisions.items())
+        },
+        "scores": score_summary,
+        "sourceArtifacts": {"humanReviewSha256": sha256_file(path)},
+        "sanitization": {"containsRawModelOutput": False, "containsSecrets": False, "containsPaymentData": False},
+    }
+    write_json(output_path, summary)
+    return summary
