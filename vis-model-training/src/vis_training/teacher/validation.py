@@ -55,6 +55,8 @@ def financial_safety_errors(scenario: Dict[str, Any], output: Dict[str, Any]) ->
         failures.append("REVIEW_CLASSIFICATION_REQUIRED")
     if scenario_type == "OVERVALUED_STRONG" and classification != "POTENTIALLY_OVERVALUED":
         failures.append("OVERVALUATION_DIRECTION_INCORRECT")
+    if scenario_type == "FAIR_VALUE" and classification != "FAIRLY_VALUED":
+        failures.append("FAIR_VALUE_CLASSIFICATION_REQUIRED")
     if scenario_type == "INSUFFICIENT_DATA" and (classification != "INSUFFICIENT_DATA" or review is not True):
         failures.append("INSUFFICIENT_DATA_ESCALATION_REQUIRED")
     if scenario_type == "VALUE_TRAP":

@@ -2,7 +2,7 @@
 
 Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00–04 completi; TRAIN-05 tooling locale completo, smoke/bulk/review cloud non eseguiti
+> Stato: TRAIN-00–04 completi; TRAIN-05 smoke e calibration v1 completati, review umana v1 conclusa con bulk bloccato; correzione locale v2 in corso
 > Versione: 1.8.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
@@ -1490,7 +1490,10 @@ vis-model-training/
 ├── prompts/
 │   ├── system-prompt-v1.txt
 │   ├── teacher-prompt-v1.txt
-│   └── critic-prompt-v1.txt
+│   ├── teacher-prompt-v2.txt
+│   ├── critic-prompt-v1.txt
+│   ├── critic-prompt-v2.txt
+│   └── critic-prompt-v3.txt
 ├── datasets/
 │   ├── seed/
 │   ├── candidates/

@@ -215,6 +215,36 @@ def test_prohibited_output_content_is_rejected(tmp_path, valid_document, summary
     assert expected_code in diagnostic_codes(report)
 
 
+@pytest.mark.parametrize(
+    "summary",
+    [
+        "SYN000130 remains under review.",
+        "Synthetic Scenario Company 000130 remains under review.",
+        "The margin of safety is 13.6%.",
+        "A payout ratio above 100% is a contract-defined review trigger.",
+    ],
+)
+def test_supported_numeric_text_is_not_rejected(tmp_path, valid_document, summary):
+    input_data = embedded(valid_document, 1)
+    input_data["symbol"] = "SYN000130"
+    input_data["companyName"] = "Synthetic Scenario Company 000130"
+    input_data["marginOfSafetyPercent"] = 13.64
+    output_data = embedded(valid_document, 2)
+    output_data["summary"] = summary
+    replace_embedded(valid_document, 1, input_data)
+    replace_embedded(valid_document, 2, output_data)
+    report = validate(write_dataset(tmp_path, [valid_document]))
+    assert codes.UNSUPPORTED_NUMERIC_CLAIM not in diagnostic_codes(report)
+
+
+def test_unrelated_rounded_number_remains_rejected(tmp_path, valid_document):
+    output_data = embedded(valid_document, 2)
+    output_data["summary"] = "The unsupported ratio is 77.7%."
+    replace_embedded(valid_document, 2, output_data)
+    report = validate(write_dataset(tmp_path, [valid_document]))
+    assert codes.UNSUPPORTED_NUMERIC_CLAIM in diagnostic_codes(report)
+
+
 def test_json_report_matches_text_counts(capsys):
     base_args = [
         "--dataset", str(SEED_DATASET),

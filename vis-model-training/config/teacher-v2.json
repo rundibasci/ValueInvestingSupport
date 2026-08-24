@@ -1,0 +1,40 @@
+{
+  "formatVersion": "1.0",
+  "candidateCountPerScenario": 2,
+  "teacher": {
+    "provider": "RunPod",
+    "cloudTier": "Secure Cloud",
+    "modelId": "google/gemma-3-27b-it",
+    "modelRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "tokenizerRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "precision": "bfloat16",
+    "minimumGpuMemoryGiB": 80
+  },
+  "critic": {
+    "provider": "RunPod",
+    "modelId": "google/gemma-3-27b-it",
+    "modelRevision": "005ad3404e59d6023443cb575daa05336842228a",
+    "sameCheckpointRequired": true
+  },
+  "decoding": {
+    "temperature": 0.2,
+    "doSample": true,
+    "topP": 0.9,
+    "maxNewTokens": 1024,
+    "batchSize": 1
+  },
+  "teacherPromptPath": "prompts/teacher-prompt-v2.txt",
+  "criticPromptPath": "prompts/critic-prompt-v3.txt",
+  "teacherPromptVersion": "teacher-prompt-v2",
+  "criticPromptVersion": "critic-prompt-v3",
+  "outputSchemaPath": "schemas/thesis-output.schema.json",
+  "candidateSchemaPath": "schemas/teacher-candidate.schema.json",
+  "criticSchemaPath": "schemas/critic-review.schema.json",
+  "licenseReviewPath": "config/license-review-gemma-2026-08-06.json",
+  "licenseReviewId": "GEMMA-ENGINEERING-REVIEW-2026-08-06",
+  "retention": {
+    "rawPathsIgnored": true,
+    "bulkGenerationRequiresExplicitApproval": true,
+    "automaticTrainingPromotion": false
+  }
+}

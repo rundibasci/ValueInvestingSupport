@@ -8,8 +8,9 @@ from .models import Diagnostic
 
 _RECOMMENDATION = re.compile(r"\b(buy|sell|hold)\b", re.IGNORECASE)
 _MARKDOWN = re.compile(r"```|(^|\n)\s{0,3}(#{1,6}|[-*])\s", re.MULTILINE)
-_NUMBER = re.compile(r"(?<![A-Za-z])[-+]?\d+(?:\.\d+)?")
+_NUMBER = re.compile(r"(?<![A-Za-z0-9_])[-+]?\d+(?:\.\d+)?(?![A-Za-z0-9_])")
 _REVIEW_DATA_QUALITIES = {"INSUFFICIENT", "INCONSISTENT", "STALE"}
+_SUPPORTED_POLICY_NUMBERS = {100.0}
 
 
 def _text_values(value: Any) -> Iterable[str]:
@@ -21,6 +22,14 @@ def _text_values(value: Any) -> Iterable[str]:
     elif isinstance(value, dict):
         for item in value.values():
             yield from _text_values(item)
+
+
+def _numeric_claim_is_supported(token: str, input_numbers: set[float]) -> bool:
+    claimed = float(token)
+    if claimed in _SUPPORTED_POLICY_NUMBERS or claimed in input_numbers:
+        return True
+    decimal_places = len(token.partition(".")[2]) if "." in token else 0
+    return any(round(value, decimal_places) == claimed for value in input_numbers)
 
 
 def validate_semantics(
@@ -93,8 +102,10 @@ def validate_semantics(
         for value in input_data.values()
         if isinstance(value, (int, float)) and not isinstance(value, bool)
     }
+    for input_text in _text_values(input_data):
+        input_numbers.update(float(match.group(0)) for match in _NUMBER.finditer(input_text))
     for match in _NUMBER.finditer(output_text):
-        if float(match.group(0)) not in input_numbers:
+        if not _numeric_claim_is_supported(match.group(0), input_numbers):
             diagnostics.append(
                 Diagnostic(line, example_id, codes.UNSUPPORTED_NUMERIC_CLAIM, "$.assistant", "error", "Output text contains a number not supplied by the input.")
             )

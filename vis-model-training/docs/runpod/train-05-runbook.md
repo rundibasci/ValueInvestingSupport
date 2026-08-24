@@ -34,7 +34,7 @@ Dopo i 40 slot:
 
 Nessun comando del pacchetto `vis_training.teacher` effettua provisioning RunPod. Il bulk da 500 scenari/1.000 candidati resta bloccato finché non viene autorizzato esplicitamente.
 
-## Calibration autorizzata il 2026-08-23
+## Calibration v1 eseguita il 2026-08-23
 
 L'utente ha autorizzato calibration e bulk con un tetto complessivo di 50 USD, imponendo uno stop e una review dei risultati dopo la calibration. Il sotto-limite operativo della calibration è 10 USD; il bulk non deve partire nella stessa esecuzione.
 
@@ -50,7 +50,7 @@ PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . calibration
   --calibration-budget-cap-usd 10
 ```
 
-Sul Pod usare run ID distinti dallo smoke:
+I comandi storici della v1 usavano run ID distinti dallo smoke:
 
 ```bash
 PYTHONPATH=src python -m vis_training.teacher.cli --root . runpod-generate \
@@ -66,6 +66,23 @@ PYTHONPATH=src python -m vis_training.teacher.cli --root . runpod-critic \
 ```
 
 Fermare la run al raggiungimento di 10 USD, anche se incompleta. Dopo artifact transfer, checksum e cleanup, presentare metriche e costo all'utente; il bulk richiede una nuova decisione esplicita.
+
+## Calibration v2 — preparazione locale
+
+La review umana della v1 ha bloccato il bulk. La v2 usa `config/teacher-v2.json`, `teacher-prompt-v2` e `critic-prompt-v3`; deve usare percorsi e run ID nuovi per non sovrascrivere gli artifact v1:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . \
+  --config config/teacher-v2.json calibration-plan \
+  --scenarios datasets/candidates/scenarios-v1.jsonl \
+  --output outputs/train-05/calibration-v2-plan.json \
+  --dataset-output outputs/train-05/calibration-v2-scenarios.jsonl \
+  --count 50 \
+  --program-budget-cap-usd 50 \
+  --calibration-budget-cap-usd 10
+```
+
+L'esecuzione RunPod della v2 resta vietata finché test locali, soglie di go/no-go e autorizzazione operativa non sono confermati. Il bulk resta separato e bloccato.
 
 ## Verifica locale
 

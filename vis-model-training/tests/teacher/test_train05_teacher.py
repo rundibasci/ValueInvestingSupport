@@ -18,7 +18,7 @@ from vis_training.teacher.smoke import select_calibration, select_smoke, write_c
 from vis_training.teacher.validation import financial_safety_errors
 
 ROOT = Path(__file__).parents[2]
-CONFIG = ROOT / "config/teacher-v1.json"
+CONFIG = ROOT / "config/teacher-v2.json"
 SCENARIOS = ROOT / "datasets/candidates/scenarios-v1.jsonl"
 
 
@@ -30,6 +30,18 @@ def test_config_and_pinned_revisions_are_smoke_ready():
     assert result["localToolingReady"] is True and result["smokeReady"] is True
     assert result["smokeBlockers"] == []
     assert len(result["artifactSha256"]) == 5
+    config = json.loads(CONFIG.read_text())
+    assert config["teacherPromptVersion"] == "teacher-prompt-v2"
+    assert config["criticPromptVersion"] == "critic-prompt-v3"
+
+
+def test_calibration_prompts_encode_human_review_regressions():
+    teacher = (ROOT / "prompts/teacher-prompt-v2.txt").read_text()
+    critic = (ROOT / "prompts/critic-prompt-v3.txt").read_text()
+    for required in ("FAIR_VALUE", "LEVERAGE_REQUIRES_CONTEXT", "value-trap", "Stable does not mean growing", "AVOID"):
+        assert required.lower() in (teacher + critic).lower()
+    assert "Do not use REVIEW as the default" in critic
+    assert "An ACCEPT with any score below 2" in critic
 
 
 def test_huggingface_backend_manifest_is_pinned():
@@ -77,6 +89,28 @@ def test_structural_semantic_and_financial_gates(tmp_path):
     assert "OVERVALUATION_DIRECTION_INCORRECT" in financial_safety_errors(scenarios["OVERVALUED_STRONG"], over)
     dividend = expected_thesis(scenarios["DIVIDEND_RISK"]); dividend["bearCase"] = []
     assert "DIVIDEND_RISK_EVIDENCE_OMITTED" in financial_safety_errors(scenarios["DIVIDEND_RISK"], dividend)
+    fair = expected_thesis(scenarios["FAIR_VALUE"]); fair["classification"] = "POTENTIALLY_OVERVALUED"
+    assert "FAIR_VALUE_CLASSIFICATION_REQUIRED" in financial_safety_errors(scenarios["FAIR_VALUE"], fair)
+
+
+@pytest.mark.parametrize(
+    "scenario_type",
+    [
+        "ADVERSARIAL_INPUT",
+        "CONTRADICTORY_SIGNALS",
+        "DIVIDEND_RISK",
+        "HIGH_LEVERAGE",
+        "INCONSISTENT_DATA",
+        "STALE_DATA",
+        "VALUE_TRAP",
+    ],
+)
+def test_human_review_failures_require_under_review(scenario_type):
+    scenario = next(item for item in records(SCENARIOS) if item["scenarioType"] == scenario_type)
+    output = expected_thesis(scenario)
+    output["classification"] = "POTENTIALLY_UNDERVALUED"
+    output["humanReviewRequired"] = False
+    assert "REVIEW_CLASSIFICATION_REQUIRED" in financial_safety_errors(scenario, output)
 
 
 def test_critic_reviews_only_parseable_and_never_mutates_candidate(tmp_path):
