@@ -16,15 +16,16 @@ from vis_training.teacher.pipeline import CandidateRunner
 from vis_training.teacher.report import build_report
 from vis_training.teacher.recovery import recover_wrapped_critic
 from vis_training.teacher.review import check_review, prepare_review, summarize_review
-from vis_training.teacher.smoke import select_calibration, select_smoke, write_calibration_plan
+from vis_training.teacher.smoke import select_calibration, select_capability_probe, select_smoke, write_calibration_plan, write_capability_probe_plan
 from vis_training.teacher.validation import financial_safety_errors
 
 ROOT = Path(__file__).parents[2]
-CONFIG = ROOT / "config/teacher-v2.json"
+CONFIG = ROOT / "config/teacher-v3.json"
 SCENARIOS = ROOT / "datasets/candidates/scenarios-v1.jsonl"
 CALIBRATION_REPORT = ROOT / "reports/teacher/train-05-calibration-summary-v1.json"
 HUMAN_SUMMARY = ROOT / "reports/teacher/train-05-calibration-human-review-summary-v1.json"
 CALIBRATION_GATE = ROOT / "config/calibration-v2-gate.json"
+CAPABILITY_PROBE_GATE = ROOT / "config/capability-probe-gate.json"
 
 
 def records(path): return list(iter_jsonl(path))
@@ -36,17 +37,31 @@ def test_config_and_pinned_revisions_are_smoke_ready():
     assert result["smokeBlockers"] == []
     assert len(result["artifactSha256"]) == 5
     config = json.loads(CONFIG.read_text())
-    assert config["teacherPromptVersion"] == "teacher-prompt-v2"
-    assert config["criticPromptVersion"] == "critic-prompt-v3"
+    assert config["teacherPromptVersion"] == "teacher-prompt-v3"
+    assert config["criticPromptVersion"] == "critic-prompt-v4"
+    assert config["decoding"]["doSample"] is False
 
 
 def test_calibration_prompts_encode_human_review_regressions():
-    teacher = (ROOT / "prompts/teacher-prompt-v2.txt").read_text()
-    critic = (ROOT / "prompts/critic-prompt-v3.txt").read_text()
+    teacher = (ROOT / "prompts/teacher-prompt-v3.txt").read_text()
+    critic = (ROOT / "prompts/critic-prompt-v4.txt").read_text()
     for required in ("FAIR_VALUE", "LEVERAGE_REQUIRES_CONTEXT", "value-trap", "Stable does not mean growing", "AVOID"):
         assert required.lower() in (teacher + critic).lower()
-    assert "Do not use REVIEW as the default" in critic
-    assert "An ACCEPT with any score below 2" in critic
+    assert "REVIEW is exceptional, not a default" in critic
+    assert "ACCEPT only when every check passes and all four scores are 2" in critic
+
+
+def test_model_visible_payload_excludes_pipeline_identity_and_uses_configured_decoding(tmp_path):
+    candidates, manifest, critics = tmp_path / "c.jsonl", tmp_path / "m.json", tmp_path / "r.jsonl"
+    teacher = FakeTeacherBackend()
+    CandidateRunner(ROOT, CONFIG, teacher).run(SCENARIOS, candidates, manifest, limit=1)
+    assert all("candidateId" not in payload for payload in teacher.payloads)
+    assert all(set(payload) == {"scenario", "outputSchema"} for payload in teacher.payloads)
+    assert all(parameters["doSample"] is False for parameters in teacher.generation_parameters)
+    critic = FakeCriticBackend()
+    CriticRunner(ROOT, CONFIG, critic).run(SCENARIOS, candidates, critics)
+    assert all("candidateId" not in payload for payload in critic.payloads)
+    assert all(parameters["doSample"] is False for parameters in critic.generation_parameters)
 
 
 def test_huggingface_backend_manifest_is_pinned():
@@ -140,7 +155,10 @@ def test_report_smoke_and_review_artifacts(tmp_path):
     CriticRunner(ROOT, CONFIG, FakeCriticBackend()).run(SCENARIOS, candidates, critics)
     report = build_report(candidates, critics, hourly_rate=0.4)
     assert report["denominators"]["candidateSlots"] == 40
+    assert report["denominators"]["structurallyValidCandidates"] == 40
     assert report["denominators"]["usableCriticReviews"] == 40
+    assert report["scenarioCount"] == 20
+    assert report["categoryCount"] == len({item["scenarioType"] for item in records(candidates)})
     assert report["usage"]["estimatedCostUsd"] is not None and report["automaticTrainingPromotion"] is False
     smoke = select_smoke(SCENARIOS)
     assert len(smoke) == 20 and len({x["scenarioType"] for x in smoke}) == 14
@@ -164,6 +182,18 @@ def test_calibration_selection_is_deterministic_and_balanced():
         counts[scenario["scenarioType"]] = counts.get(scenario["scenarioType"], 0) + 1
     assert len(counts) == 14
     assert max(counts.values()) - min(counts.values()) <= 1
+
+
+def test_capability_probe_is_deterministic_targeted_and_twenty_slots(tmp_path):
+    first = select_capability_probe(SCENARIOS)
+    second = select_capability_probe(SCENARIOS)
+    assert [item["scenarioId"] for item in first] == [item["scenarioId"] for item in second]
+    assert len(first) == 10 and len({item["scenarioType"] for item in first}) == 10
+    plan = write_capability_probe_plan(SCENARIOS, tmp_path / "plan.json", dataset_output=tmp_path / "probe.jsonl")
+    assert plan["candidateSlotCount"] == 20
+    assert plan["createsCloudResources"] is False
+    assert plan["requiresStopBeforeCalibration"] is True
+    assert len(records(tmp_path / "probe.jsonl")) == 10
 
 
 def test_calibration_plan_records_budget_and_stop_gate(tmp_path):
@@ -233,6 +263,35 @@ def test_calibration_gate_accepts_a_report_meeting_every_threshold():
     assert result["decision"] == "GO"
     assert result["failedCriteria"] == []
     assert all(item["passed"] for item in result["criteria"])
+
+
+def test_capability_probe_gate_requires_strict_structure_and_decisive_critic():
+    report = {
+        "teacher": {"scenarioCount": 10, "categoryCount": 10, "candidateSlots": 20,
+                    "parseableCandidates": 20, "structurallyValidCandidates": 19},
+        "critic": {"reviewSlots": 20, "canonicalReviews": 20, "usableReviews": 20,
+                   "verdicts": {"ACCEPT": 16, "REJECT": 2, "REVIEW": 2}},
+        "bulkStarted": False,
+        "automaticTrainingPromotion": False,
+    }
+    human = {
+        "reviewedCandidateCount": 20,
+        "categoryCount": 10,
+        "decisions": {"ACCEPT": 16, "REJECT": 4},
+        "candidateStatusByDecision": {},
+        "scores": {
+            name: {"average": average, "distribution": {"0": 0, "1": 2, "2": 18}}
+            for name, average in {"grounding": 1.9, "classification": 1.9, "riskCoverage": 1.8, "decisionSupportSafety": 1.9}.items()
+        },
+        "automaticTrainingPromotion": False,
+    }
+    thresholds = json.loads(CAPABILITY_PROBE_GATE.read_text())
+    blocked = evaluate_calibration_gate(report, human, thresholds)
+    assert blocked["decision"] == "NO_GO"
+    assert blocked["failedCriteria"] == ["structurally_valid_rate"]
+    report["teacher"]["structurallyValidCandidates"] = 20
+    passed = evaluate_calibration_gate(report, human, thresholds)
+    assert passed["decision"] == "GO"
 
 
 def test_calibration_gate_cli_returns_four_and_can_write_report(tmp_path, capsys):

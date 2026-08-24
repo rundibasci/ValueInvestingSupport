@@ -21,7 +21,9 @@ def build_report(candidates_path: Path, critics_path: Optional[Path] = None, *, 
     total_latency_ms = sum(latencies)
     report = {
         "formatVersion": "1.0", "source": "SYNTHETIC_TEACHER", "automaticTrainingPromotion": False,
+        "scenarioCount": len({item["scenarioId"] for item in candidates}), "categoryCount": len(categories), "bulkStarted": False,
         "denominators": {"candidateSlots": len(candidates), "parseableCandidates": sum(x.get("parsedOutput") is not None for x in candidates),
+                         "structurallyValidCandidates": sum(x.get("parsedOutput") is not None and not x.get("structuralErrors") for x in candidates),
                          "criticEligibleCandidates": sum(bool(x.get("criticEligible")) for x in candidates), "criticReviews": len(critics),
                          "canonicalCriticReviews": sum(x.get("status") == "REVIEWED" for x in critics),
                          "recoveredCriticReviews": sum(x.get("status") == "RECOVERED_REVIEW" for x in critics),

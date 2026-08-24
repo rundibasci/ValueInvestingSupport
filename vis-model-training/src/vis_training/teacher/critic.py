@@ -12,7 +12,7 @@ from .validation import schema_errors
 
 
 class CriticBackend(Protocol):
-    def review(self, messages, *, max_new_tokens: int) -> Dict[str, Any]: ...
+    def review(self, messages, *, candidate_id: str, generation_parameters: Dict[str, Any]) -> Dict[str, Any]: ...
     def manifest(self) -> Dict[str, Any]: ...
 
 
@@ -48,13 +48,16 @@ class CriticRunner:
         return {"processed": processed, "skipped": skipped, "ineligible": ineligible, "eligible": processed + skipped}
 
     def _review(self, critic_id: str, candidate: Dict[str, Any], scenario: Dict[str, Any]) -> Dict[str, Any]:
-        payload = {"candidateId": candidate["candidateId"], "scenario": scenario, "candidateOutput": candidate["parsedOutput"],
+        payload = {"scenario": scenario, "candidateOutput": candidate["parsedOutput"],
                    "deterministicErrors": candidate["structuralErrors"] + candidate["semanticErrors"], "reviewSchema": self.schema}
         raw = parsed = error = None
         input_tokens = output_tokens = latency_ms = None
         try:
-            result = self.backend.review([{"role": "system", "content": self.prompt}, {"role": "user", "content": canonical_json(payload)}],
-                                         max_new_tokens=self.config["decoding"]["maxNewTokens"])
+            result = self.backend.review(
+                [{"role": "system", "content": self.prompt}, {"role": "user", "content": canonical_json(payload)}],
+                candidate_id=candidate["candidateId"],
+                generation_parameters=self.config["decoding"],
+            )
             raw = result.get("text")
             input_tokens, output_tokens, latency_ms = result.get("inputTokens"), result.get("outputTokens"), result.get("latencyMs")
             try:

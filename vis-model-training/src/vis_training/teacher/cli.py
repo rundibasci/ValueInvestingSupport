@@ -14,14 +14,14 @@ from .pipeline import CandidateRunner
 from .report import write_report
 from .recovery import recover_wrapped_critic
 from .review import check_review, prepare_review, summarize_review
-from .smoke import write_calibration_plan, write_smoke_plan
+from .smoke import write_calibration_plan, write_capability_probe_plan, write_smoke_plan
 from .calibration_gate import evaluate_files
 
 
 def _parser():
     parser = argparse.ArgumentParser(prog="vis-teacher", description="TRAIN-05 local tooling; never provisions cloud resources")
     parser.add_argument("--root", type=Path, default=Path("."))
-    parser.add_argument("--config", type=Path, default=Path("config/teacher-v2.json"))
+    parser.add_argument("--config", type=Path, default=Path("config/teacher-v3.json"))
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("validate-config")
     generate = commands.add_parser("local-generate"); generate.add_argument("--scenarios", type=Path, required=True); generate.add_argument("--output", type=Path, required=True); generate.add_argument("--manifest", type=Path, required=True); generate.add_argument("--limit", type=int)
@@ -30,8 +30,9 @@ def _parser():
     real_critic = commands.add_parser("runpod-critic"); real_critic.add_argument("--scenarios", type=Path, required=True); real_critic.add_argument("--candidates", type=Path, required=True); real_critic.add_argument("--output", type=Path, required=True); real_critic.add_argument("--run-id", default="train-05-calibration-v2-critic-v3")
     report = commands.add_parser("report"); report.add_argument("--candidates", type=Path, required=True); report.add_argument("--critics", type=Path); report.add_argument("--output", type=Path, required=True); report.add_argument("--hourly-rate", type=float)
     smoke = commands.add_parser("smoke-plan"); smoke.add_argument("--scenarios", type=Path, required=True); smoke.add_argument("--output", type=Path, required=True); smoke.add_argument("--dataset-output", type=Path); smoke.add_argument("--count", type=int, default=20)
+    probe = commands.add_parser("capability-probe-plan"); probe.add_argument("--scenarios", type=Path, required=True); probe.add_argument("--output", type=Path, required=True); probe.add_argument("--dataset-output", type=Path)
     calibration = commands.add_parser("calibration-plan"); calibration.add_argument("--scenarios", type=Path, required=True); calibration.add_argument("--output", type=Path, required=True); calibration.add_argument("--dataset-output", type=Path); calibration.add_argument("--count", type=int, default=50); calibration.add_argument("--program-budget-cap-usd", type=float, default=50.0); calibration.add_argument("--calibration-budget-cap-usd", type=float, default=10.0)
-    review = commands.add_parser("prepare-review"); review.add_argument("--candidates", type=Path, required=True); review.add_argument("--output", type=Path, required=True); review.add_argument("--minimum", type=int, default=30)
+    review = commands.add_parser("prepare-review"); review.add_argument("--candidates", type=Path, required=True); review.add_argument("--output", type=Path, required=True); review.add_argument("--minimum", type=int, default=30); review.add_argument("--minimum-categories", type=int, default=14)
     check = commands.add_parser("check-review"); check.add_argument("--review", type=Path, required=True)
     summary = commands.add_parser("summarize-review"); summary.add_argument("--review", type=Path, required=True); summary.add_argument("--output", type=Path, required=True)
     recover = commands.add_parser("recover-critic"); recover.add_argument("--input", type=Path, required=True); recover.add_argument("--output", type=Path, required=True); recover.add_argument("--schema", type=Path, default=Path("schemas/critic-review.schema.json"))
@@ -57,8 +58,9 @@ def main(argv=None):
             result = CriticRunner(args.root, args.config, backend, run_id=args.run_id).run(args.scenarios, args.candidates, args.output)
         elif args.command == "report": result = write_report(args.candidates, args.critics, args.output, hourly_rate=args.hourly_rate)
         elif args.command == "smoke-plan": result = write_smoke_plan(args.scenarios, args.output, args.count, dataset_output=args.dataset_output)
+        elif args.command == "capability-probe-plan": result = write_capability_probe_plan(args.scenarios, args.output, dataset_output=args.dataset_output)
         elif args.command == "calibration-plan": result = write_calibration_plan(args.scenarios, args.output, args.count, dataset_output=args.dataset_output, program_budget_cap_usd=args.program_budget_cap_usd, calibration_budget_cap_usd=args.calibration_budget_cap_usd)
-        elif args.command == "prepare-review": result = prepare_review(args.candidates, args.output, args.minimum)
+        elif args.command == "prepare-review": result = prepare_review(args.candidates, args.output, args.minimum, args.minimum_categories)
         elif args.command == "check-review":
             result = check_review(args.review)
             print(json.dumps(result, sort_keys=True)); return 0 if result["complete"] else 3

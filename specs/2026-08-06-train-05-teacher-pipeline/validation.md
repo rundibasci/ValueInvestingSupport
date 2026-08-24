@@ -38,9 +38,21 @@
 - [x] Gate deterministico offline con exit code distinto per `GO` e `NO_GO`.
 - [x] Calibration v1 verificata come `NO_GO` dal nuovo gate.
 - [x] Fixture positiva verificata per impedire un gate impossibile da superare.
-- [ ] Calibration v2 eseguita con teacher prompt v2 e critic prompt v3.
-- [ ] Review umana v2 completa su almeno 30 casi e tutte le 14 categorie.
-- [ ] Report v2 supera il gate automatico prima di qualsiasi bulk.
+- [x] Calibration v2 eseguita con teacher prompt v2 e critic prompt v3.
+- [x] Review umana v2 completa su 30 casi e tutte le 14 categorie: 15 accept, 15 reject.
+- [ ] Report v2 supera il gate automatico prima di qualsiasi bulk (`NO_GO` il 2026-08-24; bulk bloccato).
+
+### Capability probe v3 gate (2026-08-24)
+
+- [x] `candidateId` e gli identificatori di pipeline sono rimossi dai payload visibili a teacher e critic.
+- [x] Il backend applica i parametri di decoding configurati; la v3 usa greedy decoding senza sampling.
+- [x] Teacher prompt v3 e critic prompt v4 coprono JSON stretto, invalidation direction, soglie qualitative e coerenza della review umana.
+- [x] Probe locale deterministico: 10 scenari mirati, 20 slot, nessuna risorsa cloud.
+- [x] Gate probe versionato: 20/20 parse/schema, almeno 19/20 critic canonical e 18/20 verdetti decisivi.
+- [x] Dry run completo con backend fake: 20/20 candidati, 20/20 critic canonical, report e modulo review da 20 casi/10 categorie.
+- [x] Capability probe v3 eseguito sul checkpoint reale e fermato anticipatamente: 5/5 output fenced, 5 `PARSE_REJECTED`, gate impossibile.
+- [x] Probe chiuso con decisione reale `NO_GO`; la review umana non è applicabile perché nessun output ha superato il contratto minimo.
+- [x] Ulteriori run Gemma 3 27B e il percorso QLoRA sono sospesi; un confronto tra modelli richiederebbe una nuova decisione esplicita.
 
 - [ ] Teacher, tokenizer, prompt, schema, dipendenze e ambiente sono revision-pinned e hashati.
 - [x] Il license review ID rimanda a termini/model card ufficiali verificati e datati prima della run.
@@ -147,6 +159,10 @@ shasum -a 256 -c reports/scenarios/checksums-v1.sha256
 .venv/bin/python -m vis_training.teacher.cli report
 .venv/bin/python -m vis_training.teacher.cli prepare-review --minimum 30
 .venv/bin/python -m vis_training.teacher.cli check-review
+.venv/bin/python -m vis_training.teacher.cli capability-probe-plan \
+  --scenarios datasets/candidates/scenarios-v1.jsonl \
+  --output outputs/train-05/capability-probe-v3-plan.json \
+  --dataset-output outputs/train-05/capability-probe-v3-scenarios.jsonl
 
 cd ..
 git diff --check
@@ -168,4 +184,4 @@ git status --short
 
 ## Merge Gate
 
-TRAIN-05 è merge-ready soltanto quando tooling locale e smoke RunPod sono verificati; il bulk è stato autorizzato esplicitamente e ha contabilizzato 1.000 candidati con provenance completa; ogni candidato eleggibile ha una critic review separata; costi/token e metriche sono documentati; almeno 30 casi sono revisionati manualmente; artifact sono sanitizzati e recuperati; risorse cloud sono rimosse; regressioni TRAIN passano; nessun output è stato promosso automaticamente nel training. TRAIN-06 resta bloccata fino a questo gate.
+Il merge gate positivo originario non è stato raggiunto: il bulk non è stato eseguito e TRAIN-06 non è autorizzata. TRAIN-05 può essere archiviata soltanto come esperimento `NO_GO`, con il fallimento, gli artifact disponibili, il cleanup cloud e la sospensione delle fasi downstream documentati in `vis-model-training/reports/teacher/train-05-failure-and-qlora-pause.md`. Questa chiusura negativa non equivale all'accettazione del teacher né autorizza dataset, QLoRA o adapter.

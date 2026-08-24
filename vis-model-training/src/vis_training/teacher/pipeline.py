@@ -14,7 +14,7 @@ from .validation import validate_output
 
 
 class TeacherBackend(Protocol):
-    def generate(self, messages, *, seed: int, max_new_tokens: int) -> Dict[str, Any]: ...
+    def generate(self, messages, *, candidate_id: str, seed: int, generation_parameters: Dict[str, Any]) -> Dict[str, Any]: ...
     def manifest(self) -> Dict[str, Any]: ...
 
 
@@ -74,13 +74,21 @@ class CandidateRunner:
         return {"scenariosSeen": scenarios_seen, "processed": processed, "skipped": skipped, "candidateSlots": processed + skipped}
 
     def _generate(self, scenario: Dict[str, Any], candidate_id: str, index: int, manifest: Dict[str, Any]) -> Dict[str, Any]:
-        payload = canonical_json({"candidateId": candidate_id, "scenario": scenario, "outputSchema": self.output_schema})
+        # Candidate identity belongs to pipeline provenance, not to the model's output contract.
+        # Keeping it out of the visible payload prevents the model from copying it into the
+        # thesis object when the output schema has additionalProperties=false.
+        payload = canonical_json({"scenario": scenario, "outputSchema": self.output_schema})
         messages = [{"role": "system", "content": self.teacher_prompt}, {"role": "user", "content": payload}]
         raw = parsed = generation_error = parse_error = None
         structural_errors, semantic_errors = [], []
         input_tokens = output_tokens = latency_ms = None
         try:
-            result = self.backend.generate(messages, seed=_seed(scenario.get("seed", 0), index), max_new_tokens=self.config["decoding"]["maxNewTokens"])
+            result = self.backend.generate(
+                messages,
+                candidate_id=candidate_id,
+                seed=_seed(scenario.get("seed", 0), index),
+                generation_parameters=self.config["decoding"],
+            )
             raw = result.get("text")
             input_tokens, output_tokens, latency_ms = result.get("inputTokens"), result.get("outputTokens"), result.get("latencyMs")
             try:

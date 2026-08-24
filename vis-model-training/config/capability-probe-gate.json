@@ -1,0 +1,29 @@
+{
+  "formatVersion": "1.0",
+  "gateId": "TRAIN-05-CAPABILITY-PROBE-GATE",
+  "minimumScenarioCount": 10,
+  "minimumCategoryCount": 10,
+  "expectedCandidateSlots": 20,
+  "minimumParseableRate": 1.0,
+  "minimumStructuralValidRate": 1.0,
+  "minimumUsableCriticRate": 1.0,
+  "minimumCanonicalCriticRate": 0.95,
+  "minimumDecisiveCriticRate": 0.90,
+  "minimumHumanReviewCount": 20,
+  "minimumHumanCategoryCount": 10,
+  "minimumHumanAcceptRate": 0.80,
+  "maximumValidatorFalsePositiveRate": 0.05,
+  "minimumAverageScores": {
+    "grounding": 1.80,
+    "classification": 1.80,
+    "riskCoverage": 1.60,
+    "decisionSupportSafety": 1.80
+  },
+  "maximumZeroScoreRates": {
+    "classification": 0.05,
+    "decisionSupportSafety": 0.05
+  },
+  "requireResourceCleanup": false,
+  "requireBulkNotStarted": true,
+  "requireAutomaticTrainingPromotionDisabled": true
+}

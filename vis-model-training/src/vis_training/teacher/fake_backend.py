@@ -55,11 +55,14 @@ class FakeTeacherBackend:
         self.failure_ids = set(failure_ids)
         self.overrides = overrides or {}
         self.calls = []
+        self.payloads = []
+        self.generation_parameters = []
 
-    def generate(self, messages, *, seed: int, max_new_tokens: int):
+    def generate(self, messages, *, candidate_id: str, seed: int, generation_parameters: Dict[str, Any]):
         payload = json.loads(messages[-1]["content"])
+        self.payloads.append(payload)
+        self.generation_parameters.append(dict(generation_parameters))
         scenario = payload["scenario"]
-        candidate_id = payload["candidateId"]
         self.calls.append(candidate_id)
         if candidate_id in self.failure_ids:
             raise RuntimeError("synthetic backend failure; secret payload omitted")
@@ -79,10 +82,13 @@ class FakeCriticBackend:
         self.failure_ids = set(failure_ids)
         self.invalid_ids = set(invalid_ids)
         self.calls = []
+        self.payloads = []
+        self.generation_parameters = []
 
-    def review(self, messages, *, max_new_tokens: int):
+    def review(self, messages, *, candidate_id: str, generation_parameters: Dict[str, Any]):
         payload = json.loads(messages[-1]["content"])
-        candidate_id = payload["candidateId"]
+        self.payloads.append(payload)
+        self.generation_parameters.append(dict(generation_parameters))
         self.calls.append(candidate_id)
         if candidate_id in self.failure_ids:
             raise RuntimeError("synthetic critic failure; secret payload omitted")

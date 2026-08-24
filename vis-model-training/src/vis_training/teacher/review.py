@@ -9,7 +9,7 @@ from .errors import TeacherDataError
 from .io import iter_jsonl, read_object, sha256_file, write_json
 
 
-def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30) -> Dict[str, Any]:
+def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30, minimum_categories: int = 14) -> Dict[str, Any]:
     candidates = list(iter_jsonl(candidates_path))
     groups = defaultdict(list)
     for item in candidates:
@@ -24,7 +24,9 @@ def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30) 
             selected.append(item); chosen.add(item["candidateId"])
     if len(selected) < minimum:
         raise TeacherDataError(f"Only {len(selected)} candidates available; {minimum} required")
-    form = {"formatVersion": "1.0", "minimumReviews": minimum, "automaticTrainingPromotion": False,
+    if minimum_categories <= 0 or minimum_categories > len(groups):
+        raise TeacherDataError(f"Review requires {minimum_categories} categories but only {len(groups)} are available")
+    form = {"formatVersion": "1.0", "minimumReviews": minimum, "minimumCategories": minimum_categories, "automaticTrainingPromotion": False,
             "reviews": [{"candidateId": x["candidateId"], "scenarioType": x["scenarioType"], "candidateStatus": x["status"],
                          "reviewerAlias": None, "reviewedAt": None, "accepted": None,
                          "scores": {"grounding": None, "classification": None, "riskCoverage": None, "decisionSupportSafety": None}, "notes": None}
@@ -34,14 +36,14 @@ def prepare_review(candidates_path: Path, output_path: Path, minimum: int = 30) 
 
 
 def check_review(path: Path) -> Dict[str, Any]:
-    form = read_object(path); reviews = form.get("reviews", []); minimum = form.get("minimumReviews", 30)
+    form = read_object(path); reviews = form.get("reviews", []); minimum = form.get("minimumReviews", 30); minimum_categories = form.get("minimumCategories", 14)
     incomplete = []
     for review in reviews:
         scores = review.get("scores", {})
         if not review.get("reviewerAlias") or not review.get("reviewedAt") or not isinstance(review.get("accepted"), bool) or any(scores.get(k) not in (0, 1, 2) for k in ("grounding", "classification", "riskCoverage", "decisionSupportSafety")):
             incomplete.append(review.get("candidateId"))
     categories = {x.get("scenarioType") for x in reviews}
-    return {"complete": len(reviews) >= minimum and not incomplete and len(categories) >= 14, "reviewCount": len(reviews), "categoryCount": len(categories), "incompleteCandidateIds": incomplete}
+    return {"complete": len(reviews) >= minimum and not incomplete and len(categories) >= minimum_categories, "reviewCount": len(reviews), "categoryCount": len(categories), "incompleteCandidateIds": incomplete}
 
 
 def summarize_review(path: Path, output_path: Path) -> Dict[str, Any]:

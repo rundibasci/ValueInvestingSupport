@@ -33,6 +33,7 @@ def _calibration_values(report: Dict[str, Any]) -> Dict[str, Any]:
             "categoryCount": len(report.get("byScenarioType", {})),
             "candidateSlots": denominators.get("candidateSlots"),
             "parseableCandidates": denominators.get("parseableCandidates"),
+            "structurallyValidCandidates": denominators.get("structurallyValidCandidates"),
         }
         critic = {
             "reviewSlots": denominators.get("criticReviews"),
@@ -79,6 +80,11 @@ def evaluate_calibration_gate(report: Dict[str, Any], human: Dict[str, Any], thr
         _criterion("human_accept_rate", _rate(accepted, review_count), "gte", thresholds["minimumHumanAcceptRate"]),
         _criterion("validator_false_positive_rate", _rate(false_positives, review_count), "lte", thresholds["maximumValidatorFalsePositiveRate"]),
     ]
+    if "minimumStructuralValidRate" in thresholds:
+        structural = teacher.get("structurallyValidCandidates")
+        if not isinstance(structural, int):
+            raise TeacherDataError("Calibration report lacks structurally valid candidate denominator")
+        criteria.insert(4, _criterion("structurally_valid_rate", _rate(structural, teacher["candidateSlots"]), "gte", thresholds["minimumStructuralValidRate"]))
     for name, minimum in thresholds["minimumAverageScores"].items():
         actual = scores.get(name, {}).get("average")
         if not isinstance(actual, (int, float)):

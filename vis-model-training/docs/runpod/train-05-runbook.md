@@ -111,11 +111,53 @@ PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . calibration
 
 Exit code `0` significa `GO`; exit code `4` significa `NO_GO`. Un `GO` certifica la qualità minima della calibration, ma non crea risorse, non avvia il bulk e non sostituisce l'autorizzazione operativa dell'utente.
 
+La calibration v2 eseguita il 2026-08-24 ha restituito `NO_GO`: 93% parseable, 0% strutturalmente conforme, 2,15% critic canonical, 1,08% critic decisivo e 50% accept umano. Il bulk resta bloccato.
+
+## Capability probe v3 — preparazione locale
+
+Prima di una nuova calibration completa, eseguire un solo probe correttivo con `config/teacher-v3.json`, `teacher-prompt-v3` e `critic-prompt-v4`. La v3 rimuove `candidateId` dal payload visibile al modello, applica realmente i parametri di decoding configurati e usa decoding greedy (`doSample=false`).
+
+Il probe seleziona 10 scenari mirati e produce 20 candidate slot:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m vis_training.teacher.cli --root . capability-probe-plan \
+  --scenarios datasets/candidates/scenarios-v1.jsonl \
+  --output outputs/train-05/capability-probe-v3-plan.json \
+  --dataset-output outputs/train-05/capability-probe-v3-scenarios.jsonl
+```
+
+Il piano non crea risorse cloud. L'esecuzione RunPod deve usare percorsi nuovi:
+
+```bash
+PYTHONPATH=src python -m vis_training.teacher.cli --root . --config config/teacher-v3.json runpod-generate \
+  --run-id train-05-capability-probe-v3 \
+  --scenarios outputs/train-05/capability-probe-v3-scenarios.jsonl \
+  --output outputs/train-05/capability-probe-v3-candidates.jsonl \
+  --manifest outputs/train-05/capability-probe-v3-manifest.json
+
+PYTHONPATH=src python -m vis_training.teacher.cli --root . --config config/teacher-v3.json runpod-critic \
+  --run-id train-05-capability-probe-v3-critic \
+  --scenarios outputs/train-05/capability-probe-v3-scenarios.jsonl \
+  --candidates outputs/train-05/capability-probe-v3-candidates.jsonl \
+  --output outputs/train-05/capability-probe-v3-critics.jsonl
+```
+
+Il gate `config/capability-probe-gate.json` richiede:
+
+- 20/20 output teacher parseable e strutturalmente conformi;
+- 20/20 critic utilizzabili, almeno 19/20 canonical e almeno 18/20 decisivi;
+- review umana di tutti i 20 slot sulle 10 categorie mirate;
+- accept rate almeno 80% e le soglie qualitative TRAIN-05 già versionate.
+
+Se il checkpoint fallisce questo probe dopo il ciclo correttivo v3, non eseguire calibration v3: fermare il prompt tuning e preparare un confronto controllato tra modelli. Anche in caso di `GO`, fermarsi prima della calibration e richiedere una decisione separata.
+
+Il probe reale v3 del 2026-08-24 è stato fermato dopo 5 slot: 5/5 risposte erano JSON racchiuso in fence Markdown e quindi `PARSE_REJECTED`. Il criterio 20/20 era già impossibile. Il critic non è stato avviato, gli artifact parziali sono stati recuperati con checksum e tutte le risorse RunPod sono state eliminate. Non ripetere il probe con Gemma 3 27B senza una nuova decisione architetturale.
+
 ## Verifica locale
 
 ```bash
 cd vis-model-training
-.venv/bin/vis-teacher --root . validate-config
+.venv/bin/vis-teacher --root . --config config/teacher-v3.json validate-config
 .venv/bin/vis-teacher --root . smoke-plan \
   --scenarios datasets/candidates/scenarios-v1.jsonl \
   --output outputs/train-05/smoke-plan.json \

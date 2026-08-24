@@ -36,7 +36,7 @@ class HuggingFaceBackend:
             for message in messages
         ]
 
-    def _infer(self, messages, *, max_new_tokens: int, seed: Optional[int] = None):
+    def _infer(self, messages, *, generation_parameters: Dict[str, Any], seed: Optional[int] = None):
         self._load()
         import torch
         if seed is not None:
@@ -48,17 +48,27 @@ class HuggingFaceBackend:
         inputs = self._processor.apply_chat_template(processor_messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt")
         inputs = {key: value.to(self._model.device) for key, value in inputs.items()}
         input_tokens = int(inputs["input_ids"].shape[-1])
+        do_sample = bool(generation_parameters.get("doSample", False))
+        generation_kwargs = {
+            "max_new_tokens": int(generation_parameters["maxNewTokens"]),
+            "do_sample": do_sample,
+        }
+        if do_sample:
+            generation_kwargs.update(
+                temperature=float(generation_parameters["temperature"]),
+                top_p=float(generation_parameters["topP"]),
+            )
         with torch.inference_mode():
-            generated = self._model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=True, temperature=0.2, top_p=0.9)
+            generated = self._model.generate(**inputs, **generation_kwargs)
         continuation = generated[0, input_tokens:]
         text = self._processor.decode(continuation, skip_special_tokens=True)
         return {"text": text, "inputTokens": input_tokens, "outputTokens": int(continuation.shape[-1]), "latencyMs": (time.perf_counter() - started) * 1000}
 
-    def generate(self, messages, *, seed: int, max_new_tokens: int) -> Dict[str, Any]:
-        return self._infer(messages, seed=seed, max_new_tokens=max_new_tokens)
+    def generate(self, messages, *, candidate_id: str, seed: int, generation_parameters: Dict[str, Any]) -> Dict[str, Any]:
+        return self._infer(messages, seed=seed, generation_parameters=generation_parameters)
 
-    def review(self, messages, *, max_new_tokens: int) -> Dict[str, Any]:
-        return self._infer(messages, seed=20260806, max_new_tokens=max_new_tokens)
+    def review(self, messages, *, candidate_id: str, generation_parameters: Dict[str, Any]) -> Dict[str, Any]:
+        return self._infer(messages, seed=20260806, generation_parameters=generation_parameters)
 
     def manifest(self) -> Dict[str, Any]:
         return {"provider": self.provider, "model": self.model_id, "revision": self.revision, "tokenizerRevision": self.tokenizer_revision}

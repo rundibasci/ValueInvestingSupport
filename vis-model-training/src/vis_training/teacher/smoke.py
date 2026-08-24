@@ -8,6 +8,18 @@ from .errors import TeacherDataError
 from .io import canonical_json, iter_jsonl, write_json
 
 PRIORITY = ["VALUE_TRAP", "OVERVALUED_STRONG", "DIVIDEND_RISK", "STALE_DATA", "CONTRADICTORY_SIGNALS", "ADVERSARIAL_INPUT"]
+CAPABILITY_PROBE_TYPES = [
+    "ADVERSARIAL_INPUT",
+    "DIVIDEND_RISK",
+    "FAIR_VALUE",
+    "HIGH_LEVERAGE",
+    "INCONSISTENT_DATA",
+    "INSUFFICIENT_DATA",
+    "OVERVALUED_STRONG",
+    "STALE_DATA",
+    "UNDERVALUED_WEAK",
+    "VALUE_TRAP",
+]
 
 
 def select_smoke(scenarios_path: Path, count: int = 20) -> List[Dict[str, Any]]:
@@ -58,11 +70,53 @@ def select_calibration(scenarios_path: Path, count: int = 50) -> List[Dict[str, 
     return selected
 
 
+def select_capability_probe(scenarios_path: Path) -> List[Dict[str, Any]]:
+    """Select ten deterministic scenarios targeting observed v2 failure modes."""
+    groups = defaultdict(list)
+    for scenario in iter_jsonl(scenarios_path):
+        groups[scenario["scenarioType"]].append(scenario)
+    missing = [name for name in CAPABILITY_PROBE_TYPES if not groups.get(name)]
+    if missing:
+        raise TeacherDataError("Capability probe lacks required scenario types: " + ", ".join(missing))
+    return [sorted(groups[name], key=lambda item: item["scenarioId"])[0] for name in CAPABILITY_PROBE_TYPES]
+
+
 def write_smoke_plan(scenarios_path: Path, output_path: Path, count: int = 20, *, dataset_output: Path = None) -> Dict[str, Any]:
     selected = select_smoke(scenarios_path, count)
     plan = {"formatVersion": "1.0", "createsCloudResources": False, "requiresExplicitExecutionApproval": True,
             "scenarioCount": len(selected), "candidateSlotCount": len(selected) * 2,
             "scenarios": [{"scenarioId": x["scenarioId"], "scenarioType": x["scenarioType"], "difficulty": x["difficulty"]} for x in selected]}
+    write_json(output_path, plan)
+    if dataset_output is not None:
+        dataset_output = Path(dataset_output)
+        dataset_output.parent.mkdir(parents=True, exist_ok=True)
+        dataset_output.write_text("".join(canonical_json(item) + "\n" for item in selected), encoding="utf-8")
+    return plan
+
+
+def write_capability_probe_plan(scenarios_path: Path, output_path: Path, *, dataset_output: Path = None) -> Dict[str, Any]:
+    selected = select_capability_probe(scenarios_path)
+    plan = {
+        "formatVersion": "1.0",
+        "planType": "CAPABILITY_PROBE",
+        "createsCloudResources": False,
+        "requiresExplicitExecutionApproval": True,
+        "requiresStopBeforeCalibration": True,
+        "scenarioCount": len(selected),
+        "candidateSlotCount": len(selected) * 2,
+        "targetedFailureModes": [
+            "STRICT_JSON_AND_SCHEMA",
+            "DECISIVE_CRITIC",
+            "INVALIDATION_DIRECTION",
+            "UNSUPPORTED_QUALITATIVE_THRESHOLDS",
+            "WEAK_MARGIN_OF_SAFETY",
+            "HUMAN_REVIEW_CONSISTENCY",
+        ],
+        "scenarios": [
+            {"scenarioId": item["scenarioId"], "scenarioType": item["scenarioType"], "difficulty": item["difficulty"]}
+            for item in selected
+        ],
+    }
     write_json(output_path, plan)
     if dataset_output is not None:
         dataset_output = Path(dataset_output)

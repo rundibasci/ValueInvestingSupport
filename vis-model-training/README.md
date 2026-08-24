@@ -1,9 +1,9 @@
 # VIS Gemma Training
 
-Specifica incrementale per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
+Specifica e storico sperimentale del percorso avviato per addestrare **Gemma 3** come *Investment Thesis Agent* di **ValueInvestingSupport (VIS)** mediante **Supervised Fine-Tuning (SFT)** e **QLoRA**.
 
-> Stato: TRAIN-00–04 completi; TRAIN-05 smoke e calibration v1 completati, review umana v1 conclusa con bulk bloccato; correzione locale v2 in corso
-> Versione: 1.8.0
+> Stato: TRAIN-00–04 completi; TRAIN-05 chiusa con esito `NO_GO`; TRAIN-06 bloccata; percorso QLoRA TRAIN-07/08 sospeso il 2026-08-24
+> Versione: 1.9.0
 > Modello target iniziale: `google/gemma-3-4b-it`
 > Obiettivo: adapter LoRA specializzato, valutato e riproducibile
 > Ambito: training del modello; l'integrazione runtime con VIS è esclusa
@@ -85,16 +85,18 @@ Il progetto segue quattro regole:
 | TRAIN-02 | Validator del dataset | CLI di validazione | Completo — Python CLI, report e 31 test |
 | TRAIN-03 | Benchmark del modello base | Baseline riproducibile | Completo — baseline RunPod e review umana concluse |
 | TRAIN-04 | Generatore di scenari | Catalogo di scenari sintetici | Completo — 500 scenari riproducibili |
-| TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | In corso — tooling locale offline pronto |
-| TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Da avviare |
-| TRAIN-07 | Ambiente QLoRA | Ambiente riproducibile e smoke test | Da avviare |
-| TRAIN-08 | Training pilota | Primo adapter LoRA | Da avviare |
-| TRAIN-09 | Valutazione comparativa | Report base vs adapter | Da avviare |
-| TRAIN-10 | Iterazione dati e training | Adapter candidato | Da avviare |
-| TRAIN-11 | Packaging | Artefatti, model card e release | Da avviare |
-| TRAIN-12 | Handoff a VIS | Contratto per integrazione futura | Dettagliata (esplicitata in v1.1.0) |
+| TRAIN-05 | Teacher pipeline | Candidati generati dal modello teacher | Chiusa — `NO_GO`, capability gate fallito |
+| TRAIN-06 | Curazione del dataset | Dataset accettato e versionato | Bloccata — nessun candidate pool approvato |
+| TRAIN-07 | Ambiente QLoRA | Ambiente riproducibile e smoke test | Sospesa — QLoRA abbandonata per ora |
+| TRAIN-08 | Training pilota | Primo adapter LoRA | Sospesa — QLoRA abbandonata per ora |
+| TRAIN-09 | Valutazione comparativa | Report base vs adapter | Bloccata — nessun adapter approvato |
+| TRAIN-10 | Iterazione dati e training | Adapter candidato | Bloccata — nessun adapter approvato |
+| TRAIN-11 | Packaging | Artefatti, model card e release | Bloccata — nessun adapter approvato |
+| TRAIN-12 | Handoff a VIS | Contratto per integrazione futura | Bloccata — nessun adapter approvato |
 
 Ogni fase deve essere completata prima di iniziare quella successiva, salvo attività esplorative esplicitamente marcate. Il prototipo Node resta disponibile come oracle temporaneo, mentre TRAIN-02 è completata dalla CLI Python generica e dalla relativa suite di regressione.
+
+La decisione negativa, le evidenze e le condizioni minime per un'eventuale riapertura sono registrate in `reports/teacher/train-05-failure-and-qlora-pause.md`. La sospensione vieta nuove run QLoRA o spese cloud di training finché una nuova decisione esplicita non soddisfa quei criteri.
 
 ---
 
