@@ -47,7 +47,7 @@
 - [ ] Output invalidi restano conservati e marcati come scartati.
 - [ ] Metriche e report globali/per categoria hanno denominatori coerenti.
 - [ ] Costi e token sono registrati quando disponibili, senza dati di pagamento.
-- [ ] Almeno 30 candidati sono revisionati manualmente e coprono tutte le categorie/failure principali.
+- [x] Almeno 30 candidati sono revisionati manualmente e coprono tutte le 14 categorie/failure principali (11 accept, 19 reject; bulk bloccato).
 - [ ] Nessun candidato viene copiato o promosso automaticamente nel training.
 - [ ] Raw output, cache e run state restano ignorati; artifact commessi sono compatti e sanitizzati.
 - [ ] Pod, volume e risorse fatturabili non necessarie sono rimossi dopo trasferimento verificato.
