@@ -1,0 +1,12 @@
+target/
+.git/
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+**/application-fmpkey.yml
+**/application-vertexkey.yml
+**/*service-account*.json
+**/gcp-credentials*.json

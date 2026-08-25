@@ -1,6 +1,8 @@
 spring:
   application:
     name: vis-backend
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:demo}
   flyway:
@@ -12,6 +14,9 @@ market-data:
   source: ${MARKET_DATA_SOURCE:fmp}
 
 app:
+  deployment:
+    mode: ${APP_DEPLOYMENT_MODE:local}
+    declared-max-instances: ${APP_DECLARED_MAX_INSTANCES:1}
   observability:
     request-logging-enabled: ${REQUEST_LOGGING_ENABLED:true}
     correlation-header: ${CORRELATION_HEADER:X-Correlation-ID}
@@ -133,3 +138,6 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+server:
+  shutdown: ${SERVER_SHUTDOWN:graceful}

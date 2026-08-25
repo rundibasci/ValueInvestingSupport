@@ -4,6 +4,7 @@ import it.mazzoni.vis.config.ValuationDefaultsProperties;
 import it.mazzoni.vis.config.ValuationEnhancementProperties;
 import it.mazzoni.vis.config.ValuationWeightsProperties;
 import it.mazzoni.vis.config.ScoringRiskProperties;
+import it.mazzoni.vis.config.DeploymentProperties;
 import it.mazzoni.vis.marketdata.MarketDataProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +18,8 @@ import org.springframework.cache.annotation.EnableCaching;
         ScoringRiskProperties.class,
         ValuationWeightsProperties.class,
         ValuationDefaultsProperties.class,
-        ValuationEnhancementProperties.class
+        ValuationEnhancementProperties.class,
+        DeploymentProperties.class
 })
 public class VisApplication {
 

@@ -25,7 +25,9 @@ management:
       show-details: when_authorized
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
+  forward-headers-strategy: framework
+  shutdown: graceful
 
 logging:
   level:
