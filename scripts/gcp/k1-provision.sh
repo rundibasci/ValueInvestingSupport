@@ -58,7 +58,7 @@ fi
 
 if ! gcloud sql instances describe "$K1_CLOUD_SQL_INSTANCE" --project "$K1_GCP_PROJECT_ID" >/dev/null 2>&1; then
   gcloud sql instances create "$K1_CLOUD_SQL_INSTANCE" --database-version=POSTGRES_16 \
-    --tier "$K1_CLOUD_SQL_TIER" --region "$K1_GCP_REGION" \
+    --edition=enterprise --tier "$K1_CLOUD_SQL_TIER" --region "$K1_GCP_REGION" \
     --storage-size "$K1_CLOUD_SQL_DISK_GB" --storage-type=SSD --availability-type=zonal \
     --no-assign-ip --network "$K1_VPC_NETWORK" --project "$K1_GCP_PROJECT_ID"
 fi
