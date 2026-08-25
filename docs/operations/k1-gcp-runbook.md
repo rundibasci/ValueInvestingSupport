@@ -22,11 +22,11 @@ No command in this runbook should be run with shell tracing. Never paste secret 
 Agree and record before provisioning:
 
 1. GCP project and active billing account.
-2. Region supported by Cloud Run, Cloud SQL, Memorystore, Serverless VPC Access, Artifact Registry, and Monitoring. The initial template proposes `europe-west1`; this is not the final K3 data-residency decision.
+2. Region supported by Cloud Run, Cloud SQL, Memorystore, Direct VPC egress, Artifact Registry, and Monitoring. K1 uses `europe-west1`; this is not the final K3 data-residency decision.
 3. Resource prefix and whether an existing network or notification channel must be reused.
 4. Stakeholder access mode: `authenticated` adds Cloud Run IAM outside Spring Security; `public` exposes the URL while Spring Security still protects business APIs.
 5. Notification channel resource name and tested recipient.
-6. Current regional prices for Cloud SQL, Memorystore, Serverless VPC Access, Artifact Registry, Cloud Run, logging, and monitoring.
+6. Current regional prices for Cloud SQL, Memorystore, Artifact Registry, Cloud Run, logging, and monitoring.
 7. Authorization to create the billable resources listed below.
 
 ## 2. Expected Billable Inventory
@@ -35,7 +35,7 @@ Agree and record before provisioning:
 |---|---|---|
 | Cloud SQL PostgreSQL 16 | `db-f1-micro`, 10 GB SSD, zonal | Runs continuously |
 | Memorystore Redis 7 | Basic, 1 GB | Runs continuously |
-| Serverless VPC Access connector | 2–3 instances | Runs continuously |
+| Direct VPC egress | Dedicated subnet; no connector | No connector instance charge |
 | Cloud Run | 1 CPU, 1 GiB, min 0, max 1 | Usage based |
 | Artifact Registry | Immutable commit images | Storage/egress based |
 | Logging/Monitoring | Basic logs, uptime check, alert | Volume based |
@@ -89,7 +89,7 @@ scripts/gcp/k1-deploy.sh
 unset K1_CONFIRM_DEPLOY
 ```
 
-The deploy script creates a tagged candidate with no traffic, Secret Manager references, Cloud SQL attachment, VPC connector, startup probe, and `max-instances=1`. Record the Git SHA, image digest, and candidate revision.
+The deploy script creates a tagged candidate with no traffic, Secret Manager references, Cloud SQL attachment, Direct VPC egress, startup probe, and `max-instances=1`. Record the Git SHA, image digest, and candidate revision.
 
 After verifying the candidate, promote only the exact revision:
 
@@ -146,9 +146,9 @@ Rollback assumes every Flyway migration remains backward-compatible. Stop if sch
 
 ## 10. Resource Inventory and Cleanup
 
-At every handoff record service/revision, database, Redis, connector/network, repository/image digest, secret containers, uptime check, alert policy, and whether each billable resource is running.
+At every handoff record service/revision, database, Redis, VPC network/subnet, repository/image digest, secret containers, uptime check, alert policy, and whether each billable resource is running.
 
-Cleanup is destructive and intentionally not automated. Execute only with explicit approval after resolving exact targets and retention needs. Prefer deleting Cloud Run and continuously billed Redis/connector/Cloud SQL first; remove secrets, images, IAM identities, peering, and network only after confirming retention requirements.
+Cleanup is destructive and intentionally not automated. Execute only with explicit approval after resolving exact targets and retention needs. Prefer deleting Cloud Run and continuously billed Redis/Cloud SQL first; remove secrets, images, IAM identities, peering, subnet, and network only after confirming retention requirements.
 
 ## 11. K1 Limitations Carried to K2
 

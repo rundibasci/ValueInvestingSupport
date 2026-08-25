@@ -12,7 +12,7 @@ k1_load_config
 k1_info "enabling required APIs"
 gcloud services enable \
   run.googleapis.com artifactregistry.googleapis.com sqladmin.googleapis.com \
-  redis.googleapis.com secretmanager.googleapis.com vpcaccess.googleapis.com \
+  redis.googleapis.com secretmanager.googleapis.com compute.googleapis.com \
   servicenetworking.googleapis.com monitoring.googleapis.com logging.googleapis.com \
   --project "$K1_GCP_PROJECT_ID"
 
@@ -35,7 +35,13 @@ for role in roles/cloudsql.client roles/logging.logWriter roles/monitoring.metri
 done
 
 if ! gcloud compute networks describe "$K1_VPC_NETWORK" --project "$K1_GCP_PROJECT_ID" >/dev/null 2>&1; then
-  gcloud compute networks create "$K1_VPC_NETWORK" --subnet-mode=auto --project "$K1_GCP_PROJECT_ID"
+  gcloud compute networks create "$K1_VPC_NETWORK" --subnet-mode=custom --project "$K1_GCP_PROJECT_ID"
+fi
+if ! gcloud compute networks subnets describe "$K1_VPC_SUBNET" --region "$K1_GCP_REGION" \
+  --project "$K1_GCP_PROJECT_ID" >/dev/null 2>&1; then
+  gcloud compute networks subnets create "$K1_VPC_SUBNET" --network "$K1_VPC_NETWORK" \
+    --region "$K1_GCP_REGION" --range "$K1_VPC_SUBNET_RANGE" --enable-private-ip-google-access \
+    --project "$K1_GCP_PROJECT_ID"
 fi
 
 private_service_range="$K1_RESOURCE_PREFIX-managed-services"
@@ -48,14 +54,6 @@ if ! gcloud services vpc-peerings list --network "$K1_VPC_NETWORK" --project "$K
   --format='value(service)' | grep -qx 'servicenetworking.googleapis.com'; then
   gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com \
     --ranges "$private_service_range" --network "$K1_VPC_NETWORK" --project "$K1_GCP_PROJECT_ID"
-fi
-
-if ! gcloud compute networks vpc-access connectors describe "$K1_VPC_CONNECTOR" \
-  --region "$K1_GCP_REGION" --project "$K1_GCP_PROJECT_ID" >/dev/null 2>&1; then
-  gcloud compute networks vpc-access connectors create "$K1_VPC_CONNECTOR" \
-    --region "$K1_GCP_REGION" --network "$K1_VPC_NETWORK" --range=10.8.0.0/28 \
-    --min-instances "$K1_VPC_CONNECTOR_MIN_INSTANCES" \
-    --max-instances "$K1_VPC_CONNECTOR_MAX_INSTANCES" --project "$K1_GCP_PROJECT_ID"
 fi
 
 if ! gcloud sql instances describe "$K1_CLOUD_SQL_INSTANCE" --project "$K1_GCP_PROJECT_ID" >/dev/null 2>&1; then

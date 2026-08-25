@@ -136,9 +136,8 @@ K1 is merge-ready only when repository checks and the complete live GCP test mat
 
 ### Pending Live GCP Evidence
 
-- `gcloud` is not installed in the current local environment, so CLI help/dry-run execution was not
-  available. Script syntax and command contracts were reviewed against current official Google Cloud
-  CLI documentation.
+- Google Cloud CLI was unavailable at the first checkpoint. Version 581.0.0 was subsequently
+  installed; live command validation remains pending until the post-Direct-VPC implementation checkpoint.
 - Project, billing account, region, stakeholder invoker model, notification channel, and current cost
   estimate remain intentionally unresolved until the pre-deploy review with the user.
 - Artifact Registry publication, managed-resource provisioning, secret-version creation, Cloud Run

@@ -83,7 +83,7 @@ The deployment is explicitly non-production and internal/stakeholder-only. The A
 ## Compatibility and Risks
 
 - Cloud Run terminates TLS and supplies `PORT`; hard-coded port or proxy-header assumptions can prevent startup or produce incorrect redirects.
-- Cloud SQL and Memorystore connectivity may require network connectors/routing that generate fixed cost and can fail independently of the application.
+- Cloud SQL and Memorystore connectivity uses Direct VPC egress and private service routing. Network configuration can fail independently of the application, but K1 avoids a continuously billed Serverless VPC Access connector.
 - A single instance avoids duplicate schedules but creates planned stakeholder-demo downtime during some failures and deployments; this is accepted for K1 only.
 - Flyway-at-startup can lengthen readiness and makes incompatible migrations especially risky. Migrations must remain backward-compatible with the previous revision to support rollback.
 - The public Actuator health response must not leak component details, resource identifiers, credentials, or provider payloads.

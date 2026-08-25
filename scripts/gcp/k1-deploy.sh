@@ -37,7 +37,8 @@ gcloud run deploy "$K1_CLOUD_RUN_SERVICE" --image "$(k1_image_uri)" --region "$K
   --min-instances "$K1_CLOUD_RUN_MIN_INSTANCES" --max-instances "$K1_CLOUD_RUN_MAX_INSTANCES" \
   --concurrency=40 --timeout=300 --port=8080 --execution-environment=gen2 \
   --startup-probe=httpGet.path=/actuator/health,httpGet.port=8080,initialDelaySeconds=10,timeoutSeconds=5,periodSeconds=10,failureThreshold=18 \
-  --add-cloudsql-instances "$connection_name" --vpc-connector "$K1_VPC_CONNECTOR" \
+  --add-cloudsql-instances "$connection_name" --network "$K1_VPC_NETWORK" --subnet "$K1_VPC_SUBNET" \
+  --network-tags="$K1_RESOURCE_PREFIX-api" \
   --vpc-egress=private-ranges-only --set-env-vars "$env_vars" --set-secrets "$secret_vars" \
   --no-traffic --tag candidate
 

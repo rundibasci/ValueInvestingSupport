@@ -7,7 +7,6 @@ k1_require_command gcloud
 k1_require_command jq
 k1_load_config
 
-[[ -n "${K1_NOTIFICATION_CHANNEL:-}" ]] || k1_die "K1_NOTIFICATION_CHANNEL is required"
 [[ "${K1_CONFIRM_MONITORING_CHANGES:-}" == "YES" ]] || \
   k1_die "set K1_CONFIRM_MONITORING_CHANGES=YES after reviewing the notification target"
 
@@ -43,6 +42,18 @@ if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
 fi
 
 policy_name="$K1_RESOURCE_PREFIX-health-unavailable"
+notification_channel="${K1_NOTIFICATION_CHANNEL:-}"
+if [[ -z "$notification_channel" ]]; then
+  notification_channel="$(gcloud beta monitoring channels list --project "$K1_GCP_PROJECT_ID" \
+    --filter="type=email AND labels.email_address=$K1_ALERT_EMAIL" --format='value(name)' | head -n 1)"
+  if [[ -z "$notification_channel" ]]; then
+    notification_channel="$(gcloud beta monitoring channels create --project "$K1_GCP_PROJECT_ID" \
+      --display-name="$K1_RESOURCE_PREFIX-operator-email" \
+      --description="VIS K1 internal stakeholder deployment operator" --type=email \
+      --channel-labels="email_address=$K1_ALERT_EMAIL" --format='value(name)')"
+  fi
+fi
+[[ -n "$notification_channel" ]] || k1_die "monitoring notification channel is unavailable"
 existing_policy="$(gcloud monitoring policies list --project "$K1_GCP_PROJECT_ID" \
   --filter="displayName=$policy_name" --format='value(name)' | head -n 1)"
 if [[ -z "$existing_policy" ]]; then
@@ -51,8 +62,8 @@ if [[ -z "$existing_policy" ]]; then
     --display-name="$policy_name" --combiner=OR \
     --condition-display-name="VIS K1 health check failed" --condition-filter="$metric_filter" \
     --if='< 1' --duration=120s --trigger-count=1 \
-    --notification-channels="$K1_NOTIFICATION_CHANNEL" \
+    --notification-channels="$notification_channel" \
     --documentation="Internal K1 stakeholder service health check failed. Follow docs/operations/k1-gcp-runbook.md."
 fi
 
-k1_info "uptime-check=$uptime_id alert-policy=$policy_name notification-channel=$K1_NOTIFICATION_CHANNEL"
+k1_info "uptime-check=$uptime_id alert-policy=$policy_name notification-channel=$notification_channel"
