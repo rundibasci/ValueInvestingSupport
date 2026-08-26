@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (gitignored) and fill in real values.
+
+project_id                  = "vis-version0"
+region                      = "europe-west1"
+image                       = "europe-west1-docker.pkg.dev/vis-version0/vis-k2/vis-backend:REPLACE_WITH_SAME_DIGEST_ALREADY_ON_DEV"
+workload_identity_pool_name = "REPLACE_WITH_terraform/bootstrap_OUTPUT"
+notification_email          = ""
+custom_domain                = "" # e.g. "vis-staging.example.com" once DNS/certificate provisioning is ready
