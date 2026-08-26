@@ -136,10 +136,18 @@ K2 is merge-ready only when repository checks and the complete live GCP test mat
 - PASS — Cloud Scheduler independently fired the same job automatically on its `*/15 * * * *` cadence one minute later, with no manual trigger — live, unprompted confirmation that the Jobs+Scheduler migration works end-to-end.
 - Secret values: DB password freshly generated and set on the Cloud SQL `postgres` user; FMP key reused from local `.env`; JWT keypair freshly generated (first attempt used PKCS#1 by mistake, causing a `JwtService` startup failure — corrected to PKCS#8, broken v1 secret versions disabled). No secret value was logged, echoed, or written to a file that still exists.
 
+### Live GCP Evidence — `staging` — 2026-08-26
+
+- PASS — `environments/staging` fully applied: 62 resources live, promoting the exact same image already verified on `dev` (no rebuild), per Decision 1. One self-inflicted deploy error along the way: the `image` variable was first computed from `git rev-parse HEAD` at apply time, which had moved past the actually-built commit due to intervening doc commits, so all 8 Jobs and the Service failed with "Image not found" — fixed by hard-coding the already-verified image reference instead of re-deriving it, then re-applied successfully (28 added, 0 changed, 9 destroyed on the corrected apply).
+- PASS — Cloud Run service reaches condition status `True`, 100% traffic, liveness and readiness both `200 UP`.
+- PASS — Cloud SQL `RUNNABLE`, Redis `READY`.
+- PASS — manually executed `vis-k2-staging-job-alert-detection`: succeeded.
+- Project-wide totals confirmed after both environments: 16 Cloud Run Jobs, 16 Cloud Scheduler triggers (8 each).
+- No custom domain configured yet (`custom_domain` variable left empty — DNS/certificate provisioning not started).
+
 ### Pending Live Evidence
 
-- `staging` has not been applied.
 - GitHub Environments (`dev`, `staging`) and their `vars` (WIF provider/pool, deployer SA emails) are not configured — `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run against real GitHub Actions.
 - The Cloud SQL PITR restore drill has not been executed.
-- The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started — `dev` is currently live and billing.
+- The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started — **both `dev` and `staging` are currently live and billing**.
 - K2 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes for both environments.
