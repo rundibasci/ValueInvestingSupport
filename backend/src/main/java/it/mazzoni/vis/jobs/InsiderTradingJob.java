@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class InsiderTradingJob {
+public class InsiderTradingJob implements CloudRunJob {
 
     private static final Logger log = LoggerFactory.getLogger(InsiderTradingJob.class);
 
@@ -51,9 +51,15 @@ public class InsiderTradingJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "insider-trading";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.insider-trading}")
+    @Override
     public void run() {
-        jobRunLogger.run("insider-trading", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     @Transactional

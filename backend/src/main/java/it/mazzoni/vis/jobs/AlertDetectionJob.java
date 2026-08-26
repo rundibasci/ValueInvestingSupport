@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AlertDetectionJob {
+public class AlertDetectionJob implements CloudRunJob {
     private final AlertDetectionService detection;
     private final AlertDeliveryService delivery;
     private final JobRunLogger logger;
@@ -17,9 +17,15 @@ public class AlertDetectionJob {
         this.logger = logger;
     }
 
+    @Override
+    public String jobKey() {
+        return "alert-detection";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.alert-detection}")
+    @Override
     public void run() {
-        logger.run("alert-detection", () -> {
+        logger.run(jobKey(), () -> {
             int created = detection.execute();
             delivery.deliverPendingHighPriorityAlerts();
             return created;

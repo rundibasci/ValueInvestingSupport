@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class DividendUpdateJob {
+public class DividendUpdateJob implements CloudRunJob {
 
     private static final Logger log = LoggerFactory.getLogger(DividendUpdateJob.class);
 
@@ -50,9 +50,15 @@ public class DividendUpdateJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "dividend-update";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.dividend-update}")
+    @Override
     public void run() {
-        jobRunLogger.run("dividend-update", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     @Transactional

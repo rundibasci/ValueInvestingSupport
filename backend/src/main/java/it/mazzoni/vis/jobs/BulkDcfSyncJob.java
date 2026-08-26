@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class BulkDcfSyncJob {
+public class BulkDcfSyncJob implements CloudRunJob {
 
     private static final String SOURCE = "FMP_DCF";
     private static final Logger log = LoggerFactory.getLogger(BulkDcfSyncJob.class);
@@ -41,9 +41,15 @@ public class BulkDcfSyncJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "bulk-dcf-sync";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.bulk-dcf}")
+    @Override
     public void run() {
-        jobRunLogger.run("bulk-dcf-sync", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     @Transactional

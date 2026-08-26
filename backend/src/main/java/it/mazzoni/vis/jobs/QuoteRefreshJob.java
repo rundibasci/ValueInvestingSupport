@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class QuoteRefreshJob {
+public class QuoteRefreshJob implements CloudRunJob {
 
     private static final Logger log = LoggerFactory.getLogger(QuoteRefreshJob.class);
 
@@ -49,9 +49,15 @@ public class QuoteRefreshJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "quote-refresh";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.quote-refresh}")
+    @Override
     public void run() {
-        jobRunLogger.run("quote-refresh", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     @Transactional

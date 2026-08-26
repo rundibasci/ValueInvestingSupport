@@ -110,7 +110,7 @@ class JobRunLoggerTest {
 
         @Bean
         JobsProperties jobsProperties() {
-            return new JobsProperties(true, List.of("NYSE"), Map.of("test-job", "0 0 2 * * *"));
+            return new JobsProperties(true, List.of("NYSE"), Map.of("test-job", "0 0 2 * * *"), true);
         }
     }
 }

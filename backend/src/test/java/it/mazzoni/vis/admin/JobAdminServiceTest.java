@@ -258,7 +258,8 @@ class JobAdminServiceTest {
             return new JobsProperties(
                     true,
                     List.of("NYSE"),
-                    Map.of("quote-refresh", "0 */15 * * * *")
+                    Map.of("quote-refresh", "0 */15 * * * *"),
+                    true
             );
         }
     }

@@ -93,7 +93,7 @@ class BulkProfileSyncJobTest {
                 marketDataClient,
                 securityRepository,
                 jobRunLogger,
-                new JobsProperties(true, List.of(exchanges), Map.of()),
+                new JobsProperties(true, List.of(exchanges), Map.of(), true),
                 eventRecorder
         );
     }
