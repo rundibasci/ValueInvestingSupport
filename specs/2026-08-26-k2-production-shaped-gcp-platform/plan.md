@@ -72,5 +72,7 @@
 3. Trigger each Cloud Run Job manually once per environment, confirm `JobRunLog` records success, then confirm the corresponding Cloud Scheduler trigger fires it automatically on its configured schedule.
 4. Execute a real Cloud SQL point-in-time-recovery restore drill against the `staging` instance only: capture a known state, force a recoverable change, restore to the pre-change point in time, and verify the restored data matches the captured state.
 5. Update `validation.md` with exact commands, environment URLs, revisions, timestamps, sanitized evidence, and any remaining gaps.
-6. Update the K2 Obsidian handoff note with branch/commit/push state, running resources per environment, measured or estimated costs, and the exact next action.
-7. Mark K2 complete and update the roadmap only after every merge-gate condition passes for both `dev` and `staging`.
+6. **Teardown, not standing infrastructure:** once every acceptance item above is evidenced, run `terraform destroy` against `staging` then `dev` (dependency-safe order, mirroring K1's teardown), and verify via a project-wide sweep that no billable resource remains — same discipline as K1's closure. Never run this step without explicit user approval, and never before evidence is captured.
+7. Update the K2 Obsidian handoff note with branch/commit/push state, the fact that both environments were verified then torn down, measured or estimated costs from the verification window, and the exact next action.
+8. Mark K2's Terraform/CI/CD pattern complete and update the roadmap only after every merge-gate condition passed during the verify pass — this closes the *pattern-proving* scope of K2, not a standing deployment.
+9. **Official deploy is a separate future action:** re-running `terraform apply` for `dev`/`staging` and leaving them continuously live under the CI/CD pipeline happens only when the user explicitly authorizes it in a later session; it is not implied by K2's merge gate.

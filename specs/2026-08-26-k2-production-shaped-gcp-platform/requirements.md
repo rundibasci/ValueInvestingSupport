@@ -54,7 +54,7 @@ K2 depends on K1's container image contract, Spring Boot production profile, `De
 
 1. **Terraform is authoritative from K2 onward.** `gcloud` scripts remain as K1 historical reference only; no new provisioning script is added outside Terraform.
 2. **Directory-per-environment, not Terraform workspaces.** `terraform/environments/{dev,staging}` each carry their own state and backend configuration, avoiding workspace state-sharing footguns and keeping blast radius per environment explicit.
-3. **GitHub Actions is the CI/CD provider.** The repository is already hosted on GitHub; Workload Identity Federation removes the need for a stored service-account key.
+3. **GitHub Actions is the CI/CD provider** (confirmed by the user). The repository is already hosted on GitHub; Workload Identity Federation removes the need for a stored service-account key.
 4. **K2 provisions fresh.** K1's resources were already torn down before K2 began, so no `terraform import` step is required — verify this remains true immediately before the first `apply`.
 5. **Cloud Run Jobs boundary matches the roadmap's named background tasks** one-to-one: ingestion, quote refresh, dividend/insider updates, alert detection. No task is split across multiple Jobs, and no unrelated task is folded into an existing one.
 6. **The single-instance constraint is lifted only after the job migration is verified**, not before; `K1DeploymentGuard` (or its K2 replacement) must actively fail a deployment that still has `@Scheduled` execution enabled once `SCHEDULING_MODE=job` is set.
@@ -62,6 +62,7 @@ K2 depends on K1's container image contract, Spring Boot production profile, `De
 8. **A PITR restore drill is performed in K2**, using the staging instance only; dev never carries a restore drill that could disrupt ongoing development use.
 9. **No new data source or valuation/scoring behaviour is introduced.** K2 is infrastructure-only; FMP/Yahoo fallback semantics and all decision-support outputs are unchanged.
 10. **Two environments only.** K2 proves the Terraform/CI/CD pattern with `dev` and `staging`; a third, commercial-production environment is a K3+ decision, not created here.
+11. **The first live pass is verify-then-teardown, not a standing deployment.** Group 9's live GCP acceptance (apply, job/scheduler verification, CI/CD pipeline run, PITR restore drill) proves the full Terraform lifecycle including `destroy`, exactly as K1 proved deploy-then-teardown. After acceptance evidence is captured, both environments are torn down. Standing up `dev`/`staging` as continuously running, CI/CD-fed environments is a separate, explicitly authorized "official deploy" action the user triggers later — K2's merge gate is about proving the pattern works repeatably, not about leaving infrastructure running.
 
 ## Out of Scope
 

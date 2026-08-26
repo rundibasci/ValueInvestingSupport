@@ -16,6 +16,7 @@
 - [ ] `staging` is reachable over its custom HTTPS domain with a valid managed certificate; `dev` remains on its default `run.app` URL.
 - [ ] A real Cloud SQL point-in-time-recovery restore drill against `staging` completes successfully and restored data matches the captured pre-drill state.
 - [ ] Existing K1 runtime contracts (health endpoint shape, JWT authorization boundary, MiFID II disclaimer behaviour) are unchanged in both environments.
+- [ ] After acceptance evidence is captured, `terraform destroy` removes `staging` then `dev` cleanly, and a project-wide sweep confirms zero remaining billable resources — the merge gate does not require `dev`/`staging` to remain running.
 
 ## Repository Test Matrix
 
@@ -109,7 +110,9 @@ Do not enable shell tracing while handling secrets or Workload Identity Federati
 
 ## Merge Gate
 
-K2 is merge-ready only when repository checks and the complete live GCP test matrix pass for **both** `dev` and `staging`; Terraform is the sole provisioning mechanism with no manual out-of-band resource; every scheduled task runs exclusively through Cloud Run Jobs with `K1DeploymentGuard`'s successor guard verified; the CI/CD pipeline has deployed to `dev` automatically and promoted to `staging` manually at least once, including a real rollback dispatch; the Cloud SQL PITR restore drill against `staging` has executed and verified successfully; monitoring/alerting and the staging custom domain are active; authenticated core behaviour and decision-support disclaimers regress cleanly in both environments; exact sanitized evidence is recorded; all running paid resources and cost assumptions per environment are handed off; and the diff contains no unrelated changes.
+K2 is merge-ready only when repository checks and the complete live GCP test matrix pass for **both** `dev` and `staging`; Terraform is the sole provisioning mechanism with no manual out-of-band resource; every scheduled task runs exclusively through Cloud Run Jobs with `K1DeploymentGuard`'s successor guard verified; the CI/CD pipeline has deployed to `dev` automatically and promoted to `staging` manually at least once, including a real rollback dispatch; the Cloud SQL PITR restore drill against `staging` has executed and verified successfully; monitoring/alerting and the staging custom domain are active; authenticated core behaviour and decision-support disclaimers regress cleanly in both environments; exact sanitized evidence is recorded; and the diff contains no unrelated changes.
+
+**The merge gate proves the pattern, not a standing deployment.** After live evidence above is captured, both environments are torn down (`terraform destroy`, `staging` then `dev`) and a project-wide sweep confirms zero remaining billable resources — mirroring K1's closure discipline. K2 is complete once this verify-then-teardown cycle is fully evidenced; leaving `dev`/`staging` continuously live under the CI/CD pipeline is a separate "official deploy" the user authorizes explicitly in a later session, not implied by this merge gate.
 
 ## Validation Evidence
 
