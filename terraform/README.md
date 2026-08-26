@@ -26,7 +26,11 @@ Directory-per-environment, not Terraform workspaces (`requirements.md` Decision 
    ```
    This state file is small and rarely changes — it is **not** stored in the GCS bucket it creates (that would be circular). Keep it safe; do not delete casually.
 
-2. **Configure GitHub.** In the repository's `dev` and `staging` GitHub Environments, set the `vars` referenced by `.github/workflows/k2-*.yml`: `K2_WORKLOAD_IDENTITY_POOL_NAME`, `K2_DEV_WORKLOAD_IDENTITY_PROVIDER` / `K2_STAGING_WORKLOAD_IDENTITY_PROVIDER`, `K2_DEV_DEPLOYER_SA_EMAIL` / `K2_STAGING_DEPLOYER_SA_EMAIL` (the latter two are only known after step 3, since the deployer service accounts are created by the `iam` module — expect one apply to create them, then fill in the GitHub vars, per the usual chicken-and-egg of bootstrapping WIF).
+2. **Configure GitHub.** Four Environments exist: `dev`, `staging`, `dev-build`, and (implicitly, via `k2-rollback.yml`'s `${{ inputs.environment }}`) `dev`/`staging` again for rollback.
+   - Repo-level `vars` (shared, same for both environments — one bootstrap pool/provider): `K2_WORKLOAD_IDENTITY_POOL_NAME`, `K2_WORKLOAD_IDENTITY_PROVIDER`.
+   - Environment-scoped `K2_DEPLOYER_SA_EMAIL` on `dev`, `staging`, **and** `dev-build` (same value as `dev`'s — only known after step 3, since the deployer service accounts are created by the `iam` module).
+   - **`dev` and `staging` each have a required-reviewer protection rule** (`gh api --method PUT repos/OWNER/REPO/environments/{name}` with a `reviewers` array) so the `terraform apply` jobs in `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` pause for manual approval before touching real GCP resources.
+   - **`dev-build` deliberately has no protection rule** — it exists only so `k2-deploy-dev.yml`'s build-and-publish job (test, build, push image) can run unattended on every push, without needing an approval for something that changes no infrastructure.
 
 3. **Per environment**, copy `terraform.tfvars.example` to `terraform.tfvars` (gitignored) and fill in real values, then:
    ```bash
