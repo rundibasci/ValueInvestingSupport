@@ -116,11 +116,23 @@ K2 is merge-ready only when repository checks and the complete live GCP test mat
 
 ## Validation Evidence
 
+### Repository and Local Evidence — 2026-08-26
+
+- Complete backend suite: PASS — 466 tests, zero failures, zero errors, zero skipped (up from 452 at K1's closure; +14 net from the Cloud Run Jobs migration's new interface/guard/entry-point classes and tests).
+- New/changed backend code for the Cloud Run Jobs migration (plan.md Group 5): all 8 `@Scheduled` job classes (`BulkProfileSyncJob`, `BulkFundamentalsSyncJob`, `BulkRatiosSyncJob`, `BulkDcfSyncJob`, `QuoteRefreshJob`, `DividendUpdateJob`, `InsiderTradingJob`, `AlertDetectionJob`) now implement `CloudRunJob`, reusing their existing `run()`/`JobRunLogger` path unchanged; `CloudRunJobEntryPoint` dispatches `--job=<key>` to the right bean; `VisApplication.main` bootstraps with `WebApplicationType.NONE` and a real process exit code in job mode; `SchedulerConfig` is now conditional on `app.jobs.scheduling-enabled` (new, separate from the pre-existing `app.jobs.enabled` runtime kill-switch) so `K2SchedulingGuard` can assert no `@Scheduled` trigger is registered in K2 mode without touching job-body execution semantics.
+- Targeted tests: PASS — `K2SchedulingGuardTest` (5), `CloudRunJobEntryPointTest` (3), `K1DeploymentGuardTest` (4, updated call sites only), `JobRunLoggerTest`, `JobAdminServiceTest`, `BulkProfileSyncJobTest` (all updated for `JobsProperties`' new 4th field, no behavioural change).
+- Diff hygiene: PASS — `git diff --check` on all 68 new/changed files (backend code, Terraform, GitHub Actions workflows, `.gitignore`).
+- Terraform: `terraform fmt`/`validate` could **not** run locally — the CLI is not installed in this environment and could not be installed (no `brew`). A best-effort script confirmed balanced braces/parens across every `.tf` file, which is necessary but not sufficient for valid HCL. Real `terraform validate` must run before the first `apply` — either locally after installing Terraform, or via `backend-ci.yml`'s `terraform-validate` job (uses `hashicorp/setup-terraform`), which has not yet executed against real GitHub infrastructure since no PR has been opened with these changes.
+- GitHub Actions workflow YAML: PASS — all 4 new workflow files (`backend-ci.yml`, `k2-deploy-dev.yml`, `k2-deploy-staging.yml`, `k2-rollback.yml`) parse as valid YAML (checked via Ruby's Psych parser, no `actionlint` available). Not linted for GitHub Actions-specific semantics (unknown context references, permissions scoping) beyond manual review.
+- Local resources: none created. No `gcloud`/`terraform` command that provisions a live resource was run.
+
 ### Pending Live Evidence
 
-- Terraform bootstrap (state bucket, Workload Identity Federation, API enablement) has not run.
+- Terraform bootstrap (state bucket, Workload Identity Federation, Artifact Registry repo, API enablement — `terraform/bootstrap/`) has not run. This requires project-admin GCP credentials and is the first live action needed.
 - No environment has been applied; `dev` and `staging` do not yet exist as GCP resources.
+- GitHub Environments (`dev`, `staging`) and their `vars` (WIF provider/pool, deployer SA emails) are not configured — `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` cannot run yet.
 - The CI/CD pipeline has not executed against real GCP credentials.
-- The Cloud Run Jobs migration, Cloud Scheduler triggers, and the guard retiring in-process scheduling have not been implemented or verified.
+- Cloud Run Jobs and Cloud Scheduler triggers are defined in Terraform but not yet applied or verified against a live invocation.
 - The Cloud SQL PITR restore drill has not been executed.
+- The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started.
 - K2 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes for both environments.
