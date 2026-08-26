@@ -1,0 +1,53 @@
+name: Backend CI
+
+# Runs on every pull request: backend tests plus Terraform static checks
+# for both K2 environments. No GCP credentials are used here — this
+# workflow never applies infrastructure, only validates it.
+# See specs/2026-08-26-k2-production-shaped-gcp-platform/plan.md — Group 6.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run backend test suite
+        working-directory: backend
+        run: ./mvnw -B test
+
+  terraform-validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, staging]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: terraform fmt -check
+        working-directory: terraform/environments/${{ matrix.environment }}
+        run: terraform fmt -check -recursive
+
+      - name: terraform init (no backend, validate-only)
+        working-directory: terraform/environments/${{ matrix.environment }}
+        run: terraform init -backend=false
+
+      - name: terraform validate
+        working-directory: terraform/environments/${{ matrix.environment }}
+        run: terraform validate
