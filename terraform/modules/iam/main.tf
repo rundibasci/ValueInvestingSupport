@@ -108,6 +108,6 @@ resource "google_project_iam_member" "deployer_service_usage_consumer" {
 # only workflow runs on this environment's deploy ref can impersonate it.
 resource "google_service_account_iam_member" "github_workload_identity_binding" {
   service_account_id = google_service_account.deployer.name
-  role                = "roles/iam.workloadIdentityUser"
-  member              = "principalSet://iam.googleapis.com/${var.workload_identity_pool_name}/attribute.ref/${var.github_deploy_ref}"
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${var.workload_identity_pool_name}/attribute.ref/${var.github_deploy_ref}"
 }

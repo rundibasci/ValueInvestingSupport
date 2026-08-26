@@ -3,11 +3,11 @@
 # backend/src/main/resources/application.yml (app.jobs.cron.*).
 
 resource "google_cloud_scheduler_job" "this" {
-  for_each = var.job_triggers
-  project  = var.project_id
-  region   = var.region
-  name     = "vis-k2-${var.environment}-scheduler-${each.key}"
-  schedule = each.value.cron
+  for_each  = var.job_triggers
+  project   = var.project_id
+  region    = var.region
+  name      = "vis-k2-${var.environment}-scheduler-${each.key}"
+  schedule  = each.value.cron
   time_zone = "UTC"
 
   attempt_deadline = var.job_timeout

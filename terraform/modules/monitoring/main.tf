@@ -34,9 +34,9 @@ resource "google_monitoring_uptime_check_config" "api_health" {
 }
 
 resource "google_monitoring_alert_policy" "uptime_failure" {
-  project      = var.project_id
-  display_name = "vis-k2-${var.environment}-uptime-failure"
-  combiner     = "OR"
+  project               = var.project_id
+  display_name          = "vis-k2-${var.environment}-uptime-failure"
+  combiner              = "OR"
   notification_channels = [for c in google_monitoring_notification_channel.email : c.id]
 
   conditions {
@@ -59,9 +59,9 @@ resource "google_monitoring_alert_policy" "uptime_failure" {
 }
 
 resource "google_monitoring_alert_policy" "error_rate" {
-  project      = var.project_id
-  display_name = "vis-k2-${var.environment}-api-error-rate"
-  combiner     = "OR"
+  project               = var.project_id
+  display_name          = "vis-k2-${var.environment}-api-error-rate"
+  combiner              = "OR"
   notification_channels = [for c in google_monitoring_notification_channel.email : c.id]
 
   conditions {
@@ -84,9 +84,9 @@ resource "google_monitoring_alert_policy" "error_rate" {
 }
 
 resource "google_monitoring_alert_policy" "job_failure" {
-  project      = var.project_id
-  display_name = "vis-k2-${var.environment}-cloud-run-job-failure"
-  combiner     = "OR"
+  project               = var.project_id
+  display_name          = "vis-k2-${var.environment}-cloud-run-job-failure"
+  combiner              = "OR"
   notification_channels = [for c in google_monitoring_notification_channel.email : c.id]
 
   conditions {

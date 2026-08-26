@@ -10,7 +10,7 @@ resource "google_cloud_run_v2_service" "this" {
   ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
-    service_account = var.runtime_service_account_email
+    service_account                  = var.runtime_service_account_email
     max_instance_request_concurrency = 80
 
     scaling {

@@ -14,8 +14,8 @@ resource "google_cloud_run_v2_job" "this" {
   template {
     template {
       service_account = var.runtime_service_account_email
-      max_retries      = 2
-      timeout          = var.job_timeout
+      max_retries     = 2
+      timeout         = var.job_timeout
 
       vpc_access {
         network_interfaces {
