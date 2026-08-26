@@ -153,9 +153,21 @@ K2 is merge-ready only when repository checks and the complete live GCP test mat
 - PASS — opened PR #1 (`feature/k2-production-shaped-gcp-platform` → `main`) specifically to exercise `backend-ci.yml` against real GitHub Actions, deliberately not merged yet. All 3 checks passed: `backend-test` (2m25s, full backend suite), `terraform-validate (dev)` (12s), `terraform-validate (staging)` (14s). This is the first confirmation that Workload Identity Federation and the CI workflow definitions work correctly outside local `gh`/`terraform` execution.
 - Not yet exercised: `k2-deploy-dev.yml` (push to `main`), `k2-deploy-staging.yml` (manual promotion), `k2-rollback.yml` — these require merging or pushing to `main`, which has not been authorized as part of this pass; the PR stays open, unmerged.
 
+### Live Cloud SQL PITR Restore Drill — `staging` — 2026-08-26, 14:33-15:05 CEST/UTC-mixed (see timestamps below, all UTC)
+
+Executed against `staging` only, per requirements.md Decision 8. Staging's Cloud SQL had no private-IP route reachable from this session's local machine, so all SQL execution ran through a temporary Cloud Run Job (`k2-pitr-drill-helper`, `postgres:16` image, Direct VPC egress into `vis-k2-staging-network`, `vis-k2-staging-runtime` service account) — deleted afterward.
+
+1. **Capture a known state** — created `pitr_drill_marker` table, inserted one row: `id=1, label='k2-pitr-drill-canary', created_at=2026-08-26 14:33:25.774894+00`.
+2. **Force a recoverable change** — ~2 minutes later, deleted that row from the live instance; confirmed `0 rows` remained.
+3. **Restore to the pre-change point in time** — cloned the instance (`gcloud sql instances clone vis-k2-staging-postgres vis-k2-staging-postgres-pitr-drill --point-in-time=2026-08-26T14:34:30.000Z`, a timestamp between the insert and the delete). Clone operation took roughly 25 minutes end-to-end (the `gcloud` CLI's own `operations wait` polling timed out twice with "taking longer than expected" — this is a CLI polling-interval limitation, not an operation failure; the underlying `sqladmin` operation completed with status `DONE` and no error when polled directly).
+4. **Verify restored data matches captured state** — queried the clone: returned the exact same row, byte-for-byte on the timestamp (`id=1, label='k2-pitr-drill-canary', created_at=2026-08-26 14:33:25.774894+00`). PASS.
+5. **Verify the source instance was untouched by the drill** — re-queried the live `staging` instance: still `0 rows`, confirming the clone-based approach (not an in-place restore-from-backup) never touched the source, exactly as designed.
+6. **Cleanup** — dropped `pitr_drill_marker` from the live instance, deleted the clone instance (`vis-k2-staging-postgres-pitr-drill`), deleted the helper Cloud Run Job. No drill artifact remains in either GCP or the schema.
+
+**Result: PASS.** Point-in-time recovery is proven to work end-to-end against a real Cloud SQL instance, non-destructively, with an auditable before/after comparison.
+
 ### Pending Live Evidence
 
-- The Cloud SQL PITR restore drill has not been executed.
 - `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run end-to-end (would require a push/merge to `main`, not yet authorized).
 - The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started — **both `dev` and `staging` are currently live and billing**.
 - K2 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes for both environments.
