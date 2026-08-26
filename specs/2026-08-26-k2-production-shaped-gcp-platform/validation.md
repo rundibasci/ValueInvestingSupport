@@ -166,6 +166,15 @@ Executed against `staging` only, per requirements.md Decision 8. Staging's Cloud
 
 **Result: PASS.** Point-in-time recovery is proven to work end-to-end against a real Cloud SQL instance, non-destructively, with an auditable before/after comparison.
 
+### Bug found and fixed: wrong Dockerfile shipped a frontend-less image — 2026-08-26
+
+Discovered during a manual hands-on product test (via `gcloud run services proxy` + a bootstrap test ADMIN user): every frontend route, including `/`, returned Spring Boot's Whitelabel 404 despite `SpaForwardController` correctly mapping `/` to `forward:/index.html` and despite passing liveness/readiness (those never touch static resources).
+
+- **Root cause:** the image built and deployed during this Group 9 pass used `backend/Dockerfile` with the `backend/` directory as build context — a backend-only Dockerfile with no frontend build stage, so the resulting JAR ships no `index.html`/static assets at all. The correct image comes from `deploy/gcp/Dockerfile` (repo-root context): a `node:22-alpine` stage builds the React app and copies `frontend/dist/` into `backend/src/main/resources/static/` before the Maven `package` step. This is the same Dockerfile K1 already used successfully — its absence from this K2 pass was an oversight introduced when building images ad hoc during live acceptance, not a spec or Terraform defect.
+- **Also present in `.github/workflows/k2-deploy-dev.yml`:** its `docker build` step had the identical bug (`backend/Dockerfile`, `backend/` context). Fixed to `-f deploy/gcp/Dockerfile .` (commit `db01b24`) and its trigger `paths:` extended to include `frontend/**` and `deploy/gcp/Dockerfile`, which were previously not watched at all.
+- **Fix verified live:** rebuilt the image from `deploy/gcp/Dockerfile` (tag `5b345f4...`), re-applied `terraform apply` for both `dev` and `staging` with the corrected image (0 added, 9 changed, 0 destroyed on each — image-only redeploy), and confirmed `GET /` now returns `200` with the real `index.html` (`<title>Value Investing Support</title>`) on `dev`. Not yet re-verified on `staging` after its redeploy beyond the apply succeeding.
+- **Process gap this exposes:** the live GCP test matrix (`specs/2026-08-26-k2-production-shaped-gcp-platform/validation.md` → Live GCP Test Matrix) checks liveness/readiness/Job execution but never actually requested a frontend route — a real product smoke test (open the app, log in) caught what the automated checks did not. Worth adding a frontend-route check (`curl` for `200` + a recognizable string in the body) to the live acceptance steps in any future K2/K3 pass.
+
 ### Pending Live Evidence
 
 - `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run end-to-end (would require a push/merge to `main`, not yet authorized).
