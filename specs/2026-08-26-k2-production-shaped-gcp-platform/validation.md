@@ -145,9 +145,17 @@ K2 is merge-ready only when repository checks and the complete live GCP test mat
 - Project-wide totals confirmed after both environments: 16 Cloud Run Jobs, 16 Cloud Scheduler triggers (8 each).
 - No custom domain configured yet (`custom_domain` variable left empty — DNS/certificate provisioning not started).
 
+### Live GitHub Actions Evidence — 2026-08-26
+
+- Fixed a naming inconsistency found before wiring real credentials: `k2-deploy-dev.yml`/`k2-deploy-staging.yml` used repo-level variables with `K2_DEV_*`/`K2_STAGING_*`-prefixed names, while `k2-rollback.yml` already relied on native GitHub Environment scoping with generic names. Standardized on the latter across all three workflows (commit `bf66898`) — correct anyway, since the WIF provider is one shared resource for both environments (`terraform/bootstrap/`) and only the deployer SA genuinely differs per environment.
+- PASS — created GitHub Environments `dev` and `staging` via `gh api`; set repo-level `K2_WORKLOAD_IDENTITY_POOL_NAME`/`K2_WORKLOAD_IDENTITY_PROVIDER` (shared) and environment-scoped `K2_DEPLOYER_SA_EMAIL` (`vis-k2-dev-deployer@...` / `vis-k2-staging-deployer@...`) via `gh variable set`.
+- PASS — cross-checked GCP-side IAM: both deployer service accounts' `roles/iam.workloadIdentityUser` bindings correctly scope to `principalSet://.../attribute.ref/refs/heads/main`, matching the GitHub configuration.
+- PASS — opened PR #1 (`feature/k2-production-shaped-gcp-platform` → `main`) specifically to exercise `backend-ci.yml` against real GitHub Actions, deliberately not merged yet. All 3 checks passed: `backend-test` (2m25s, full backend suite), `terraform-validate (dev)` (12s), `terraform-validate (staging)` (14s). This is the first confirmation that Workload Identity Federation and the CI workflow definitions work correctly outside local `gh`/`terraform` execution.
+- Not yet exercised: `k2-deploy-dev.yml` (push to `main`), `k2-deploy-staging.yml` (manual promotion), `k2-rollback.yml` — these require merging or pushing to `main`, which has not been authorized as part of this pass; the PR stays open, unmerged.
+
 ### Pending Live Evidence
 
-- GitHub Environments (`dev`, `staging`) and their `vars` (WIF provider/pool, deployer SA emails) are not configured — `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run against real GitHub Actions.
 - The Cloud SQL PITR restore drill has not been executed.
+- `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run end-to-end (would require a push/merge to `main`, not yet authorized).
 - The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started — **both `dev` and `staging` are currently live and billing**.
 - K2 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes for both environments.
