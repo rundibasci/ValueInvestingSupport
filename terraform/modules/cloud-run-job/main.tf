@@ -48,6 +48,13 @@ resource "google_cloud_run_v2_job" "this" {
           name  = "MARKET_DATA_SOURCE"
           value = "fmp"
         }
+        # No run.googleapis.com/cloudsql-instances annotation/volume needed:
+        # the app connects via the Cloud SQL Java Connector
+        # (postgres-socket-factory in backend/pom.xml), which reaches Cloud
+        # SQL through the Admin API using the runtime SA's
+        # roles/cloudsql.client grant — not a Unix-socket sidecar. That
+        # system annotation is also rejected outright by the Cloud Run Jobs
+        # v2 API ("system annotations are not supported").
         env {
           name  = "DATABASE_URL"
           value = "jdbc:postgresql:///${var.database_name}?cloudSqlInstance=${var.cloudsql_connection_name}&socketFactory=com.google.cloud.sql.postgres.SocketFactory"
@@ -74,10 +81,6 @@ resource "google_cloud_run_v2_job" "this" {
           }
         }
       }
-    }
-
-    annotations = {
-      "run.googleapis.com/cloudsql-instances" = var.cloudsql_connection_name
     }
   }
 }

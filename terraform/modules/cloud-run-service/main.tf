@@ -60,6 +60,26 @@ resource "google_cloud_run_v2_service" "this" {
         name  = "MARKET_DATA_SOURCE"
         value = "fmp"
       }
+      # Without this, Spring Boot never exposes the /actuator/health/{liveness,readiness}
+      # sub-paths at all (plain 404), which fails the Cloud Run startup probe
+      # unconditionally — this is not optional. Matches K1's proven fix
+      # (scripts/gcp/k1-deploy.sh MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED=true).
+      env {
+        name  = "MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED"
+        value = "true"
+      }
+      # No SMTP secrets/config exist for K2 yet; disable the mail health
+      # indicator so it doesn't mark the app DOWN, matching K1's fix.
+      env {
+        name  = "MANAGEMENT_HEALTH_MAIL_ENABLED"
+        value = "false"
+      }
+      # No run.googleapis.com/cloudsql-instances annotation/volume needed:
+      # the app connects via the Cloud SQL Java Connector
+      # (postgres-socket-factory in backend/pom.xml) through the Admin API
+      # using the runtime SA's roles/cloudsql.client grant, not a Unix-socket
+      # sidecar — see the same note in modules/cloud-run-job/main.tf, where
+      # the equivalent annotation is outright rejected by the Jobs v2 API.
       env {
         name  = "DATABASE_URL"
         value = "jdbc:postgresql:///${var.database_name}?cloudSqlInstance=${var.cloudsql_connection_name}&socketFactory=com.google.cloud.sql.postgres.SocketFactory"
@@ -86,9 +106,16 @@ resource "google_cloud_run_v2_service" "this" {
         }
       }
 
+      # Startup probe deliberately targets liveness, not readiness: K1
+      # found the readiness group includes a custom ingestionJobs health
+      # indicator that reports DOWN on a fresh database (no ingestion job
+      # has run yet), which would permanently fail the startup probe on
+      # every new environment. Liveness only confirms the JVM/web server
+      # is up. Job health remains visible separately via /actuator/health,
+      # not hidden — see specs/2026-08-25-k1-stakeholder-cloud-deployment/validation.md.
       startup_probe {
         http_get {
-          path = "/actuator/health/readiness"
+          path = "/actuator/health/liveness"
         }
         initial_delay_seconds = 5
         period_seconds        = 5
@@ -103,9 +130,6 @@ resource "google_cloud_run_v2_service" "this" {
       }
     }
 
-    annotations = {
-      "run.googleapis.com/cloudsql-instances" = var.cloudsql_connection_name
-    }
   }
 
   traffic {
