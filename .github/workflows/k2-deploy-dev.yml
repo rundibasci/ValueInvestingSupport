@@ -30,6 +30,7 @@ env:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    environment: dev # resolves K2_WORKLOAD_IDENTITY_PROVIDER/K2_DEPLOYER_SA_EMAIL for this environment
     outputs:
       image: ${{ steps.image.outputs.image }}
     steps:
@@ -48,8 +49,8 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ vars.K2_DEV_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.K2_DEV_DEPLOYER_SA_EMAIL }}
+          workload_identity_provider: ${{ vars.K2_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.K2_DEPLOYER_SA_EMAIL }}
 
       - uses: google-github-actions/setup-gcloud@v2
 
@@ -75,8 +76,8 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ vars.K2_DEV_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.K2_DEV_DEPLOYER_SA_EMAIL }}
+          workload_identity_provider: ${{ vars.K2_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.K2_DEPLOYER_SA_EMAIL }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
