@@ -126,13 +126,20 @@ K2 is merge-ready only when repository checks and the complete live GCP test mat
 - GitHub Actions workflow YAML: PASS — all 4 new workflow files (`backend-ci.yml`, `k2-deploy-dev.yml`, `k2-deploy-staging.yml`, `k2-rollback.yml`) parse as valid YAML (checked via Ruby's Psych parser, no `actionlint` available). Not linted for GitHub Actions-specific semantics (unknown context references, permissions scoping) beyond manual review.
 - Local resources: none created. No `gcloud`/`terraform` command that provisions a live resource was run.
 
+### Live GCP Evidence — `dev` — 2026-08-26
+
+- PASS — `terraform/bootstrap/` applied cleanly: GCS state bucket, WIF pool/provider scoped to this repository, shared Artifact Registry repo `vis-k2`, 14 APIs enabled. 18 resources, zero errors.
+- PASS (after 3 fixes) — `environments/dev` fully applied: 62 resources live. Two bugs found only by a live apply, not by `terraform validate`: `google_cloud_run_v2_job` rejects the `run.googleapis.com/cloudsql-instances` system annotation outright (removed from both `cloud-run-service` and `cloud-run-job` modules — unnecessary anyway, the app uses the Cloud SQL Java Connector via Admin API, not a Unix-socket sidecar); and the Cloud Run startup probe failed unconditionally without `MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED=true`, then would have failed permanently on a fresh database pointed at `/readiness` (K1's already-documented `ingestionJobs` indicator problem) — fixed by pointing the startup probe at `/liveness` instead, matching K1's proven fix. Commit `abf9c9c`.
+- PASS — Cloud Run service reaches condition status `True`; `/actuator/health/liveness` and `/actuator/health/readiness` both return `200 UP`; aggregate `/actuator/health` correctly returns `503 DOWN` only due to the known, non-hidden `ingestionJobs=NEVER_RUN` state on an empty database.
+- PASS — Cloud SQL `RUNNABLE`, Redis `READY`, Flyway applied all 26 migrations with zero errors on first boot.
+- PASS — manually executed the `quote-refresh` Cloud Run Job (`gcloud run jobs execute --wait`): `job_started`/`job_completed recordsProcessed=0` logged correctly (0 is correct on an empty database), clean `exit(0)`.
+- PASS — Cloud Scheduler independently fired the same job automatically on its `*/15 * * * *` cadence one minute later, with no manual trigger — live, unprompted confirmation that the Jobs+Scheduler migration works end-to-end.
+- Secret values: DB password freshly generated and set on the Cloud SQL `postgres` user; FMP key reused from local `.env`; JWT keypair freshly generated (first attempt used PKCS#1 by mistake, causing a `JwtService` startup failure — corrected to PKCS#8, broken v1 secret versions disabled). No secret value was logged, echoed, or written to a file that still exists.
+
 ### Pending Live Evidence
 
-- Terraform bootstrap (state bucket, Workload Identity Federation, Artifact Registry repo, API enablement — `terraform/bootstrap/`) has not run. This requires project-admin GCP credentials and is the first live action needed.
-- No environment has been applied; `dev` and `staging` do not yet exist as GCP resources.
-- GitHub Environments (`dev`, `staging`) and their `vars` (WIF provider/pool, deployer SA emails) are not configured — `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` cannot run yet.
-- The CI/CD pipeline has not executed against real GCP credentials.
-- Cloud Run Jobs and Cloud Scheduler triggers are defined in Terraform but not yet applied or verified against a live invocation.
+- `staging` has not been applied.
+- GitHub Environments (`dev`, `staging`) and their `vars` (WIF provider/pool, deployer SA emails) are not configured — `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run against real GitHub Actions.
 - The Cloud SQL PITR restore drill has not been executed.
-- The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started.
+- The verify-then-teardown cycle (plan.md Group 9, requirements.md Decision 11) has not started — `dev` is currently live and billing.
 - K2 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes for both environments.
