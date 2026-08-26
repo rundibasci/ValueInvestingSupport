@@ -1,7 +1,8 @@
 import { getAccessToken, refreshAfterUnauthorized } from '../auth/token'
 
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
-export const apiBaseUrl = (configuredBaseUrl || 'http://localhost:8080').replace(/\/$/, '')
+const defaultBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : window.location.origin
+export const apiBaseUrl = (configuredBaseUrl || defaultBaseUrl).replace(/\/$/, '')
 
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const request = async (): Promise<Response> => {

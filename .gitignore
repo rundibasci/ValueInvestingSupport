@@ -27,7 +27,11 @@ test-results/
 
 # Environment — never commit real secrets
 .env
+deploy/gcp/k1.env
 **/application-fmpkey.yml
+**/application-vertexkey.yml
+**/*service-account*.json
+**/gcp-credentials*.json
 
 # VIS model-training local and generated artifacts
 vis-model-training/.venv/

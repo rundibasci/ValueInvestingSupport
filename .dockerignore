@@ -1,0 +1,17 @@
+.git/
+.env
+.env.*
+**/node_modules/
+**/dist/
+**/target/
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/application-fmpkey.yml
+**/application-vertexkey.yml
+**/*service-account*.json
+**/gcp-credentials*.json
+frontend/beta1-artifacts/
+vis-model-training/
+
