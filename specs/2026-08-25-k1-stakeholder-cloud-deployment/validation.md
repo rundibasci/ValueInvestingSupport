@@ -134,13 +134,46 @@ K1 is merge-ready only when repository checks and the complete live GCP test mat
 - Local resources: the temporary `vis-k1-smoke` container was removed. The repository's existing
   `valueinvestingsupport-redis-1` local container is running; no paid cloud resource was created.
 
-### Pending Live GCP Evidence
+### Live GCP Evidence and Closure — 2026-08-26
 
-- Google Cloud CLI was unavailable at the first checkpoint. Version 581.0.0 was subsequently
-  installed; live command validation remains pending until the post-Direct-VPC implementation checkpoint.
-- Project, billing account, region, stakeholder invoker model, notification channel, and current cost
-  estimate remain intentionally unresolved until the pre-deploy review with the user.
-- Artifact Registry publication, managed-resource provisioning, secret-version creation, Cloud Run
-  deployment, managed health checks, authenticated smoke tests, monitoring/alert verification,
-  rollback, and restoration have not run.
-- K1 remains incomplete and must not be marked complete or merged until the full live GCP merge gate passes.
+- PASS — provisioned the internal candidate in project `vis-version0`, region `europe-west1`, using
+  Cloud Run, Cloud SQL PostgreSQL 16, Memorystore Redis 7, Secret Manager, Artifact Registry, and
+  Direct VPC egress. Cloud SQL and Redis were private; the runtime identity was dedicated and
+  least-privilege.
+- PASS — Flyway applied all 26 migrations. The ready candidate reported PostgreSQL and Redis `UP`.
+  Aggregate health remained intentionally `DOWN` only because fresh-database ingestion jobs were
+  `NEVER_RUN`; deployment availability checks were corrected to use Actuator liveness.
+- PASS — the immutable multi-architecture image started on Cloud Run as a non-root process. Revision
+  `vis-k1-api-00005-mog` received 100% traffic after candidate verification.
+- PASS — Cloud Run remained IAM-authenticated with no `allUsers` invoker binding and
+  `max-instances=1`.
+- PASS — a controlled ADMIN login returned `200`; an unauthenticated protected API returned `401`;
+  the same API with a VIS JWT returned `200`.
+- PASS — the complete React application, including sidebar navigation and SPA routes, was served by
+  the Spring Boot container and verified by the stakeholder.
+- PASS — frontend typecheck and production build completed (686 transformed modules); focused
+  backend tests `SpaForwardControllerTest` and `K1DeploymentGuardTest`, shell syntax, and
+  `git diff --check` passed.
+- PASS — secret values were supplied through Secret Manager, were not committed, and were destroyed
+  during teardown together with the database and test account.
+- NOT EXECUTED / OWNER-ACCEPTED EXCEPTION — the authenticated uptime check and alert policy were not
+  created because their Monitoring service-agent IAM grant was not authorized during the live gate.
+- NOT EXECUTED / OWNER-ACCEPTED EXCEPTION — a previous-revision rollback/restoration drill and the
+  full research workflow matrix were not completed before teardown. Login, protected-API access,
+  managed dependencies, and the full frontend shell were verified.
+- PASS — after the stakeholder explicitly confirmed the deployed application worked, the stakeholder
+  explicitly authorized teardown. Cloud Run, Cloud SQL, Redis, Artifact Registry, the Cloud Build
+  bucket, K1 secrets, and the runtime service account were removed. A project sweep found no paid
+  workload resources, VMs, disks, clusters, load balancers, or routers.
+- TRANSIENT NON-BILLABLE CLEANUP — Google still retained the internal `SERVERLESS` and `VPC_PEERING`
+  address reservations and the dedicated VPC through managed-resource garbage collection. They do
+  not represent running compute or paid external IPv4 capacity. Remove the peering, reservations,
+  subnet, and VPC after Google releases the producer references.
+
+### Closure Disposition
+
+K1 is closed by explicit product-owner instruction on 2026-08-26 as a successful, time-bounded
+stakeholder deployment exercise followed by zero-paid-workload teardown. The owner accepts the two
+unexecuted merge-gate items above rather than extending the paid K1 environment. Monitoring/alerting,
+repeatable rollback/restoration, and infrastructure lifecycle automation remain mandatory K2 work;
+this closure does not claim those controls were validated.
