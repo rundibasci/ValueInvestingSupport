@@ -16,7 +16,7 @@ Market Universe Seeding → Screening / Research → Fundamental Analysis → In
         → Portfolio Construction → Continuous Monitoring
 ```
 
-Every feature must map to one or more steps in this cycle.
+Every feature must map to one or more steps in this cycle. The **Recommendation** step may be augmented — never replaced — by an AI-generated investment thesis (bull case, bear case, risks, invalidation conditions) built on Google Cloud Vertex AI's Gemini API; see Design Principle 15 and `specs/roadmap.md` → Group TA.
 
 ## Users
 
@@ -42,6 +42,7 @@ Every feature must map to one or more steps in this cycle.
 12. **Missing data must be explainable** — users must be able to distinguish provider limitations, stale provider data, missing seeded history, missing internal computation, and valuation guardrail failures. A blank score or metric is never enough on its own.
 13. **Portfolio exposure must be visible before action** — portfolio tools must surface concentration by holding and sector when data is available. The platform explains exposure and risk, while preserving the decision-support boundary and avoiding order recommendations.
 14. **Research rationale belongs with the workflow** — watchlists, comparison views, and narrative-check workflows should let users record why a symbol is being monitored, what signal would change the view, and what data gaps remain.
+15. **AI-assisted thesis synthesis is interpretation, not computation** — where an AI investment-thesis agent is available (Vertex AI / Gemini, see `specs/roadmap.md` → Group TA), it may only interpret and narrate VIS-computed financial context — bull case, bear case, risks, invalidation conditions — with every claim traceable to a supplied input field. It must never compute DCF, Graham Number, DDM, Margin of Safety, or Value Score itself; never retrieve external data or reason from knowledge outside the supplied context; never issue `BUY`/`SELL`/`HOLD` instructions; and must flag insufficient, contradictory, or stale data for human review rather than guess. The MiFID II decision-support disclaimer (Principle 4) applies to AI-generated thesis text exactly as it applies to every other Fair Value/Value Score output. This capability supersedes the locally fine-tuned Gemma/QLoRA path piloted in `vis-model-training/`, which was closed after failing its output-quality gate.
 
 ## Cloud Distribution Path
 
@@ -52,6 +53,8 @@ The platform will move to GCP in three deliberately progressive phases. Each pha
 | **K1 - Stakeholder Cloud Deployment** | Make the working application safely accessible for internal/stakeholder evaluation. | One containerised Spring Boot service on Cloud Run, managed PostgreSQL/Redis, injected secrets, and basic health/log visibility. |
 | **K2 - Production-Shaped GCP Platform** | Make the MVP repeatable, scalable, and operationally safe. | Terraform-managed environments; Cloud Run API separated from Cloud Run Jobs; Cloud Scheduler, private managed data services, CI/CD, backups, monitoring, and a custom HTTPS domain. |
 | **K3 - Commercial & Compliance Hardening** | Prepare a customer-facing service for financial-data, privacy, and continuity obligations. | Security controls and operational evidence, restore drills, least-privilege access, regional/data-residency decisions, incident runbooks, and confirmed FMP/GDPR/MiFID II obligations. |
+
+> The AI Investment Thesis capability (Vertex AI / Gemini, Principle 15, `specs/roadmap.md` → Group TA) is a managed Google Cloud API reachable independently of this deployment path — it does not require K1–K3 to be complete, and K1–K3 do not require it.
 
 ## Out of Scope (MVP v1)
 

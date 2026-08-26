@@ -42,6 +42,20 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 │  Redis 7 (cache: API responses, DCF results)            │
 │  PostgreSQL partitioned tables (price history)          │
 └─────────────────────────────────────────────────────────┘
+
+                (interpretation only, never computation)
+       ┌───────────────────────────────────┐
+       │ AI Investment Thesis Client       │
+       │ (Backend, calls out — not on the  │
+       │ request path of any deterministic │
+       │ calculation above)                │
+       └─────────────────┬─────────────────┘
+                         │ Vertex AI REST/gRPC, service-account auth
+       ┌───────────────────▼───────────────────┐
+       │ Google Cloud Vertex AI — Gemini       │
+       │ (external managed API, no self-hosted │
+       │ weights, no grounding tools enabled)  │
+       └───────────────────────────────────────┘
 ```
 
 ## Backend
@@ -84,6 +98,7 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | Watchlist rationale | Watchlist items support a concise user note and monitoring reason, including "wait for better price", valuation concern, data-quality gap, dividend concern, or narrative catalyst. |
 | Screener diagnostics | Empty screener results explain which filters likely eliminated candidates and provide filter-relaxation suggestions while preserving the user's current criteria. |
 | Cross-symbol comparison | Users can compare selected symbols on MoS, value score, quality, leverage/liquidity, growth, dividend indicators, and source/data coverage, with missing metrics visible per row or cell. |
+| AI Investment Thesis | On the Security Review page, an on-demand (never automatic) "Generate AI Thesis" panel calls out to Vertex AI Gemini; shows not-yet-generated, generating, ready, human-review-pending (visually distinct, never presented as a finished recommendation), stale, failed, and rate-limited states; carries model/prompt provenance and the MiFID II disclaimer. An ADMIN-only review queue lists `HUMAN_REVIEW_PENDING` theses across symbols. See `specs/roadmap.md` → Group TA (Phase TA5). |
 
 ## Data
 
@@ -102,6 +117,7 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 - Ratio and financial-health DTOs should expose liquidity and dividend-coverage metrics already present in the data model, including current ratio, quick ratio when available from provider data, payout ratio, debt-to-equity, and dividend yield.
 - API DTOs that expose scores, valuations, and provider-backed metrics should include structured availability metadata so the frontend can distinguish stale data, provider limitation, missing seeded history, missing internal computation, and calculation guardrail failures without parsing display text.
 - Portfolio read models should include computed holding weights and sector weights when price and sector data are available, enabling concentration warnings without duplicating ownership state.
+- `investment_thesis_result` (Group TA) is platform-wide reference data, like `ValuationResult`/`ValueScore`, not user-owned: one row per generation, keyed by security, storing the pinned model/prompt version, the exact input snapshot sent to Gemini, the parsed output fields, `status` (`READY`/`FAILED`/`HUMAN_REVIEW_PENDING`), and `generatedAt`. Rows are never overwritten in place (consistent with mission.md's immutable-history principle); a regeneration inserts a new row and the API serves the latest one plus a `stale` flag when underlying valuation/score inputs have since refreshed.
 
 ## External Data Sources
 
@@ -129,6 +145,26 @@ The Valuation Engine and Value Score Engine are **data-source agnostic** — the
 | Recommended Plan | Premium ($49/mo) — 300 req/min, 30y history, bulk APIs |
 | Key | Stored in environment variable `FMP_API_KEY`, never in code |
 
+### Vertex AI — Gemini (AI Investment Thesis Engine)
+
+| Parameter | Value |
+|---|---|
+| Provider | Google Cloud Vertex AI — Gemini (managed API; no self-hosted weights, no adapter) |
+| Model | `GEMINI_MODEL_ID` — a specific **pinned, stable version string, never a floating/auto-updating alias** (a mutable alias can change server-side outside VIS's control, silently invalidating the TA3 benchmark's conclusions). Initial candidate: a current-generation Gemini Flash-tier model, with Pro-tier as fallback if Flash-tier fails the TA3 gate. Chosen and gated in `specs/roadmap.md` → Group TA (Phase TA3); track Google's deprecation/EOL notice for the pinned version and re-run the TA3 gate before migrating to a newer one. |
+| Auth | Service account via Application Default Credentials, injected through Secret Manager / local `.env`-referenced key file — never a static API key committed to source |
+| Region | `VERTEX_AI_LOCATION` — data-residency decision recorded in Group TA's governance review (Phase TA1) |
+| Decoding | `temperature: 0` (the API's deterministic/greedy-equivalent setting) and a fixed `maxOutputTokens`. Vertex AI does not guarantee bit-exact determinism across identical calls the way local greedy decoding did in TRAIN-03 — this is a documented caveat, not an assumption of full reproducibility. |
+| Structured output | `responseMimeType: application/json` + `responseSchema` bound to `vis-model-training/schemas/thesis-output.schema.json`, enforcing schema-conforming JSON at the API level |
+| Grounding tools | Disabled — no Search grounding, no Vertex AI Search, no function calling to external data; the model reasons only over VIS-supplied financial context |
+| Role | Interpretation and narrative synthesis only (bull case, bear case, risks, invalidation conditions); never computes DCF/Graham/DDM/Margin of Safety/Value Score and never issues `BUY`/`SELL`/`HOLD` |
+| Generation trigger | On-demand only, per symbol, via `POST /api/v1/securities/{symbol}/thesis/generate`; never automatic on page load. Rate-limited per user via `THESIS_GENERATION_DAILY_LIMIT`. Results are persisted (`investment_thesis_result`) and reused until explicitly regenerated. |
+| Origin | Supersedes the local `google/gemma-3-27b-it` teacher + `google/gemma-3-4b-it` QLoRA adapter path (`vis-model-training/`), closed `NO_GO` 2026-08-24 after failing its output-quality capability gate — see `vis-model-training/reports/teacher/train-05-failure-and-qlora-pause.md` |
+| Reused from `vis-model-training/` | Input/output schemas, system prompt contract, dataset/response validator CLI (TRAIN-02), benchmark harness and 50-case dataset (TRAIN-03), 500-scenario generator/dataset (TRAIN-04), runtime-contract design (TRAIN-12) |
+| Fallback | Deterministic only — on error, timeout, or non-conforming output after retries: persisted `status=FAILED`, `classification: UNDER_REVIEW`, `humanReviewRequired: true`, no bull/bear case, tracked error reason; never a silent second-model fallback |
+| Test isolation | Default backend tests mock `InvestmentThesisClient` and never call live Vertex AI; live-API integration tests run only under `@ActiveProfiles({"test","vertexkey"})` against `application-vertexkey.yml` (gitignored, mirroring `application-fmpkey.yml`) and are excluded from the default CI run |
+
+> **Use only when the Phase TA3 capability benchmark has passed**, including its real-ticker knowledge-leakage check. Gemini responses reach a user only after the unchanged TRAIN-02 validator accepts them; the feature stays behind `THESIS_AGENT_ENABLED=false` until that gate is met.
+
 ## Secrets & Local Configuration
 
 All credentials are kept out of version control. Two complementary mechanisms are in use:
@@ -147,7 +183,16 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 JWT_PRIVATE_KEY=
 JWT_PUBLIC_KEY=
+THESIS_AGENT_ENABLED=false
+GOOGLE_CLOUD_PROJECT=
+VERTEX_AI_LOCATION=
+GEMINI_MODEL_ID=
+GOOGLE_APPLICATION_CREDENTIALS=
+THESIS_GENERATION_DAILY_LIMIT=5
 ```
+
+### Vertex AI service-account key (local runtime)
+`GOOGLE_APPLICATION_CREDENTIALS` points to a local service-account JSON key file. Group TA must add an explicit `.gitignore` rule for this key file (matching the existing `.env` / `**/application-fmpkey.yml` pattern) before it is ever created locally — never committed, never logged. In deployed environments (K1+) the equivalent identity is provided by a GCP service account bound to Cloud Run, with the key material itself never leaving Secret Manager/IAM.
 
 ### `application-fmpkey.yml` (test profile)
 `backend/src/test/resources/application-fmpkey.yml` — gitignored via `**/application-fmpkey.yml`. Activate on integration test classes that call FMP directly:
@@ -165,6 +210,15 @@ market-data:
 ```
 
 > **Rule:** the actual key value must never appear in any committed file — not in `application.yml`, not in test fixtures, not in comments.
+
+### `application-vertexkey.yml` (test profile)
+`backend/src/test/resources/application-vertexkey.yml` — gitignored via `**/application-vertexkey.yml`, mirroring the FMP pattern above. Activate only on the small set of integration tests that call the real Vertex AI API:
+
+```java
+@ActiveProfiles({"test", "vertexkey"})
+```
+
+Every other backend test — including the default CI run — mocks `InvestmentThesisClient` instead of hitting Vertex AI, keeping the default suite free, deterministic, and network-independent.
 
 ## Infrastructure & DevOps
 
@@ -198,8 +252,9 @@ Terraform becomes the source of truth from K2 onward. It manages resource config
 | Background work | Cloud Run Jobs + Cloud Scheduler | Ingestion, quote refresh, dividends, insider data, alert detection, and bounded retry execution. |
 | Primary data | Cloud SQL for PostgreSQL | Immutable financial snapshots, portfolios, users, alerts, Flyway migrations, backups, and point-in-time recovery. |
 | Cache/token state | Memorystore for Redis | Market-data caches, computed cache entries, refresh-token lifecycle, and rate-safe cache-first behaviour. |
-| Secrets | Secret Manager | FMP key, JWT key material, SMTP credentials, Google OAuth credentials, and service configuration requiring confidentiality. |
+| Secrets | Secret Manager | FMP key, JWT key material, SMTP credentials, Google OAuth credentials, Vertex AI service-account key, and service configuration requiring confidentiality. |
 | Artefacts and telemetry | Artifact Registry; Cloud Logging/Monitoring | Immutable container images, deployment provenance, structured logs, metrics, dashboards, and alerts. |
+| AI Investment Thesis | Vertex AI (Gemini, managed API) | Interpretation-only narrative synthesis (bull/bear case, risks, invalidation conditions) over VIS-computed financial context; no deterministic calculation, no autonomous data retrieval, deterministic fallback on error/timeout (Group TA). Reachable independently of Cloud Run deployment status. |
 
 ## Key Environment Variables
 
@@ -218,4 +273,11 @@ REDIS_PORT           Redis port (default 6379)
 # Auth (not needed for demo milestone)
 JWT_PRIVATE_KEY      RS256 private key (PEM)
 JWT_PUBLIC_KEY       RS256 public key (PEM)
+
+# AI Investment Thesis (Vertex AI / Gemini — Group TA)
+THESIS_AGENT_ENABLED         true | false (default false until the TA3 capability gate passes)
+GOOGLE_CLOUD_PROJECT         GCP project id hosting Vertex AI
+VERTEX_AI_LOCATION           Vertex AI region (data-residency decision, see tech-stack.md → Vertex AI table)
+GEMINI_MODEL_ID              Pinned Gemini model id/version (stable version string, never a floating alias)
+THESIS_GENERATION_DAILY_LIMIT  Per-user daily cap on thesis generation (default 5)
 ```
