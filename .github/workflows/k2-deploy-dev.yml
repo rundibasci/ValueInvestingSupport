@@ -11,6 +11,8 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "frontend/**"
+      - "deploy/gcp/Dockerfile"
       - "terraform/**"
       - ".github/workflows/k2-deploy-dev.yml"
 
@@ -60,8 +62,12 @@ jobs:
       - id: image
         run: echo "image=${{ env.IMAGE_REPO }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
-      - name: Build image
-        run: docker build -t "${{ steps.image.outputs.image }}" backend
+      - name: Build image (full stack: React frontend + Spring Boot backend)
+        # Root context and deploy/gcp/Dockerfile, NOT backend/Dockerfile —
+        # the latter is backend-only and produces a JAR with no index.html,
+        # so SpaForwardController's forward:/index.html 404s. See
+        # specs/2026-08-25-k1-stakeholder-cloud-deployment/plan.md Group 2.
+        run: docker build -f deploy/gcp/Dockerfile -t "${{ steps.image.outputs.image }}" .
 
       - name: Push immutable, commit-addressed image
         run: docker push "${{ steps.image.outputs.image }}"
