@@ -21,7 +21,7 @@ if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
   identity_token="$(gcloud auth print-identity-token)"
   curl_args+=(-H "Authorization: Bearer $identity_token")
 fi
-health="$(curl "${curl_args[@]}" "$service_url/actuator/health")"
+health="$(curl "${curl_args[@]}" "$service_url/actuator/health/liveness")"
 status="$(jq -r '.status' <<<"$health")"
 [[ "$status" == "UP" ]] || k1_die "health status is not UP"
 

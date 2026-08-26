@@ -15,24 +15,8 @@ service_json="$(gcloud run services describe "$K1_CLOUD_RUN_SERVICE" --region "$
 service_url="$(jq -r '.status.url' <<<"$service_json")"
 host="${service_url#https://}"
 [[ -n "$host" && "$host" != "$service_url" ]] || k1_die "expected an HTTPS Cloud Run URL"
-
-uptime_name="$K1_RESOURCE_PREFIX-health"
-uptime_id="$(gcloud monitoring uptime list-configs --project "$K1_GCP_PROJECT_ID" \
-  --filter="displayName=$uptime_name" --format='value(name.basename())' | head -n 1)"
-if [[ -z "$uptime_id" ]]; then
-  auth_args=()
-  if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
-    auth_args+=(--service-agent-auth=oidc-token)
-  fi
-  gcloud monitoring uptime create "$uptime_name" --project "$K1_GCP_PROJECT_ID" \
-    --resource-type=uptime-url --resource-labels="host=$host,project_id=$K1_GCP_PROJECT_ID" \
-    --protocol=https --path=/actuator/health --request-method=get --validate-ssl \
-    --status-codes=200 --matcher-content='"status":"UP"' --matcher-type=contains-string \
-    --period=5 --timeout=10 "${auth_args[@]}"
-  uptime_id="$(gcloud monitoring uptime list-configs --project "$K1_GCP_PROJECT_ID" \
-    --filter="displayName=$uptime_name" --format='value(name.basename())' | head -n 1)"
-fi
-[[ -n "$uptime_id" ]] || k1_die "uptime check was not found after creation"
+revision_name="$(jq -r '.status.latestReadyRevisionName' <<<"$service_json")"
+[[ -n "$revision_name" && "$revision_name" != null ]] || k1_die "latest ready revision is unavailable"
 
 if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
   monitoring_agent="service-$(k1_project_number)@gcp-sa-monitoring-notification.iam.gserviceaccount.com"
@@ -40,6 +24,28 @@ if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
     --project "$K1_GCP_PROJECT_ID" --member="serviceAccount:$monitoring_agent" \
     --role=roles/run.invoker --quiet >/dev/null
 fi
+
+uptime_name="$K1_RESOURCE_PREFIX-health"
+uptime_id="$(gcloud monitoring uptime list-configs --project "$K1_GCP_PROJECT_ID" \
+  --filter="displayName=$uptime_name" --format='value(name.basename())' | head -n 1)"
+if [[ -z "$uptime_id" ]]; then
+  auth_args=()
+  target_args=(--resource-type=uptime-url \
+    --resource-labels="host=$host,project_id=$K1_GCP_PROJECT_ID")
+  if [[ "$K1_INVOKER_MODE" == "authenticated" ]]; then
+    auth_args+=(--service-agent-auth=oidc-token)
+    target_args=(--resource-type=cloud-run-revision \
+      --resource-labels="project_id=$K1_GCP_PROJECT_ID,location=$K1_GCP_REGION,service_name=$K1_CLOUD_RUN_SERVICE,revision_name=$revision_name,configuration_name=$K1_CLOUD_RUN_SERVICE")
+  fi
+  gcloud monitoring uptime create "$uptime_name" --project "$K1_GCP_PROJECT_ID" \
+    "${target_args[@]}" \
+    --protocol=https --path=/actuator/health/liveness --request-method=get --validate-ssl=true \
+    --status-codes=200 --matcher-content='"status":"UP"' --matcher-type=contains-string \
+    --period=5 --timeout=10 "${auth_args[@]}"
+  uptime_id="$(gcloud monitoring uptime list-configs --project "$K1_GCP_PROJECT_ID" \
+    --filter="displayName=$uptime_name" --format='value(name.basename())' | head -n 1)"
+fi
+[[ -n "$uptime_id" ]] || k1_die "uptime check was not found after creation"
 
 policy_name="$K1_RESOURCE_PREFIX-health-unavailable"
 notification_channel="${K1_NOTIFICATION_CHANNEL:-}"
