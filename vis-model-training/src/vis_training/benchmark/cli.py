@@ -52,6 +52,14 @@ def _parser() -> argparse.ArgumentParser:
 
     check_review = subparsers.add_parser("check-review")
     check_review.add_argument("--review", type=Path, required=True)
+    check_review.add_argument(
+        "--minimum-category-count",
+        type=int,
+        default=9,
+        help="Defaults to 9 (TRAIN-03's base-benchmark-v1 category count). "
+        "Pass the actual combined category count for a review pass that also "
+        "covers TRAIN-04 and/or the TA3 real-ticker knowledge-leakage set.",
+    )
     return parser
 
 
@@ -93,7 +101,9 @@ def main(argv=None) -> int:
             print(json.dumps({"reviews": len(form["reviews"]), "output": str(args.output)}))
         elif args.command == "check-review":
             review = json.loads(args.review.read_text(encoding="utf-8"))
-            failures = validate_completed_review(review)
+            failures = validate_completed_review(
+                review, minimum_category_count=args.minimum_category_count
+            )
             print(json.dumps({"status": "valid" if not failures else "invalid", "failures": failures}))
             return 0 if not failures else 1
         return 0

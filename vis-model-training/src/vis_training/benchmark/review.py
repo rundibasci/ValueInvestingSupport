@@ -15,6 +15,17 @@ DIMENSIONS = (
     "inputAdherence",
     "reviewerUtility",
 )
+# Dimensions required in addition to DIMENSIONS, keyed by category — used for
+# rubric criteria that only make sense for one specific category (TA3's
+# knowledgeLeakage applies only to REAL_TICKER_KNOWLEDGE_LEAKAGE cases; every
+# other category is scored on DIMENSIONS alone). See rubrics/manual-review-v1.json.
+CONDITIONAL_DIMENSIONS: Dict[str, tuple] = {
+    "REAL_TICKER_KNOWLEDGE_LEAKAGE": ("knowledgeLeakage",),
+}
+
+
+def _required_dimensions(category: Any) -> tuple:
+    return DIMENSIONS + CONDITIONAL_DIMENSIONS.get(category, ())
 
 
 def select_review_ids(results: Iterable[Dict[str, Any]], *, minimum: int = 20) -> list:
@@ -60,7 +71,10 @@ def prepare_review_form(results_path: Path, output_path: Path, *, minimum: int =
                 "category": by_id[example_id].get("category"),
                 "reviewerAlias": None,
                 "reviewDate": None,
-                "scores": {dimension: None for dimension in DIMENSIONS},
+                "scores": {
+                    dimension: None
+                    for dimension in _required_dimensions(by_id[example_id].get("category"))
+                },
                 "notes": "",
                 "accepted": None,
             }
@@ -71,7 +85,13 @@ def prepare_review_form(results_path: Path, output_path: Path, *, minimum: int =
     return form
 
 
-def validate_completed_review(form: Dict[str, Any]) -> list:
+def validate_completed_review(form: Dict[str, Any], *, minimum_category_count: int = 9) -> list:
+    """minimum_category_count defaults to 9 to match TRAIN-03's existing
+    9-category base-benchmark-v1 dataset unchanged. A review pass that also
+    covers TA3's TRAIN-04 scenario catalog and/or the new
+    REAL_TICKER_KNOWLEDGE_LEAKAGE set must pass the actual combined category
+    count for that specific run — this default is not a claim about every
+    possible dataset's category count."""
     failures = []
     reviews = form.get("reviews")
     if not isinstance(reviews, list) or len(reviews) < form.get("minimumCases", 20):
@@ -79,14 +99,15 @@ def validate_completed_review(form: Dict[str, Any]) -> list:
     categories = set()
     for review in reviews:
         example_id = review.get("exampleId", "unknown")
-        categories.add(review.get("category"))
+        category = review.get("category")
+        categories.add(category)
         if not review.get("reviewerAlias") or not review.get("reviewDate"):
             failures.append(f"incomplete reviewer metadata: {example_id}")
         scores = review.get("scores", {})
-        if any(scores.get(dimension) not in {0, 1, 2} for dimension in DIMENSIONS):
+        if any(scores.get(dimension) not in {0, 1, 2} for dimension in _required_dimensions(category)):
             failures.append(f"incomplete scores: {example_id}")
         if not isinstance(review.get("accepted"), bool):
             failures.append(f"missing acceptance: {example_id}")
-    if None in categories or len(categories) < 9:
+    if None in categories or len(categories) < minimum_category_count:
         failures.append("manual review does not cover all benchmark categories")
     return failures
