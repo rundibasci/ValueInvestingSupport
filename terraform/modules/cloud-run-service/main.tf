@@ -106,6 +106,26 @@ resource "google_cloud_run_v2_service" "this" {
         }
       }
 
+      # Google sign-in (Group J): plain (non-secret) callback URLs, paired
+      # with the GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET secrets above.
+      # GoogleOAuthConfig only registers the Google client when both secrets
+      # are non-empty, so leaving these two vars unset (default "") keeps
+      # Google sign-in disabled without any extra flag.
+      dynamic "env" {
+        for_each = var.google_oauth2_redirect_uri != "" ? [var.google_oauth2_redirect_uri] : []
+        content {
+          name  = "GOOGLE_REDIRECT_URI"
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.google_oauth2_frontend_callback != "" ? [var.google_oauth2_frontend_callback] : []
+        content {
+          name  = "GOOGLE_FRONTEND_CALLBACK"
+          value = env.value
+        }
+      }
+
       # Startup probe deliberately targets liveness, not readiness: K1
       # found the readiness group includes a custom ingestionJobs health
       # indicator that reports DOWN on a fresh database (no ingestion job

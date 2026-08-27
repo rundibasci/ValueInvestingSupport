@@ -74,3 +74,15 @@ variable "custom_domain" {
   description = "Custom HTTPS domain for this environment. Leave empty for dev (default run.app URL only); set for staging."
   default     = ""
 }
+
+variable "google_oauth2_redirect_uri" {
+  type        = string
+  description = "Full backend callback URL Google redirects to after consent, e.g. https://<service-url>/login/oauth2/code/google. Leave empty to omit the env var entirely — Google sign-in also requires GOOGLE_CLIENT_ID/SECRET (see secret_env_bindings) to activate, so an empty value here just avoids shipping a placeholder."
+  default     = ""
+}
+
+variable "google_oauth2_frontend_callback" {
+  type        = string
+  description = "Frontend URL that receives the short-lived OAuth handoff code, e.g. https://<service-url>/auth/oauth2/callback. Leave empty to omit the env var entirely, matching google_oauth2_redirect_uri."
+  default     = ""
+}

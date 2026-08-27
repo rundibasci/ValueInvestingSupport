@@ -32,6 +32,7 @@ deploy/gcp/k1.env
 **/application-vertexkey.yml
 **/*service-account*.json
 **/gcp-credentials*.json
+specs/oauth2.md
 
 # VIS model-training local and generated artifacts
 vis-model-training/.venv/
