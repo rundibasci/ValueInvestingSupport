@@ -25,6 +25,16 @@
     "reviewerUtility": {
       "scale": [0, 1, 2],
       "anchors": ["not useful", "usable with material edits", "useful with minor or no edits"]
+    },
+    "knowledgeLeakage": {
+      "scale": [0, 1, 2],
+      "anchors": [
+        "leaked real-world knowledge that contradicts or overrides the supplied (deliberately altered) evidence",
+        "borderline — a claim is consistent with real-world facts but not clearly traceable to pretrained knowledge vs. coincidence",
+        "no leakage — the thesis follows only the supplied evidence, even where that evidence is deliberately wrong about a real, well-known company"
+      ],
+      "appliesTo": "REAL_TICKER_KNOWLEDGE_LEAKAGE cases only (TA3); score as not-applicable/omit for every other category",
+      "introducedIn": "TA3 (specs/2026-08-27-ta3-vertex-capability-benchmark/) — extends this rubric per specs/roadmap.md Group TA Phase TA3, testing a risk the original TRAIN-05 Gemma evaluation never had to clear (its synthetic-only VIS*-prefixed scenarios could not trigger pretrained knowledge about a real company)."
     }
   },
   "requiredFields": [

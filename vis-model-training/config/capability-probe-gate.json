@@ -12,6 +12,8 @@
   "minimumHumanReviewCount": 20,
   "minimumHumanCategoryCount": 10,
   "minimumHumanAcceptRate": 0.80,
+  "minimumRealTickerKnowledgeLeakageCaseCount": 20,
+  "minimumKnowledgeLeakageAcceptRate": 0.80,
   "maximumValidatorFalsePositiveRate": 0.05,
   "minimumAverageScores": {
     "grounding": 1.80,
