@@ -1,18 +1,33 @@
 # Data and Model Licence Register
 
-- Review date: 2026-08-01
-- Scope: TRAIN-00 engineering compliance inventory
+- Review date: 2026-08-01 (Gemma models); **2026-08-27 addendum: Vertex AI Gemini, TA1**
+- Scope: TRAIN-00 engineering compliance inventory; extended by TA1 (`specs/roadmap.md` → Group TA) for the managed-API engine that superseded the local Gemma/QLoRA path — see `vis-model-training/docs/adr/ADR-002-vertex-gemini-selection.md`
 - Legal status: not legal advice; external counsel/authorized business review is required before commercial distribution or a customer-facing hosted service
 
 ## Model Register
 
 | Role | Model | Publisher | Terms | Access condition | Status |
 |---|---|---|---|---|---|
-| Student | `google/gemma-3-4b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Accept Gemma conditions at the distribution host; authenticate without committing tokens | Approved for later evaluation/training subject to revision pinning |
-| Teacher candidate | `google/gemma-3-27b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Same gated-access requirement | Approved for TRAIN-05 evaluation only; generated candidates still require validation and human approval |
-| Teacher fallback | `google/gemma-3-12b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Same gated-access requirement | Not selected; requires ADR amendment before use |
+| Student | `google/gemma-3-4b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Accept Gemma conditions at the distribution host; authenticate without committing tokens | Superseded — local QLoRA path closed `NO_GO` 2026-08-24 (`reports/teacher/train-05-failure-and-qlora-pause.md`); paused under its own re-entry criteria, not deleted |
+| Teacher candidate | `google/gemma-3-27b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Same gated-access requirement | Superseded — see above; TRAIN-05 evaluation is the closed capability-gate attempt this row records |
+| Teacher fallback | `google/gemma-3-12b-it` | Google | Gemma Terms of Use and Prohibited Use Policy | Same gated-access requirement | Not selected; moot following the switch to Vertex AI Gemini (ADR-002) |
+| **Production inference engine (TA1+)** | **Vertex AI Gemini** (`GEMINI_MODEL_ID`, pinned version — final model tier decided in TA2/TA3) | Google Cloud (managed API, no downloadable weights) | Google Cloud Terms of Service + Vertex AI Generative AI data-governance policy (not the Gemma Terms of Use — no gated-model download, no `Model Derivative` concept applies) | Service-account authentication (Application Default Credentials) via Secret Manager (deployed) / local gitignored key file (dev) — no token/licence acceptance step comparable to Gemma's gated Hugging Face access | Approved as production engine per ADR-002; production integration gated on the TA3 capability-benchmark result (unchanged gate that closed TRAIN-05, plus a new real-ticker knowledge-leakage check) |
 
-Immutable repository revisions must be added to the run manifest before any model is executed. This register intentionally does not pretend that a mutable model identifier is a revision pin.
+Immutable repository revisions must be added to the run manifest before any Gemma-family model is executed (historical/paused path only). This register intentionally does not pretend that a mutable model identifier is a revision pin — the equivalent discipline for Vertex AI Gemini is a **pinned `GEMINI_MODEL_ID` version string, never a floating/auto-updating alias** (see ADR-002's Consequences and `specs/tech-stack.md`'s Vertex AI table); Google's deprecation/EOL notice window for that pinned version must be tracked once TA2/TA4 set it.
+
+## Vertex AI Gemini — Governance Review (TA1, 2026-08-27)
+
+Distinct from the Gemma review above: Vertex AI Gemini is consumed as a managed, pay-per-call API relationship, not a downloaded/gated model, so the applicable governance questions are about data sent and data-use commitments, not redistribution/licence terms.
+
+| Question | Finding | Basis |
+|---|---|---|
+| What data is sent to the API? | VIS-computed financial context only (already-derived valuation/score/moat fields VIS itself calculated) — never raw user PII, never authentication credentials, never unprocessed full provider payloads. Scope formalized in `docs/governance/data-policy.md`. | Design constraint carried into TA2's request-shape design; not yet implemented (no API call exists before TA2). |
+| Does Google use this data to train its models by default? | No — Google Cloud's generative AI data-governance policy states customer prompt/response data on Vertex AI is not used to train or improve Google's models without explicit customer permission or instruction. | Google Cloud Vertex AI generative-AI data-governance documentation; corroborated by Google's published AI/ML Privacy Commitment for Google Cloud and Google Workspace's generative-AI security/privacy documentation. See ADR-002 → References Reviewed for the exact sources checked. |
+| Region / data residency | `VERTEX_AI_LOCATION=europe-west1`, matching this project's existing GCP region for K2's infrastructure (`vis-version0`). Confirmed as a supported Vertex AI region for Gemini, including EU data-residency pinning. **Caveat:** specific Gemini model-tier availability in `europe-west1` is version-dependent — TA2 must confirm its chosen `GEMINI_MODEL_ID` is actually available in this region before finalizing the model selection. | Google's Vertex AI generative-AI data-residency documentation and general Vertex AI locations reference. See ADR-002 → References Reviewed. |
+| Redistribution / `Model Derivative` concept (as applies to Gemma) | Not applicable — Vertex AI Gemini has no downloadable weights and produces no adapter/derivative artifact; nothing here is "distributed" in the sense the Gemma Terms of Use define. | Structural difference between a downloaded gated model and a managed inference API. |
+| Auth / secret handling | Service-account key via Application Default Credentials, injected through Secret Manager (deployed environments) or a local gitignored key file (`GOOGLE_APPLICATION_CREDENTIALS`, dev) — same handling class already used for the FMP key and the K2 Google OAuth client secret. No exception to `specs/mission.md` Principle 7 (secrets never in source control) is introduced. | `specs/tech-stack.md` → Vertex AI table; consistent with the existing `.env` / `application-fmpkey.yml` gitignore pattern. |
+
+Nothing in this review authorizes sending real user PII, authentication material, or unprocessed provider payloads to Vertex AI — only VIS-derived financial context, exactly as `docs/governance/data-policy.md` scopes it.
 
 ## Terms Assessment
 
@@ -63,13 +78,13 @@ Teacher output never enters a training release directly. It first enters a restr
 ## Commercial and Regulatory Boundary
 
 - This inventory does not determine whether a particular deployment constitutes regulated financial advice.
-- VIS outputs remain decision support and require the MiFID II disclaimer when later shown in the application.
-- No model may issue operational BUY, SELL, or HOLD instructions.
-- Legal review is mandatory before commercial adapter distribution, customer-facing hosted inference, or use of provider-derived financial data.
+- VIS outputs remain decision support and require the MiFID II disclaimer when later shown in the application — this applies identically to AI-generated thesis text (Vertex AI Gemini) as to every other Fair Value/Value Score output (`specs/mission.md` Principle 15).
+- No model may issue operational BUY, SELL, or HOLD instructions — applies to Vertex AI Gemini exactly as it applied to the (now-superseded) Gemma path.
+- Legal review is mandatory before commercial adapter distribution, customer-facing hosted inference, or use of provider-derived financial data. For Vertex AI Gemini specifically: legal review of the Google Cloud Terms of Service and data-processing terms applicable at the actual release date is mandatory before any commercial/customer-facing release — this register's TA1 review is an engineering compliance check, not that legal review.
 
 ## Official References
 
-Accessed 2026-08-01:
+### Gemma (accessed 2026-08-01 — historical/paused path)
 
 - Gemma Terms of Use: <https://ai.google.dev/gemma/terms>
 - Gemma Prohibited Use Policy: <https://ai.google.dev/gemma/prohibited_use_policy>
@@ -77,4 +92,8 @@ Accessed 2026-08-01:
 - Gemma fine-tuning documentation: <https://ai.google.dev/gemma/docs/tune>
 - Gemma 3 4B IT model card: <https://huggingface.co/google/gemma-3-4b-it>
 - Gemma 3 27B IT model card: <https://huggingface.co/google/gemma-3-27b-it>
+
+### Vertex AI Gemini (accessed 2026-08-27 — TA1, current production engine)
+
+See `vis-model-training/docs/adr/ADR-002-vertex-gemini-selection.md` → References Reviewed for the full source list and access notes (data governance, controlled generation, region availability, authentication).
 
