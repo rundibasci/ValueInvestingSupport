@@ -883,6 +883,8 @@ Source: `specs/value-investor-roadmap-review.md` — items 4.1, 4.2, 4.3, 4.5, 8
 - Add structured security events and metrics for Google sign-in success/failure, account creation/linking, and callback-validation failures, without logging ID tokens, authorization codes, client secrets, or personally sensitive claims.
 - Document Google Cloud Console setup, exact redirect URIs per environment, consent-screen requirements, secret rotation, local-development callback configuration, and incident response for a compromised OAuth client secret.
 
+> **K2 GCP wiring (2026-08-27):** J1's backend was complete but never wired into K2's Terraform, so Google sign-in stayed disabled on Cloud Run. Wired for K2 `dev` only (secrets + callback URLs); `staging` still needs the same treatment. Live-tested, found and fixed a real repeat-login `LazyInitializationException` and a nav visibility bug along the way, then torn down — see `specs/2026-08-26-k2-production-shaped-gcp-platform/validation.md`.
+
 ---
 
 ## Group JC — Job Control & Ingestion Testability (complete)
