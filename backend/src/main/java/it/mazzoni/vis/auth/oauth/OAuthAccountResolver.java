@@ -5,6 +5,7 @@ import it.mazzoni.vis.domain.entity.User;
 import it.mazzoni.vis.domain.entity.UserRole;
 import it.mazzoni.vis.domain.repository.OAuthIdentityRepository;
 import it.mazzoni.vis.domain.repository.UserRepository;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,14 @@ public class OAuthAccountResolver {
         return oauthRepo.findByProviderAndProviderSubject(PROVIDER_GOOGLE, providerSubject)
                 .map(identity -> {
                     securityEvents.recordIdentityReused();
-                    return identity.getUser();
+                    // OAuthIdentity.user is FetchType.LAZY: identity.getUser() returns an
+                    // uninitialized Hibernate proxy. This method's @Transactional session
+                    // closes as soon as resolve() returns, so the caller (OAuthLoginSuccessHandler,
+                    // outside any session) would hit LazyInitializationException on its first
+                    // field access (e.g. user.isActive()). Initialize while the session is open.
+                    User user = identity.getUser();
+                    Hibernate.initialize(user);
+                    return user;
                 })
                 .orElseGet(() -> linkOrCreate(providerSubject, normalizedEmail));
     }
