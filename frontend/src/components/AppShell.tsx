@@ -5,7 +5,6 @@ const navigation = [
   { label: 'Dashboard', to: '/' },
   { label: 'Screener', to: '/screener' },
   { label: 'Seed Universe', to: '/seed' },
-  { label: 'Universe Curation', to: '/universe-curation' },
   { label: 'Portfolio', to: '/portfolio' },
   { label: 'Watchlist', to: '/watchlist' },
   { label: 'Decision History', to: '/audit' },
@@ -14,6 +13,7 @@ const navigation = [
 ]
 
 const adminNavigation = [
+  { label: 'Universe Curation', to: '/universe-curation' },
   { label: 'Jobs', to: '/admin/jobs' },
   { label: 'Data Fallbacks', to: '/admin/fallbacks' },
   { label: 'Users', to: '/admin/users' },
