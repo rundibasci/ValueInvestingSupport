@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class K1DeploymentGuardTest {
 
-    private final JobsProperties enabledJobs = new JobsProperties(true, List.of("NYSE"), Map.of());
+    private final JobsProperties enabledJobs = new JobsProperties(true, List.of("NYSE"), Map.of(), true);
 
     @Test
     void k1AcceptsExactlyOneDeclaredInstance() {
@@ -34,7 +34,7 @@ class K1DeploymentGuardTest {
 
     @Test
     void k1MayScaleOnlyWhenInProcessJobsAreDisabled() {
-        JobsProperties disabledJobs = new JobsProperties(false, List.of(), Map.of());
+        JobsProperties disabledJobs = new JobsProperties(false, List.of(), Map.of(), true);
 
         assertThatCode(() -> K1DeploymentGuard.validate(
                 new DeploymentProperties("k1", 3), disabledJobs)).doesNotThrowAnyException();

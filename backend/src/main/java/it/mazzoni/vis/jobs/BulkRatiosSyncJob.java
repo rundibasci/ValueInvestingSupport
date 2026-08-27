@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component
-public class BulkRatiosSyncJob {
+public class BulkRatiosSyncJob implements CloudRunJob {
 
     private static final Logger log = LoggerFactory.getLogger(BulkRatiosSyncJob.class);
 
@@ -39,9 +39,15 @@ public class BulkRatiosSyncJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "bulk-ratios-sync";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.bulk-ratios}")
+    @Override
     public void run() {
-        jobRunLogger.run("bulk-ratios-sync", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     @Transactional

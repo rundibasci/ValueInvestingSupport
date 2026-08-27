@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (gitignored) and fill in real values.
+# Never commit terraform.tfvars — it can end up carrying environment-
+# specific identifiers that don't belong in source control long-term.
+
+project_id                  = "vis-version0"
+region                      = "europe-west1"
+image                       = "europe-west1-docker.pkg.dev/vis-version0/vis-k2/vis-backend:REPLACE_WITH_COMMIT_SHA"
+workload_identity_pool_name = "REPLACE_WITH_terraform/bootstrap_OUTPUT"
+notification_email          = ""

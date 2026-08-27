@@ -1,0 +1,64 @@
+name: K2 Deploy — staging (manual promotion)
+
+# Manually gated promotion of an image already built and deployed to dev —
+# never rebuilds from source. Pass the exact image reference (with digest)
+# from the dev deployment's build-and-publish output.
+# See specs/2026-08-26-k2-production-shaped-gcp-platform/plan.md — Group 6.
+# GitHub Environment "staging" should have required reviewers configured
+# so this cannot run unattended.
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Full image reference already deployed to dev, e.g. europe-west1-docker.pkg.dev/vis-version0/vis-k2/vis-backend@sha256:..."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: k2-deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.K2_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.K2_DEPLOYER_SA_EMAIL }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: terraform init
+        working-directory: terraform/environments/staging
+        run: terraform init
+
+      - name: terraform apply (promote existing digest, no rebuild)
+        working-directory: terraform/environments/staging
+        run: |
+          terraform apply -auto-approve \
+            -var="image=${{ inputs.image }}" \
+            -var="workload_identity_pool_name=${{ vars.K2_WORKLOAD_IDENTITY_POOL_NAME }}"
+
+      - name: Resolve deployed URL
+        id: deployed
+        working-directory: terraform/environments/staging
+        run: echo "url=$(terraform output -raw cloud_run_url)" >> "$GITHUB_OUTPUT"
+
+      - name: Health smoke check
+        run: |
+          curl -sSf "${{ steps.deployed.outputs.url }}/actuator/health/liveness" \
+            -H "Authorization: Bearer $(gcloud auth print-identity-token)"

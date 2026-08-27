@@ -27,7 +27,8 @@ app:
       fundamentals: 6h
       profile: 24h
   jobs:
-    enabled: true
+    enabled: ${APP_JOBS_ENABLED:true}
+    scheduling-enabled: ${APP_JOBS_SCHEDULING_ENABLED:true}
     exchanges:
       - NYSE
       - NASDAQ

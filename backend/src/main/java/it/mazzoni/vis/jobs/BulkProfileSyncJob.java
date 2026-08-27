@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class BulkProfileSyncJob {
+public class BulkProfileSyncJob implements CloudRunJob {
 
     private static final Logger log = LoggerFactory.getLogger(BulkProfileSyncJob.class);
 
@@ -40,9 +40,15 @@ public class BulkProfileSyncJob {
         this.eventRecorder = eventRecorder;
     }
 
+    @Override
+    public String jobKey() {
+        return "bulk-profile-sync";
+    }
+
     @Scheduled(cron = "${app.jobs.cron.bulk-profile}")
+    @Override
     public void run() {
-        jobRunLogger.run("bulk-profile-sync", this::execute);
+        jobRunLogger.run(jobKey(), this::execute);
     }
 
     public int execute() {

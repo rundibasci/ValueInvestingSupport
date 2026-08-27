@@ -1,0 +1,120 @@
+name: K2 Deploy — dev
+
+# Builds and publishes an immutable image on every push to main (ungated —
+# runs freely, no GCP cost, no infrastructure change), then applies
+# Terraform for the dev environment behind a required-reviewer approval
+# gate (GitHub Environment "dev" — configured with a required reviewer so
+# `terraform apply` against real GCP resources never runs unattended, even
+# though the build itself does). Never deploys to staging — see
+# k2-deploy-staging.yml for that manually gated, no-rebuild promotion step.
+# See specs/2026-08-26-k2-production-shaped-gcp-platform/plan.md — Group 6.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "deploy/gcp/Dockerfile"
+      - "terraform/**"
+      - ".github/workflows/k2-deploy-dev.yml"
+
+permissions:
+  contents: read
+  id-token: write # required for Workload Identity Federation
+
+concurrency:
+  group: k2-deploy-dev
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT_ID: vis-version0
+  GCP_REGION: europe-west1
+  IMAGE_REPO: europe-west1-docker.pkg.dev/vis-version0/vis-k2/vis-backend
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    # Deliberately NOT "environment: dev" — that Environment has a required-
+    # reviewer protection rule (approval gate on real GCP changes), and
+    # build/test/publish should run unattended on every push. "dev-build"
+    # is a separate, unprotected Environment holding the same deployer SA.
+    environment: dev-build
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run backend test suite
+        working-directory: backend
+        run: ./mvnw -B test
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.K2_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.K2_DEPLOYER_SA_EMAIL }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      - id: image
+        run: echo "image=${{ env.IMAGE_REPO }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: "Build image (full stack: React frontend + Spring Boot backend)"
+        # Root context and deploy/gcp/Dockerfile, NOT backend/Dockerfile —
+        # the latter is backend-only and produces a JAR with no index.html,
+        # so SpaForwardController's forward:/index.html 404s. See
+        # specs/2026-08-25-k1-stakeholder-cloud-deployment/plan.md Group 2.
+        run: docker build -f deploy/gcp/Dockerfile -t "${{ steps.image.outputs.image }}" .
+
+      - name: Push immutable, commit-addressed image
+        run: docker push "${{ steps.image.outputs.image }}"
+
+  deploy-dev:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    # "dev" Environment requires a reviewer approval before this job runs —
+    # this is the actual terraform apply against real GCP resources.
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.K2_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.K2_DEPLOYER_SA_EMAIL }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      - name: terraform init
+        working-directory: terraform/environments/dev
+        run: terraform init
+
+      - name: terraform apply
+        working-directory: terraform/environments/dev
+        run: |
+          terraform apply -auto-approve \
+            -var="image=${{ needs.build-and-publish.outputs.image }}" \
+            -var="workload_identity_pool_name=${{ vars.K2_WORKLOAD_IDENTITY_POOL_NAME }}"
+
+      - name: Resolve deployed URL
+        id: deployed
+        working-directory: terraform/environments/dev
+        run: echo "url=$(terraform output -raw cloud_run_url)" >> "$GITHUB_OUTPUT"
+
+      - name: Health smoke check
+        run: |
+          curl -sSf "${{ steps.deployed.outputs.url }}/actuator/health/liveness" \
+            -H "Authorization: Bearer $(gcloud auth print-identity-token)"

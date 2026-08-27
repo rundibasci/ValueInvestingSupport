@@ -9,7 +9,8 @@ import java.util.Map;
 public record JobsProperties(
         boolean enabled,
         List<String> exchanges,
-        Map<String, String> cron
+        Map<String, String> cron,
+        boolean schedulingEnabled
 ) {
     public String cronFor(String jobKey) {
         return cron != null ? cron.getOrDefault(jobKey, "-") : "-";
