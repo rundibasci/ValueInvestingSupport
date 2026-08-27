@@ -1,0 +1,163 @@
+{
+  "formatVersion": "1.0",
+  "model": {
+    "provider": "Vertex AI",
+    "modelId": "gemini-2.5-flash",
+    "location": "europe-west1"
+  },
+  "generationConfig": {
+    "temperature": 0.0,
+    "maxOutputTokens": 1024,
+    "responseMimeType": "application/json",
+    "responseSchema": {
+      "type": "object",
+      "required": [
+        "classification",
+        "confidence",
+        "summary",
+        "bullCase",
+        "bearCase",
+        "keyRisks",
+        "keyAssumptions",
+        "invalidationConditions",
+        "dataWarnings",
+        "humanReviewRequired"
+      ],
+      "properties": {
+        "classification": {
+          "enum": [
+            "POTENTIALLY_UNDERVALUED",
+            "FAIRLY_VALUED",
+            "POTENTIALLY_OVERVALUED",
+            "UNDER_REVIEW",
+            "INSUFFICIENT_DATA"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "bullCase": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "evidenceFields"
+            ],
+            "properties": {
+              "claim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidenceFields": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "marketPrice",
+                    "intrinsicValue",
+                    "marginOfSafetyPercent",
+                    "valueScore",
+                    "dividendYieldPercent",
+                    "payoutRatioPercent",
+                    "netDebtToEbitda",
+                    "revenueTrend",
+                    "earningsTrend",
+                    "freeCashFlowTrend",
+                    "dataQuality",
+                    "deterministicWarnings"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "bearCase": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "evidenceFields"
+            ],
+            "properties": {
+              "claim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidenceFields": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "marketPrice",
+                    "intrinsicValue",
+                    "marginOfSafetyPercent",
+                    "valueScore",
+                    "dividendYieldPercent",
+                    "payoutRatioPercent",
+                    "netDebtToEbitda",
+                    "revenueTrend",
+                    "earningsTrend",
+                    "freeCashFlowTrend",
+                    "dataQuality",
+                    "deterministicWarnings"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "keyRisks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keyAssumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "invalidationConditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataWarnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "humanReviewRequired": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "groundingTools": [],
+  "promptPath": "prompts/system-prompt-v2.txt",
+  "promptVersion": "system-prompt-v2",
+  "inputSchemaPath": "schemas/thesis-input.schema.json",
+  "outputSchemaPath": "schemas/thesis-output.schema.json",
+  "validatorEntryPoint": "TRAIN-02 CLI (scripts/validate_dataset.py \u2014 unchanged)",
+  "fewShotPolicy": {
+    "enabled": false,
+    "rationale": "Keeps parity with TRAIN-03's already-validated zero-shot design; revisit only if TA3's capability gate fails on a category few-shot could plausibly fix."
+  },
+  "determinismCaveat": "temperature=0.0 is Gemini's minimum/most-deterministic setting, but Google's own documentation does not guarantee bit-exact determinism across identical calls the way local greedy decoding did for the closed Gemma baseline (TRAIN-03). TA3's benchmark design must tolerate and report this rather than assume single-call results are fully reproducible.",
+  "maxOutputTokensRationale": "Derived from the closed Gemma-3-4B baseline's observed average output length on this exact task contract (1,009.4 characters \u2014 reports/baseline/gemma-3-4b-it-v1/error-analysis.md), approximately 250 tokens at a ~4 chars/token estimate, with a ~4x safety margin for longer cases and Gemini's own formatting overhead. This is a placeholder estimate carried over from a different model on the same task; TA3 should record Gemini's actual observed output length and revise this value if it diverges materially.",
+  "regionAvailabilityCaveat": "europe-west1 is a supported Vertex AI region for Gemini generally, but specific model-tier availability is version-dependent (see ADR-002 References Reviewed). Confirm gemini-2.5-flash is available in europe-west1 before TA3's live benchmark run."
+}
