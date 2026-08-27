@@ -47,11 +47,13 @@ module "redis" {
 
 locals {
   secret_env_var_names = {
-    "fmp-api-key"       = "FMP_API_KEY"
-    "database-username" = "DATABASE_USERNAME"
-    "database-password" = "DATABASE_PASSWORD"
-    "jwt-private-key"   = "JWT_PRIVATE_KEY"
-    "jwt-public-key"    = "JWT_PUBLIC_KEY"
+    "fmp-api-key"          = "FMP_API_KEY"
+    "database-username"    = "DATABASE_USERNAME"
+    "database-password"    = "DATABASE_PASSWORD"
+    "jwt-private-key"      = "JWT_PRIVATE_KEY"
+    "jwt-public-key"       = "JWT_PUBLIC_KEY"
+    "google-client-id"     = "GOOGLE_CLIENT_ID"
+    "google-client-secret" = "GOOGLE_CLIENT_SECRET"
   }
 
   secret_env_bindings = [
@@ -60,6 +62,16 @@ locals {
       secret_id    = module.secret_manager.secret_ids[key]
     }
   ]
+
+  # Unlike dev's default run.app URL (random hash, unknown before the
+  # service exists — see environments/dev/main.tf), staging's redirect URI
+  # can be derived cleanly from custom_domain, which is stable and known
+  # ahead of provisioning. While custom_domain is unset ("", DNS/cert not
+  # ready yet per Decision 7), these stay empty and Google sign-in stays
+  # disabled on staging, same as any environment missing the client secrets.
+  google_oauth2_base_url          = var.custom_domain != "" ? "https://${var.custom_domain}" : ""
+  google_oauth2_redirect_uri      = local.google_oauth2_base_url != "" ? "${local.google_oauth2_base_url}/login/oauth2/code/google" : ""
+  google_oauth2_frontend_callback = local.google_oauth2_base_url != "" ? "${local.google_oauth2_base_url}/auth/oauth2/callback" : ""
 
   # Keep in sync with environments/dev/main.tf and application.yml app.jobs.cron.*.
   job_cron = {
@@ -75,21 +87,23 @@ locals {
 }
 
 module "cloud_run_service" {
-  source                        = "../../modules/cloud-run-service"
-  project_id                    = var.project_id
-  region                        = var.region
-  environment                   = var.environment
-  image                         = var.image
-  runtime_service_account_email = module.iam.runtime_email
-  network_name                  = module.network.network_name
-  subnet_name                   = module.network.subnet_name
-  cloudsql_connection_name      = module.cloud_sql.connection_name
-  database_name                 = module.cloud_sql.database_name
-  redis_host                    = module.redis.host
-  redis_port                    = module.redis.port
-  secret_env_bindings           = local.secret_env_bindings
-  max_instances                 = var.max_instances
-  custom_domain                 = var.custom_domain
+  source                          = "../../modules/cloud-run-service"
+  project_id                      = var.project_id
+  region                          = var.region
+  environment                     = var.environment
+  image                           = var.image
+  runtime_service_account_email   = module.iam.runtime_email
+  network_name                    = module.network.network_name
+  subnet_name                     = module.network.subnet_name
+  cloudsql_connection_name        = module.cloud_sql.connection_name
+  database_name                   = module.cloud_sql.database_name
+  redis_host                      = module.redis.host
+  redis_port                      = module.redis.port
+  secret_env_bindings             = local.secret_env_bindings
+  max_instances                   = var.max_instances
+  custom_domain                   = var.custom_domain
+  google_oauth2_redirect_uri      = local.google_oauth2_redirect_uri
+  google_oauth2_frontend_callback = local.google_oauth2_frontend_callback
 }
 
 module "cloud_run_job" {
