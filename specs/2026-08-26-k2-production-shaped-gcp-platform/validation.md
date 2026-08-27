@@ -206,6 +206,12 @@ Merged PR #1 into `main` to observe the required-reviewer approval gate live. `k
 
 This is the correct, expected behavior, not a defect: the pipeline's WIF identity is part of the environment it deploys, so tearing down `dev` necessarily breaks `dev`'s deploy pipeline until `dev` is re-provisioned. User confirmed the required-reviewer configuration itself (already verified present via `gh api` earlier) is sufficient evidence without a live re-provision-just-to-watch-it-pause cycle. **Re-provisioning `dev` is a prerequisite for its CI/CD pipeline to function at all going forward**, not just for the approval-gate demo.
 
+### `k2-deploy-dev.yml` trigger changed from automatic to manual — 2026-08-27
+
+This same failed run prompted the user to ask whether ongoing feature work should move to a `develop` branch to stop triggering a K2 job on every push. Recommended against a new branch (this project has never used one; moving the trigger elsewhere just relocates the "fires on every commit" problem) and instead changed `k2-deploy-dev.yml`'s trigger from `on: push: branches: [main]` (with a `paths:` filter) to plain `on: workflow_dispatch:` — matching `k2-deploy-staging.yml`'s existing manual pattern. User agreed; applied on commit `0ea62b5`, merged to `main`.
+
+Rationale recorded in the workflow's own header comment: dev is a deliberately-provisioned, occasionally-torn-down environment (Decision 11), not a continuous-deployment target, so auto-triggering only ever produced noise (torn down: build fails, SA gone) or an unwanted job on unrelated commits (live: paused for approval, but still fired every time). The required-reviewer approval gate on the `deploy-dev` job itself is unchanged — this only removes the automatic trigger, not the safety gate.
+
 ### Pending Live Evidence
 
 - `k2-deploy-dev.yml`/`k2-deploy-staging.yml`/`k2-rollback.yml` have not run end-to-end (would require a push/merge to `main`, not yet authorized) — and would now pause for manual approval at the `terraform apply` step regardless, per the new required-reviewer gate.
