@@ -1,23 +1,25 @@
 name: K2 Deploy — dev
 
-# Builds and publishes an immutable image on every push to main (ungated —
-# runs freely, no GCP cost, no infrastructure change), then applies
-# Terraform for the dev environment behind a required-reviewer approval
-# gate (GitHub Environment "dev" — configured with a required reviewer so
-# `terraform apply` against real GCP resources never runs unattended, even
-# though the build itself does). Never deploys to staging — see
-# k2-deploy-staging.yml for that manually gated, no-rebuild promotion step.
+# Manually triggered (not on every push to main): this project commits
+# routine feature work directly to main constantly, and dev is a
+# deliberately-provisioned, occasionally-torn-down environment (see
+# specs/2026-08-26-k2-production-shaped-gcp-platform/requirements.md
+# Decision 11), not a continuous-deployment target. Auto-triggering on
+# push produced either pure noise (dev torn down: the build step fails
+# because its service account no longer exists) or an unwanted apply on
+# every unrelated commit (dev live: paused for approval, but still fired
+# every time). Dispatch this manually when you actually want to rebuild
+# and redeploy dev. Builds and publishes an immutable image (ungated — no
+# GCP cost, no infrastructure change), then applies Terraform for the dev
+# environment behind a required-reviewer approval gate (GitHub Environment
+# "dev" — configured with a required reviewer so `terraform apply` against
+# real GCP resources never runs unattended, even though the build itself
+# does). Never deploys to staging — see k2-deploy-staging.yml for that
+# manually gated, no-rebuild promotion step.
 # See specs/2026-08-26-k2-production-shaped-gcp-platform/plan.md — Group 6.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "backend/**"
-      - "frontend/**"
-      - "deploy/gcp/Dockerfile"
-      - "terraform/**"
-      - ".github/workflows/k2-deploy-dev.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
