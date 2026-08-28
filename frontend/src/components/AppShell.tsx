@@ -15,6 +15,7 @@ const navigation = [
 const adminNavigation = [
   { label: 'Universe Curation', to: '/universe-curation' },
   { label: 'Jobs', to: '/admin/jobs' },
+  { label: 'AI Thesis Review', to: '/admin/thesis-review' },
   { label: 'Data Fallbacks', to: '/admin/fallbacks' },
   { label: 'Users', to: '/admin/users' },
 ]
