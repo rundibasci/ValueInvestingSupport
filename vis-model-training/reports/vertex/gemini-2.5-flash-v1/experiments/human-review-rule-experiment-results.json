@@ -1,0 +1,116 @@
+{
+  "base-benchmark/VIS-BENCH-0046": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 4.9
+  },
+  "base-benchmark/VIS-BENCH-0047": {
+    "hr": false,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.5
+  },
+  "base-benchmark/VIS-BENCH-0026": {
+    "hr": false,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.4
+  },
+  "base-benchmark/VIS-BENCH-0027": {
+    "hr": false,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.2
+  },
+  "base-benchmark/VIS-BENCH-0008": {
+    "hr": true,
+    "classification": "UNDER_REVIEW",
+    "error": null,
+    "latency": 3.0
+  },
+  "base-benchmark/VIS-BENCH-0009": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 3.2
+  },
+  "scenarios/SCN-000476": {
+    "hr": false,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.0
+  },
+  "scenarios/SCN-000333": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.1
+  },
+  "scenarios/SCN-000334": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.5
+  },
+  "scenarios/SCN-000259": {
+    "hr": false,
+    "classification": "POTENTIALLY_OVERVALUED",
+    "error": null,
+    "latency": 3.0
+  },
+  "scenarios/SCN-000260": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.2
+  },
+  "scenarios/SCN-000301": {
+    "hr": true,
+    "classification": "UNDER_REVIEW",
+    "error": null,
+    "latency": 2.7
+  },
+  "scenarios/SCN-000302": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 3.2
+  },
+  "base-benchmark/VIS-BENCH-0001": {
+    "hr": false,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.8
+  },
+  "base-benchmark/VIS-BENCH-0021": {
+    "hr": false,
+    "classification": "FAIRLY_VALUED",
+    "error": null,
+    "latency": 2.2
+  },
+  "base-benchmark/VIS-BENCH-0015": {
+    "hr": false,
+    "classification": "POTENTIALLY_OVERVALUED",
+    "error": null,
+    "latency": 2.1
+  },
+  "base-benchmark/VIS-BENCH-0031": {
+    "hr": true,
+    "classification": "INSUFFICIENT_DATA",
+    "error": null,
+    "latency": 1.3
+  },
+  "base-benchmark/VIS-BENCH-0036": {
+    "hr": true,
+    "classification": "POTENTIALLY_UNDERVALUED",
+    "error": null,
+    "latency": 2.1
+  },
+  "base-benchmark/VIS-BENCH-0041": {
+    "hr": true,
+    "classification": "UNDER_REVIEW",
+    "error": null,
+    "latency": 8.0
+  }
+}

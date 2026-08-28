@@ -102,8 +102,13 @@ Mechanically computable `capability-probe-gate.json` fields all pass (`minimumPa
 
 `reports/vertex/gemini-2.5-flash-v1/` (README, environment, run-manifest, metrics, manual-review, error-analysis, cost, checksums) — full comparison against the closed Gemma baseline. Headline: Gemma scored 0% JSON validity / 0% classification accuracy / 15% human-review accept rate on its 20-case review; Gemini scored 100% / 52–100% (dataset-dependent, see report) / 80.9% on 68 cases. The report's `error-analysis.md` documents the `humanReviewRequired`/value-trap finding as the leading TA4 prompt-tuning candidate, not a structural defect.
 
+### Prompt-Tuning Experiment (2026-08-28) — Candidate, Not Adopted
+
+Explored whether the `humanReviewRequired`/value-trap gap is fixable in the prompt: it traces to a specific, narrow hole in `prompts/system-prompt-v2.txt` Rule 9 (enumerates STALE/INCONSISTENT/INSUFFICIENT/CONTRADICTORY_SIGNALS but never a `STRONGLY_DECLINING` trend). A one-clause addition (`STRONGLY_DECLINING` trend + positive margin → `humanReviewRequired=true`) was tested live against a separate variant prompt file (`prompts/system-prompt-v2-ta3-experiment-hr.txt`, never wired into production config) on the 13 non-accepted cases plus 6 controls: **100% reliability (6/6) where the clause's exact condition held, zero false positives on controls.** Projected effect on the accept-rate margin: 0.8088 → ~0.897. **Production `prompts/system-prompt-v2.txt` is unchanged** — explicit user decision to document this as a TA4 candidate rather than adopt it within TA3's scope. Full writeup: `reports/vertex/gemini-2.5-flash-v1/experiments/human-review-rule-experiment.md`.
+
 ### What Remains
 
 - **The two unresolved gate-field groups above** — an explicit decision (apply/reinterpret/retire) is still needed before the gate can be called fully evaluated.
-- **The actual go/no-go decision itself** — the evidence base is now complete (this document + the comparison report), but the decision has not been made.
+- **Whether to adopt the prompt-tuning candidate above** — would require a full 574-case re-run, re-review, and re-gate before it could actually move the accept-rate margin for real (see the experiment doc's "What would be needed to actually adopt this").
+- **The actual go/no-go decision itself** — the evidence base is now complete (this document + the comparison report + the prompt-tuning experiment), but the decision has not been made.
 - `specs/roadmap.md` → Phase TA3 stays unmarked until the go/no-go decision is made — explicit user instruction this session (2026-08-28): report written, phase not yet closed.
