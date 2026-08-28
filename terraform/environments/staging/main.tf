@@ -104,6 +104,10 @@ module "cloud_run_service" {
   custom_domain                   = var.custom_domain
   google_oauth2_redirect_uri      = local.google_oauth2_redirect_uri
   google_oauth2_frontend_callback = local.google_oauth2_frontend_callback
+  thesis_agent_enabled            = var.thesis_agent_enabled
+  google_cloud_project            = var.project_id
+  vertex_ai_location              = var.vertex_ai_location
+  gemini_model_id                 = var.gemini_model_id
 }
 
 module "cloud_run_job" {

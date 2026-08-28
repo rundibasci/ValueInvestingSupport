@@ -126,6 +126,36 @@ resource "google_cloud_run_v2_service" "this" {
         }
       }
 
+      # AI Investment Thesis (Group TA). Plain env vars, not secrets: project id, region,
+      # and a public model identifier carry no confidential value. Auth is via the runtime
+      # service account's attached identity (roles/aiplatform.user, granted in the iam
+      # module), never a key file. thesis_agent_enabled defaults false in every environment.
+      env {
+        name  = "THESIS_AGENT_ENABLED"
+        value = tostring(var.thesis_agent_enabled)
+      }
+      dynamic "env" {
+        for_each = var.google_cloud_project != "" ? [var.google_cloud_project] : []
+        content {
+          name  = "GOOGLE_CLOUD_PROJECT"
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.vertex_ai_location != "" ? [var.vertex_ai_location] : []
+        content {
+          name  = "VERTEX_AI_LOCATION"
+          value = env.value
+        }
+      }
+      dynamic "env" {
+        for_each = var.gemini_model_id != "" ? [var.gemini_model_id] : []
+        content {
+          name  = "GEMINI_MODEL_ID"
+          value = env.value
+        }
+      }
+
       # Startup probe deliberately targets liveness, not readiness: K1
       # found the readiness group includes a custom ingestionJobs health
       # indicator that reports DOWN on a fresh database (no ingestion job

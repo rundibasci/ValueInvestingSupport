@@ -86,3 +86,33 @@ variable "google_oauth2_frontend_callback" {
   description = "Frontend URL that receives the short-lived OAuth handoff code, e.g. https://<service-url>/auth/oauth2/callback. Leave empty to omit the env var entirely, matching google_oauth2_redirect_uri."
   default     = ""
 }
+
+# AI Investment Thesis (Group TA, Phase TA4/TA5). No GOOGLE_APPLICATION_CREDENTIALS var is
+# ever set here: Cloud Run's attached runtime service account (var.runtime_service_account_email,
+# granted roles/aiplatform.user in the iam module) is resolved automatically as Application
+# Default Credentials — no key file, matching mission.md's secrets principle. Stays disabled
+# (false) by default in every environment; flipped only via an explicit -var at apply time,
+# the same explicit-operational-decision boundary specs/tech-stack.md documents.
+variable "thesis_agent_enabled" {
+  type        = bool
+  description = "THESIS_AGENT_ENABLED. False in every committed default — enabling Vertex AI Gemini calls is a separate, explicit operational decision, never implied by a routine deploy."
+  default     = false
+}
+
+variable "google_cloud_project" {
+  type        = string
+  description = "GOOGLE_CLOUD_PROJECT for the Vertex AI client. Empty omits the env var (thesis_agent_enabled must also be true for the feature to activate — see ThesisClientConfig's startup validation)."
+  default     = ""
+}
+
+variable "vertex_ai_location" {
+  type        = string
+  description = "VERTEX_AI_LOCATION — the data-residency region recorded in Group TA's governance review (Phase TA1)."
+  default     = ""
+}
+
+variable "gemini_model_id" {
+  type        = string
+  description = "GEMINI_MODEL_ID — the specific pinned model string cleared by the TA3 capability gate (vis-model-training/config/vertex-gemini-v1.json). Never a floating/auto-updating alias."
+  default     = ""
+}

@@ -41,6 +41,7 @@ locals {
     "iamcredentials.googleapis.com",
     "sts.googleapis.com",
     "cloudbuild.googleapis.com",
+    "aiplatform.googleapis.com", # AI Investment Thesis (Group TA) — Vertex AI Gemini
   ]
 }
 

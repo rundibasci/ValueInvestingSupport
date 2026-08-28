@@ -46,3 +46,23 @@ variable "max_instances" {
   description = "Starts at 1; raise only after the Cloud Run Jobs migration is verified for dev (plan.md Group 5/9)."
   default     = 1
 }
+
+# AI Investment Thesis (Group TA). False by default in dev, same as every other
+# environment — enabling it is an explicit, separate operational decision passed via
+# -var at apply time, never a committed default (specs/tech-stack.md).
+variable "thesis_agent_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "vertex_ai_location" {
+  type        = string
+  description = "Data-residency region for Vertex AI Gemini calls, per Group TA Phase TA1's governance decision."
+  default     = "europe-west1"
+}
+
+variable "gemini_model_id" {
+  type        = string
+  description = "Pinned Gemini model id cleared by the TA3 capability gate. Safe to default (not a secret) — only takes effect when thesis_agent_enabled=true."
+  default     = "gemini-2.5-flash"
+}

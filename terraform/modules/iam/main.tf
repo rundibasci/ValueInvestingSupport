@@ -34,6 +34,16 @@ resource "google_project_iam_member" "runtime_metric_writer" {
   member  = "serviceAccount:${google_service_account.runtime.email}"
 }
 
+# AI Investment Thesis (Group TA): lets the runtime identity call Vertex AI Gemini via
+# Application Default Credentials (no key file). Granted in every environment regardless of
+# thesis_agent_enabled's value — an unused IAM grant on a disabled feature carries no cost
+# or risk, and this avoids a second per-environment conditional IAM path.
+resource "google_project_iam_member" "runtime_vertex_ai_user" {
+  project = var.project_id
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.runtime.email}"
+}
+
 # Per-secret accessor bindings are granted by the secret-manager module,
 # not here, so this module never needs to know the secret list.
 
