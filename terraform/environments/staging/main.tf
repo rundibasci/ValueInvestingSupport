@@ -63,15 +63,18 @@ locals {
     }
   ]
 
-  # Unlike dev's default run.app URL (random hash, unknown before the
-  # service exists — see environments/dev/main.tf), staging's redirect URI
-  # can be derived cleanly from custom_domain, which is stable and known
-  # ahead of provisioning. While custom_domain is unset ("", DNS/cert not
-  # ready yet per Decision 7), these stay empty and Google sign-in stays
-  # disabled on staging, same as any environment missing the client secrets.
-  google_oauth2_base_url          = var.custom_domain != "" ? "https://${var.custom_domain}" : ""
-  google_oauth2_redirect_uri      = local.google_oauth2_base_url != "" ? "${local.google_oauth2_base_url}/login/oauth2/code/google" : ""
-  google_oauth2_frontend_callback = local.google_oauth2_base_url != "" ? "${local.google_oauth2_base_url}/auth/oauth2/callback" : ""
+  # Prefer custom_domain once DNS/cert provisioning is ready (Decision 7) —
+  # stable and known ahead of provisioning, unlike Cloud Run v2's default
+  # run.app URL (random hash, unknown before the service exists). Until
+  # then, fall back to the real observed run.app URL, mirroring dev's own
+  # hardcoded pattern (environments/dev/main.tf): Cloud Run does not
+  # guarantee the same hash on a fresh create, so re-check this value via
+  # `terraform output cloud_run_url` after any destroy/recreate of this
+  # environment's Cloud Run service, and update both this local and the
+  # Google Cloud Console OAuth client's authorized redirect URI to match.
+  google_oauth2_base_url          = var.custom_domain != "" ? "https://${var.custom_domain}" : "https://vis-k2-${var.environment}-api-ughjapmueq-ew.a.run.app"
+  google_oauth2_redirect_uri      = "${local.google_oauth2_base_url}/login/oauth2/code/google"
+  google_oauth2_frontend_callback = "${local.google_oauth2_base_url}/auth/oauth2/callback"
 
   # Keep in sync with environments/dev/main.tf and application.yml app.jobs.cron.*.
   job_cron = {
