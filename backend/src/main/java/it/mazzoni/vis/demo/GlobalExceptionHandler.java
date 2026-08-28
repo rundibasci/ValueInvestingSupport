@@ -2,6 +2,7 @@ package it.mazzoni.vis.demo;
 
 import it.mazzoni.vis.exception.MarketDataUnavailableException;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.thesis.ThesisRateLimitExceededException;
 import it.mazzoni.vis.marketdata.MarketDataException;
 import it.mazzoni.vis.portfolio.PortfolioPreconditionException;
 import it.mazzoni.vis.valuation.StaleDataException;
@@ -45,6 +46,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Map<String, String> handleMarketDataUnavailable(MarketDataUnavailableException ex) {
         return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(ThesisRateLimitExceededException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public Map<String, Object> handleThesisRateLimitExceeded(ThesisRateLimitExceededException ex) {
+        return Map.of(
+                "error", ex.getMessage(),
+                "code", "RATE_LIMIT_EXCEEDED",
+                "limit", ex.limit(),
+                "resetsAt", ex.resetsAt().toString());
     }
 
     @ExceptionHandler(StaleDataException.class)

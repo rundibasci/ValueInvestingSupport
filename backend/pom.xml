@@ -116,6 +116,15 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
         <dependency>
+            <!-- TA4: Vertex AI Gemini client (AI Investment Thesis). Same SDK family as
+                 vis-model-training's Python google-genai (TA2/TA3), Java coordinate verified
+                 against the real downloaded jar's bytecode this session (javap), not assumed
+                 from the Python precedent. -->
+            <groupId>com.google.genai</groupId>
+            <artifactId>google-genai</artifactId>
+            <version>1.68.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>

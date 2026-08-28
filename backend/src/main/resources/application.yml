@@ -13,6 +13,15 @@ spring:
 market-data:
   source: ${MARKET_DATA_SOURCE:fmp}
 
+thesis:
+  agent-enabled: ${THESIS_AGENT_ENABLED:false}
+  google-cloud-project: ${GOOGLE_CLOUD_PROJECT:}
+  vertex-ai-location: ${VERTEX_AI_LOCATION:}
+  gemini-model-id: ${GEMINI_MODEL_ID:}
+  daily-limit: ${THESIS_GENERATION_DAILY_LIMIT:5}
+  max-retries: ${THESIS_GENERATION_MAX_RETRIES:1}
+  prompt-version: system-prompt-v3
+
 app:
   deployment:
     mode: ${APP_DEPLOYMENT_MODE:local}

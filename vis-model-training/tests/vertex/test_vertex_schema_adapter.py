@@ -137,4 +137,7 @@ def test_checked_in_config_pins_expected_values():
     assert config["generationConfig"]["responseMimeType"] == "application/json"
     assert config["groundingTools"] == []
     assert config["fewShotPolicy"]["enabled"] is False
-    assert config["promptPath"] == "prompts/system-prompt-v2.txt"
+    # TA4 adopted TA3's live-verified humanReviewRequired/value-trap prompt fix as a new
+    # system-prompt-v3.txt (never an in-place v2 edit, per TA2's own established discipline) —
+    # see specs/2026-08-28-ta4-runtime-integration-contract/requirements.md.
+    assert config["promptPath"] == "prompts/system-prompt-v3.txt"

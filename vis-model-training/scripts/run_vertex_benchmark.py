@@ -14,11 +14,18 @@ hashes against a local model revision). VertexBackend has no local
 checkpoint to freeze; this script writes its own manifest instead, in the
 same shape, without forking BenchmarkRunner/metrics.py/review.py.
 
-Usage: PYTHONPATH=src .venv/bin/python3 scripts/run_vertex_benchmark.py
+Usage: PYTHONPATH=src .venv/bin/python3 scripts/run_vertex_benchmark.py [--output-dir NAME]
+
+--output-dir defaults to "vertex-gemini-2.5-flash-v1" (TA3's original run). TA4's Group 7
+prompt-fix corpus re-run uses --output-dir vertex-gemini-2.5-flash-v3 so TA3's v1 results
+are never overwritten (mission.md Principle 6, immutable history) -- previously a separate
+near-duplicate script (run_vertex_benchmark_v3.py); consolidated here once the v3 run this
+argument was added for had already started against that duplicate (see git history).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -31,7 +38,6 @@ from vis_training.benchmark.io import write_json  # noqa: E402
 from vis_training.benchmark.runner import BenchmarkRunner  # noqa: E402
 from vis_training.benchmark.vertex_backend import VertexBackend  # noqa: E402
 
-OUTPUT_DIR = ROOT / "results" / "vertex-gemini-2.5-flash-v1"
 DATASETS = [
     ("base-benchmark-v1", ROOT / "datasets" / "benchmark" / "base-benchmark-v1.jsonl"),
     # scenarios-v1.jsonl (TRAIN-04's raw generator output) is not in the
@@ -47,6 +53,11 @@ DATASETS = [
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", default="vertex-gemini-2.5-flash-v1")
+    args = parser.parse_args()
+    OUTPUT_DIR = ROOT / "results" / args.output_dir
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     backend = VertexBackend(ROOT / "config" / "vertex-gemini-v1.json")
     runner = BenchmarkRunner(backend, max_new_tokens=1024)
