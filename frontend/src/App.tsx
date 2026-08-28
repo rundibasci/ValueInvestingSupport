@@ -18,6 +18,7 @@ import { ChecklistPage } from "./pages/ChecklistPage";
 import { UniverseCurationPage } from "./pages/UniverseCurationPage";
 import { AdminJobsPage } from "./pages/AdminJobsPage";
 import { MarketDataFallbacksPage } from "./pages/MarketDataFallbacksPage";
+import { AdminThesisReviewPage } from "./pages/AdminThesisReviewPage";
 
 export default function App(): JSX.Element {
   return (
@@ -39,6 +40,7 @@ export default function App(): JSX.Element {
           <Route path="universe-curation" element={<UniverseCurationPage />} />
           <Route path="admin/seed" element={<AdminSeedPage />} />
           <Route path="admin/jobs" element={<AdminJobsPage />} />
+          <Route path="admin/thesis-review" element={<AdminThesisReviewPage />} />
           <Route path="admin/fallbacks" element={<MarketDataFallbacksPage />} />
           <Route path="admin/users" element={<UserProvisioningPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

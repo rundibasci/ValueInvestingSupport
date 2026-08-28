@@ -19,6 +19,7 @@ import { portfolioApi, type Portfolio } from '../api/portfolio'
 import { professionalApi, type ChecklistEvaluation, type Confidence, type Verification } from '../api/professional'
 import { watchlistApi } from '../api/watchlist'
 import { availabilityClass, availabilityLabel } from '../lib/availability'
+import { ThesisPanel } from '../components/ThesisPanel'
 
 type Detail = {
   symbol: string
@@ -1204,6 +1205,10 @@ export function SecurityReviewPage(): JSX.Element {
               <DataGap>Valuation outputs are model estimates based on available local data. They are not personalised investment advice, order recommendations, or a guarantee of intrinsic value.</DataGap>
             </div>
           </div>
+        </Section>
+
+        <Section id="thesis" title="AI Investment Thesis">
+          <ThesisPanel symbol={symbol} />
         </Section>
 
         <Section id="actions" title="Next Actions">

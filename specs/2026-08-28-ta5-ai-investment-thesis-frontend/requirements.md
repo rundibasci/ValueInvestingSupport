@@ -32,31 +32,42 @@ The frontend (`frontend/`) is a React 18 + TypeScript 5 + Vite + TanStack Query 
 
 ## Request/Response Shapes (consumed, not introduced)
 
+Verified against the actual TA4 Java source (`backend/src/main/java/it/mazzoni/vis/thesis/`) at implementation time, not assumed from TA4's spec prose alone — several field names differ from TA4's own `plan.md`/`requirements.md` sketch (see `validation.md` → Corrections Made During Implementation for the specifics):
+
 ```ts
-// POST /api/v1/securities/{symbol}/thesis/generate → 202
+// POST /api/v1/securities/{symbol}/thesis/generate → 202 (ThesisGenerationAcceptedResponse)
+// → 503 { error: string } if THESIS_AGENT_ENABLED=false (ThesisController.generate, synchronous)
+// → 429 on rate limit (see below)
 { thesisRunId: string; status: string; pollingIntervalMs: number; statusUrl: string }
 
-// 429 body when THESIS_GENERATION_DAILY_LIMIT is exceeded
-{ code: 'RATE_LIMIT_EXCEEDED'; limit: number; resetsAt: string }
+// 429 body when THESIS_GENERATION_DAILY_LIMIT is exceeded (GlobalExceptionHandler)
+{ error: string; code: 'RATE_LIMIT_EXCEEDED'; limit: number; resetsAt: string }
 
-// GET .../thesis/runs/{thesisRunId}/status
+// GET .../thesis/runs/{thesisRunId}/status (ThesisRunStatusResponse)
 { thesisRunId: string; status: 'GENERATING'|'READY'|'FAILED'|'HUMAN_REVIEW_PENDING';
   classification: string | null; confidence: number | null;
   humanReviewRequired: boolean | null; errorCode: string | null; generatedAt: string | null }
 
-// GET .../thesis → latest, or a NOT_GENERATED marker mapped to `null` by the client
-{ thesisRunId, requestId, status, classification, confidence, summary,
-  bullCase: [{ claim: string; evidenceFields: string[] }],
-  bearCase: [{ claim: string; evidenceFields: string[] }],
-  keyRisks: string[]; keyAssumptions: string[]; invalidationConditions: string[];
-  dataWarnings: string[]; humanReviewRequired: boolean;
-  errorCode, errorMessage, modelId, modelVersion, promptVersion,
-  latencyMs, generatedAt, stale: boolean }
+// GET .../thesis → latest (ThesisResponse) — always 200; status: "NOT_GENERATED" when no
+// row exists yet (never a 404). No requestId/errorCode/errorMessage/latencyMs field exists
+// here — a FAILED thesis's explanation lives in output.dataWarnings (the deterministic
+// fallback's tracked error reason).
+{ id: string; symbol: string;
+  status: 'GENERATING'|'READY'|'FAILED'|'HUMAN_REVIEW_PENDING'|'NOT_GENERATED';
+  modelId: string | null; modelVersion: string | null; promptVersion: string | null;
+  output: {
+    classification: string | null; confidence: number | null; summary: string | null;
+    bullCase: [{ claim: string; evidenceFields: string[] }];
+    bearCase: [{ claim: string; evidenceFields: string[] }];
+    keyRisks: string[]; keyAssumptions: string[]; invalidationConditions: string[];
+    dataWarnings: string[]; humanReviewRequired: boolean;
+  } | null;
+  generatedAt: string | null; stale: boolean }
 
-// GET /api/v1/admin/thesis/review-queue?page=&size=
-{ content: [{ thesisRunId, symbol, companyName, classification,
-               humanReviewRequired, dataWarnings: string[], generatedAt }],
-  totalElements: number }
+// GET /api/v1/admin/thesis/review-queue?page=&size= (PageResponse<ThesisReviewQueueItemResponse>)
+{ content: [{ id, symbol, companyName, status, classification,
+               humanReviewRequired: boolean | null, dataWarningsPresent: boolean, generatedAt }],
+  page: number; size: number; totalElements: number; totalPages: number }
 ```
 
 `classification` values: `POTENTIALLY_UNDERVALUED | FAIRLY_VALUED | POTENTIALLY_OVERVALUED | UNDER_REVIEW | INSUFFICIENT_DATA` (exactly `thesis-output.schema.json`'s enum — `UNDER_REVIEW` is also TA4's deterministic-fallback classification on `FAILED`, so the panel must not assume `UNDER_REVIEW` implies success).
