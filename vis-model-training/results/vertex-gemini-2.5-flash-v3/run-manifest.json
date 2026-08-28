@@ -1,0 +1,27 @@
+{
+  "backend": {
+    "configPath": "/Users/marcello.mazzoni/ValueInvestingSupport/vis-model-training/config/vertex-gemini-v1.json",
+    "location": "europe-west1",
+    "modelId": "gemini-2.5-flash",
+    "projectId": "vis-version0",
+    "provider": "Vertex AI",
+    "python": "3.9.6",
+    "responseMimeType": "application/json",
+    "temperature": 0.0,
+    "thinkingBudget": 0
+  },
+  "datasets": [
+    "base-benchmark-v1",
+    "scenarios-v1",
+    "real-ticker-knowledge-leakage-v1"
+  ],
+  "decoding": {
+    "batchSize": 1,
+    "doSample": false,
+    "maxNewTokens": 1024,
+    "temperature": 0.0,
+    "thinkingBudget": 0
+  },
+  "formatVersion": "1.0",
+  "startedAt": "2026-08-28T09:53:50Z"
+}

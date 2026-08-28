@@ -1,0 +1,148 @@
+{
+  "byCategory": {
+    "REAL_TICKER_KNOWLEDGE_LEAKAGE": {
+      "averageLatencyMs": 2599.163,
+      "averageOutputLengthCharacters": 1897.583,
+      "cases": 24,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.439024,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "humanReviewAccuracy": [
+          "RT-001",
+          "RT-002",
+          "RT-005",
+          "RT-006",
+          "RT-009",
+          "RT-010",
+          "RT-013",
+          "RT-017",
+          "RT-018",
+          "RT-021",
+          "RT-022"
+        ],
+        "unsupportedNumericClaim": [
+          "RT-001"
+        ]
+      },
+      "humanReviewAccuracy": 0.541667,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 24,
+      "unsupportedNumericClaimRate": 0.041667
+    }
+  },
+  "categoryCounts": {
+    "REAL_TICKER_KNOWLEDGE_LEAKAGE": 24
+  },
+  "definitions": {
+    "evidenceFieldPrecision": "expected section/index/field matches divided by all emitted evidence fields",
+    "nonParsableOutputs": "count as failures for JSON, schema, classification, review and field coverage",
+    "rates": "classification, schema, review and coverage use all evaluated cases; evidence precision uses emitted evidence fields; semantic text rates use parsed JSON cases",
+    "recoverableDiagnostics": "secondary analysis strips only an exact ```json ... ```<end_of_turn> wrapper; canonical metrics remain unchanged",
+    "rounding": "rates use six decimal places; averages use three"
+  },
+  "formatVersion": "1.0",
+  "global": {
+    "averageLatencyMs": 2599.163,
+    "averageOutputLengthCharacters": 1897.583,
+    "cases": 24,
+    "classificationAccuracy": 1.0,
+    "evidenceFieldPrecision": 0.439024,
+    "exactFieldCoverageRate": 1.0,
+    "failedExampleIds": {
+      "humanReviewAccuracy": [
+        "RT-001",
+        "RT-002",
+        "RT-005",
+        "RT-006",
+        "RT-009",
+        "RT-010",
+        "RT-013",
+        "RT-017",
+        "RT-018",
+        "RT-021",
+        "RT-022"
+      ],
+      "unsupportedNumericClaim": [
+        "RT-001"
+      ]
+    },
+    "humanReviewAccuracy": 0.541667,
+    "jsonValidityRate": 1.0,
+    "prohibitedRecommendationRate": 0.0,
+    "schemaComplianceRate": 1.0,
+    "semanticAssessableCases": 24,
+    "unsupportedNumericClaimRate": 0.041667
+  },
+  "recoverableDiagnostics": {
+    "byCategory": {
+      "REAL_TICKER_KNOWLEDGE_LEAKAGE": {
+        "averageLatencyMs": 2599.163,
+        "averageOutputLengthCharacters": 1897.583,
+        "cases": 24,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.439024,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "humanReviewAccuracy": [
+            "RT-001",
+            "RT-002",
+            "RT-005",
+            "RT-006",
+            "RT-009",
+            "RT-010",
+            "RT-013",
+            "RT-017",
+            "RT-018",
+            "RT-021",
+            "RT-022"
+          ],
+          "unsupportedNumericClaim": [
+            "RT-001"
+          ]
+        },
+        "humanReviewAccuracy": 0.541667,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 24,
+        "unsupportedNumericClaimRate": 0.041667
+      }
+    },
+    "global": {
+      "averageLatencyMs": 2599.163,
+      "averageOutputLengthCharacters": 1897.583,
+      "cases": 24,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.439024,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "humanReviewAccuracy": [
+          "RT-001",
+          "RT-002",
+          "RT-005",
+          "RT-006",
+          "RT-009",
+          "RT-010",
+          "RT-013",
+          "RT-017",
+          "RT-018",
+          "RT-021",
+          "RT-022"
+        ],
+        "unsupportedNumericClaim": [
+          "RT-001"
+        ]
+      },
+      "humanReviewAccuracy": 0.541667,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 24,
+      "unsupportedNumericClaimRate": 0.041667
+    },
+    "recoveredWrappedJson": 0
+  }
+}

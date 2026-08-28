@@ -28,7 +28,7 @@ from .expected_thesis import derive_expected_thesis
 DATASET_FORMAT_VERSION = "1.0"
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-SYSTEM_PROMPT_PATH = _REPO_ROOT / "prompts" / "system-prompt-v2.txt"
+SYSTEM_PROMPT_PATH = _REPO_ROOT / "prompts" / "system-prompt-v3.txt"
 
 
 def _iter_scenarios(scenarios_path: Path) -> Iterator[Dict[str, Any]]:

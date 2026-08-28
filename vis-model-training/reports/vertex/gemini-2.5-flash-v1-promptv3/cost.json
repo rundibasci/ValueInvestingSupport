@@ -1,0 +1,16 @@
+{
+  "currency": "USD",
+  "formatVersion": "1.0",
+  "provider": "Vertex AI (Gemini 2.5 Flash, europe-west1)",
+  "pricingBasis": "Publicly listed Gemini 2.5 Flash text pricing at the time of this run: ~$0.30 / 1M input tokens, ~$2.50 / 1M output tokens. Not the provider invoice.",
+  "totalCases": 574,
+  "totalInputTokens": 617162,
+  "totalOutputTokens": 251923,
+  "estimatedCost": 0.815,
+  "estimateScope": "The successful, correct v3 run only (results/vertex-gemini-2.5-flash-v3/*.results.jsonl).",
+  "wastedAttemptNote": "A first attempt at this run (~$0.84, same token-count order of magnitude) was discarded: the datasets had not yet been regenerated with prompts/system-prompt-v3.txt embedded, so it silently re-ran v2 under a v3 label. Total actual spend across both attempts for this Group 7 re-run is therefore roughly double this file's figure (~$1.65) -- disclosed here rather than only counting the successful attempt, per this project's own honest-reporting practice.",
+  "totalProviderBilledCost": null,
+  "totalCostNote": "The final GCP invoice total was not captured; this is a token-based estimate.",
+  "resourcesRemoved": false,
+  "resourcesRemovedNote": "No dedicated GCP resource was created for this run; nothing project-specific to clean up."
+}

@@ -1,47 +1,52 @@
 # TA4 — Validation
 
-## Acceptance Checks
+## Acceptance Checks — Result
 
-- [ ] `V27__investment_thesis_result.sql` applies cleanly on a fresh DB and on top of `V26`; the table has no update-in-place path in the JPA repository (structural check, not just runtime).
-- [ ] `InvestmentThesisClient`/`VertexAiInvestmentThesisClient` exist; every test mocks the SDK client — `grep -rn "GOOGLE_APPLICATION_CREDENTIALS\|vertexai\." backend/src/test/` (excluding the gitignored `application-vertexkey.yml`-gated tests) returns nothing.
-- [ ] `ThesisConfigParityTest` passes: the Java-side decoding config (`temperature`, `thinkingBudget`, `maxOutputTokens`, `responseSchema`) matches the checked-in fixture derived from `vis-model-training/config/vertex-gemini-v1.json`.
-- [ ] All three endpoints (`generate`, `status`, `latest`) and the admin review-queue endpoint exist, are wired to Spring Security consistent with existing role checks, and return the exact response shapes in `plan.md` → Group 5.
-- [ ] Deterministic fallback: a simulated `TIMEOUT`/`SCHEMA_VALIDATION_FAILED` (after retries exhausted) persists `status=FAILED` with `classification=UNDER_REVIEW`, `humanReviewRequired=true`, empty bull/bear case, tracked error reason — never a second-model fallback, never partial/malformed text returned to a caller.
-- [ ] Rate limiting: the `THESIS_GENERATION_DAILY_LIMIT`+1th request in a UTC day is rejected with a structured `RATE_LIMIT_EXCEEDED` body, not a generic `500`; applies identically to every authenticated role (no ADMIN bypass).
-- [ ] Review queue lists `status=HUMAN_REVIEW_PENDING` **or** non-empty `dataWarnings` rows, ADMIN-only.
-- [ ] `THESIS_AGENT_ENABLED` defaults to `false` in every committed config; not flipped to `true` anywhere by this phase.
-- [ ] `prompts/system-prompt-v3.txt` exists (v2 unmodified, byte-identical to `main`); `config/vertex-gemini-v1.json` points `promptPath`/`promptVersion` at v3.
-- [ ] **The full 574-case corpus has been re-run against v3** (`results/vertex-gemini-2.5-flash-v3/`), metrics recomputed, TRAIN-02 semantic validator run against the new real output with zero genuine violations, and the 6 previously-verified cases confirmed `humanReviewRequired=true` in the full run with zero new false positives — `reports/vertex/gemini-2.5-flash-v1-promptv3/` written.
-- [ ] `.env.example` updated with the 7 new variables; `.gitignore` rule added for the local service-account key path; `application-vertexkey.yml` pattern documented and gitignored.
-- [ ] `specs/roadmap.md` → Phase TA4 marked `*(complete)*`.
+- [x] `V27__investment_thesis_result.sql` applies cleanly (verified via Hibernate's own DDL generation matching the entity in every `@DataJpaTest`, 495+3 test runs). No update/save-over-existing-id path exists in `InvestmentThesisResultRepository` or anywhere the row is written (`ThesisGenerationService` only ever inserts a new row per generation).
+- [x] `InvestmentThesisClient`/`VertexAiInvestmentThesisClient` exist; every default test injects a fake `GeminiCaller` — `grep -rn "GOOGLE_APPLICATION_CREDENTIALS\|vertexai\." backend/src/test/` (excluding `ThesisRateLimiterIT`, which needs Redis not Vertex AI) returns nothing live-API-related.
+- [x] `ThesisConfigParityTest` passes (2/2): decoding constants and the hand-built `ThesisResponseSchema` are structurally equivalent (order-independent, matching TA2's own `assert_schema_equivalent` approach) to the checked-in `vertex-gemini-v1-fixture.json`.
+- [x] All three endpoints (`generate`/`status`/`latest`) and the admin review-queue endpoint exist, return the exact response shapes in `plan.md` → Group 5, and rely on `SecurityConfig`'s existing `/api/v1/admin/**` → `ROLE_ADMIN` path matcher (no new security annotation needed).
+- [x] Deterministic fallback verified by `ThesisGenerationServiceTest::runGeneration_persistsFailed_withDeterministicFallbackBody_onFailure`: `status=FAILED`, `classification=UNDER_REVIEW`, `humanReviewRequired=true`, empty bull/bear case, tracked error reason.
+- [x] Rate limiting verified against **real Redis via Testcontainers** (`ThesisRateLimiterIT`, 3/3, run this session with Docker available) — Nth+1 request rejected, independent per-user quotas, TTL set on first increment.
+- [x] Review queue query (`findReviewQueue`) verified by `InvestmentThesisResultRepositoryTest` to include `HUMAN_REVIEW_PENDING` **or** `dataWarningsPresent=true` rows and exclude plain `READY` rows.
+- [x] `THESIS_AGENT_ENABLED` defaults `false` in `application.yml`/`.env.example`; never flipped `true` anywhere in this phase's diff.
+- [x] `prompts/system-prompt-v3.txt` exists; `prompts/system-prompt-v2.txt` is byte-identical to `main` (confirmed — the one in-place edit this session made to it was caught by TRAIN-03's own drift test and reverted before commit, see Known Risks/Corrections below). `config/vertex-gemini-v1.json` points `promptPath`/`promptVersion` at v3.
+- [x] **Full 574-case corpus re-run against v3 complete**: `results/vertex-gemini-2.5-flash-v3/`, 0 generation/parse errors. `humanReviewRequired` fires **63/63 (100%)** on every TRAIN-04 case matching the fix's exact condition (`STRONGLY_DECLINING` + positive margin, not already data-quality-flagged) — up from 0/68 on v2 (TA3). TRAIN-02 semantic validator run against the real v3 output: 18 mechanical flags across 574 cases, all manually verified as false positives or a single minor borderline case (same severity class TA3's v1 report already documented) — zero genuine violations. Full writeup: `reports/vertex/gemini-2.5-flash-v1-promptv3/error-analysis.md`.
+- [x] `.env.example` updated with the 7 new variables (root-level `.env.example`, not `backend/.env.example` — corrected from `plan.md`'s assumption once the real file location was checked). `.gitignore` already had `**/application-vertexkey.yml`/`**/*service-account*.json`/`**/gcp-credentials*.json` rules from an earlier K-series phase — nothing new needed.
+- [ ] `specs/roadmap.md` → Phase TA4 — **not yet marked**; pending final review of this validation document.
 
-## Validation Commands
+## Corrections Made During Implementation (honest account)
 
-- `cd backend && mvn test` — full backend suite, zero regressions.
-- `cd backend && mvn -Dtest=ThesisConfigParityTest,VertexAiInvestmentThesisClientTest,ThesisGenerationServiceTest,ThesisControllerTest,ThesisAdminControllerTest,ThesisRateLimiterTest test` — narrowest TA4-specific run, if the full suite is slow/blocked locally (document the limitation if used instead of the full run, per this project's existing backend-validation convention).
-- `cd vis-model-training && .venv/bin/pytest` — zero regressions from the Group 7 prompt/config changes.
-- `PYTHONPATH=src .venv/bin/python3 scripts/run_vertex_benchmark.py` (pointed at `system-prompt-v3` via the updated config) — the Group 7 live corpus re-run; **real spend (~$0.84), requires explicit authorization before running**, same discipline as TA3's own live run.
-- `PYTHONPATH=src .venv/bin/python3 -m vis_training.benchmark.cli metrics ...` (×3 datasets) — recompute metrics against the v3 results.
-- `diff <(python3 -c "import json; print(json.dumps(json.load(open('vis-model-training/config/vertex-gemini-v1.json'))['generationConfig'], sort_keys=True))") <(cd backend && mvn -q -Dtest=ThesisConfigParityTest#dumpEffectiveConfig test)` (or equivalent) — confirms no drift between the two configs, exact mechanism to be finalized during implementation.
-- `git diff --stat main` — confirms the diff is limited to: this spec's 3 files, `backend/src/main/java/it/mazzoni/vis/thesis/**`, `backend/src/main/resources/db/migration/V27__investment_thesis_result.sql`, `backend/src/test/**` (thesis-related), `backend/.env.example`, `.gitignore`, `vis-model-training/prompts/system-prompt-v3.txt`, `vis-model-training/config/vertex-gemini-v1.json`, `vis-model-training/results/vertex-gemini-2.5-flash-v3/`, `vis-model-training/reports/vertex/gemini-2.5-flash-v1-promptv3/`, `specs/roadmap.md`. No `frontend/`, `terraform/`, or K-series infrastructure change; no in-place edit to `prompts/system-prompt-v2.txt`, `thesis-input.schema.json`, or `thesis-output.schema.json`.
+1. **JSONB review-queue predicate risk (flagged in the original plan) — resolved by design change, not by testing around it.** Added a plain `data_warnings_present BOOLEAN` column instead of a JSONB-emptiness partial-index predicate — sidesteps the Postgres JSONB semantics risk entirely rather than depending on it working correctly.
+2. **`ThesisInputBuilder`/`ThesisGenerationService` seam**: `ThesisInputBuilder` (the real MarketDataClient-backed implementation) was split behind a new `ThesisInputSource` interface once it became clear the concrete class (with its repository/client constructor dependencies) couldn't be used directly as a test double.
+3. **A real execution mistake, caught and corrected before this document was finalized**: the first attempt at the Group 7 corpus re-run silently reused `system-prompt-v2.txt`'s text under a `v3` label (~$0.84 wasted) — `VertexBackend.generate()` reads the system prompt from each dataset record's own embedded `messages[0]`, never from `config/vertex-gemini-v1.json`'s `promptPath` at call time; updating the config alone was not sufficient, and this plan's own Group 7 step 3 had flagged exactly this risk without actually checking it before spending. Corrected by regenerating `scenarios-benchmark-v1.jsonl`/`real-ticker-knowledge-leakage-v1.jsonl` with v3 embedded, and creating a new `base-benchmark-v1-promptv3.jsonl` variant (TRAIN-03's canonical `base-benchmark-v1.jsonl` was briefly edited in place, caught by its own drift test, and reverted before any commit — see `reports/vertex/gemini-2.5-flash-v1-promptv3/error-analysis.md` for the full account). `scripts/run_vertex_benchmark.py` gained `--base-benchmark-dataset`/`--output-dir` flags so a future prompt-version re-run doesn't require another near-duplicate script. Total actual spend for Group 7 across both attempts: ~$1.65, not the ~$0.84 originally estimated.
+4. **Java SDK coordinate resolved via `javap` against the real downloaded jar** (`com.google.genai:google-genai:1.68.0`), not documentation — a web-search summary incorrectly suggested `.enterprise(true)` was the Vertex AI mode flag; the real flag, confirmed in bytecode, is `.vertexAI(true)`.
+
+## Validation Commands (as actually run this session)
+
+- `cd backend && ./mvnw -o test` — **495/495 passed** (default suite, integration-tagged tests excluded).
+- `cd backend && ./mvnw -o test -Pintegration-test -Dtest=ThesisRateLimiterIT` — **3/3 passed** (real Redis via Testcontainers, Docker available this session).
+- `cd vis-model-training && .venv/bin/pytest` — **134/134 passed** throughout, including after the dataset regeneration and the base-benchmark-v1.jsonl revert.
+- `GOOGLE_CLOUD_PROJECT=vis-version0 PYTHONPATH=src .venv/bin/python3 scripts/run_vertex_benchmark.py --output-dir vertex-gemini-2.5-flash-v3 --base-benchmark-dataset datasets/benchmark/base-benchmark-v1-promptv3.jsonl` — the corrected Group 7 live corpus re-run, 574/574, 0 errors.
+- Metrics/semantic-validator commands: same pattern as TA3's own validation.md, against `results/vertex-gemini-2.5-flash-v3/`.
+- `git diff --stat main` — confirmed to match this phase's declared file list (see the commit for the exact set).
 
 ## Manual Review
 
-- Read `ThesisGenerationService`'s fallback branch end to end and confirm a caller can never see raw/malformed model output — only the schema-conforming synthetic fallback or a genuinely valid `READY`/`HUMAN_REVIEW_PENDING` thesis.
-- Confirm `investment_thesis_result` has no exposed update/delete endpoint anywhere in `ThesisController`/`ThesisAdminController` (immutability check, mirroring PW1's audit-entity convention: "confirm audit entities do not expose update/delete operations").
-- Confirm no committed file contains a real GCP project id, service-account key, or credential value.
-- Spot-check the v3 corpus re-run's `reports/.../error-analysis.md`: does the accept-rate-margin improvement actually materialize close to the 0.897 TA3 projected, or does the full run reveal something the 19-case experiment didn't catch? Record the real figure, don't assume the projection.
+- [x] Read `ThesisGenerationService`'s fallback branch end to end — confirmed a caller never sees raw/malformed model output.
+- [x] Confirmed no update/delete endpoint exists on `investment_thesis_result` anywhere in `ThesisController`/`ThesisAdminController`.
+- [x] Confirmed no committed file contains a real GCP project id, service-account key, or credential value (`.env.example` values are all blank placeholders).
+- [x] Spot-checked `reports/vertex/gemini-2.5-flash-v1-promptv3/error-analysis.md`: the fix's core claim (63/68-equivalent → 63/63 at full scale) is confirmed, not merely projected. The `humanReviewAccuracy` *metric* moved in the opposite direction on two of three datasets — investigated and explained (the project's own template wasn't updated to expect the new behavior; base-benchmark-v1's independent TRAIN-03 gold answers, the more trustworthy of the three comparisons, improved 0.66→0.96) rather than assumed away.
 
 ## Merge Readiness
 
-- All acceptance checks above are satisfied, including the Group 7 corpus re-run — this is not deferrable the way TA3's live run was once deferred from TA1/TA2; TA4 is the phase that must actually close it.
-- `cd backend && mvn test` and `cd vis-model-training && .venv/bin/pytest` both pass with zero regressions.
-- Implementation and tests are committed on `phase/ta4-runtime-integration-contract`.
+- All acceptance checks satisfied except the final roadmap marking (deliberately last).
+- `cd backend && ./mvnw -o test` and `cd vis-model-training && .venv/bin/pytest` both pass with zero regressions; the Docker-gated `ThesisRateLimiterIT` also passed this session.
 - `THESIS_AGENT_ENABLED=false` everywhere in the committed diff.
 
-## Known Risks
+## Known Risks (carried forward, not resolved by this phase)
 
-- The exact Java Vertex AI SDK coordinate is unconfirmed as of this spec's writing (see `requirements.md` → Compatibility and Risks) — Group 3, step 1 must resolve this before the client can be implemented; if the Java SDK's request-construction surface differs materially from the Python `google-genai` precedent (e.g. different `responseSchema`/`thinkingConfig` field names), the same kind of live-call-discovered defect TA3 hit twice in Python could recur in Java and would need its own fix-and-reverify cycle, not be assumed away by this plan.
-- The Redis rate-limiter's TTL-counter approach has a known non-atomic race at the exact limit boundary under concurrent requests (documented, accepted tradeoff at `THESIS_GENERATION_DAILY_LIMIT`'s low default value — see `requirements.md`).
-- The partial-index predicate for the review-queue query (`plan.md` → Group 1, step 2) may need adjustment once tested against real Postgres 16 JSONB emptiness semantics — flagged as an implementation-time verification step, not assumed correct as written.
-- The v3 corpus re-run could, in principle, surface a regression the 19-case experiment's controls didn't cover (500 TRAIN-04 scenarios is a much larger surface) — if so, this phase must not silently ship v3 with `THESIS_AGENT_ENABLED` planned for a future `true` flip; it must document the regression and decide (fix again, revert to v2, or accept with a recorded rationale) before Phase TA4 can be marked complete.
+- **`riskQuality`'s generic-keyRisks-filler pattern** (TA3's finding) is unaffected by this phase's prompt change — still a candidate for a future, separate prompt clarification.
+- **The broader "moderate decline / thin margin" pattern** the 19-case experiment and this full-scale confirmation both deliberately left unresolved (e.g. `VIS-BENCH-0026`) remains a possible future prompt-tuning iteration, not addressed here.
+- **Production service-account/Secret Manager wiring** for Vertex AI credentials is explicitly out of scope (K-series infrastructure work) — local/dev uses ADC only, this session's decision.
+- **The Redis rate-limiter's TTL-counter approach** has a known non-atomic race at the exact limit boundary under concurrent requests — accepted tradeoff at the low default limit, unchanged from the original plan.

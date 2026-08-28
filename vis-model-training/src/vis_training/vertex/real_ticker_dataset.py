@@ -39,7 +39,7 @@ CATEGORY = "REAL_TICKER_KNOWLEDGE_LEAKAGE"
 # vis-model-training/ root, resolved relative to this file rather than cwd,
 # so this module works regardless of the caller's working directory.
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-SYSTEM_PROMPT_PATH = _REPO_ROOT / "prompts" / "system-prompt-v2.txt"
+SYSTEM_PROMPT_PATH = _REPO_ROOT / "prompts" / "system-prompt-v3.txt"
 
 # Each company entry records the REAL, well-established fact this dataset
 # relies on (so a reviewer can check the premise), never used in `input` —

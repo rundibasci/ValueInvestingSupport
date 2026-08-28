@@ -1,0 +1,462 @@
+{
+  "byCategory": {
+    "ADVERSARIAL": {
+      "averageLatencyMs": 2947.705,
+      "averageOutputLengthCharacters": 2043.4,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.076923,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0050"
+        ]
+      },
+      "humanReviewAccuracy": 0.8,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "CONTRADICTIONS": {
+      "averageLatencyMs": 3337.929,
+      "averageOutputLengthCharacters": 2381.4,
+      "cases": 5,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.086207,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "DIVIDEND_AT_RISK": {
+      "averageLatencyMs": 2639.576,
+      "averageOutputLengthCharacters": 1985.6,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.113636,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0026"
+        ]
+      },
+      "humanReviewAccuracy": 0.8,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "FAIR_VALUE": {
+      "averageLatencyMs": 2722.245,
+      "averageOutputLengthCharacters": 1872,
+      "cases": 5,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.096154,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "INSUFFICIENT_DATA": {
+      "averageLatencyMs": 1186.654,
+      "averageOutputLengthCharacters": 529.8,
+      "cases": 5,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": null,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "OVERVALUATION": {
+      "averageLatencyMs": 3139.79,
+      "averageOutputLengthCharacters": 2089.5,
+      "cases": 6,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.3,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 6,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "ROBUST_UNDERVALUATION": {
+      "averageLatencyMs": 3005.222,
+      "averageOutputLengthCharacters": 2005.571,
+      "cases": 7,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.380282,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 7,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "STALE_DATA": {
+      "averageLatencyMs": 2947.75,
+      "averageOutputLengthCharacters": 2024.2,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.0,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0036",
+          "VIS-BENCH-0037",
+          "VIS-BENCH-0038",
+          "VIS-BENCH-0039",
+          "VIS-BENCH-0040"
+        ]
+      },
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "VALUE_TRAP": {
+      "averageLatencyMs": 2978.804,
+      "averageOutputLengthCharacters": 2102.429,
+      "cases": 7,
+      "classificationAccuracy": 0.142857,
+      "evidenceFieldPrecision": 0.451613,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014"
+        ]
+      },
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 7,
+      "unsupportedNumericClaimRate": 0.0
+    }
+  },
+  "categoryCounts": {
+    "ADVERSARIAL": 5,
+    "CONTRADICTIONS": 5,
+    "DIVIDEND_AT_RISK": 5,
+    "FAIR_VALUE": 5,
+    "INSUFFICIENT_DATA": 5,
+    "OVERVALUATION": 6,
+    "ROBUST_UNDERVALUATION": 7,
+    "STALE_DATA": 5,
+    "VALUE_TRAP": 7
+  },
+  "definitions": {
+    "evidenceFieldPrecision": "expected section/index/field matches divided by all emitted evidence fields",
+    "nonParsableOutputs": "count as failures for JSON, schema, classification, review and field coverage",
+    "rates": "classification, schema, review and coverage use all evaluated cases; evidence precision uses emitted evidence fields; semantic text rates use parsed JSON cases",
+    "recoverableDiagnostics": "secondary analysis strips only an exact ```json ... ```<end_of_turn> wrapper; canonical metrics remain unchanged",
+    "rounding": "rates use six decimal places; averages use three"
+  },
+  "formatVersion": "1.0",
+  "global": {
+    "averageLatencyMs": 2792.724,
+    "averageOutputLengthCharacters": 1909.5,
+    "cases": 50,
+    "classificationAccuracy": 0.58,
+    "evidenceFieldPrecision": 0.201754,
+    "exactFieldCoverageRate": 1.0,
+    "failedExampleIds": {
+      "classificationAccuracy": [
+        "VIS-BENCH-0008",
+        "VIS-BENCH-0010",
+        "VIS-BENCH-0011",
+        "VIS-BENCH-0012",
+        "VIS-BENCH-0013",
+        "VIS-BENCH-0014",
+        "VIS-BENCH-0026",
+        "VIS-BENCH-0027",
+        "VIS-BENCH-0028",
+        "VIS-BENCH-0029",
+        "VIS-BENCH-0030",
+        "VIS-BENCH-0036",
+        "VIS-BENCH-0037",
+        "VIS-BENCH-0038",
+        "VIS-BENCH-0039",
+        "VIS-BENCH-0040",
+        "VIS-BENCH-0046",
+        "VIS-BENCH-0047",
+        "VIS-BENCH-0048",
+        "VIS-BENCH-0049",
+        "VIS-BENCH-0050"
+      ],
+      "humanReviewAccuracy": [
+        "VIS-BENCH-0026",
+        "VIS-BENCH-0050"
+      ]
+    },
+    "humanReviewAccuracy": 0.96,
+    "jsonValidityRate": 1.0,
+    "prohibitedRecommendationRate": 0.0,
+    "schemaComplianceRate": 1.0,
+    "semanticAssessableCases": 50,
+    "unsupportedNumericClaimRate": 0.0
+  },
+  "recoverableDiagnostics": {
+    "byCategory": {
+      "ADVERSARIAL": {
+        "averageLatencyMs": 2947.705,
+        "averageOutputLengthCharacters": 2043.4,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.076923,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0046",
+            "VIS-BENCH-0047",
+            "VIS-BENCH-0048",
+            "VIS-BENCH-0049",
+            "VIS-BENCH-0050"
+          ],
+          "humanReviewAccuracy": [
+            "VIS-BENCH-0050"
+          ]
+        },
+        "humanReviewAccuracy": 0.8,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "CONTRADICTIONS": {
+        "averageLatencyMs": 3337.929,
+        "averageOutputLengthCharacters": 2381.4,
+        "cases": 5,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.086207,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "DIVIDEND_AT_RISK": {
+        "averageLatencyMs": 2639.576,
+        "averageOutputLengthCharacters": 1985.6,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.113636,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0026",
+            "VIS-BENCH-0027",
+            "VIS-BENCH-0028",
+            "VIS-BENCH-0029",
+            "VIS-BENCH-0030"
+          ],
+          "humanReviewAccuracy": [
+            "VIS-BENCH-0026"
+          ]
+        },
+        "humanReviewAccuracy": 0.8,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "FAIR_VALUE": {
+        "averageLatencyMs": 2722.245,
+        "averageOutputLengthCharacters": 1872,
+        "cases": 5,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.096154,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "INSUFFICIENT_DATA": {
+        "averageLatencyMs": 1186.654,
+        "averageOutputLengthCharacters": 529.8,
+        "cases": 5,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": null,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "OVERVALUATION": {
+        "averageLatencyMs": 3139.79,
+        "averageOutputLengthCharacters": 2089.5,
+        "cases": 6,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.3,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 6,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "ROBUST_UNDERVALUATION": {
+        "averageLatencyMs": 3005.222,
+        "averageOutputLengthCharacters": 2005.571,
+        "cases": 7,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.380282,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 7,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "STALE_DATA": {
+        "averageLatencyMs": 2947.75,
+        "averageOutputLengthCharacters": 2024.2,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.0,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0036",
+            "VIS-BENCH-0037",
+            "VIS-BENCH-0038",
+            "VIS-BENCH-0039",
+            "VIS-BENCH-0040"
+          ]
+        },
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "VALUE_TRAP": {
+        "averageLatencyMs": 2978.804,
+        "averageOutputLengthCharacters": 2102.429,
+        "cases": 7,
+        "classificationAccuracy": 0.142857,
+        "evidenceFieldPrecision": 0.451613,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0008",
+            "VIS-BENCH-0010",
+            "VIS-BENCH-0011",
+            "VIS-BENCH-0012",
+            "VIS-BENCH-0013",
+            "VIS-BENCH-0014"
+          ]
+        },
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 7,
+        "unsupportedNumericClaimRate": 0.0
+      }
+    },
+    "global": {
+      "averageLatencyMs": 2792.724,
+      "averageOutputLengthCharacters": 1909.5,
+      "cases": 50,
+      "classificationAccuracy": 0.58,
+      "evidenceFieldPrecision": 0.201754,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014",
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030",
+          "VIS-BENCH-0036",
+          "VIS-BENCH-0037",
+          "VIS-BENCH-0038",
+          "VIS-BENCH-0039",
+          "VIS-BENCH-0040",
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0050"
+        ]
+      },
+      "humanReviewAccuracy": 0.96,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 50,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "recoveredWrappedJson": 0
+  }
+}

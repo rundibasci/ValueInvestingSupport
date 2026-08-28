@@ -1,0 +1,16 @@
+{
+  "formatVersion": "1.0",
+  "provider": "Vertex AI",
+  "model": "gemini-2.5-flash",
+  "location": "europe-west1",
+  "projectId": "vis-version0",
+  "sdk": "google-genai==1.47.0",
+  "python": "3.9.6",
+  "temperature": 0.0,
+  "thinkingBudget": 0,
+  "maxOutputTokens": 1024,
+  "responseMimeType": "application/json",
+  "configPath": "config/vertex-gemini-v1.json",
+  "promptVersion": "system-prompt-v3",
+  "note": "TA4's Group 7 corpus re-run against prompts/system-prompt-v3.txt (adopts TA3's live-verified humanReviewRequired/value-trap fix). Datasets used the v3 text embedded per-record (base-benchmark-v1-promptv3.jsonl, scenarios-benchmark-v1.jsonl, real-ticker-knowledge-leakage-v1.jsonl all regenerated with v3) -- VertexBackend reads the system prompt from each record's own messages[0], never from config/vertex-gemini-v1.json's promptPath at call time. A first attempt at this run silently reused v2 (the datasets hadn't been regenerated yet) and was discarded; see error-analysis.md."
+}

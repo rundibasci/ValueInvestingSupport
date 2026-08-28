@@ -1,0 +1,17 @@
+{
+  "base-benchmark-v1": {
+    "processed": 50,
+    "skipped": 0,
+    "totalSeen": 50
+  },
+  "real-ticker-knowledge-leakage-v1": {
+    "processed": 24,
+    "skipped": 0,
+    "totalSeen": 24
+  },
+  "scenarios-v1": {
+    "processed": 500,
+    "skipped": 0,
+    "totalSeen": 500
+  }
+}
