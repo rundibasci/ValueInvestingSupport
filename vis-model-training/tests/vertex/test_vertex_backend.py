@@ -96,6 +96,39 @@ def test_generate_forwards_config_generation_settings():
     assert call["config"].response_schema == backend.response_schema
 
 
+def test_generate_disables_thinking_per_checked_in_config():
+    # Real config/vertex-gemini-v1.json pins thinkingBudget=0 (TA3's third
+    # live call observed finish_reason=MAX_TOKENS with thoughts_token_count
+    # dominating the budget before this was set — see thinkingBudgetNote).
+    backend, fake_client = _make_backend()
+    assert backend.thinking_budget == 0
+    backend.generate(
+        [{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
+        max_new_tokens=999,
+    )
+    call = fake_client.models.calls[0]
+    assert call["config"].thinking_config.thinking_budget == 0
+
+
+def test_generate_omits_thinking_config_when_absent_from_config(tmp_path):
+    config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    del config["generationConfig"]["thinkingBudget"]
+    no_thinking_config_path = tmp_path / "no-thinking-budget.json"
+    no_thinking_config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    fake_client = _FakeClient(_fake_response())
+    backend = VertexBackend(
+        no_thinking_config_path, project_id="test-project", client_factory=lambda **_: fake_client
+    )
+    assert backend.thinking_budget is None
+    backend.generate(
+        [{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
+        max_new_tokens=999,
+    )
+    call = fake_client.models.calls[0]
+    assert call["config"].thinking_config is None
+
+
 def test_generate_requires_user_message():
     backend, fake_client = _make_backend()
     with pytest.raises(ValueError):

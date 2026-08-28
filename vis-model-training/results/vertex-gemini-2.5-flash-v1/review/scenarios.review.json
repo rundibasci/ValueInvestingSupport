@@ -1,0 +1,427 @@
+{
+  "formatVersion": "1.0",
+  "minimumCases": 20,
+  "reviews": [
+    {
+      "accepted": null,
+      "category": "ADVERSARIAL_INPUT",
+      "exampleId": "SCN-000476",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ADVERSARIAL_INPUT",
+      "exampleId": "SCN-000477",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "CONTRADICTORY_SIGNALS",
+      "exampleId": "SCN-000364",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "CONTRADICTORY_SIGNALS",
+      "exampleId": "SCN-000365",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_RISK",
+      "exampleId": "SCN-000333",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_RISK",
+      "exampleId": "SCN-000334",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_SAFE",
+      "exampleId": "SCN-000173",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_SAFE",
+      "exampleId": "SCN-000174",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FAIR_VALUE",
+      "exampleId": "SCN-000130",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FAIR_VALUE",
+      "exampleId": "SCN-000131",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FCF_DETERIORATION",
+      "exampleId": "SCN-000259",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FCF_DETERIORATION",
+      "exampleId": "SCN-000260",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "HIGH_LEVERAGE",
+      "exampleId": "SCN-000216",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "HIGH_LEVERAGE",
+      "exampleId": "SCN-000217",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INCONSISTENT_DATA",
+      "exampleId": "SCN-000395",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INCONSISTENT_DATA",
+      "exampleId": "SCN-000396",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "SCN-000451",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "SCN-000452",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "OVERVALUED_STRONG",
+      "exampleId": "SCN-000087",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "OVERVALUED_STRONG",
+      "exampleId": "SCN-000088",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "STALE_DATA",
+      "exampleId": "SCN-000426",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "STALE_DATA",
+      "exampleId": "SCN-000427",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "UNDERVALUED_STRONG",
+      "exampleId": "SCN-000001",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "UNDERVALUED_STRONG",
+      "exampleId": "SCN-000002",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "UNDERVALUED_WEAK",
+      "exampleId": "SCN-000044",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "UNDERVALUED_WEAK",
+      "exampleId": "SCN-000045",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "VALUE_TRAP",
+      "exampleId": "SCN-000301",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "VALUE_TRAP",
+      "exampleId": "SCN-000302",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    }
+  ],
+  "selectionMethod": "two per category, then parse/generation failures, then exampleId order"
+}

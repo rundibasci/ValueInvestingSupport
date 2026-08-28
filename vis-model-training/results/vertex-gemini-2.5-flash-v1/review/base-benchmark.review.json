@@ -1,0 +1,307 @@
+{
+  "formatVersion": "1.0",
+  "minimumCases": 20,
+  "reviews": [
+    {
+      "accepted": null,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0046",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0047",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0041",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0042",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0026",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0027",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0021",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0022",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0031",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0032",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0015",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0016",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0001",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0002",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0036",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0037",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0008",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0009",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0003",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0004",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    }
+  ],
+  "selectionMethod": "two per category, then parse/generation failures, then exampleId order"
+}

@@ -61,6 +61,11 @@ class VertexBackend(GenerationBackend):
                 f"{config_path} is missing generationConfig.temperature/"
                 "responseMimeType/responseSchema"
             )
+        # Optional: gemini-2.5-flash performs internal "thinking" by default,
+        # sharing maxOutputTokens with the visible response (confirmed live,
+        # 2026-08-28 — see config/vertex-gemini-v1.json's thinkingBudgetNote).
+        # None (key absent) means "let the API use its own default", not 0.
+        self.thinking_budget = generation_config.get("thinkingBudget")
 
         grounding_tools = config.get("groundingTools", [])
         if grounding_tools:
@@ -98,12 +103,17 @@ class VertexBackend(GenerationBackend):
         if user_content is None:
             raise ValueError("messages must include a 'user' role entry")
 
+        thinking_config = None
+        if self.thinking_budget is not None:
+            thinking_config = types.ThinkingConfig(thinking_budget=self.thinking_budget)
+
         generation_config = types.GenerateContentConfig(
             system_instruction=system_content,
             temperature=self.temperature,
             max_output_tokens=max_new_tokens,
             response_mime_type=self.response_mime_type,
             response_schema=self.response_schema,
+            thinking_config=thinking_config,
         )
         response = self._client.models.generate_content(
             model=self.model_id,
@@ -125,6 +135,7 @@ class VertexBackend(GenerationBackend):
             "projectId": self.project_id,
             "temperature": self.temperature,
             "responseMimeType": self.response_mime_type,
+            "thinkingBudget": self.thinking_budget,
             "configPath": self._config_path,
             "python": platform.python_version(),
         }

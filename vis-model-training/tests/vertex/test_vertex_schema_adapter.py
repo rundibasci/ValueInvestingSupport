@@ -133,6 +133,7 @@ def test_checked_in_config_pins_expected_values():
     assert config["model"]["modelId"] == "gemini-2.5-flash"
     assert config["model"]["location"] == "europe-west1"
     assert config["generationConfig"]["temperature"] == 0.0
+    assert config["generationConfig"]["thinkingBudget"] == 0
     assert config["generationConfig"]["responseMimeType"] == "application/json"
     assert config["groundingTools"] == []
     assert config["fewShotPolicy"]["enabled"] is False

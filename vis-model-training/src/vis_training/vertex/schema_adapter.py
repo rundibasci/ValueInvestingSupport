@@ -5,8 +5,15 @@ object: it does not support `$ref`/`$defs` (every reference must be inlined)
 and it does not support a JSON Schema `type` array for nullable fields (it
 uses a `nullable: true` boolean alongside a single `type` instead, and does
 not support combining `nullable` with `anyOf`). Unrecognized JSON Schema
-keywords (`$schema`, `$id`, `additionalProperties`) are dropped rather than
-passed through unverified.
+keywords (`$schema`, `$id`, `additionalProperties`, `uniqueItems`) are
+dropped rather than passed through unverified. `uniqueItems` was reclassified
+from passthrough to dropped 2026-08-28 after TA3's first live-call smoke
+test: google-genai's client-side `types.Schema` (Vertex AI's supported
+OpenAPI 3.0 subset) has no `uniqueItems` field and rejects a responseSchema
+containing it with a pydantic ValidationError before any network call is
+made. If evidenceFields duplicate-value rejection is still required, it
+must be enforced downstream (e.g. the TRAIN-02 validator), not in this
+request schema.
 
 `thesis-output.schema.json` (and the broader thesis-schema family) remains
 the unmodified source of truth per ADR-002's reuse decision
@@ -23,7 +30,10 @@ from typing import Any, Dict, List
 # dropped rather than passed through, since passing an unsupported keyword to
 # a live Vertex AI request is a request-time failure this module cannot
 # observe from static analysis alone (see validation.md's Known Risks).
-_UNSUPPORTED_KEYWORDS = {"$schema", "$id", "additionalProperties"}
+# `uniqueItems` was confirmed unsupported empirically (TA3's first live-call
+# smoke test, 2026-08-28): google-genai's client-side Schema type rejects it
+# outright, before any network call.
+_UNSUPPORTED_KEYWORDS = {"$schema", "$id", "additionalProperties", "uniqueItems"}
 
 # Keys copied through unchanged when present — every one of these is part of
 # Vertex AI's documented responseSchema subset.
@@ -40,7 +50,6 @@ _PASSTHROUGH_KEYWORDS = (
     "exclusiveMaximum",
     "minItems",
     "maxItems",
-    "uniqueItems",
     "required",
 )
 
@@ -89,6 +98,18 @@ def _convert_node(node: Dict[str, Any], defs: Dict[str, Any]) -> Dict[str, Any]:
             continue
         if key in node:
             result[key] = node[key]
+
+    if "type" not in result and "enum" in result:
+        # Vertex AI requires an explicit `type` on every schema node, unlike
+        # JSON Schema where a bare `enum` implies its member type. Confirmed
+        # empirically (TA3's second live-call smoke test, 2026-08-28):
+        # "response schemas didn't specify the schema type field". Every enum
+        # in this schema family is string-valued; infer `type: "string"` and
+        # fail loudly if that assumption ever stops holding.
+        enum_values = result["enum"]
+        if not enum_values or not all(isinstance(v, str) for v in enum_values):
+            raise ValueError(f"Cannot infer a Vertex type for non-string enum: {enum_values}")
+        result["type"] = "string"
 
     if "properties" in node:
         result["properties"] = {

@@ -1,8 +1,10 @@
-# TA3 (preparatory pass) — Validation
+# TA3 — Validation
 
 ## Scope Note
 
-This pass covers only the zero-cost/zero-live-call preparatory portion of TA3 (explicit user decision, 2026-08-27). **`specs/roadmap.md` → Phase TA3 stays unmarked** — the acceptance checks below validate the infrastructure this pass built, not a completed capability-benchmark gate decision.
+This document now covers two passes: the zero-cost/zero-live-call **preparatory pass** (2026-08-27, unchanged below) and the **live benchmark run** (2026-08-28, new section below) that actually called Vertex AI Gemini for all 574 cases. **`specs/roadmap.md` → Phase TA3 still stays unmarked** — human review of the prepared samples (`results/vertex-gemini-2.5-flash-v1/review/*.review.json`) and the resulting go/no-go gate decision against `config/capability-probe-gate.json` are still outstanding; see "Live Run" → "What Remains" below.
+
+## Preparatory Pass (2026-08-27)
 
 ## Acceptance Checks
 
@@ -43,3 +45,53 @@ This pass covers only the zero-cost/zero-live-call preparatory portion of TA3 (e
 - **TRAIN-05-era critic-specific gate fields are unresolved for this pipeline shape** (`minimumUsableCriticRate`, `minimumCanonicalCriticRate`, `minimumDecisiveCriticRate`, `expectedCandidateSlots` in `config/capability-probe-gate.json`) — TA3's live run must explicitly decide whether these apply, are reinterpreted, or are retired before the gate can actually be evaluated.
 - **The real-ticker dataset's `expected` field is template-derived, not individually hand-authored per case** — reasonable for exercising the harness mechanically, but a human reviewer should sanity-check a broader sample (not just the 3 spot-checked here) before treating its classification/confidence values as a fully authoritative gold answer, particularly for the payout-ratio and overvaluation variants.
 - **This pass does not touch Google Cloud project setup.** `vis-version0` (this project's existing K2 GCP project, per the user's decision this session) needs the Vertex AI API enabled and a runtime credential path decided before the live run can start — deferred to that future session.
+
+## Live Run (2026-08-28)
+
+Explicit user authorization this session ("procediamo con TA3" / "procedi con il batch completo"). ADC already present for `marcellomazzoni@gmail.com` on `vis-version0` (residue of K1/K2 GCP work); Vertex AI API enabled by the user via console mid-session after a first 403 `SERVICE_DISABLED` call (zero cost — rejected before generation).
+
+### Two real request-shape defects found and fixed via live smoke tests (all zero/near-zero cost — rejected client-side or server-side before generation, except the final successful smoke call)
+
+1. **`uniqueItems` unsupported by Vertex's `responseSchema`.** `google-genai`'s client-side `types.Schema` has no `uniqueItems` field; rejected with a pydantic `ValidationError` before any network call. Fixed in `vis_training/vertex/schema_adapter.py`: moved from `_PASSTHROUGH_KEYWORDS` to `_UNSUPPORTED_KEYWORDS` (dropped, like `additionalProperties`/`$schema`/`$id`).
+2. **Bare `enum` nodes need an explicit `type`.** Second live call reached the network and got `400 INVALID_ARGUMENT: "response schemas didn't specify the schema type field"`. Fixed in the same adapter: infers `type: "string"` for any string-valued enum lacking an explicit type.
+3. **`gemini-2.5-flash`'s default "thinking" silently ate the output budget.** Third call (first real generation, real spend) succeeded but returned truncated JSON — `finish_reason=MAX_TOKENS`, `thoughts_token_count=767` vs. `candidates_token_count=242` against `maxOutputTokens=1024`. Fixed by adding `thinkingBudget: 0` to `config/vertex-gemini-v1.json`'s `generationConfig` and wiring `VertexBackend` to pass `types.ThinkingConfig(thinking_budget=...)` when present (`None` when absent = API default, not forced off). Fourth call: complete, valid, schema-compliant JSON.
+
+All three fixes are covered by new/updated tests (`tests/vertex/test_vertex_backend.py`, `tests/vertex/test_vertex_schema_adapter.py`); `config/vertex-gemini-v1.json`'s `responseSchema` was regenerated live from the fixed adapter (not hand-edited) so the TA2 byte-identical drift test stays meaningful.
+
+### TRAIN-04's scenarios-v1.jsonl was not runnable as-is
+
+`datasets/candidates/scenarios-v1.jsonl` (TRAIN-04's raw generator output — `scenarioId`/`scenarioType`/`input`, no `messages`/`metadata` envelope) does not match `BenchmarkRunner`'s 3-message contract; it was built for TRAIN-05's closed `TeacherBackend`/critic pipeline, a different interface than `VertexBackend`'s `GenerationBackend`. Built a converter instead of forking the harness:
+
+- `vis_training/vertex/expected_thesis.py` (new): the grounded-only `expected`-derivation logic, extracted out of `real_ticker_dataset.py` so both datasets share one implementation.
+- `vis_training/vertex/scenarios_benchmark_dataset.py` + `scripts/build_scenarios_benchmark_dataset.py` (new): converts each scenario into the harness's 3-message contract, `expected` derived by `derive_expected_thesis` (input field set confirmed identical to `real_ticker_dataset.py`'s baseline). Output: `datasets/benchmark/scenarios-benchmark-v1.jsonl` (500 records, checked in, byte-identical-to-generator test).
+
+### `derive_expected_thesis` had a real classification bug, found and fixed via live comparison (not a Gemini error)
+
+Original logic only reached `POTENTIALLY_OVERVALUED` through a red-flag branch (declining trend / payout > 100%); a negative margin with *no* separate red flag silently fell through to `FAIRLY_VALUED`. Confirmed wrong empirically: all four real-ticker `fabricated-overvaluation` cases (margin −55%, valueScore 22) got this wrong template answer while Gemini correctly said `POTENTIALLY_OVERVALUED` in all four. Fixed by making margin sign/magnitude the primary classification driver (reusing the roadmap's own existing MoS convention — Z5's UI gauge: >15% green, 5–15% yellow, <5%/negative red — for classification, not just color), with a single red flag only downgrading a *thin* (5–15%) margin to `UNDER_REVIEW`, not a comfortable (>15%) one. `derive_expected_thesis` also now handles `dataQuality=INSUFFICIENT` (forces `INSUFFICIENT_DATA`), `INSUFFICIENT`/`INCONSISTENT`/`STALE`/`CONTRADICTORY_SIGNALS` (forces `humanReviewRequired=true`), and never cites a null input field as evidence — none of which the real-ticker-only design had ever exercised. New tests: `tests/vertex/test_scenarios_benchmark_dataset.py` (runs TRAIN-02's actual `validate_semantics` against every derived record, not just schema shape).
+
+Effect on the classification-match metric (a template-vs-model comparison, not a correctness oracle — see below): real-ticker 0.75 → 1.0; TRAIN-04 scenarios 0.598 → 0.666 (bug fix) → 0.814 (MoS-threshold refinement). Refinement was deliberately stopped once remaining mismatches (93/500, largest single pattern 41) stopped clustering into one fixable rule and started looking like genuine model-vs-heuristic judgment differences — continuing would mean overfitting this independent reference to one model's specific style rather than keeping it an independent check.
+
+### Full batch results
+
+`scripts/run_vertex_benchmark.py` (new, idempotent/resumable via `BenchmarkRunner`'s existing exampleId-skip): all 574 cases (50 TRAIN-03 + 500 TRAIN-04-converted + 24 real-ticker) generated successfully — **0 generation errors, 0 JSON parse errors, 100% schema compliance** across every case. Estimated spend: low single-digit dollars (Flash tier, ~574 calls, ~980 avg input / ~450 avg output tokens). Raw results: `results/vertex-gemini-2.5-flash-v1/*.results.jsonl`; metrics: `results/vertex-gemini-2.5-flash-v1/metrics/*.metrics.json`.
+
+Direct comparison to the closed Gemma baseline (`reports/baseline/gemma-3-4b-it-v1/metrics.json`, `global`): Gemma scored `jsonValidityRate: 0.0` and `classificationAccuracy: 0.0` across all 50 cases (never produced valid JSON at all). Gemini: `jsonValidityRate`/`schemaComplianceRate` = 1.0 across all 574.
+
+### TRAIN-02's semantic validator run against Gemini's *actual output* (not the template) — zero genuine violations
+
+`validate_semantics` (the same function `scripts/validate_dataset.py` uses) was run against every one of the 574 real `parsedOutput` records. 12/574 flagged; all 12 manually verified as false positives of the mechanical check, not real defects:
+- 5 `PROHIBITED_RECOMMENDATION` (TRAIN-04 `ADVERSARIAL_INPUT` cases): the model is correctly *warning that an injected "buy recommendation" in `deterministicWarnings` is untrusted and should be disregarded* — the regex can't distinguish citing a prohibited phrase from using it.
+- 3 `UNSUPPORTED_NUMERIC_CLAIM`: mostly the schema-required `confidence` field being caught by the numeric-claim scanner; one borderline case (a stated "2.0" leverage threshold in `invalidationConditions`) worth a human glance but not alarming.
+- 4 `EVIDENCE_FIELD_NULL` (13 occurrences, `INSUFFICIENT`/`PARTIAL`-quality scenarios): the model cites a null field specifically to say the data is *missing* ("the absence of an intrinsic value calculation makes it impossible to assess..."), not to fabricate a value — correct decision-support behavior; the validator rule doesn't yet distinguish "citing a value" from "citing an absence."
+
+### Finding requiring human-review attention: `humanReviewRequired` does not respond to fundamental deterioration alone
+
+Statistically clean pattern, not noise: across every TRAIN-04 scenario with a `STRONGLY_DECLINING` trend that is *not* already flagged via `dataQuality`/`CONTRADICTORY_SIGNALS` (68 cases — `VALUE_TRAP` 32, `FCF_DETERIORATION` 21, `DIVIDEND_RISK` 15), **`humanReviewRequired` was `false` in 68/68 cases (100%)** — regardless of how severe the decline. On `base-benchmark-v1`'s hand-authored TRAIN-03 gold answers, the same pattern holds on `VALUE_TRAP`/`DIVIDEND_AT_RISK`/`ADVERSARIAL` (gold: `UNDER_REVIEW`/`humanReviewRequired=true`; Gemini: `POTENTIALLY_UNDERVALUED`/`humanReviewRequired=false`, even while its own `bearCase` correctly lists the same declining-fundamentals evidence). By contrast, `STALE_DATA` and `CONTRADICTIONS` cases *do* correctly get `humanReviewRequired=true`. So the flag responds reliably to explicit data-quality problems but not to fundamental business deterioration by itself — exactly the "cheap stock, deteriorating fundamentals" (value trap) pattern this platform's mission exists to catch. This is real Gemini behavior on the real system prompt, not a template or harness defect — not something this pass fixes (`prompts/system-prompt-v2.txt` is explicitly out of scope for TA3). Flagged here as the single most important item for the human reviewer's `riskQuality`/`inputAdherence` scoring, and as a candidate follow-up for TA4 prompt tuning if the human review confirms it as a real gap rather than an acceptable design tradeoff.
+
+### What Remains (unchanged from the preparatory pass's framing, now with real data to review)
+
+- **Human review of the prepared samples** — `results/vertex-gemini-2.5-flash-v1/review/{real-ticker,base-benchmark,scenarios}.review.json` (20 + 20 + 28 = 68 cases; real-ticker's 20 satisfies `capability-probe-gate.json`'s `minimumRealTickerKnowledgeLeakageCaseCount`). Not automatable — requires the user's actual judgment, including `knowledgeLeakage` scoring on the real-ticker set (this pass observed zero real-world-fact mentions across all 24 real-ticker summaries, a good sign, but not a substitute for scored review) and specific attention to the `humanReviewRequired`/value-trap finding above.
+- **Applying `capability-probe-gate.json`'s thresholds** to produce an actual go/no-go decision — no gate evaluation has been run yet.
+- **The TRAIN-05-era critic-specific gate fields decision** (`minimumUsableCriticRate` etc.) — still unresolved, as flagged in the preparatory pass.
+- **The written comparison report** against the closed Gemma baseline — the raw numbers exist now (see above) but no `reports/`-style writeup has been produced.
+- `specs/roadmap.md` → Phase TA3 stays unmarked until the above is complete.

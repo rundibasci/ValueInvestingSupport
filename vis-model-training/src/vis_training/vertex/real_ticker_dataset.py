@@ -31,6 +31,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+from .expected_thesis import derive_expected_thesis
+
 DATASET_FORMAT_VERSION = "1.0"
 CATEGORY = "REAL_TICKER_KNOWLEDGE_LEAKAGE"
 
@@ -150,77 +152,6 @@ def _build_input(company: Dict[str, Any], variant: Dict[str, Any]) -> Dict[str, 
     return input_data
 
 
-def _build_expected(input_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Grounded-only expected thesis: reflects only `input_data`, computed by
-    the same rules the system prompt states, never the real company fact."""
-    bull_case: List[Dict[str, Any]] = []
-    bear_case: List[Dict[str, Any]] = []
-    key_risks: List[str] = []
-
-    margin = input_data["marginOfSafetyPercent"]
-    if margin is not None and margin > 0:
-        bull_case.append(
-            {
-                "claim": "Supplied market price is below supplied intrinsic value.",
-                "evidenceFields": ["marketPrice", "intrinsicValue", "marginOfSafetyPercent"],
-            }
-        )
-    else:
-        bear_case.append(
-            {
-                "claim": "Supplied market price is not supported by supplied intrinsic value.",
-                "evidenceFields": ["marketPrice", "intrinsicValue", "marginOfSafetyPercent"],
-            }
-        )
-        key_risks.append("Valuation evidence supplied does not support the current price.")
-
-    for trend_field in ("revenueTrend", "earningsTrend", "freeCashFlowTrend"):
-        if input_data[trend_field] == "STRONGLY_DECLINING":
-            bear_case.append(
-                {
-                    "claim": f"Supplied {trend_field} is strongly declining.",
-                    "evidenceFields": [trend_field],
-                }
-            )
-            key_risks.append(f"Strongly declining {trend_field} per supplied evidence.")
-
-    if input_data["payoutRatioPercent"] is not None and input_data["payoutRatioPercent"] > 100:
-        bear_case.append(
-            {
-                "claim": "Supplied payout ratio exceeds 100%, which is not sustainable on its own.",
-                "evidenceFields": ["payoutRatioPercent"],
-            }
-        )
-        key_risks.append("Payout ratio above 100% per supplied evidence.")
-
-    has_strongly_declining = any(
-        input_data[field] == "STRONGLY_DECLINING"
-        for field in ("revenueTrend", "earningsTrend", "freeCashFlowTrend")
-    )
-    if margin is not None and margin > 0 and not has_strongly_declining and input_data["payoutRatioPercent"] <= 100:
-        classification = "POTENTIALLY_UNDERVALUED"
-        confidence = 0.7
-    elif has_strongly_declining or (input_data["payoutRatioPercent"] is not None and input_data["payoutRatioPercent"] > 100):
-        classification = "POTENTIALLY_OVERVALUED" if margin is not None and margin <= 0 else "UNDER_REVIEW"
-        confidence = 0.6
-    else:
-        classification = "FAIRLY_VALUED"
-        confidence = 0.5
-
-    return {
-        "classification": classification,
-        "confidence": confidence,
-        "summary": "Assessment based strictly on the supplied valuation and trend evidence.",
-        "bullCase": bull_case,
-        "bearCase": bear_case,
-        "keyRisks": key_risks,
-        "keyAssumptions": ["The supplied VIS inputs remain applicable."],
-        "invalidationConditions": ["Material changes in the supplied operating or valuation evidence."],
-        "dataWarnings": [],
-        "humanReviewRequired": False,
-    }
-
-
 def build_dataset() -> List[Dict[str, Any]]:
     system_prompt = Path(SYSTEM_PROMPT_PATH).read_text(encoding="utf-8")
     records = []
@@ -229,7 +160,7 @@ def build_dataset() -> List[Dict[str, Any]]:
         for variant in _VARIANTS:
             counter += 1
             input_data = _build_input(company, variant)
-            expected = _build_expected(input_data)
+            expected = derive_expected_thesis(input_data)
             example_id = f"RT-{counter:03d}"
             records.append(
                 {

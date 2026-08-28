@@ -1,0 +1,544 @@
+{
+  "byCategory": {
+    "ADVERSARIAL": {
+      "averageLatencyMs": 2559.848,
+      "averageOutputLengthCharacters": 1773.8,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.019608,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ]
+      },
+      "humanReviewAccuracy": 0.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "CONTRADICTIONS": {
+      "averageLatencyMs": 3674.479,
+      "averageOutputLengthCharacters": 2509,
+      "cases": 5,
+      "classificationAccuracy": 0.6,
+      "evidenceFieldPrecision": 0.083333,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0041",
+          "VIS-BENCH-0042"
+        ]
+      },
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "DIVIDEND_AT_RISK": {
+      "averageLatencyMs": 2828.917,
+      "averageOutputLengthCharacters": 2066.4,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.106383,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030"
+        ]
+      },
+      "humanReviewAccuracy": 0.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "FAIR_VALUE": {
+      "averageLatencyMs": 2879.243,
+      "averageOutputLengthCharacters": 1913.8,
+      "cases": 5,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.090909,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "INSUFFICIENT_DATA": {
+      "averageLatencyMs": 1226.685,
+      "averageOutputLengthCharacters": 661.6,
+      "cases": 5,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": null,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "OVERVALUATION": {
+      "averageLatencyMs": 2900.209,
+      "averageOutputLengthCharacters": 1921.333,
+      "cases": 6,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.288136,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 6,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "ROBUST_UNDERVALUATION": {
+      "averageLatencyMs": 2874.389,
+      "averageOutputLengthCharacters": 1952.429,
+      "cases": 7,
+      "classificationAccuracy": 1.0,
+      "evidenceFieldPrecision": 0.455882,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {},
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 7,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "STALE_DATA": {
+      "averageLatencyMs": 3020.457,
+      "averageOutputLengthCharacters": 2090.8,
+      "cases": 5,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.0,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0036",
+          "VIS-BENCH-0037",
+          "VIS-BENCH-0038",
+          "VIS-BENCH-0039",
+          "VIS-BENCH-0040"
+        ]
+      },
+      "humanReviewAccuracy": 1.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 5,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "VALUE_TRAP": {
+      "averageLatencyMs": 2691.684,
+      "averageOutputLengthCharacters": 1989,
+      "cases": 7,
+      "classificationAccuracy": 0.0,
+      "evidenceFieldPrecision": 0.492063,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0009",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0009",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014"
+        ]
+      },
+      "humanReviewAccuracy": 0.0,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 7,
+      "unsupportedNumericClaimRate": 0.0
+    }
+  },
+  "categoryCounts": {
+    "ADVERSARIAL": 5,
+    "CONTRADICTIONS": 5,
+    "DIVIDEND_AT_RISK": 5,
+    "FAIR_VALUE": 5,
+    "INSUFFICIENT_DATA": 5,
+    "OVERVALUATION": 6,
+    "ROBUST_UNDERVALUATION": 7,
+    "STALE_DATA": 5,
+    "VALUE_TRAP": 7
+  },
+  "definitions": {
+    "evidenceFieldPrecision": "expected section/index/field matches divided by all emitted evidence fields",
+    "nonParsableOutputs": "count as failures for JSON, schema, classification, review and field coverage",
+    "rates": "classification, schema, review and coverage use all evaluated cases; evidence precision uses emitted evidence fields; semantic text rates use parsed JSON cases",
+    "recoverableDiagnostics": "secondary analysis strips only an exact ```json ... ```<end_of_turn> wrapper; canonical metrics remain unchanged",
+    "rounding": "rates use six decimal places; averages use three"
+  },
+  "formatVersion": "1.0",
+  "global": {
+    "averageLatencyMs": 2746.238,
+    "averageOutputLengthCharacters": 1883.9,
+    "cases": 50,
+    "classificationAccuracy": 0.52,
+    "evidenceFieldPrecision": 0.206522,
+    "exactFieldCoverageRate": 1.0,
+    "failedExampleIds": {
+      "classificationAccuracy": [
+        "VIS-BENCH-0008",
+        "VIS-BENCH-0009",
+        "VIS-BENCH-0010",
+        "VIS-BENCH-0011",
+        "VIS-BENCH-0012",
+        "VIS-BENCH-0013",
+        "VIS-BENCH-0014",
+        "VIS-BENCH-0026",
+        "VIS-BENCH-0027",
+        "VIS-BENCH-0028",
+        "VIS-BENCH-0029",
+        "VIS-BENCH-0030",
+        "VIS-BENCH-0036",
+        "VIS-BENCH-0037",
+        "VIS-BENCH-0038",
+        "VIS-BENCH-0039",
+        "VIS-BENCH-0040",
+        "VIS-BENCH-0041",
+        "VIS-BENCH-0042",
+        "VIS-BENCH-0046",
+        "VIS-BENCH-0047",
+        "VIS-BENCH-0048",
+        "VIS-BENCH-0049",
+        "VIS-BENCH-0050"
+      ],
+      "humanReviewAccuracy": [
+        "VIS-BENCH-0008",
+        "VIS-BENCH-0009",
+        "VIS-BENCH-0010",
+        "VIS-BENCH-0011",
+        "VIS-BENCH-0012",
+        "VIS-BENCH-0013",
+        "VIS-BENCH-0014",
+        "VIS-BENCH-0026",
+        "VIS-BENCH-0027",
+        "VIS-BENCH-0028",
+        "VIS-BENCH-0029",
+        "VIS-BENCH-0030",
+        "VIS-BENCH-0046",
+        "VIS-BENCH-0047",
+        "VIS-BENCH-0048",
+        "VIS-BENCH-0049",
+        "VIS-BENCH-0050"
+      ]
+    },
+    "humanReviewAccuracy": 0.66,
+    "jsonValidityRate": 1.0,
+    "prohibitedRecommendationRate": 0.0,
+    "schemaComplianceRate": 1.0,
+    "semanticAssessableCases": 50,
+    "unsupportedNumericClaimRate": 0.0
+  },
+  "recoverableDiagnostics": {
+    "byCategory": {
+      "ADVERSARIAL": {
+        "averageLatencyMs": 2559.848,
+        "averageOutputLengthCharacters": 1773.8,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.019608,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0046",
+            "VIS-BENCH-0047",
+            "VIS-BENCH-0048",
+            "VIS-BENCH-0049",
+            "VIS-BENCH-0050"
+          ],
+          "humanReviewAccuracy": [
+            "VIS-BENCH-0046",
+            "VIS-BENCH-0047",
+            "VIS-BENCH-0048",
+            "VIS-BENCH-0049",
+            "VIS-BENCH-0050"
+          ]
+        },
+        "humanReviewAccuracy": 0.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "CONTRADICTIONS": {
+        "averageLatencyMs": 3674.479,
+        "averageOutputLengthCharacters": 2509,
+        "cases": 5,
+        "classificationAccuracy": 0.6,
+        "evidenceFieldPrecision": 0.083333,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0041",
+            "VIS-BENCH-0042"
+          ]
+        },
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "DIVIDEND_AT_RISK": {
+        "averageLatencyMs": 2828.917,
+        "averageOutputLengthCharacters": 2066.4,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.106383,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0026",
+            "VIS-BENCH-0027",
+            "VIS-BENCH-0028",
+            "VIS-BENCH-0029",
+            "VIS-BENCH-0030"
+          ],
+          "humanReviewAccuracy": [
+            "VIS-BENCH-0026",
+            "VIS-BENCH-0027",
+            "VIS-BENCH-0028",
+            "VIS-BENCH-0029",
+            "VIS-BENCH-0030"
+          ]
+        },
+        "humanReviewAccuracy": 0.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "FAIR_VALUE": {
+        "averageLatencyMs": 2879.243,
+        "averageOutputLengthCharacters": 1913.8,
+        "cases": 5,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.090909,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "INSUFFICIENT_DATA": {
+        "averageLatencyMs": 1226.685,
+        "averageOutputLengthCharacters": 661.6,
+        "cases": 5,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": null,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "OVERVALUATION": {
+        "averageLatencyMs": 2900.209,
+        "averageOutputLengthCharacters": 1921.333,
+        "cases": 6,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.288136,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 6,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "ROBUST_UNDERVALUATION": {
+        "averageLatencyMs": 2874.389,
+        "averageOutputLengthCharacters": 1952.429,
+        "cases": 7,
+        "classificationAccuracy": 1.0,
+        "evidenceFieldPrecision": 0.455882,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {},
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 7,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "STALE_DATA": {
+        "averageLatencyMs": 3020.457,
+        "averageOutputLengthCharacters": 2090.8,
+        "cases": 5,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.0,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0036",
+            "VIS-BENCH-0037",
+            "VIS-BENCH-0038",
+            "VIS-BENCH-0039",
+            "VIS-BENCH-0040"
+          ]
+        },
+        "humanReviewAccuracy": 1.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 5,
+        "unsupportedNumericClaimRate": 0.0
+      },
+      "VALUE_TRAP": {
+        "averageLatencyMs": 2691.684,
+        "averageOutputLengthCharacters": 1989,
+        "cases": 7,
+        "classificationAccuracy": 0.0,
+        "evidenceFieldPrecision": 0.492063,
+        "exactFieldCoverageRate": 1.0,
+        "failedExampleIds": {
+          "classificationAccuracy": [
+            "VIS-BENCH-0008",
+            "VIS-BENCH-0009",
+            "VIS-BENCH-0010",
+            "VIS-BENCH-0011",
+            "VIS-BENCH-0012",
+            "VIS-BENCH-0013",
+            "VIS-BENCH-0014"
+          ],
+          "humanReviewAccuracy": [
+            "VIS-BENCH-0008",
+            "VIS-BENCH-0009",
+            "VIS-BENCH-0010",
+            "VIS-BENCH-0011",
+            "VIS-BENCH-0012",
+            "VIS-BENCH-0013",
+            "VIS-BENCH-0014"
+          ]
+        },
+        "humanReviewAccuracy": 0.0,
+        "jsonValidityRate": 1.0,
+        "prohibitedRecommendationRate": 0.0,
+        "schemaComplianceRate": 1.0,
+        "semanticAssessableCases": 7,
+        "unsupportedNumericClaimRate": 0.0
+      }
+    },
+    "global": {
+      "averageLatencyMs": 2746.238,
+      "averageOutputLengthCharacters": 1883.9,
+      "cases": 50,
+      "classificationAccuracy": 0.52,
+      "evidenceFieldPrecision": 0.206522,
+      "exactFieldCoverageRate": 1.0,
+      "failedExampleIds": {
+        "classificationAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0009",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014",
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030",
+          "VIS-BENCH-0036",
+          "VIS-BENCH-0037",
+          "VIS-BENCH-0038",
+          "VIS-BENCH-0039",
+          "VIS-BENCH-0040",
+          "VIS-BENCH-0041",
+          "VIS-BENCH-0042",
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ],
+        "humanReviewAccuracy": [
+          "VIS-BENCH-0008",
+          "VIS-BENCH-0009",
+          "VIS-BENCH-0010",
+          "VIS-BENCH-0011",
+          "VIS-BENCH-0012",
+          "VIS-BENCH-0013",
+          "VIS-BENCH-0014",
+          "VIS-BENCH-0026",
+          "VIS-BENCH-0027",
+          "VIS-BENCH-0028",
+          "VIS-BENCH-0029",
+          "VIS-BENCH-0030",
+          "VIS-BENCH-0046",
+          "VIS-BENCH-0047",
+          "VIS-BENCH-0048",
+          "VIS-BENCH-0049",
+          "VIS-BENCH-0050"
+        ]
+      },
+      "humanReviewAccuracy": 0.66,
+      "jsonValidityRate": 1.0,
+      "prohibitedRecommendationRate": 0.0,
+      "schemaComplianceRate": 1.0,
+      "semanticAssessableCases": 50,
+      "unsupportedNumericClaimRate": 0.0
+    },
+    "recoveredWrappedJson": 0
+  }
+}

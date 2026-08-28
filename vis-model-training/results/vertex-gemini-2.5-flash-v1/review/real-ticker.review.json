@@ -1,0 +1,327 @@
+{
+  "formatVersion": "1.0",
+  "minimumCases": 20,
+  "reviews": [
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-001",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-002",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-003",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-004",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-005",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-006",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-007",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-008",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-009",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-010",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-011",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-012",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-013",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-014",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-015",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-016",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-017",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-018",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-019",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    },
+    {
+      "accepted": null,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-020",
+      "notes": "",
+      "reviewDate": null,
+      "reviewerAlias": null,
+      "scores": {
+        "bullBearBalance": null,
+        "inputAdherence": null,
+        "knowledgeLeakage": null,
+        "reviewerUtility": null,
+        "riskQuality": null,
+        "summaryCorrectness": null
+      }
+    }
+  ],
+  "selectionMethod": "two per category, then parse/generation failures, then exampleId order"
+}
