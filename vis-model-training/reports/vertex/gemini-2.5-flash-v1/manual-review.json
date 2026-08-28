@@ -1,0 +1,1046 @@
+{
+  "formatVersion": "1.0",
+  "reviews": [
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-001",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-002",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-003",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-004",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-005",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-006",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-007",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-008",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-009",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-010",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-011",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-012",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-013",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-014",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-015",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-016",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-017",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-018",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-019",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "REAL_TICKER_KNOWLEDGE_LEAKAGE",
+      "exampleId": "RT-020",
+      "notes": "No knowledge leakage observed: reasoning follows only the supplied (deliberately altered) evidence, never the real company's real-world reputation. bullCase/bearCase evidenceFields always cite real, non-null input fields. Recurring minor issue: keyRisks mixes 1-2 well-grounded risks with 1-2 generic, not-input-derived ones (e.g. \"regulatory changes\", \"currency fluctuations\", \"changes in consumer preferences\") -- plausible in the abstract but not traceable to any supplied field, a soft violation of the system prompt's \"never invent risks\" rule for free-text fields lacking an evidenceFields requirement.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 1,
+        "reviewerUtility": 2,
+        "knowledgeLeakage": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0046",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ADVERSARIAL",
+      "exampleId": "VIS-BENCH-0047",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0041",
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "CONTRADICTIONS",
+      "exampleId": "VIS-BENCH-0042",
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0026",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_AT_RISK",
+      "exampleId": "VIS-BENCH-0027",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0021",
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "FAIR_VALUE",
+      "exampleId": "VIS-BENCH-0022",
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0031",
+      "notes": "Correct INSUFFICIENT_DATA classification; keyRisks specific and directly tied to the actual data-insufficiency situation.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "VIS-BENCH-0032",
+      "notes": "Correct INSUFFICIENT_DATA classification; keyRisks specific and directly tied to the actual data-insufficiency situation.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0015",
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "OVERVALUATION",
+      "exampleId": "VIS-BENCH-0016",
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0001",
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0002",
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0036",
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "STALE_DATA",
+      "exampleId": "VIS-BENCH-0037",
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0008",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "VIS-BENCH-0009",
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0003",
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "ROBUST_UNDERVALUATION",
+      "exampleId": "VIS-BENCH-0004",
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "ADVERSARIAL_INPUT",
+      "exampleId": "SCN-000476",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "ADVERSARIAL_INPUT",
+      "exampleId": "SCN-000477",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "CONTRADICTORY_SIGNALS",
+      "exampleId": "SCN-000364",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "CONTRADICTORY_SIGNALS",
+      "exampleId": "SCN-000365",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_RISK",
+      "exampleId": "SCN-000333",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "DIVIDEND_RISK",
+      "exampleId": "SCN-000334",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "DIVIDEND_SAFE",
+      "exampleId": "SCN-000173",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "DIVIDEND_SAFE",
+      "exampleId": "SCN-000174",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "FAIR_VALUE",
+      "exampleId": "SCN-000130",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "FAIR_VALUE",
+      "exampleId": "SCN-000131",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "FCF_DETERIORATION",
+      "exampleId": "SCN-000259",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "FCF_DETERIORATION",
+      "exampleId": "SCN-000260",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": true,
+      "category": "HIGH_LEVERAGE",
+      "exampleId": "SCN-000216",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "HIGH_LEVERAGE",
+      "exampleId": "SCN-000217",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INCONSISTENT_DATA",
+      "exampleId": "SCN-000395",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INCONSISTENT_DATA",
+      "exampleId": "SCN-000396",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "SCN-000451",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "INSUFFICIENT_DATA",
+      "exampleId": "SCN-000452",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "OVERVALUED_STRONG",
+      "exampleId": "SCN-000087",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "OVERVALUED_STRONG",
+      "exampleId": "SCN-000088",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "STALE_DATA",
+      "exampleId": "SCN-000426",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "STALE_DATA",
+      "exampleId": "SCN-000427",
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "UNDERVALUED_STRONG",
+      "exampleId": "SCN-000001",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "UNDERVALUED_STRONG",
+      "exampleId": "SCN-000002",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "UNDERVALUED_WEAK",
+      "exampleId": "SCN-000044",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": true,
+      "category": "UNDERVALUED_WEAK",
+      "exampleId": "SCN-000045",
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "SCN-000301",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    },
+    {
+      "accepted": false,
+      "category": "VALUE_TRAP",
+      "exampleId": "SCN-000302",
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
+      "scores": {
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
+      }
+    }
+  ],
+  "totalCases": 68
+}

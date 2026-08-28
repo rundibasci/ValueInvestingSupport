@@ -1,0 +1,15 @@
+{
+  "formatVersion": "1.0",
+  "provider": "Vertex AI",
+  "model": "gemini-2.5-flash",
+  "location": "europe-west1",
+  "projectId": "vis-version0",
+  "sdk": "google-genai==1.47.0",
+  "python": "3.9.6",
+  "temperature": 0.0,
+  "thinkingBudget": 0,
+  "maxOutputTokens": 1024,
+  "responseMimeType": "application/json",
+  "configPath": "config/vertex-gemini-v1.json",
+  "note": "thinkingBudget:0 and the responseSchema fixes (uniqueItems dropped, bare-enum type inference) were both added this session after live smoke-test failures; see specs/2026-08-27-ta3-vertex-capability-benchmark/validation.md -> 'Live Run' for the full sequence."
+}

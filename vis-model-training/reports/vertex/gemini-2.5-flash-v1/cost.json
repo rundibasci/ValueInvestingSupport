@@ -1,0 +1,16 @@
+{
+  "currency": "USD",
+  "formatVersion": "1.0",
+  "provider": "Vertex AI (Gemini 2.5 Flash, europe-west1)",
+  "pricingBasis": "Publicly listed Gemini 2.5 Flash text pricing at the time of this run: ~$0.30 / 1M input tokens, ~$2.50 / 1M output tokens. Not the provider invoice.",
+  "totalCases": 574,
+  "totalInputTokens": 589036,
+  "totalOutputTokens": 263742,
+  "estimatedCost": 0.8361,
+  "totalLatencySeconds": 1658.6,
+  "estimateScope": "Sum of the 574 recorded per-case token counts and latencies from the live run this session (results/vertex-gemini-2.5-flash-v1/*.results.jsonl). Includes the full run: 50 TRAIN-03 + 500 TRAIN-04-converted + 24 real-ticker cases. Excludes the ~4 rejected pre-fix smoke-test calls (client/server-side rejections before generation, effectively zero cost).",
+  "totalProviderBilledCost": null,
+  "totalCostNote": "The final GCP invoice total was not captured; this is a token-based estimate, matching the same disclosure pattern as the closed Gemma baseline's cost.json.",
+  "resourcesRemoved": false,
+  "resourcesRemovedNote": "No dedicated GCP resource was created for this run beyond enabling the Vertex AI API on the pre-existing vis-version0 project (shared infra from K1/K2); nothing project-specific to clean up."
+}

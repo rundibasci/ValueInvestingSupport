@@ -88,10 +88,22 @@ Direct comparison to the closed Gemma baseline (`reports/baseline/gemma-3-4b-it-
 
 Statistically clean pattern, not noise: across every TRAIN-04 scenario with a `STRONGLY_DECLINING` trend that is *not* already flagged via `dataQuality`/`CONTRADICTORY_SIGNALS` (68 cases — `VALUE_TRAP` 32, `FCF_DETERIORATION` 21, `DIVIDEND_RISK` 15), **`humanReviewRequired` was `false` in 68/68 cases (100%)** — regardless of how severe the decline. On `base-benchmark-v1`'s hand-authored TRAIN-03 gold answers, the same pattern holds on `VALUE_TRAP`/`DIVIDEND_AT_RISK`/`ADVERSARIAL` (gold: `UNDER_REVIEW`/`humanReviewRequired=true`; Gemini: `POTENTIALLY_UNDERVALUED`/`humanReviewRequired=false`, even while its own `bearCase` correctly lists the same declining-fundamentals evidence). By contrast, `STALE_DATA` and `CONTRADICTIONS` cases *do* correctly get `humanReviewRequired=true`. So the flag responds reliably to explicit data-quality problems but not to fundamental business deterioration by itself — exactly the "cheap stock, deteriorating fundamentals" (value trap) pattern this platform's mission exists to catch. This is real Gemini behavior on the real system prompt, not a template or harness defect — not something this pass fixes (`prompts/system-prompt-v2.txt` is explicitly out of scope for TA3). Flagged here as the single most important item for the human reviewer's `riskQuality`/`inputAdherence` scoring, and as a candidate follow-up for TA4 prompt tuning if the human review confirms it as a real gap rather than an acceptable design tradeoff.
 
-### What Remains (unchanged from the preparatory pass's framing, now with real data to review)
+### Human Review — Complete (2026-08-28)
 
-- **Human review of the prepared samples** — `results/vertex-gemini-2.5-flash-v1/review/{real-ticker,base-benchmark,scenarios}.review.json` (20 + 20 + 28 = 68 cases; real-ticker's 20 satisfies `capability-probe-gate.json`'s `minimumRealTickerKnowledgeLeakageCaseCount`). Not automatable — requires the user's actual judgment, including `knowledgeLeakage` scoring on the real-ticker set (this pass observed zero real-world-fact mentions across all 24 real-ticker summaries, a good sign, but not a substitute for scored review) and specific attention to the `humanReviewRequired`/value-trap finding above.
-- **Applying `capability-probe-gate.json`'s thresholds** to produce an actual go/no-go decision — no gate evaluation has been run yet.
-- **The TRAIN-05-era critic-specific gate fields decision** (`minimumUsableCriticRate` etc.) — still unresolved, as flagged in the preparatory pass.
-- **The written comparison report** against the closed Gemma baseline — the raw numbers exist now (see above) but no `reports/`-style writeup has been produced.
-- `specs/roadmap.md` → Phase TA3 stays unmarked until the above is complete.
+All 68 prepared cases reviewed by `marcellomazzoni` (`results/vertex-gemini-2.5-flash-v1/review/{real-ticker,base-benchmark,scenarios}.review.json`, `check-review` valid on all three at their actual category counts). Combined accept rate 55/68 (0.8088). Real-ticker `knowledgeLeakage`: 20/20 scored 2 (no leakage). 13 cases marked `accepted: false`, all attributable to the single `humanReviewRequired`/value-trap pattern below, not scattered defects.
+
+### Gate Evaluation — Partial
+
+Mechanically computable `capability-probe-gate.json` fields all pass (`minimumParseableRate`, `minimumStructuralValidRate`, `minimumHumanReviewCount`, `minimumHumanCategoryCount`, `minimumHumanAcceptRate` at 0.8088 — a thin margin over the 0.80 floor, `minimumRealTickerKnowledgeLeakageCaseCount`, `minimumKnowledgeLeakageAcceptRate` at 1.0, `maximumValidatorFalsePositiveRate` at 0.021). Two field groups still **not evaluated** — decision remains open, not silently resolved:
+1. `minimumAverageScores` (`grounding`/`classification`/`riskCoverage`/`decisionSupportSafety`) — names don't map 1:1 to this rubric's five dimensions.
+2. `minimumUsableCriticRate`/`minimumCanonicalCriticRate`/`minimumDecisiveCriticRate`/`expectedCandidateSlots` — TRAIN-05 critic-pipeline concepts with no equivalent in TA3's design.
+
+### Comparison Report — Complete
+
+`reports/vertex/gemini-2.5-flash-v1/` (README, environment, run-manifest, metrics, manual-review, error-analysis, cost, checksums) — full comparison against the closed Gemma baseline. Headline: Gemma scored 0% JSON validity / 0% classification accuracy / 15% human-review accept rate on its 20-case review; Gemini scored 100% / 52–100% (dataset-dependent, see report) / 80.9% on 68 cases. The report's `error-analysis.md` documents the `humanReviewRequired`/value-trap finding as the leading TA4 prompt-tuning candidate, not a structural defect.
+
+### What Remains
+
+- **The two unresolved gate-field groups above** — an explicit decision (apply/reinterpret/retire) is still needed before the gate can be called fully evaluated.
+- **The actual go/no-go decision itself** — the evidence base is now complete (this document + the comparison report), but the decision has not been made.
+- `specs/roadmap.md` → Phase TA3 stays unmarked until the go/no-go decision is made — explicit user instruction this session (2026-08-28): report written, phase not yet closed.

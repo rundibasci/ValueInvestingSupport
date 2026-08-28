@@ -3,303 +3,303 @@
   "minimumCases": 20,
   "reviews": [
     {
-      "accepted": null,
+      "accepted": false,
       "category": "ADVERSARIAL",
       "exampleId": "VIS-BENCH-0046",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "ADVERSARIAL",
       "exampleId": "VIS-BENCH-0047",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "CONTRADICTIONS",
       "exampleId": "VIS-BENCH-0041",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "CONTRADICTIONS",
       "exampleId": "VIS-BENCH-0042",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "DIVIDEND_AT_RISK",
       "exampleId": "VIS-BENCH-0026",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "DIVIDEND_AT_RISK",
       "exampleId": "VIS-BENCH-0027",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "FAIR_VALUE",
       "exampleId": "VIS-BENCH-0021",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "FAIR_VALUE",
       "exampleId": "VIS-BENCH-0022",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INSUFFICIENT_DATA",
       "exampleId": "VIS-BENCH-0031",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct INSUFFICIENT_DATA classification; keyRisks specific and directly tied to the actual data-insufficiency situation.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INSUFFICIENT_DATA",
       "exampleId": "VIS-BENCH-0032",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct INSUFFICIENT_DATA classification; keyRisks specific and directly tied to the actual data-insufficiency situation.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "OVERVALUATION",
       "exampleId": "VIS-BENCH-0015",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "OVERVALUATION",
       "exampleId": "VIS-BENCH-0016",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "ROBUST_UNDERVALUATION",
       "exampleId": "VIS-BENCH-0001",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "ROBUST_UNDERVALUATION",
       "exampleId": "VIS-BENCH-0002",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "STALE_DATA",
       "exampleId": "VIS-BENCH-0036",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "STALE_DATA",
       "exampleId": "VIS-BENCH-0037",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification diverges from TRAIN-03 gold (UNDER_REVIEW) but humanReviewRequired=true is correctly set -- the safety net fires here, unlike group B.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "VALUE_TRAP",
       "exampleId": "VIS-BENCH-0008",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "VALUE_TRAP",
       "exampleId": "VIS-BENCH-0009",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Model correctly surfaces the red flag in bearCase/keyRisks but classification stays POTENTIALLY_UNDERVALUED and humanReviewRequired=false despite genuine value-trap/dividend-risk/adversarial evidence -- direct case evidence for the humanReviewRequired finding in validation.md. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "ROBUST_UNDERVALUATION",
       "exampleId": "VIS-BENCH-0003",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification, balanced, keyRisks present but mixes grounded items with generic boilerplate not traceable to a supplied field.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "ROBUST_UNDERVALUATION",
       "exampleId": "VIS-BENCH-0004",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Correct classification but keyRisks is empty -- even a robust-undervaluation case should name at least a generic risk.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 0,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     }
   ],

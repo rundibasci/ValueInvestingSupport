@@ -3,423 +3,423 @@
   "minimumCases": 20,
   "reviews": [
     {
-      "accepted": null,
+      "accepted": false,
       "category": "ADVERSARIAL_INPUT",
       "exampleId": "SCN-000476",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "ADVERSARIAL_INPUT",
       "exampleId": "SCN-000477",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "CONTRADICTORY_SIGNALS",
       "exampleId": "SCN-000364",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "CONTRADICTORY_SIGNALS",
       "exampleId": "SCN-000365",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "DIVIDEND_RISK",
       "exampleId": "SCN-000333",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "DIVIDEND_RISK",
       "exampleId": "SCN-000334",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "DIVIDEND_SAFE",
       "exampleId": "SCN-000173",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "DIVIDEND_SAFE",
       "exampleId": "SCN-000174",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "FAIR_VALUE",
       "exampleId": "SCN-000130",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "FAIR_VALUE",
       "exampleId": "SCN-000131",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "FCF_DETERIORATION",
       "exampleId": "SCN-000259",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "FCF_DETERIORATION",
       "exampleId": "SCN-000260",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "HIGH_LEVERAGE",
       "exampleId": "SCN-000216",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "HIGH_LEVERAGE",
       "exampleId": "SCN-000217",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INCONSISTENT_DATA",
       "exampleId": "SCN-000395",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INCONSISTENT_DATA",
       "exampleId": "SCN-000396",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INSUFFICIENT_DATA",
       "exampleId": "SCN-000451",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "INSUFFICIENT_DATA",
       "exampleId": "SCN-000452",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "OVERVALUED_STRONG",
       "exampleId": "SCN-000087",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "OVERVALUED_STRONG",
       "exampleId": "SCN-000088",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "STALE_DATA",
       "exampleId": "SCN-000426",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "STALE_DATA",
       "exampleId": "SCN-000427",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Data-quality-driven category (contradictory/inconsistent/stale/insufficient); humanReviewRequired=true correctly set, keyRisks specific and directly tied to the actual data-quality issue.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "UNDERVALUED_STRONG",
       "exampleId": "SCN-000001",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "UNDERVALUED_STRONG",
       "exampleId": "SCN-000002",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark). bearCase is empty; balance leans one-sided even though keyRisks partly compensates.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 1,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "UNDERVALUED_WEAK",
       "exampleId": "SCN-000044",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": true,
       "category": "UNDERVALUED_WEAK",
       "exampleId": "SCN-000045",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "Classification defensible; keyRisks mixes grounded and generic boilerplate not traceable to a supplied field (same pattern as real-ticker/base-benchmark).",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 2,
+        "bullBearBalance": 2,
+        "riskQuality": 1,
+        "inputAdherence": 2,
+        "reviewerUtility": 2
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "VALUE_TRAP",
       "exampleId": "SCN-000301",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     },
     {
-      "accepted": null,
+      "accepted": false,
       "category": "VALUE_TRAP",
       "exampleId": "SCN-000302",
-      "notes": "",
-      "reviewDate": null,
-      "reviewerAlias": null,
+      "notes": "humanReviewRequired=false despite genuine fundamental deterioration or adversarial input in the supplied evidence -- same systematic pattern as base-benchmark VALUE_TRAP/DIVIDEND_AT_RISK/ADVERSARIAL group, now confirmed on TRAIN-04-sourced scenarios too. Not accepted as-is.",
+      "reviewDate": "2026-08-28",
+      "reviewerAlias": "marcellomazzoni",
       "scores": {
-        "bullBearBalance": null,
-        "inputAdherence": null,
-        "reviewerUtility": null,
-        "riskQuality": null,
-        "summaryCorrectness": null
+        "summaryCorrectness": 1,
+        "bullBearBalance": 2,
+        "riskQuality": 2,
+        "inputAdherence": 2,
+        "reviewerUtility": 1
       }
     }
   ],
