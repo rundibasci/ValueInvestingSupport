@@ -106,9 +106,18 @@ Mechanically computable `capability-probe-gate.json` fields all pass (`minimumPa
 
 Explored whether the `humanReviewRequired`/value-trap gap is fixable in the prompt: it traces to a specific, narrow hole in `prompts/system-prompt-v2.txt` Rule 9 (enumerates STALE/INCONSISTENT/INSUFFICIENT/CONTRADICTORY_SIGNALS but never a `STRONGLY_DECLINING` trend). A one-clause addition (`STRONGLY_DECLINING` trend + positive margin → `humanReviewRequired=true`) was tested live against a separate variant prompt file (`prompts/system-prompt-v2-ta3-experiment-hr.txt`, never wired into production config) on the 13 non-accepted cases plus 6 controls: **100% reliability (6/6) where the clause's exact condition held, zero false positives on controls.** Projected effect on the accept-rate margin: 0.8088 → ~0.897. **Production `prompts/system-prompt-v2.txt` is unchanged** — explicit user decision to document this as a TA4 candidate rather than adopt it within TA3's scope. Full writeup: `reports/vertex/gemini-2.5-flash-v1/experiments/human-review-rule-experiment.md`.
 
-### What Remains
+### Gate Fields Retired for This Pipeline Shape — Resolved (2026-08-28)
 
-- **The two unresolved gate-field groups above** — an explicit decision (apply/reinterpret/retire) is still needed before the gate can be called fully evaluated.
-- **Whether to adopt the prompt-tuning candidate above** — would require a full 574-case re-run, re-review, and re-gate before it could actually move the accept-rate margin for real (see the experiment doc's "What would be needed to actually adopt this").
-- **The actual go/no-go decision itself** — the evidence base is now complete (this document + the comparison report + the prompt-tuning experiment), but the decision has not been made.
-- `specs/roadmap.md` → Phase TA3 stays unmarked until the go/no-go decision is made — explicit user instruction this session (2026-08-28): report written, phase not yet closed.
+User decision: `minimumUsableCriticRate`, `minimumCanonicalCriticRate`, `minimumDecisiveCriticRate`, `expectedCandidateSlots`, and `minimumAverageScores` are **not applicable** to TA3's pipeline shape (no separate critic-review step; `minimumAverageScores`' four category names have no documented 1:1 mapping to `rubrics/manual-review-v1.json`'s six dimensions). Recorded in `config/capability-probe-gate.json` → `notApplicableToVertexPipeline` (kept, not deleted, so a future critic-style step has the historical threshold on record) rather than silently skipped. Every other gate field was evaluated and passed — see the table above.
+
+## GO Decision (2026-08-28)
+
+**Decision: GO.** Vertex AI Gemini (`gemini-2.5-flash`) clears the capability-probe gate on every field that applies to this pipeline shape. TA4 production integration is authorized to proceed.
+
+Basis:
+- Structural/grounding capability gap vs. the closed Gemma baseline is closed decisively: 100% JSON validity and schema compliance across 574 live cases vs. Gemma's 0%; zero genuine semantic-validator violations against real model output; zero knowledge leakage observed across 20 scored real-ticker cases (`knowledgeLeakage` 2.00/2).
+- Human-review accept rate 55/68 (0.8088) clears `minimumHumanAcceptRate` (0.80), though by a thin margin.
+- The one clear systematic gap (`humanReviewRequired` not firing on fundamental deterioration alone, behind all 13 non-accepted reviews) has a verified, narrowly-scoped one-line prompt fix (100% reliability where its condition holds, zero false positives on controls — see the prompt-tuning experiment). **Decision: adopt this fix as part of Phase TA4, not TA3** — TA4 must apply the Rule 9 addition to `prompts/system-prompt-v2.txt`, re-run the full corpus, and re-verify before treating it as closed, per the experiment doc's "What would be needed to actually adopt this."
+- Gate fields with no applicable mapping to this pipeline shape are retired for it, not silently skipped (see above).
+
+`specs/roadmap.md` → Phase TA3 is now marked complete.

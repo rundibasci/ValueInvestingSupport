@@ -27,5 +27,16 @@
   },
   "requireResourceCleanup": false,
   "requireBulkNotStarted": true,
-  "requireAutomaticTrainingPromotionDisabled": true
+  "requireAutomaticTrainingPromotionDisabled": true,
+  "notApplicableToVertexPipeline": {
+    "decidedBy": "user, 2026-08-28",
+    "fields": [
+      "minimumUsableCriticRate",
+      "minimumCanonicalCriticRate",
+      "minimumDecisiveCriticRate",
+      "expectedCandidateSlots",
+      "minimumAverageScores"
+    ],
+    "reason": "This gate was authored for TRAIN-05's teacher/critic pipeline: a second model algorithmically re-scored each candidate (usable/canonical/decisive critic rates, N candidate slots per scenario), and minimumAverageScores' four category names (grounding/classification/riskCoverage/decisionSupportSafety) were defined against that pipeline's own review process. TA3's design has no separate critic-review step -- Vertex AI Gemini generates one thesis per case, reviewed directly by a human against rubrics/manual-review-v1.json's six differently-named dimensions (summaryCorrectness/bullBearBalance/riskQuality/inputAdherence/reviewerUtility/knowledgeLeakage), with no documented 1:1 mapping to the four names above. Retired for this pipeline shape, not evaluated as pass/fail -- kept in this file rather than deleted so a future critic-style step, if ever reintroduced, has its historical threshold on record."
+  }
 }
