@@ -241,8 +241,8 @@ function ProgressBar({
   return (
     <div>
       <div className="flex justify-between gap-3 text-xs text-slate-400">
-        <span className="truncate">{labelText}</span>
-        <span>{percent(value)}</span>
+        <span className="min-w-0 flex-1 truncate">{labelText}</span>
+        <span className="shrink-0">{percent(value)}</span>
       </div>
       <div className="mt-1 h-2 rounded-full bg-slate-800">
         <div
@@ -412,7 +412,7 @@ function AnalyticsDashboard({
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <h3 className="font-semibold text-white">Sector allocation</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-[15rem_1fr]">
             <div
@@ -439,7 +439,7 @@ function AnalyticsDashboard({
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               {sectorData.map((entry, index) => (
                 <ProgressBar
                   key={entry.key}
