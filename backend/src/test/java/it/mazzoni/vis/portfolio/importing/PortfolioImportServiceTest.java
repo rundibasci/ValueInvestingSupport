@@ -186,29 +186,30 @@ class PortfolioImportServiceTest {
         assertThat(captor.getValue().getAverageCostBasis()).isNull();
     }
 
-    // --- Section 3: ISIN admin-approval gate ---
+    // --- Section 3: new-ISIN binding via import is available to every role ---
 
     @Test
-    void applyMappings_blocksNewIsinBindingForNonAdmin() {
+    void applyMappings_allowsNewIsinBindingForInvestor() {
         User user = user(UserRole.INVESTOR);
         Portfolio portfolio = portfolio(user);
         PortfolioImport portfolioImport = pendingImport(user, portfolio, ImportMode.MERGE);
         PortfolioImportRow row = needsMappingRow(portfolioImport, 1, "US1111111111");
         Security target = security("NEWCO", null);
+        Security bound = security("NEWCO", "US1111111111");
 
         when(imports.findByIdAndUser(portfolioImport.getId(), user)).thenReturn(Optional.of(portfolioImport));
         when(portfolios.findByIdAndUser(portfolio.getId(), user)).thenReturn(Optional.of(portfolio));
         when(securities.findById(target.getId())).thenReturn(Optional.of(target));
         when(securities.findByIsin("US1111111111")).thenReturn(Optional.empty());
+        when(securityIsinService.assignIsin(target.getId(), "US1111111111")).thenReturn(bound);
+        when(holdings.findByPortfolioAndSymbol(portfolio, "NEWCO")).thenReturn(List.of());
+        when(holdings.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         List<IsinMappingRequest> mappings = List.of(new IsinMappingRequest(row.getId(), target.getId()));
+        PortfolioImportCommitResponse response = service().commit(authentication, portfolioImport.getId(), requestWith(Set.of(), mappings));
 
-        assertThatThrownBy(() -> service().commit(authentication, portfolioImport.getId(), requestWith(Set.of(), mappings)))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
-                        ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
-
-        assertThat(row.getStatus()).isEqualTo(ImportRowStatus.NEEDS_ADMIN_MAPPING.name());
-        verify(securityIsinService, never()).assignIsin(any(), any());
+        assertThat(response.status()).isEqualTo("COMMITTED");
+        verify(securityIsinService).assignIsin(target.getId(), "US1111111111");
     }
 
     @Test

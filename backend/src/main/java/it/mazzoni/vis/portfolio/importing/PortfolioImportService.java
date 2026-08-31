@@ -193,14 +193,9 @@ public class PortfolioImportService {
             securities.findByIsin(row.getIsin()).ifPresent(existing -> {
                 if (!existing.getId().equals(target.getId())) throw conflict("ISIN is already assigned to another security");
             });
-            boolean isNewBinding = target.getIsin() == null;
-            if (isNewBinding && user.getRole() != UserRole.ADMIN) {
-                // Security rows are shared, platform-wide reference data. Only an admin may create a brand-new
-                // ISIN<->Security binding; a regular user's mapping is flagged for admin review instead of applied.
-                row.setStatus(ImportRowStatus.NEEDS_ADMIN_MAPPING.name());
-                row.setWarningText(append(row.getWarningText(), "Binding a new ISIN to this security requires admin approval"));
-                continue;
-            }
+            // Security rows are shared, platform-wide reference data, but binding a brand-new ISIN via the
+            // CSV import's own name-resolution flow is available to every role, not just ADMIN — see
+            // 2026-08-30-K2 - Portfolio CSV import blocked by ADMIN-only ISIN binding.md.
             Security saved = securityIsinService.assignIsin(target.getId(), row.getIsin());
             row.setResolvedSecurity(saved);
             row.setStatus(row.getWarningText() == null ? ImportRowStatus.READY.name() : ImportRowStatus.WARNING.name());
