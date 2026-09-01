@@ -49,20 +49,20 @@ Why this over a REIT-only special case: the same distortion (non-cash charges, s
 
 ## 3. Data gap audit
 
-Checked every FMP DTO currently mapped in `it.mazzoni.vis.marketdata.fmp.dto`. None carry D&A, gains/losses on asset sales, or EBITDA. All are `@JsonIgnoreProperties(ignoreUnknown = true)` records that only pick a subset of fields from FMP's raw statement responses — the production tier is **FMP Premium** ($49/mo, per `specs/tech-stack.md:8`), which does return full income/cash-flow/balance-sheet statements, so this is very likely a mapping gap, not a data-availability gap. **Must be confirmed against a live FMP payload before Group RM's plan.md is written** — do not assume field names below are exact.
+**RM1 status (confirmed 2026-09-01):** verified live against FMP Premium's `/income-statement`, `/balance-sheet-statement`, `/cash-flow-statement`, `/key-metrics`, and `/ratios` endpoints for `O`, `PLD`, and `SPG` (`period=annual`). Findings below are confirmed field names, not guesses — see §5 for the one field that came back negative.
 
-| New field needed | Likely FMP source field (verify) | Target DTO | Used for |
+| New field needed | FMP source field (confirmed live) | Target DTO | Used for |
 |---|---|---|---|
-| Depreciation & amortization | `depreciationAndAmortization` (cash-flow-statement) | `FmpCashFlowEntry` | FFO, EBITDA |
-| Gains/losses on real-estate sales | `gainsLossesNotAffectingCash` / statement-specific field (verify — FMP's generic statement may not isolate *real estate* gains specifically; this is a known approximation risk) | `FmpCashFlowEntry` or `FmpIncomeStatementEntry` | FFO |
-| Impairment charges | may not be separately exposed by FMP; if absent, FFO omits the impairment add-back and that omission must be surfaced as a documented approximation, same pattern as `ThesisInputBuilder`'s EBITDA note | — | FFO (optional add-back) |
-| EBITDA (precise) | derivable once D&A is captured: `operatingIncome + D&A` | computed, not stored | Safety pillar (Debt/EBITDA, interest coverage) |
+| Depreciation & amortization | `depreciationAndAmortization` — present on **both** `/income-statement` and `/cash-flow-statement`; mapped from income-statement for consistency with `ebitda` below | `FmpIncomeStatementEntry.depreciationAndAmortization` (added RM1) | FFO |
+| EBITDA (precise) | `ebitda` — present directly on `/income-statement`, computed by FMP itself; **better than planned** — no `operatingIncome + D&A` derivation needed | `FmpIncomeStatementEntry.ebitda` (added RM1) | Safety pillar (Debt/EBITDA, interest coverage). FMP's `/key-metrics` even exposes a ready-made `netDebtToEBITDA`, available as a cross-check when RM2 computes it internally. |
+| Gains/losses on real-estate sales | **Not isolable.** No field on any checked endpoint separates real-estate-sale gains/losses from other non-cash items; the closest are the catch-all `otherNonCashItems` (cash-flow) and `otherInvestingActivities`, neither specific enough to use without materially distorting FFO. | — | FFO's gains/losses add-back is **out of scope for RM1/RM2** — FFO ships as `Net Income + D&A` only, documented as an approximation of the full NAREIT formula (same posture as `ThesisInputBuilder`'s existing EBITDA-approximation note), not blocked on this. |
+| Impairment charges | Not separately exposed by FMP on any checked endpoint. | — | Same as above — omitted, documented as approximation, not blocking. |
 | Diluted shares outstanding | already present (`FmpIncomeStatementEntry.sharesOutstandingDil`) | existing | FFO/AFFO per share |
-| Maintenance/recurring capex | `FmpCashFlowEntry.capitalExpenditure` already captured, but it's *total* capex, not the recurring-vs-growth split AFFO needs | existing, needs a documented split heuristic | AFFO |
-| NOI (net operating income) | not a standard FMP fundamentals field; REITs sometimes disclose it in segment data FMP may not carry | — | Implied cap rate, NAV — **highest-risk field, see §5** |
-| Total debt, cash | already present | `FmpBalanceSheetEntry` | Debt/EBITDA, NAV |
+| Maintenance/recurring capex | `FmpCashFlowEntry.capitalExpenditure` already captured, but it's *total* capex, not the recurring-vs-growth split AFFO needs | existing, needs a documented split heuristic (§4.2) | AFFO |
+| NOI (net operating income) | **Confirmed absent** — not present on any of the five endpoints checked, for any of the three REIT symbols. | — | Implied cap rate, NAV — **§5 Fallback C now in effect**, see below. |
+| Total debt, cash | already present | `FmpBalanceSheetEntry` | Debt/EBITDA |
 
-**Net assessment:** FFO, Debt/EBITDA, AFFO (with a documented recurring-capex heuristic), and AFFO payout ratio are buildable from data FMP Premium already licenses us, once D&A is mapped through. NOI-dependent metrics (Implied Cap Rate, NAV) are the risk area — see §5.
+**Net assessment (confirmed):** FFO (D&A-only approximation), Debt/EBITDA (using FMP's own precise `ebitda`), AFFO (with the documented recurring-capex heuristic), AFFO payout ratio, and FFO/AFFO-per-share growth are all buildable from data FMP Premium already licenses us — implemented in RM1 (D&A/EBITDA ingestion; §3 mapping above) for RM2 to consume. Implied Cap Rate and NAV per share are **not buildable from FMP fundamentals data** — see §5's resolution.
 
 ---
 
@@ -129,14 +129,16 @@ Requires: (a) a **default assumed cap rate**, config-driven (mirrors `wacc`-styl
 
 ---
 
-## 5. Highest risk: NOI availability
+## 5. Highest risk: NOI availability — resolved, Fallback C in effect
 
-Every metric in §4.7–4.8 depends on NOI, and NOI is *not* one of the standard fundamental-statement line items FMP DTOs currently expose or, most likely, that FMP's generic (non-REIT-specialized) statements carry at all — NOI is typically a segment-level or REIT-specific supplemental disclosure, not a GAAP income-statement line.
+**RM1 finding (confirmed 2026-09-01):** NOI is confirmed absent from every endpoint checked (`/income-statement`, `/balance-sheet-statement`, `/cash-flow-statement`, `/key-metrics`, `/ratios`) for `O`, `PLD`, and `SPG` — no field, no proxy, on any of them.
 
-**Decision needed before Group RM's plan.md is written (not this doc):** confirm against a live FMP Premium payload for 2-3 REIT symbols (e.g. `O`, `PLD`, `SPG`) whether NOI or an equivalent (property revenue − property operating expenses) is present anywhere in the ratios/key-metrics/statement endpoints already called. If not available:
-- **Fallback A:** approximate NOI as `Revenue − Property operating expenses` if the latter is isolable from `operatingExpenses` in the income statement (this is what most public NOI reconciliations start from).
-- **Fallback B:** approximate NOI as `Operating income + D&A` (i.e., treat it like EBITDA at the property level) — cruder, but usable with data already in scope per §3, and must be labeled as such.
-- **Fallback C:** if neither holds up, ship §4.1–4.6 (FFO/AFFO/Debt-EBITDA/growth/payout — all fully supported by data already in scope) in Group RM's first phase, and mark Implied Cap Rate + NAV `INSUFFICIENT_DATA` per Design Principle 12 rather than publish a number built on a bad proxy. NAV/Cap Rate become a follow-up phase gated on this data-availability finding.
+Both proposed fallbacks were evaluated against the confirmed field list and rejected:
+- **Fallback A** (`Revenue − Property operating expenses`) — rejected. The only expense breakdown available is `/income-statement`'s `operatingExpenses`, which is company-wide (includes G&A and corporate overhead), not property-level. `Revenue − operatingExpenses` reduces to approximately `operatingIncome`, not NOI — using it would materially overstate leverage-implied cap rates and NAV would be built on a distorted GAV, worse than shipping nothing.
+- **Fallback B** (`Operating income + D&A`) — rejected for the same reason: `operatingIncome` already nets out corporate G&A that true property-level NOI would exclude differently; treating it as an EBITDA-at-the-property-level proxy would silently misrepresent Implied Cap Rate's denominator logic, not just its precision.
+- **Fallback C is therefore in effect**: Implied Cap Rate (§4.7) and NAV per share (§4.8) are **out of scope for RM1 and RM2**, marked `INSUFFICIENT_DATA` per Design Principle 12 wherever they would otherwise appear, rather than published on a proxy that would misrepresent the sector it's meant to serve fairly. FFO, AFFO, Debt/EBITDA, AFFO payout ratio, and FFO/AFFO-per-share growth (§4.1–§4.6) are unaffected and proceed in RM2 as planned.
+
+Revisiting Cap Rate/NAV is a distinct, later-phase decision gated on finding a data source with actual property-level NOI (a REIT-specialized data vendor, or per-symbol manual entry) — not assumed to be solvable with FMP's general fundamentals data, and not blocking RM2/RM3/RM4.
 
 This mirrors exactly how `MoatAssessmentService` already handles `INSUFFICIENT_DATA` when provider ROIC history is too thin (Group MA3) — same posture, same platform convention, not a new failure mode to invent.
 
@@ -242,7 +244,7 @@ Source: specs/sector-aware-valuation-metrics.md.
 
 ## 10. Open questions before implementation starts
 
-1. **NOI availability** (§5) — blocks Implied Cap Rate and NAV scope; needs a live-payload check, not a decision this doc can make blind.
-2. **Real-estate-specific gains/losses isolation** — if FMP's cash-flow statement only exposes a generic "gains/losses not affecting cash" line rather than one isolating real-estate sales specifically, FFO's gains/losses add-back becomes an approximation and must be labeled as such (same posture as the existing EBITDA-approximation note).
+1. ~~**NOI availability** (§5)~~ — **Resolved 2026-09-01 (RM1):** confirmed absent from FMP fundamentals for O/PLD/SPG. Fallback C in effect — Implied Cap Rate and NAV per share are out of scope for RM1/RM2, `INSUFFICIENT_DATA`.
+2. ~~**Real-estate-specific gains/losses isolation**~~ — **Resolved 2026-09-01 (RM1):** confirmed absent (only generic `otherNonCashItems`/`otherInvestingActivities` catch-alls exist). FFO ships as `Net Income + D&A` only, documented as an approximation of the full NAREIT formula.
 3. **Leverage threshold calibration** — Debt/EBITDA and interest-coverage score bands (replacing the current 0.5/1.0/2.0 D/E bands) need REIT-sector reference values, not invented numbers; propose sourcing from public NAREIT/sector benchmark data during RM2, not guessing here.
 4. **Utilities currently share the `reit-utility` profile** — this doc only defines the REIT metric profile. Utilities stay on the current generic metrics until a separate utility profile is scoped; `determineWeightProfile`'s combined `reit-utility` key may need to split once RM ships, so utility securities don't silently start rendering FFO/AFFO fields that don't apply to them. Flagged here, not resolved.
