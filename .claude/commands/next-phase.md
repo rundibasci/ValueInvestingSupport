@@ -4,7 +4,7 @@ Then read the two most recent spec directories (newest by date prefix) — speci
 
 Also read specs/mission.md and specs/tech-stack.md for architectural guidance.
 
-Create the git branch for this phase (e.g. phase/group-e-security-detail).
+Create the git branch for this phase, named `feature/<phase-name>` (e.g. `feature/group-e-security-detail`) — this is the one fixed convention across the project; do not use `phase/`, `fix/`, or an unprefixed branch name.
 
 Then use your AskUserQuestion tool with ALL FOUR questions below in a single call — do not write any files until you have the answers:
 
@@ -21,6 +21,15 @@ After receiving all four answers, write the three spec files:
 - specs/YYYY-MM-DD-feature-name/requirements.md — scope table, context (what exists / what's introduced), decisions with rationale, request/response shapes, out-of-scope list
 - specs/YYYY-MM-DD-feature-name/validation.md — exact mvn test commands, integration test assertions table, manual curl sequence, merge criteria checklist
 
-Do not ask any further questions after writing these files.
+Do not ask any further questions after writing these files. Present the three files and stop — do not write any implementation code until the user explicitly confirms the spec and asks to proceed. Writing the spec files is not itself approval to implement.
 
 **Important — scope per branch:** Each roadmap phase (e.g. E1, E2, E3) must be treated as a separate branch and separate spec directory unless the user explicitly asks to combine phases. Do not merge multiple phases into one branch on your own initiative.
+
+## After approval: implement, validate, merge
+
+This is the second half of the phase lifecycle — it runs in a later turn, once the user has approved the spec and asked to proceed. It is not optional and must not be skipped even when the user's go-ahead is a short "procedi"/"implementa":
+
+1. **Implement** strictly against `plan.md`'s numbered task groups, on the branch created above.
+2. **Validate** against `validation.md`'s acceptance criteria — run every command in its Verification Commands section (`mvn test`, `npm test`, `npm run typecheck`, `npm run build`, etc.) and confirm the Merge Gate conditions are actually true, not assumed.
+3. **Merge — no pull request.** This repo has a single GitHub account (`rundibasci`) that is both the only login and the PR author, so GitHub blocks self-approval and any PR would sit unapproved indefinitely (confirmed 2026-09-01 on PR #9). Once the merge gate passes: `git checkout main && git merge --no-ff feature/<phase-name> && git push origin main`, then delete the branch (local and remote).
+4. Update `specs/roadmap.md` to mark the phase `*(complete)*` as part of the same merge, not a follow-up.
