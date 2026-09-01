@@ -77,6 +77,12 @@ public class FmpAdapter {
                 .limit(11).map(FmpIncomeStatementEntry::incomeBeforeTax).collect(Collectors.toList());
         List<BigDecimal> incomeTaxExpenseHistory = income.stream()
                 .limit(11).map(FmpIncomeStatementEntry::incomeTaxExpense).collect(Collectors.toList());
+        // RM1 (specs/sector-aware-valuation-metrics.md): confirmed present on FMP Premium's
+        // /income-statement (verified live against O, PLD, SPG) — FFO/Debt-EBITDA inputs.
+        List<BigDecimal> depreciationAndAmortizationHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::depreciationAndAmortization).collect(Collectors.toList());
+        List<BigDecimal> ebitdaHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::ebitda).collect(Collectors.toList());
 
         return new FundamentalSnapshot(
                 symbol.toUpperCase(),
@@ -103,6 +109,8 @@ public class FmpAdapter {
                 totalEquityHistory,
                 pretaxIncomeHistory,
                 incomeTaxExpenseHistory,
+                depreciationAndAmortizationHistory,
+                ebitdaHistory,
                 netDebt,
                 totalDebt,
                 cash

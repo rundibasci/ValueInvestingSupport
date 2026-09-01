@@ -46,6 +46,14 @@ public class FundamentalSnapshot {
     @Column(precision = 20, scale = 2)
     private BigDecimal grossProfit;
 
+    // RM1 (specs/sector-aware-valuation-metrics.md): FFO/Debt-EBITDA inputs, confirmed present
+    // on FMP Premium's /income-statement; null for Yahoo-sourced snapshots (Design Principle 5).
+    @Column(precision = 20, scale = 2)
+    private BigDecimal depreciationAndAmortization;
+
+    @Column(precision = 20, scale = 2)
+    private BigDecimal ebitda;
+
     @Column(precision = 10, scale = 4)
     private BigDecimal eps;
 
@@ -110,6 +118,12 @@ public class FundamentalSnapshot {
 
     public BigDecimal getGrossProfit() { return grossProfit; }
     public void setGrossProfit(BigDecimal grossProfit) { this.grossProfit = grossProfit; }
+
+    public BigDecimal getDepreciationAndAmortization() { return depreciationAndAmortization; }
+    public void setDepreciationAndAmortization(BigDecimal depreciationAndAmortization) { this.depreciationAndAmortization = depreciationAndAmortization; }
+
+    public BigDecimal getEbitda() { return ebitda; }
+    public void setEbitda(BigDecimal ebitda) { this.ebitda = ebitda; }
 
     public BigDecimal getEps() { return eps; }
     public void setEps(BigDecimal eps) { this.eps = eps; }

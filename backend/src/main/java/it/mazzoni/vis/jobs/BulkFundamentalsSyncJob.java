@@ -93,6 +93,12 @@ public class BulkFundamentalsSyncJob implements CloudRunJob {
             e.setNetIncome(data.netIncomeHistory().get(0));
         if (data.fcfHistory() != null && !data.fcfHistory().isEmpty())
             e.setFreeCashFlow(data.fcfHistory().get(0));
+        // RM1 (specs/sector-aware-valuation-metrics.md): FFO/Debt-EBITDA inputs; empty/null for
+        // Yahoo-sourced snapshots (Design Principle 5 — no equivalent Yahoo field).
+        if (data.depreciationAndAmortizationHistory() != null && !data.depreciationAndAmortizationHistory().isEmpty())
+            e.setDepreciationAndAmortization(data.depreciationAndAmortizationHistory().get(0));
+        if (data.ebitdaHistory() != null && !data.ebitdaHistory().isEmpty())
+            e.setEbitda(data.ebitdaHistory().get(0));
         return e;
     }
 }

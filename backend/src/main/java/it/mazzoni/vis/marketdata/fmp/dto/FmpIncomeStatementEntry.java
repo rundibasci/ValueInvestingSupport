@@ -17,12 +17,18 @@ public record FmpIncomeStatementEntry(
         BigDecimal grossProfit,
         BigDecimal eps,
         @JsonProperty("epsDiluted") BigDecimal epsDiluted,
-        @JsonProperty("weightedAverageShsOutDil") Long sharesOutstandingDil
+        @JsonProperty("weightedAverageShsOutDil") Long sharesOutstandingDil,
+        // RM1 (specs/sector-aware-valuation-metrics.md): confirmed present on FMP Premium's
+        // /income-statement for REIT symbols (verified live against O, PLD, SPG) — both are FFO
+        // inputs (D&A add-back) and, for ebitda, feed Debt/EBITDA and interest-coverage safety
+        // metrics directly rather than the operating-income approximation used elsewhere.
+        BigDecimal depreciationAndAmortization,
+        BigDecimal ebitda
 ) {
     public FmpIncomeStatementEntry(String symbol, String date, BigDecimal revenue, BigDecimal netIncome,
                                    BigDecimal operatingIncome, BigDecimal grossProfit, BigDecimal eps,
                                    BigDecimal epsDiluted, Long sharesOutstandingDil) {
         this(symbol, date, revenue, netIncome, operatingIncome, null, null, grossProfit, eps, epsDiluted,
-                sharesOutstandingDil);
+                sharesOutstandingDil, null, null);
     }
 }
