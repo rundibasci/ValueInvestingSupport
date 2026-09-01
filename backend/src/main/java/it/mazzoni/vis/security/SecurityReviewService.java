@@ -1,6 +1,7 @@
 package it.mazzoni.vis.security;
 
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.common.SymbolNormalizer;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
@@ -225,7 +226,7 @@ public class SecurityReviewService {
                 sourceCoverage(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends, peers),
                 freshness(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),
                 availability(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),
-                dataQualityNotes(financialHealth, valuation, latestValuation, latestScore, dividends)
+                dataQualityNotes(financialHealth, valuation, latestValuation, latestScore, dividends, security.getSector())
         );
     }
 
@@ -597,7 +598,8 @@ public class SecurityReviewService {
                                                                            ValuationDetailResponse valuation,
                                                                            ValuationResult rawValuation,
                                                                            ValueScore score,
-                                                                           DividendsResponse dividends) {
+                                                                           DividendsResponse dividends,
+                                                                           String sector) {
         List<SecurityReviewResponse.DataQualityNote> notes = new ArrayList<>();
         if (health.quickRatio() == null) notes.add(note("Financial health", "INFO", "Quick ratio is unavailable from the current provider data model."));
         if (health.interestCoverage() == null) notes.add(note("Financial health", "INFO", "Interest coverage is unavailable from the current provider data model."));
@@ -605,6 +607,10 @@ public class SecurityReviewService {
         if (rawValuation != null && rawValuation.getDcfFairValue() == null) notes.add(note("Valuation", "INFO", "DCF output is unavailable, likely because eligibility guards were not met."));
         if (score == null) notes.add(note("Score", "INFO", "No persisted value score is available for this symbol."));
         if (dividends.history().isEmpty()) notes.add(note("Dividends", "INFO", "Dividend history is unavailable for this symbol."));
+        // RM0 (specs/sector-aware-valuation-metrics.md): interim caveat until sector-aware
+        // FFO/AFFO/Debt-EBITDA metrics ship (RM1+) — the GAAP metrics above remain visible but
+        // are known to be less reliable for this sector.
+        if (SectorClassifier.isReitOrUtility(sector)) notes.add(note("Sector metrics", "INFO", SectorClassifier.REIT_UTILITY_METRIC_CAVEAT));
         notes.add(note("Advice boundary", "INFO", "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."));
         return notes;
     }

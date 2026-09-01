@@ -1,6 +1,7 @@
 package it.mazzoni.vis.screener;
 
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PiotroskiResult;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
@@ -369,10 +370,11 @@ public class ScreenerService {
         AltmanResult altman = altmanResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
         MoatResult moat = moatResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
         CapitalAllocationResult capitalAllocation = capitalAllocationResultRepository.findTopBySecuritySymbolOrderByResultDateDesc(symbol).orElse(null);
+        String sector = t.get("sector", String.class);
         return new ScreenerResultItem(
                 symbol,
                 t.get("companyName", String.class),
-                t.get("sector", String.class),
+                sector,
                 t.get("exchange", String.class),
                 t.get("currentPrice", BigDecimal.class),
                 t.get("compositeFairValue", BigDecimal.class),
@@ -392,7 +394,8 @@ public class ScreenerService {
                 altman != null ? altman.getZone().name() : null,
                 altman != null ? altman.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION",
                 moat != null ? moat.getMoatStrength().name() : null,
-                capitalAllocation != null ? capitalAllocation.getSharesOutstandingTrend().name() : null
+                capitalAllocation != null ? capitalAllocation.getSharesOutstandingTrend().name() : null,
+                SectorClassifier.isReitOrUtility(sector) ? SectorClassifier.REIT_UTILITY_METRIC_CAVEAT : null
         );
     }
 }

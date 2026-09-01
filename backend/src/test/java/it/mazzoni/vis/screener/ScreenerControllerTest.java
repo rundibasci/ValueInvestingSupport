@@ -68,7 +68,8 @@ class ScreenerControllerTest {
                 "SAFE",
                 "AVAILABLE",
                 "WIDE",
-                "NET_BUYBACK");
+                "NET_BUYBACK",
+                null);
 
         ScreenerResponse response = new ScreenerResponse(List.of(item), 0, 20, 1L, 1);
         when(screenerService.search(any(ScreenerRequest.class))).thenReturn(response);
