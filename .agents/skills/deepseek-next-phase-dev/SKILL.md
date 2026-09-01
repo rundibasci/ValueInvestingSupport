@@ -152,7 +152,16 @@ git diff --check
 
 ### Step 5: Present the spec and wait for approval
 
-After writing the three files, present a concise summary and ask the user to review. Do not write any implementation code until the user explicitly confirms the spec and asks to proceed with implementation.
+After writing the three files, present a concise summary and ask the user to review. Do not write any implementation code until the user explicitly confirms the spec and asks to proceed with implementation. Writing the spec files is not itself approval to implement.
+
+### Step 6: Implement, validate, and merge
+
+This runs in a later turn, once the user has approved the spec and asked to proceed — do not skip it even when the go-ahead is a short "proceed"/"implement it":
+
+1. Implement strictly against `plan.md`'s numbered task groups, on the `feature/<phase-name>` branch created in Step 3.
+2. Validate against `validation.md`'s acceptance criteria — run every command in its Verification Commands section and confirm the Merge Gate conditions are actually true, not assumed.
+3. **Merge directly — do not open a pull request.** This project has a single GitHub account that is both the only login and every PR's author, so GitHub blocks self-approval and any PR would sit unapproved indefinitely (confirmed 2026-09-01 on PR #9). Once the merge gate passes: `git checkout main && git merge --no-ff feature/<phase-name> && git push origin main`, then delete the branch (local and remote).
+4. Update `specs/roadmap.md` to mark the phase `*(complete)*` as part of the same merge, not a follow-up.
 
 ## Best Practices
 
@@ -161,5 +170,6 @@ After writing the three files, present a concise summary and ask the user to rev
 - **Write specs for the platform, not for yourself.** Follow the conventions visible in completed specs like `specs/2026-07-15-dl5-asynchronous-bulk-seed-progress/`.
 - **Secrets and config follow tech-stack.md.** API keys go in `.env` (local) or Secret Manager (cloud). Never in committed files. Spring properties use `kebab-case` with env-var fallbacks: `${property.name:${ENV_VAR:}}`.
 - **Respect the decision-support boundary.** Fair value, MoS, scores, and recommendations carry the MiFID II disclaimer. The platform is a research tool, not a regulated advisor.
-- **Branch naming:** `feature/<phase-name>` matching the roadmap phase identifier (e.g., `feature/k1-stakeholder-cloud-deployment`).
+- **Branch naming:** `feature/<phase-name>` matching the roadmap phase identifier (e.g., `feature/k1-stakeholder-cloud-deployment`) — the one fixed convention across the project; do not use `phase/`, `fix/`, or an unprefixed branch name.
 - **Spec directory naming:** `specs/YYYY-MM-DD-<phase-name>/` with today's date.
+- **No pull requests in this repo.** The only GitHub account is also every PR's author, so self-approval is blocked and a PR would stall forever. Merge phase branches directly into `main` once `validation.md`'s merge gate passes.
