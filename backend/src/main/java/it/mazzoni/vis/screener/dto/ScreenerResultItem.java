@@ -28,5 +28,6 @@ public record ScreenerResultItem(
         String altmanZone,
         String altmanAvailabilityStatus,
         String moatStrength,
-        String sharesOutstandingTrend
+        String sharesOutstandingTrend,
+        String sectorMetricCaveat
 ) {}

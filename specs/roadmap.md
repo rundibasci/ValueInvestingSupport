@@ -1450,6 +1450,47 @@ Independent of Group K: Vertex AI is a managed Google Cloud API reachable from l
 
 ---
 
+## Group RM — Sector-Aware Valuation Metrics (REIT-First)
+
+Goal: replace GAAP-earnings metrics that are structurally distorted for REITs (P/E, ROE/ROIC, Debt/Equity, EPS payout ratio) with sector-standard cash-flow metrics (FFO, AFFO, Debt/EBITDA, AFFO payout ratio), architected as a general `SectorMetricProfile` extension point so a future Financial/Utility metric redefinition doesn't require a second refactor. `ValueScoreService.determineWeightProfile` already special-cases REIT/real-estate/utility securities into a `reit-utility` *weight* profile, but every pillar underneath it still computes from the same GAAP-earnings formulas used for an industrial company — this group fixes the metrics themselves, not just their weighting.
+
+Source: `specs/sector-aware-valuation-metrics.md` — the full metric definitions, data-gap audit, and open questions this group resolves.
+
+### Phase RM0: Interim Sector-Metric Disclaimer
+- Extract the sector-classification logic currently private to `ValueScoreService.determineWeightProfile` (`sector.contains("real estate") || sector.contains("reit") || sector.contains("utilit")`) into a shared `SectorClassifier` helper, so this disclaimer and RM2's `SectorMetricProfile` resolution share one source of truth instead of two independent copies drifting apart.
+- Add a REIT/real-estate/utility caveat on P/E, ROE, Debt/Equity, and payout ratio wherever they're shown for a classified security — screener (per-row and/or banner) and security-detail/review page — reusing the existing MiFID II disclaimer pattern (`ValuationDetailResponse.MIFID_DISCLAIMER`, `QuickAnalysisResponse.DISCLAIMER`, the static disclaimer in `ScreenerPage.tsx`) rather than inventing a new UI convention.
+- No new data or formulas required; ships independently of RM1's data-verification work.
+
+### Phase RM1: Data Ingestion Depth (D&A, EBITDA Inputs)
+- First step, addressed before any metric-computation work begins: confirm live FMP Premium payload field names for depreciation & amortization, gains/losses on real-estate asset sales, and NOI (or its nearest proxy) against a REIT validation set (`O`, `PLD`, `SPG`) — do not assume field names from the FMP DTOs already mapped in `it.mazzoni.vis.marketdata.fmp.dto`, none of which currently carry these fields.
+- Extend `FmpCashFlowEntry`/`FmpIncomeStatementEntry` and the persisted snapshot entities with the confirmed fields.
+- Resolve NOI availability: if no usable NOI proxy exists in the FMP payload, scope Implied Cap Rate and NAV per share out to a later phase (`INSUFFICIENT_DATA`, per Design Principle 12) rather than compute them from an undocumented approximation; ship FFO/AFFO/Debt-EBITDA/growth/payout regardless, since those are fully supported by data already in scope.
+
+### Phase RM2: SectorMetricProfile & REIT Metric Computation
+- Add the `SectorMetricProfile` abstraction: a metric-source selector per Value Score pillar, keyed by the same sector classification `ValueScoreService` already derives, resolved alongside (not replacing) the existing `WeightProfile`. Every non-REIT sector keeps its current metric formulas unchanged — this is additive, not a rewrite of `financial`/`cyclical`/`dividend-paying`/`non-dividend-growth` behavior.
+- Compute and persist on `RatioSnapshot`: FFO/AFFO per share, P/FFO, P/AFFO, Net Debt/EBITDA, EBITDA interest coverage, AFFO payout ratio, FFO/AFFO-per-share growth.
+- If RM1 confirmed NOI availability: compute Implied Cap Rate and an estimated NAV per share using a configurable assumed cap rate (mirrors the `ValuationDefaultsProperties`-style config pattern, never hardcoded), with the formula and cap-rate assumption always rendered alongside the number — never presented as a precise appraisal.
+- Wire `ValueScoreService`'s MoS/Quality/Safety/Growth/Dividend pillar computation to branch on the REIT `SectorMetricProfile`: MoS from P/FFO or P/AFFO band position (reusing Group MA's `ValuationHistoryService` percentile-band machinery with a new input series) rather than DCF-derived composite fair value; Safety from Net Debt/EBITDA and EBITDA interest coverage rather than Debt/Equity; Growth from FFO/AFFO-per-share growth rather than revenue growth; Dividend from AFFO payout ratio rather than EPS payout ratio.
+
+### Phase RM3: Screener & Security-Detail Surfacing
+- Screener columns/filters switch to REIT-appropriate metrics (P/FFO, P/AFFO, Debt/EBITDA, AFFO payout ratio) for REIT-classified securities; every other sector's columns are unchanged.
+- Security-detail/review page: FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA card (plus Implied Cap Rate/NAV if RM1 confirmed NOI availability), each metric showing its formula and inputs (Design Principle 2) and `INSUFFICIENT_DATA` labeling where source data is missing (Design Principle 12).
+- Retire the RM0 generic caveat for fields that now have a computed sector-aware replacement displayed alongside them; keep it for any GAAP metric still shown without one.
+
+### Phase RM4: AI Thesis Propagation
+- Extend `ThesisInput`/`thesis-input.schema.json` with the new optional REIT fields (`ffoPerShare`, `affoPerShare`, `priceToFfo`, `priceToAffo`, `affoPayoutRatio`, and a now-precise `netDebtToEbitda`); update `ThesisInputBuilder`'s EBITDA-approximation documentation now that a real D&A figure exists.
+- Prompt-content review (own explicit decision, tracked the way TA2 tracked every prompt-touching decision) on whether `system-prompt-v2.txt` needs REIT-awareness wording so the model reasons from FFO/AFFO instead of flagging a depreciation-suppressed net income as a red flag on its own.
+
+### Acceptance checklist
+- The RM0 disclaimer is visible on every REIT/real-estate/utility-classified security's screener row and security-detail GAAP-metric fields before any other RM phase ships.
+- `SectorClassifier`'s sector-matching logic has exactly one implementation, used by both the disclaimer and `SectorMetricProfile` resolution.
+- FFO, AFFO, P/FFO, P/AFFO, Net Debt/EBITDA, and AFFO payout ratio are computed and persisted for REIT-classified securities using data fields confirmed against a live FMP payload, not assumed field names.
+- Implied Cap Rate and NAV per share are either computed with an explicitly-displayed formula and cap-rate assumption, or explicitly `INSUFFICIENT_DATA` — never a silently approximated number.
+- Every non-REIT sector's Value Score computation, screener columns, and security-detail fields are byte-for-byte unchanged from before this group.
+- The AI Investment Thesis for a REIT-classified security reasons from FFO/AFFO context when available, per the prompt-content review's conclusion.
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Data Source | Deliverable |
@@ -1492,6 +1533,7 @@ Independent of Group K: Vertex AI is a managed Google Cloud API reachable from l
 | **M25: Production-Shaped GCP Platform** | K2 | FMP primary / Yahoo fallback | Terraform-managed, repeatable GCP environments with independently scheduled Cloud Run Jobs |
 | **M26: Commercial Readiness** | K3 | FMP primary / Yahoo fallback | Compliance, security, resilience, and operational release evidence for customer-facing use |
 | **M27: AI Investment Thesis (Vertex AI Gemini)** | TA1, TA2, TA3, TA4, TA5 | Vertex AI Gemini (Google Cloud managed API) | On-demand, persisted, rate-limited AI-generated bull/bear case, risks, and invalidation conditions on the Security Review page, superseding the closed local Gemma/QLoRA path, gated by the same capability benchmark that closed TRAIN-05 plus a new real-ticker knowledge-leakage check |
+| **M28: Sector-Aware Valuation Metrics (REIT-First)** | RM0, RM1, RM2, RM3, RM4 | FMP primary / Yahoo fallback | Interim GAAP-metric caveat for REIT/real-estate/utility securities, then FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA/AFFO-payout-ratio computation replacing distorted GAAP metrics in the Value Score, screener, security-detail page, and AI Thesis input, architected as a reusable `SectorMetricProfile` extension point |
 
 > **M0 is self-contained.** It can be shown to stakeholders immediately, before any database schema or auth work begins. Z3 (Valuation Engine) is also the foundation for C1/C2 in the production path — no rework needed.
 >
@@ -1534,3 +1576,5 @@ Independent of Group K: Vertex AI is a managed Google Cloud API reachable from l
 > **M23.6 closes the Redis cache-contract defect before cloud exposure.** The due-diligence universe reproduced seven deserialization failures when startup-populated Yahoo entries were read again by the asynchronous seed run. RH1 replaces implicit heterogeneous serialization with explicit versioned contracts, adds entry-scoped recovery and complete eviction, and proves warm-cache/restart compatibility without globally flushing Redis or disturbing authentication state.
 >
 > **M27 replaces a failed local training programme with a managed API, under the same evidence bar — plus one Gemma's synthetic-only evaluation never had to clear.** The `vis-model-training/` subproject's local Gemma-3-27B teacher pipeline was closed `NO_GO` after repeatedly failing its strict-output capability gate — not from lack of effort, but because a self-hosted checkpoint could not reliably produce schema-conforming, well-grounded output. Vertex AI Gemini's native controlled generation targets that exact failure mode. TA reuses the task contract, validator, benchmark harness, and runtime-contract design built through TRAIN-04/TRAIN-12 almost entirely unchanged, reruns the same capability gate against the new engine, and adds a real-ticker knowledge-leakage check that TRAIN-04's synthetic-only scenarios could never exercise — a large general-purpose model is far more likely than a small domain-scoped one to answer from what it actually knows about a real company instead of the (possibly deliberately wrong) evidence it was given. Production integration only proceeds if Gemini clears both bars; the switch is evidence-based, not assumed, and introduces no new GPU/fine-tuning spend. Because inference now costs money per call instead of GPU-hours per training run, TA also treats generation as on-demand and persisted rather than automatic, and adds explicit rate limiting — the same cost-discipline this roadmap already applies to named seed packs (H8) is now applied to AI thesis generation.
+>
+> **M28 fixes a distortion the existing `reit-utility` weight profile only papered over.** `ValueScoreService` has special-cased REIT/real-estate/utility securities into a different pillar *weighting* since Group D, but every pillar underneath — MoS, Quality, Safety, Growth, Dividend — still computed from GAAP-earnings metrics (P/E, ROE/ROIC, Debt/Equity, EPS payout ratio) built for an industrial company, not a REIT whose non-cash real-estate depreciation suppresses net income by design and whose ≥90%-distribution requirement makes a universal Debt/Equity band meaningless. RM0 ships an interim caveat on those metrics immediately, decoupled from the data work; RM1 confirms exactly which FMP fields support FFO/AFFO/Debt-EBITDA computation before any formula is committed to; RM2–RM3 replace the distorted metrics with FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA/AFFO-payout-ratio across the Value Score, screener, and security-detail page, architected as a `SectorMetricProfile` extension point so a future Financial/Utility redefinition doesn't need a second refactor; RM4 propagates the new fields to the AI Thesis input so the agent reasons from FFO/AFFO instead of a depreciation-suppressed earnings signal it would otherwise misread as a red flag.

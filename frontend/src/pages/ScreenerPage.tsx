@@ -43,6 +43,7 @@ type Result = {
   altmanAvailabilityStatus: string | null
   moatStrength: string | null
   sharesOutstandingTrend: string | null
+  sectorMetricCaveat: string | null
 }
 type Response = { results: Result[]; page: number; pageSize: number; totalElements: number; totalPages: number }
 type Presets = Record<string, Partial<QueryState>>
@@ -341,7 +342,17 @@ export function ScreenerPage(): JSX.Element {
                   {results.data?.results.map((item) => (
                     <tr key={item.symbol} tabIndex={0} onClick={() => navigate(`/securities/${item.symbol}`)} onKeyDown={(event) => rowKeyDown(event, item.symbol)} className="cursor-pointer text-slate-200 outline-none transition hover:bg-slate-800/70 focus:bg-slate-800/70 focus:ring-2 focus:ring-inset focus:ring-emerald-400">
                       <td className="px-4 py-4"><span className="block font-semibold text-white">{item.companyName}</span><span className="text-xs font-medium text-emerald-300">{item.symbol}</span></td>
-                      <td className="px-4 py-4">{item.sector ?? '-'}</td>
+                      <td className="px-4 py-4">
+                        <span>{item.sector ?? '-'}</span>
+                        {item.sectorMetricCaveat && (
+                          <span
+                            title={item.sectorMetricCaveat}
+                            className="ml-1.5 inline-flex cursor-help rounded-full bg-amber-300/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200"
+                          >
+                            sector caveat
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-4">{item.sector && competence.data?.preferredSectors.length ? <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${competence.data.preferredSectors.includes(item.sector) ? 'bg-emerald-300/15 text-emerald-100' : 'bg-amber-300/15 text-amber-100'}`}>{competence.data.preferredSectors.includes(item.sector) ? 'inside' : 'outside'}</span> : '-'}</td>
                       <td className="px-4 py-4">{item.exchange ?? '-'}</td>
                       <td className="px-4 py-4">{formatNumber(item.currentPrice, { style: 'currency', currency: 'USD' })}</td>

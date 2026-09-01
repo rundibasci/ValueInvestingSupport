@@ -7,6 +7,7 @@ import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.config.ScoringRiskProperties;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
@@ -105,10 +106,10 @@ public class ValueScoreService {
     }
 
     private String determineWeightProfile(Security security, RatioSnapshot ratio, List<DividendRecord> dividends) {
-        String sector = security.getSector() != null ? security.getSector().toLowerCase() : "";
-        if (sector.contains("real estate") || sector.contains("reit") || sector.contains("utilit")) {
+        if (SectorClassifier.isReitOrUtility(security.getSector())) {
             return "reit-utility";
         }
+        String sector = security.getSector() != null ? security.getSector().toLowerCase() : "";
         if (sector.contains("financial")) {
             return "financial";
         }
