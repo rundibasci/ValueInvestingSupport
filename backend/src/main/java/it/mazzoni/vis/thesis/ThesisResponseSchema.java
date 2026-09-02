@@ -29,6 +29,7 @@ final class ThesisResponseSchema {
     private static final List<String> EVIDENCE_FIELDS = List.of(
             "marketPrice", "intrinsicValue", "marginOfSafetyPercent", "valueScore",
             "dividendYieldPercent", "payoutRatioPercent", "netDebtToEbitda",
+            "ffoPerShare", "affoPerShare", "priceToFfo", "priceToAffo", "affoPayoutRatio",
             "revenueTrend", "earningsTrend", "freeCashFlowTrend", "dataQuality", "deterministicWarnings"
     );
 

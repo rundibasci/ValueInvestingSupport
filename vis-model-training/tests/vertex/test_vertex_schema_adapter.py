@@ -141,3 +141,14 @@ def test_checked_in_config_pins_expected_values():
     # system-prompt-v3.txt (never an in-place v2 edit, per TA2's own established discipline) —
     # see specs/2026-08-28-ta4-runtime-integration-contract/requirements.md.
     assert config["promptPath"] == "prompts/system-prompt-v3.txt"
+
+
+def test_evidence_fields_enum_includes_reit_fields(source_schema):
+    """RM4 (specs/2026-09-02-rm4-ai-thesis-propagation): the five REIT fields must be
+    citable evidenceFields, alongside the 12 pre-existing fields, for both bullCase and
+    bearCase claims — thesis-output.schema.json is the single source of truth both share
+    via $ref/$defs."""
+    reit_fields = {"ffoPerShare", "affoPerShare", "priceToFfo", "priceToAffo", "affoPayoutRatio"}
+    evidence_enum = set(source_schema["$defs"]["evidence"]["properties"]["evidenceFields"]["items"]["enum"])
+    assert reit_fields <= evidence_enum
+    assert len(evidence_enum) == 17

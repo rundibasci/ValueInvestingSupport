@@ -40,6 +40,11 @@ The only allowed `evidenceFields` values are:
 - dividendYieldPercent
 - payoutRatioPercent
 - netDebtToEbitda
+- ffoPerShare
+- affoPerShare
+- priceToFfo
+- priceToAffo
+- affoPayoutRatio
 - revenueTrend
 - earningsTrend
 - freeCashFlowTrend
@@ -54,9 +59,10 @@ Rules:
 4. Every bull-case and bear-case claim must reference one or more non-null input fields through `evidenceFields`.
 5. Distinguish valuation attractiveness from business quality.
 6. A high dividend yield alone is not evidence of dividend safety.
-7. A positive margin of safety does not eliminate financial or operational risk.
-8. Use `INSUFFICIENT_DATA` when `dataQuality` is `INSUFFICIENT`.
-9. Set `humanReviewRequired` to true when `dataQuality` is `STALE`, `INCONSISTENT`, or `INSUFFICIENT`, when `deterministicWarnings` contains `CONTRADICTORY_SIGNALS`, or when a `STRONGLY_DECLINING` revenue, earnings, or free-cash-flow trend is present alongside a positive `marginOfSafetyPercent` (a classic value-trap pattern: cheap on paper, deteriorating in practice).
-10. A `STRONGLY_DECLINING` revenue, earnings, or free-cash-flow trend requires at least one supported bear-case claim.
-11. Do not provide buy, sell, or hold instructions.
-12. Do not include Markdown or text outside the JSON object.
+7. When `ffoPerShare`, `affoPerShare`, `priceToFfo`, `priceToAffo`, or `affoPayoutRatio` are non-null, this security is REIT/real-estate-classified and its net-income-derived signals (e.g. a weak or absent `earningsTrend`) may reflect non-cash real-estate depreciation rather than deteriorating operating performance — weigh FFO/AFFO-based evidence fields for this security's cash-generation and dividend-sustainability claims instead of, or alongside, GAAP-earnings-only reasoning.
+8. A positive margin of safety does not eliminate financial or operational risk.
+9. Use `INSUFFICIENT_DATA` when `dataQuality` is `INSUFFICIENT`.
+10. Set `humanReviewRequired` to true when `dataQuality` is `STALE`, `INCONSISTENT`, or `INSUFFICIENT`, when `deterministicWarnings` contains `CONTRADICTORY_SIGNALS`, or when a `STRONGLY_DECLINING` revenue, earnings, or free-cash-flow trend is present alongside a positive `marginOfSafetyPercent` (a classic value-trap pattern: cheap on paper, deteriorating in practice).
+11. A `STRONGLY_DECLINING` revenue, earnings, or free-cash-flow trend requires at least one supported bear-case claim.
+12. Do not provide buy, sell, or hold instructions.
+13. Do not include Markdown or text outside the JSON object.

@@ -22,7 +22,8 @@ class VertexAiInvestmentThesisClientTest {
             "AAPL", "Apple Inc.", LocalDate.of(2026, 8, 28),
             new BigDecimal("150.00"), new BigDecimal("180.00"), new BigDecimal("16.67"),
             new BigDecimal("75"), new BigDecimal("0.5"), new BigDecimal("15"),
-            new BigDecimal("0.8"), Trend.GROWING, Trend.GROWING, Trend.STABLE,
+            new BigDecimal("0.8"), null, null, null, null, null,
+            Trend.GROWING, Trend.GROWING, Trend.STABLE,
             DataQuality.COMPLETE, List.of());
 
     private static final String VALID_OUTPUT_JSON = """
@@ -123,7 +124,8 @@ class VertexAiInvestmentThesisClientTest {
 
         ThesisInput missingSymbol = new ThesisInput(
                 " ", "Apple Inc.", LocalDate.now(), new BigDecimal("1"), null, null, null,
-                null, null, null, Trend.STABLE, Trend.STABLE, Trend.STABLE, DataQuality.COMPLETE, List.of());
+                null, null, null, null, null, null, null, null,
+                Trend.STABLE, Trend.STABLE, Trend.STABLE, DataQuality.COMPLETE, List.of());
 
         ThesisGenerationResult result = client.generate(
                 new ThesisGenerationRequest(UUID.randomUUID(), "gemini-2.5-flash", missingSymbol));
