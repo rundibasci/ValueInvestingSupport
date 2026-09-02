@@ -12,6 +12,7 @@ import it.mazzoni.vis.screener.dto.ScreenerResultItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
@@ -23,7 +24,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -69,7 +72,8 @@ class ScreenerControllerTest {
                 "AVAILABLE",
                 "WIDE",
                 "NET_BUYBACK",
-                null);
+                null,
+                null, null, null, null, null, null, null);
 
         ScreenerResponse response = new ScreenerResponse(List.of(item), 0, 20, 1L, 1);
         when(screenerService.search(any(ScreenerRequest.class))).thenReturn(response);
@@ -109,6 +113,28 @@ class ScreenerControllerTest {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(0));
+    }
+
+    @Test
+    void screen_reitFilters_deserializeAndReachTheService() throws Exception {
+        when(screenerService.search(any(ScreenerRequest.class)))
+                .thenReturn(new ScreenerResponse(List.of(), 0, 20, 0L, 0));
+
+        String body = """
+                {"maxPriceToFfo": 20.0, "maxNetDebtToEbitda": 5.5, "maxAffoPayoutRatio": 0.9}
+                """;
+
+        mockMvc.perform(post("/api/v1/screener")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<ScreenerRequest> captor = ArgumentCaptor.forClass(ScreenerRequest.class);
+        verify(screenerService).search(captor.capture());
+        ScreenerRequest captured = captor.getValue();
+        assertThat(captured.maxPriceToFfo()).isEqualByComparingTo("20.0");
+        assertThat(captured.maxNetDebtToEbitda()).isEqualByComparingTo("5.5");
+        assertThat(captured.maxAffoPayoutRatio()).isEqualByComparingTo("0.9");
     }
 
     @Test

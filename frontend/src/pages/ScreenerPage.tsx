@@ -6,7 +6,7 @@ import { apiFetch } from '../api/client'
 import { professionalApi } from '../api/professional'
 import { availabilityClass, availabilityLabel } from '../lib/availability'
 
-type SortField = 'totalScore' | 'marginOfSafety' | 'symbol' | 'companyName' | 'sector' | 'exchange'
+type SortField = 'totalScore' | 'marginOfSafety' | 'symbol' | 'companyName' | 'sector' | 'exchange' | 'priceToFfo'
 type SortDirection = 'ASC' | 'DESC'
 type Filters = {
   sector: string
@@ -23,6 +23,12 @@ type Filters = {
   altmanZone: string
   moatStrength: string
   sharesOutstandingTrend: string
+  // RM3 (specs/2026-09-02-rm3-screener-security-detail-surfacing/): REIT-only filters — setting
+  // any of these implicitly scopes results to REIT-classified securities, since every non-REIT
+  // row has a null value for these fields (see the filter form's disclosure note below).
+  maxPriceToFfo: string
+  maxNetDebtToEbitda: string
+  maxAffoPayoutRatio: string
 }
 type QueryState = Filters & { sortField: SortField; sortDirection: SortDirection; page: number; pageSize: number }
 type Result = {
@@ -44,6 +50,14 @@ type Result = {
   moatStrength: string | null
   sharesOutstandingTrend: string | null
   sectorMetricCaveat: string | null
+  // RM3: RM2-persisted REIT sector metrics — null for every non-REIT security.
+  ffoPerShare: number | null
+  affoPerShare: number | null
+  priceToFfo: number | null
+  priceToAffo: number | null
+  netDebtToEbitda: number | null
+  interestCoverageEbitda: number | null
+  affoPayoutRatio: number | null
 }
 type Response = { results: Result[]; page: number; pageSize: number; totalElements: number; totalPages: number }
 type Presets = Record<string, Partial<QueryState>>
@@ -68,6 +82,9 @@ const emptyFilters: Filters = {
   altmanZone: '',
   moatStrength: '',
   sharesOutstandingTrend: '',
+  maxPriceToFfo: '',
+  maxNetDebtToEbitda: '',
+  maxAffoPayoutRatio: '',
 }
 const initialQuery: QueryState = { ...emptyFilters, sortField: 'totalScore', sortDirection: 'DESC', page: 0, pageSize: 20 }
 const numericFields: Array<keyof Filters> = [
@@ -80,6 +97,9 @@ const numericFields: Array<keyof Filters> = [
   'minRevenueGrowth',
   'piotroskiMin',
   'piotroskiMax',
+  'maxPriceToFfo',
+  'maxNetDebtToEbitda',
+  'maxAffoPayoutRatio',
 ]
 
 async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -277,7 +297,13 @@ export function ScreenerPage(): JSX.Element {
             <label className="block text-sm font-medium text-slate-200">Altman zone<select value={filters.altmanZone} onChange={(event) => update('altmanZone', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any zone</option><option value="SAFE">Safe</option><option value="GREY">Grey</option><option value="DISTRESS">Distress</option></select></label>
             <label className="block text-sm font-medium text-slate-200">Moat strength<select value={filters.moatStrength} onChange={(event) => update('moatStrength', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any moat</option><option value="WIDE">Wide</option><option value="NARROW">Narrow</option><option value="NONE">None</option><option value="INSUFFICIENT_DATA">Insufficient data</option></select></label>
             <label className="block text-sm font-medium text-slate-200">Shares trend<select value={filters.sharesOutstandingTrend} onChange={(event) => update('sharesOutstandingTrend', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">Any trend</option><option value="NET_BUYBACK">Net buyback</option><option value="STABLE">Stable</option><option value="NET_DILUTER">Net diluter</option><option value="INSUFFICIENT_DATA">Insufficient data</option></select></label>
+            <Field label="Max. P/FFO (REIT)" value={filters.maxPriceToFfo} onChange={(value) => update('maxPriceToFfo', value)} placeholder="REIT only" />
+            <Field label="Max. Net Debt/EBITDA (REIT)" value={filters.maxNetDebtToEbitda} onChange={(value) => update('maxNetDebtToEbitda', value)} placeholder="REIT only" />
+            <Field label="Max. AFFO payout ratio (REIT)" value={filters.maxAffoPayoutRatio} onChange={(value) => update('maxAffoPayoutRatio', value)} placeholder="REIT only" />
           </div>
+          {(filters.maxPriceToFfo || filters.maxNetDebtToEbitda || filters.maxAffoPayoutRatio) && (
+            <p className="text-xs leading-5 text-amber-100">These three filters are REIT-specific — setting any of them narrows results to REIT-classified securities, since every other sector has no P/FFO, Net Debt/EBITDA, or AFFO payout value to compare against.</p>
+          )}
           {error && <p role="alert" className="rounded-lg border border-rose-300/30 bg-rose-400/10 px-3 py-2 text-sm text-rose-100">{error}</p>}
           {(sectors.isError || exchanges.isError) && <p role="alert" className="text-sm text-amber-200">Some filter choices could not be loaded; you can still run a screen.</p>}
           <div className="flex flex-wrap gap-3">
@@ -334,9 +360,9 @@ export function ScreenerPage(): JSX.Element {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-[1500px] w-full border-collapse text-sm">
+              <table className="min-w-[1900px] w-full border-collapse text-sm">
                 <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
-                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}<th className="whitespace-nowrap px-4 py-3 text-left">Competence</th>{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
+                  <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}<th className="whitespace-nowrap px-4 py-3 text-left">Competence</th>{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th>{header('P/FFO', 'priceToFfo')}<th className="whitespace-nowrap px-4 py-3 text-left">P/AFFO</th><th className="whitespace-nowrap px-4 py-3 text-left">Debt/EBITDA</th><th className="whitespace-nowrap px-4 py-3 text-left">AFFO payout</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   {results.data?.results.map((item) => (
@@ -363,6 +389,10 @@ export function ScreenerPage(): JSX.Element {
                       <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${zoneClass(item.altmanZone)}`}>{item.altmanZone?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
                       <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${qualityClass(item.moatStrength)}`}>{item.moatStrength?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
                       <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${qualityClass(item.sharesOutstandingTrend)}`}>{item.sharesOutstandingTrend?.replace(/_/g, ' ').toLowerCase() || 'unavailable'}</span></td>
+                      <td className="px-4 py-4">{formatNumber(item.priceToFfo)}</td>
+                      <td className="px-4 py-4">{formatNumber(item.priceToAffo)}</td>
+                      <td className="px-4 py-4">{formatNumber(item.netDebtToEbitda)}</td>
+                      <td className="px-4 py-4">{item.affoPayoutRatio == null ? '-' : formatPercent(item.affoPayoutRatio * 100)}</td>
                       <td className="px-4 py-4">{item.recommendation ?? '-'}</td>
                       <td className="px-4 py-4 text-slate-400">{item.scoreDate ?? '-'}</td>
                       <td className="px-4 py-4"><button type="button" onClick={(event) => { event.stopPropagation(); navigate(`/securities/${item.symbol}/review`) }} className="rounded-md border border-emerald-400/30 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10">Review</button></td>

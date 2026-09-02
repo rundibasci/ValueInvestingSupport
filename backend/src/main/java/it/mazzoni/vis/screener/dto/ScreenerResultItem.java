@@ -29,5 +29,12 @@ public record ScreenerResultItem(
         String altmanAvailabilityStatus,
         String moatStrength,
         String sharesOutstandingTrend,
-        String sectorMetricCaveat
+        String sectorMetricCaveat,
+        BigDecimal ffoPerShare,
+        BigDecimal affoPerShare,
+        BigDecimal priceToFfo,
+        BigDecimal priceToAffo,
+        BigDecimal netDebtToEbitda,
+        BigDecimal interestCoverageEbitda,
+        BigDecimal affoPayoutRatio
 ) {}

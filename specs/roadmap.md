@@ -1456,7 +1456,7 @@ Goal: replace GAAP-earnings metrics that are structurally distorted for REITs (P
 
 Source: `specs/sector-aware-valuation-metrics.md` — the full metric definitions, data-gap audit, and open questions this group resolves.
 
-### Phase RM0: Interim Sector-Metric Disclaimer
+### Phase RM0: Interim Sector-Metric Disclaimer *(complete)*
 - Extract the sector-classification logic currently private to `ValueScoreService.determineWeightProfile` (`sector.contains("real estate") || sector.contains("reit") || sector.contains("utilit")`) into a shared `SectorClassifier` helper, so this disclaimer and RM2's `SectorMetricProfile` resolution share one source of truth instead of two independent copies drifting apart.
 - Add a REIT/real-estate/utility caveat on P/E, ROE, Debt/Equity, and payout ratio wherever they're shown for a classified security — screener (per-row and/or banner) and security-detail/review page — reusing the existing MiFID II disclaimer pattern (`ValuationDetailResponse.MIFID_DISCLAIMER`, `QuickAnalysisResponse.DISCLAIMER`, the static disclaimer in `ScreenerPage.tsx`) rather than inventing a new UI convention.
 - No new data or formulas required; ships independently of RM1's data-verification work.
@@ -1475,7 +1475,7 @@ Source: `specs/sector-aware-valuation-metrics.md` — the full metric definition
 - `interestExpense` (EBITDA interest coverage's input) was confirmed live against FMP Premium's `/income-statement` for `O`/`PLD`/`SPG` during this phase and wired in — not left `INSUFFICIENT_DATA`. Two calibration risks were found via real-data spot checks on `O` and are documented for future recalibration: the AFFO recurring-capex heuristic (reused from the DCF engine, D&A × 0.70) materially understates AFFO for net-lease REITs (~$1.99 computed vs. ~$4.22 company-reported), and raw (unadjusted) EBITDA reads Net Debt/EBITDA more conservatively than a REIT's own EBITDAre-based leverage (~9.1× vs. ~5.5×) — both are disclosed, first-pass-calibration limitations, not defects.
 - **Live end-to-end verification (follow-up session, Docker available):** real Flyway `V29` migration against real PostgreSQL 16, live seed + score for `O`/`PLD`/`SPG` + a non-REIT (`AAPL`) regression check, and direct `psql` inspection of persisted `ratio_snapshot` values — all matched the earlier hand-computed sanity check to 3–4 decimals, including empirically confirming `O`'s Safety-pillar leverage-calibration risk against a live-observed `safetyScore: 0.0`. Full detail: `specs/2026-09-02-rm2-sector-metric-profile/validation.md`.
 
-### Phase RM3: Screener & Security-Detail Surfacing
+### Phase RM3: Screener & Security-Detail Surfacing *(complete)*
 - Screener columns/filters switch to REIT-appropriate metrics (P/FFO, P/AFFO, Debt/EBITDA, AFFO payout ratio) for REIT-classified securities; every other sector's columns are unchanged.
 - Security-detail/review page: FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA card (plus Implied Cap Rate/NAV if RM1 confirmed NOI availability), each metric showing its formula and inputs (Design Principle 2) and `INSUFFICIENT_DATA` labeling where source data is missing (Design Principle 12).
 - Retire the RM0 generic caveat for fields that now have a computed sector-aware replacement displayed alongside them; keep it for any GAAP metric still shown without one.
