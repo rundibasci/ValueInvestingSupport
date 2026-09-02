@@ -132,6 +132,22 @@ scoring:
         safety: 25
         growth: 15
         dividend: 10
+  sector-metric:
+    reit:
+      # RM2 (specs/sector-aware-valuation-metrics.md §10, open question 3): first-pass
+      # calibration, not sourced from a specific published NAREIT/sector benchmark dataset —
+      # revisit against real REIT-sector distributions once observed. Config-driven so
+      # recalibration is a value change here, not a code change.
+      quality-ffo-margin-high: 0.50
+      quality-ffo-margin-mid: 0.35
+      quality-ffo-margin-low: 0.20
+      safety-net-debt-ebitda-conservative: 5.5
+      safety-net-debt-ebitda-moderate: 6.5
+      safety-net-debt-ebitda-high: 8.0
+      safety-interest-coverage-bonus-threshold: 3.0
+      dividend-affo-payout-conservative: 0.85
+      dividend-affo-payout-moderate: 1.00
+      dividend-affo-payout-high: 1.15
 
 management:
   tracing:

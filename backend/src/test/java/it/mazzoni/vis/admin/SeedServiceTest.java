@@ -25,6 +25,7 @@ import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
 import it.mazzoni.vis.moat.RoicObservationService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
+import it.mazzoni.vis.scoring.SectorMetricService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationNotApplicableException;
@@ -32,6 +33,7 @@ import it.mazzoni.vis.valuation.ValuationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -62,6 +64,7 @@ class SeedServiceTest {
     @Mock InsiderTradeRepository insiderTradeRepository;
     @Mock ValuationService valuationService;
     @Mock ValueScoreService valueScoreService;
+    @Mock SectorMetricService sectorMetricService;
     @Mock RiskAnalysisService riskAnalysisService;
     @Mock MoatAssessmentService moatAssessmentService;
     @Mock CapitalAllocationService capitalAllocationService;
@@ -79,8 +82,9 @@ class SeedServiceTest {
         seedTickerService = new SeedTickerService(marketDataClient, securityRepository,
                 fundamentalSnapshotRepository, ratioSnapshotRepository,
                 priceQuoteRepository, dividendRecordRepository, insiderTradeRepository,
-                valuationService, valueScoreService, riskAnalysisService, moatAssessmentService,
-                capitalAllocationService, roicObservationService, defaults, sourceTracker);
+                valuationService, valueScoreService, sectorMetricService, riskAnalysisService,
+                moatAssessmentService, capitalAllocationService, roicObservationService,
+                defaults, sourceTracker);
         seedService = new SeedService(seedTickerService);
 
         // Shared lenient stubs — save always returns the argument, exists-checks default to false.
@@ -256,6 +260,57 @@ class SeedServiceTest {
 
         verify(marketDataClient).getInsiderTransactions("INGR");
         verify(insiderTradeRepository, times(1)).save(any());
+    }
+
+    // RM2 (specs/sector-aware-valuation-metrics.md): closes the RM1 gap where D&A/ebitda were
+    // wired only into BulkFundamentalsSyncJob, never into this seed path — a REIT seeded via
+    // /api/v1/admin/seed must carry these fields on both its ANNUAL and TTM rows, not just on the
+    // next nightly bulk-fundamentals run.
+    @Test
+    void seedTickers_persistsDepreciationAndEbitdaOnAnnualAndTtmRows() {
+        String symbol = "O";
+        String companyName = "Realty Income Corp.";
+        Security security = new Security();
+        security.setSymbol(symbol);
+        security.setCompanyName(companyName);
+        when(marketDataClient.getProfile(symbol)).thenReturn(
+                new CompanyProfile(symbol, companyName, "Real Estate", "REIT - Retail",
+                        "US", "USD", "NYSE", new BigDecimal("40000000000"),
+                        companyName + " is a REIT.", "https://example.com"));
+        when(securityRepository.findBySymbol(symbol)).thenReturn(Optional.of(security));
+        Mockito.lenient().when(marketDataClient.getFundamentals(symbol)).thenReturn(
+                new FundamentalSnapshot(symbol, companyName, "Real Estate", "REIT - Retail",
+                        "US", "USD", new BigDecimal("55.00"), new BigDecimal("1.20"), null, 900_000_000L,
+                        List.of(new BigDecimal("1000000000")), List.of(new BigDecimal("300000000")),
+                        List.of(new BigDecimal("400000000")), List.of(new BigDecimal("1.20")),
+                        List.of(900_000_000L), List.of(), List.of(), List.of(), List.of(), List.of(),
+                        List.of(), List.of(), List.of(), List.of(),
+                        List.of(new BigDecimal("500000000")),  // depreciationAndAmortizationHistory
+                        List.of(new BigDecimal("900000000")),  // ebitdaHistory
+                        List.of(new BigDecimal("-120000000")), // capitalExpenditureHistory
+                        List.of(new BigDecimal("120000000")),  // interestExpenseHistory
+                        new BigDecimal("108040000000"), new BigDecimal("108040000000"), new BigDecimal("29965000000")));
+        Mockito.lenient().when(marketDataClient.getRatios(symbol)).thenReturn(
+                new RatioSnapshot(symbol, new BigDecimal("18.5"), null, null, null,
+                        null, null, null, null, null, null, null));
+        when(marketDataClient.getAnnualRatios(symbol)).thenReturn(List.of());
+        when(marketDataClient.getQuote(symbol)).thenReturn(
+                new MarketPriceQuote(symbol, new BigDecimal("55.00"), "USD", null, null, 500_000L));
+        when(marketDataClient.getDividendHistory(symbol)).thenReturn(List.of());
+        when(marketDataClient.getInsiderTransactions(symbol)).thenReturn(List.of());
+        stubValuation(symbol, new BigDecimal("50.00"), new BigDecimal("-10.00"), Recommendation.OVERVALUED);
+
+        seedService.seedTickers(List.of(symbol));
+
+        ArgumentCaptor<it.mazzoni.vis.domain.entity.FundamentalSnapshot> captor =
+                ArgumentCaptor.forClass(it.mazzoni.vis.domain.entity.FundamentalSnapshot.class);
+        verify(fundamentalSnapshotRepository, times(2)).save(captor.capture());
+        for (it.mazzoni.vis.domain.entity.FundamentalSnapshot saved : captor.getAllValues()) {
+            assertThat(saved.getDepreciationAndAmortization()).isEqualByComparingTo("500000000");
+            assertThat(saved.getEbitda()).isEqualByComparingTo("900000000");
+            assertThat(saved.getCapitalExpenditure()).isEqualByComparingTo("-120000000");
+            assertThat(saved.getInterestExpense()).isEqualByComparingTo("120000000");
+        }
     }
 
     private void stubFmpData(String symbol, String companyName) {

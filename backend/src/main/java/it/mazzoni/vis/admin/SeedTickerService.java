@@ -26,6 +26,7 @@ import it.mazzoni.vis.moat.CapitalAllocationService;
 import it.mazzoni.vis.moat.MoatAssessmentService;
 import it.mazzoni.vis.moat.RoicObservationService;
 import it.mazzoni.vis.scoring.RiskAnalysisService;
+import it.mazzoni.vis.scoring.SectorMetricService;
 import it.mazzoni.vis.scoring.ValueScoreService;
 import it.mazzoni.vis.valuation.ValuationOutcome;
 import it.mazzoni.vis.valuation.ValuationNotApplicableException;
@@ -54,6 +55,7 @@ public class SeedTickerService {
     private final InsiderTradeRepository insiderTradeRepository;
     private final ValuationService valuationService;
     private final ValueScoreService valueScoreService;
+    private final SectorMetricService sectorMetricService;
     private final RiskAnalysisService riskAnalysisService;
     private final MoatAssessmentService moatAssessmentService;
     private final CapitalAllocationService capitalAllocationService;
@@ -70,6 +72,7 @@ public class SeedTickerService {
                              InsiderTradeRepository insiderTradeRepository,
                              ValuationService valuationService,
                              ValueScoreService valueScoreService,
+                             SectorMetricService sectorMetricService,
                              RiskAnalysisService riskAnalysisService,
                              MoatAssessmentService moatAssessmentService,
                              CapitalAllocationService capitalAllocationService,
@@ -85,6 +88,7 @@ public class SeedTickerService {
         this.insiderTradeRepository = insiderTradeRepository;
         this.valuationService = valuationService;
         this.valueScoreService = valueScoreService;
+        this.sectorMetricService = sectorMetricService;
         this.riskAnalysisService = riskAnalysisService;
         this.moatAssessmentService = moatAssessmentService;
         this.capitalAllocationService = capitalAllocationService;
@@ -105,6 +109,10 @@ public class SeedTickerService {
             enrichDerivedProfileData(security);
             persistDividends(security, symbol);
             persistInsiderTrades(security, symbol);
+            // RM2 (specs/sector-aware-valuation-metrics.md): must run before
+            // valueScoreService.compute(symbol) below — ValueScoreService's REIT pillar branches
+            // read the RatioSnapshot fields this call persists. A no-op for non-REIT securities.
+            sectorMetricService.compute(security);
 
             ValuationParams params = new ValuationParams(
                     defaults.wacc(), defaults.growthY1Y5(), defaults.growthY6Y10(),
@@ -189,6 +197,13 @@ public class SeedTickerService {
         List<BigDecimal> totalEquityHistory = data.totalEquityHistory() != null ? data.totalEquityHistory() : List.of();
         List<BigDecimal> pretaxIncomeHistory = data.pretaxIncomeHistory() != null ? data.pretaxIncomeHistory() : List.of();
         List<BigDecimal> incomeTaxExpenseHistory = data.incomeTaxExpenseHistory() != null ? data.incomeTaxExpenseHistory() : List.of();
+        // RM2 (specs/sector-aware-valuation-metrics.md): closes the RM1 gap where D&A/ebitda were
+        // wired only into BulkFundamentalsSyncJob, never into this seed path — without this, a
+        // freshly-seeded REIT has no FFO/AFFO inputs until the next nightly bulk-fundamentals run.
+        List<BigDecimal> depreciationAndAmortizationHistory = data.depreciationAndAmortizationHistory() != null ? data.depreciationAndAmortizationHistory() : List.of();
+        List<BigDecimal> ebitdaHistory = data.ebitdaHistory() != null ? data.ebitdaHistory() : List.of();
+        List<BigDecimal> capitalExpenditureHistory = data.capitalExpenditureHistory() != null ? data.capitalExpenditureHistory() : List.of();
+        List<BigDecimal> interestExpenseHistory = data.interestExpenseHistory() != null ? data.interestExpenseHistory() : List.of();
         int historySize = List.of(revenueHistory.size(), netIncomeHistory.size(), fcfHistory.size(), epsHistory.size(),
                         sharesHistory.size(), operatingIncomeHistory.size(), operatingCashFlowHistory.size(),
                         totalAssetsHistory.size(), totalLiabilitiesHistory.size(), totalDebtHistory.size(),
@@ -223,6 +238,10 @@ public class SeedTickerService {
             entity.setFreeCashFlow(valueAt(fcfHistory, i));
             entity.setEps(valueAt(epsHistory, i));
             entity.setEpsDiluted(valueAt(epsHistory, i));
+            entity.setDepreciationAndAmortization(valueAt(depreciationAndAmortizationHistory, i));
+            entity.setEbitda(valueAt(ebitdaHistory, i));
+            entity.setCapitalExpenditure(valueAt(capitalExpenditureHistory, i));
+            entity.setInterestExpense(valueAt(interestExpenseHistory, i));
             entity.setTotalAssets(valueAt(totalAssetsHistory, i));
             entity.setTotalLiabilities(valueAt(totalLiabilitiesHistory, i));
             entity.setTotalDebt(firstNonNull(valueAt(totalDebtHistory, i), i == 0 ? data.totalDebt() : null));
@@ -252,6 +271,10 @@ public class SeedTickerService {
         ttm.setFreeCashFlow(valueAt(fcfHistory, 0));
         ttm.setEps(data.epsTtm());
         ttm.setEpsDiluted(data.epsTtm());
+        ttm.setDepreciationAndAmortization(valueAt(depreciationAndAmortizationHistory, 0));
+        ttm.setEbitda(valueAt(ebitdaHistory, 0));
+        ttm.setCapitalExpenditure(valueAt(capitalExpenditureHistory, 0));
+        ttm.setInterestExpense(valueAt(interestExpenseHistory, 0));
         ttm.setSharesOutstanding(data.sharesOutstanding());
         ttm.setTotalDebt(data.totalDebt());
         ttm.setCash(data.cash());

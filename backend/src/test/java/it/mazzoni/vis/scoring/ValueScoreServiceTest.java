@@ -1,11 +1,14 @@
 package it.mazzoni.vis.scoring;
 
 import it.mazzoni.vis.config.ScoringRiskProperties;
+import it.mazzoni.vis.config.SectorMetricProperties;
 import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.ValuationBandPosition;
+import it.mazzoni.vis.domain.entity.ValuationBandResult;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
@@ -15,6 +18,7 @@ import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.moat.ValuationHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +46,12 @@ class ValueScoreServiceTest {
     @Mock DividendRecordRepository dividendRecordRepository;
     @Mock ValueScoreRepository valueScoreRepository;
     @Mock ScoringRiskProperties scoringRiskProperties;
+    @Mock ValuationHistoryService valuationHistoryService;
+
+    // RM2: a real instance (all-default values), not a mock — SectorMetricProperties has no
+    // behavior beyond accessors, matching the source doc's "config-driven, not hardcoded" intent.
+    SectorMetricProperties sectorMetricProperties =
+            new SectorMetricProperties(null, null, null, null, null, null, null, null, null, null);
 
     ValueScoreService service;
     Security security;
@@ -50,7 +60,8 @@ class ValueScoreServiceTest {
     void setUp() {
         service = new ValueScoreService(securityRepository, valuationResultRepository,
                 ratioSnapshotRepository, fundamentalSnapshotRepository,
-                dividendRecordRepository, valueScoreRepository, scoringRiskProperties);
+                dividendRecordRepository, valueScoreRepository, scoringRiskProperties,
+                sectorMetricProperties, valuationHistoryService);
         security = new Security();
         security.setSymbol("AAPL");
         security.setSector("Technology");
@@ -233,6 +244,103 @@ class ValueScoreServiceTest {
         assertThat(result.getRawTotalScore()).isGreaterThan(new BigDecimal("40"));
         assertThat(result.getTotalScore()).isEqualByComparingTo(new BigDecimal("40"));
         assertThat(result.isMosGateApplied()).isTrue();
+    }
+
+    // RM2 (specs/sector-aware-valuation-metrics.md): REIT branch — all five pillars use
+    // sector-aware metrics instead of GAAP formulas. Hand-computed expected values, same style as
+    // compute_knownInputs_allSubscoresCorrect above.
+    @Test
+    void compute_reitSecurity_allFivePillarsUseReitMetrics() {
+        security.setSector("REIT - Retail");
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security))
+                .thenReturn(Optional.empty());
+
+        RatioSnapshot ttmRatio = new RatioSnapshot();
+        ttmRatio.setNetDebtToEbitda(new BigDecimal("5.0"));   // ≤ 5.5 conservative → safety base 20
+        ttmRatio.setAffoPayoutRatio(new BigDecimal("0.80"));  // ≤ 0.85 conservative → dividend 10
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(List.of(ttmRatio));
+
+        RatioSnapshot annualRatioYear1 = new RatioSnapshot();
+        annualRatioYear1.setFfoPerShare(new BigDecimal("3.00"));
+        RatioSnapshot annualRatioYear2 = new RatioSnapshot();
+        annualRatioYear2.setFfoPerShare(new BigDecimal("2.70")); // growth ≈ 11.1% → ≥10% → growth 15
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(annualRatioYear1, annualRatioYear2));
+
+        FundamentalSnapshot latestAnnual = new FundamentalSnapshot();
+        latestAnnual.setNetIncome(new BigDecimal("40"));
+        latestAnnual.setDepreciationAndAmortization(new BigDecimal("60"));
+        latestAnnual.setRevenue(new BigDecimal("200")); // FFO margin = 100/200 = 50% → ≥50% high → quality 25
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(
+                security, Period.ANNUAL)).thenReturn(List.of(latestAnnual));
+
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security))
+                .thenReturn(List.of());
+
+        ValuationBandResult pFfoBand = new ValuationBandResult();
+        pFfoBand.setMetric("P_FFO");
+        pFfoBand.setCurrentPercentile(new BigDecimal("20")); // ≤ 25th percentile → mos 30
+        pFfoBand.setPosition(ValuationBandPosition.HISTORICALLY_CHEAP);
+        when(valuationHistoryService.compute(security)).thenReturn(List.of(pFfoBand));
+
+        ValueScore result = service.compute("AAPL");
+
+        // weightProfile = "reit-utility" (mos 30, quality 20, safety 30, growth 10, dividend 10)
+        assertThat(result.getWeightProfile()).isEqualTo("reit-utility");
+        assertThat(result.getMosScore()).isEqualByComparingTo(new BigDecimal("30"));       // 30*30/30
+        assertThat(result.getQualityScore()).isEqualByComparingTo(new BigDecimal("20.00")); // 25*20/25
+        assertThat(result.getSafetyScore()).isEqualByComparingTo(new BigDecimal("30.00"));  // 20*30/20
+        assertThat(result.getGrowthScore()).isEqualByComparingTo(new BigDecimal("10.00"));  // 15*10/15
+        assertThat(result.getDividendScore()).isEqualByComparingTo(new BigDecimal("10.00")); // 10*10/10
+        assertThat(result.getRawTotalScore()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(result.getTotalScore()).isEqualByComparingTo(new BigDecimal("100.00"));
+    }
+
+    // RM2 REIT Safety +2 interest-coverage bonus, capped at 20 — same shape as
+    // compute_currentRatioBonusCapAt20's GAAP-branch bonus test above.
+    @Test
+    void compute_reitSecurity_interestCoverageBonusCapAt20() {
+        security.setSector("REIT");
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security))
+                .thenReturn(Optional.empty());
+
+        RatioSnapshot ttmRatio = new RatioSnapshot();
+        ttmRatio.setNetDebtToEbitda(new BigDecimal("6.0"));          // ≤ 6.5 moderate → base 14
+        ttmRatio.setInterestCoverageEbitda(new BigDecimal("5.0"));   // ≥ 3.0 → +2 → 16
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(List.of(ttmRatio));
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of());
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(
+                security, Period.ANNUAL)).thenReturn(List.of());
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security))
+                .thenReturn(List.of());
+        when(valuationHistoryService.compute(security)).thenReturn(List.of());
+
+        ValueScore result = service.compute("AAPL");
+
+        // base 14 (moderate tier) + 2 bonus = 16; scaled to weight-profile safety max 30: 16*30/20=24.00
+        assertThat(result.getSafetyScore()).isEqualByComparingTo(new BigDecimal("24.00"));
+    }
+
+    // RM2: a non-REIT security must never call ValuationHistoryService — confirms the REIT branch
+    // is additive and does not touch every other sector's formulas or introduce a new dependency
+    // call on their read path.
+    @Test
+    void compute_nonReitSecurity_neverCallsValuationHistoryService() {
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security))
+                .thenReturn(Optional.empty());
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(List.of());
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(
+                security, Period.ANNUAL)).thenReturn(List.of());
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security))
+                .thenReturn(List.of());
+
+        service.compute("AAPL"); // security.sector == "Technology", set in setUp()
+
+        Mockito.verifyNoInteractions(valuationHistoryService);
     }
 
     @Test

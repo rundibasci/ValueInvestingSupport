@@ -83,6 +83,12 @@ public class FmpAdapter {
                 .limit(11).map(FmpIncomeStatementEntry::depreciationAndAmortization).collect(Collectors.toList());
         List<BigDecimal> ebitdaHistory = income.stream()
                 .limit(11).map(FmpIncomeStatementEntry::ebitda).collect(Collectors.toList());
+        // RM2 (specs/sector-aware-valuation-metrics.md §4.2): AFFO's recurring-capex input.
+        List<BigDecimal> capitalExpenditureHistory = cashflow.stream()
+                .limit(11).map(FmpCashFlowEntry::capitalExpenditure).collect(Collectors.toList());
+        // RM2: EBITDA interest coverage input, confirmed live against O/PLD/SPG during RM2.
+        List<BigDecimal> interestExpenseHistory = income.stream()
+                .limit(11).map(FmpIncomeStatementEntry::interestExpense).collect(Collectors.toList());
 
         return new FundamentalSnapshot(
                 symbol.toUpperCase(),
@@ -111,6 +117,8 @@ public class FmpAdapter {
                 incomeTaxExpenseHistory,
                 depreciationAndAmortizationHistory,
                 ebitdaHistory,
+                capitalExpenditureHistory,
+                interestExpenseHistory,
                 netDebt,
                 totalDebt,
                 cash

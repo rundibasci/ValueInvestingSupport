@@ -23,12 +23,16 @@ public record FmpIncomeStatementEntry(
         // inputs (D&A add-back) and, for ebitda, feed Debt/EBITDA and interest-coverage safety
         // metrics directly rather than the operating-income approximation used elsewhere.
         BigDecimal depreciationAndAmortization,
-        BigDecimal ebitda
+        BigDecimal ebitda,
+        // RM2 (specs/sector-aware-valuation-metrics.md): confirmed present and populated on the
+        // same live /income-statement payload (re-verified against O, PLD, SPG during RM2, not
+        // assumed from RM1's field list) — feeds EBITDA interest coverage in the Safety pillar.
+        BigDecimal interestExpense
 ) {
     public FmpIncomeStatementEntry(String symbol, String date, BigDecimal revenue, BigDecimal netIncome,
                                    BigDecimal operatingIncome, BigDecimal grossProfit, BigDecimal eps,
                                    BigDecimal epsDiluted, Long sharesOutstandingDil) {
         this(symbol, date, revenue, netIncome, operatingIncome, null, null, grossProfit, eps, epsDiluted,
-                sharesOutstandingDil, null, null);
+                sharesOutstandingDil, null, null, null);
     }
 }

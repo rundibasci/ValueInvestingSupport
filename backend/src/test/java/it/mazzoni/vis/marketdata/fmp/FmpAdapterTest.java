@@ -26,21 +26,32 @@ class FmpAdapterTest {
                 new BigDecimal("1000000000"), new BigDecimal("300000000"), new BigDecimal("400000000"),
                 new BigDecimal("380000000"), new BigDecimal("20000000"), new BigDecimal("700000000"),
                 new BigDecimal("1.20"), new BigDecimal("1.19"), 900_000_000L,
-                new BigDecimal("500000000"), new BigDecimal("900000000"));
+                new BigDecimal("500000000"), new BigDecimal("900000000"), new BigDecimal("120000000"));
         FmpIncomeStatementEntry prior = new FmpIncomeStatementEntry(
                 "O", "2024-12-31",
                 new BigDecimal("900000000"), new BigDecimal("280000000"), new BigDecimal("380000000"),
                 new BigDecimal("360000000"), new BigDecimal("18000000"), new BigDecimal("650000000"),
                 new BigDecimal("1.10"), new BigDecimal("1.09"), 880_000_000L,
-                new BigDecimal("470000000"), new BigDecimal("850000000"));
+                new BigDecimal("470000000"), new BigDecimal("850000000"), new BigDecimal("110000000"));
+
+        FmpCashFlowEntry latestCashFlow = new FmpCashFlowEntry(
+                "O", "2025-12-31", new BigDecimal("600000000"), new BigDecimal("-120000000"), new BigDecimal("480000000"));
+        FmpCashFlowEntry priorCashFlow = new FmpCashFlowEntry(
+                "O", "2024-12-31", new BigDecimal("550000000"), new BigDecimal("-100000000"), new BigDecimal("450000000"));
 
         FundamentalSnapshot snapshot = adapter.toFundamentalSnapshot(
-                "O", List.of(latest, prior), List.of(), List.of(), null, new BigDecimal("55.00"));
+                "O", List.of(latest, prior), List.of(), List.of(latestCashFlow, priorCashFlow), null, new BigDecimal("55.00"));
 
         assertThat(snapshot.depreciationAndAmortizationHistory())
                 .containsExactly(new BigDecimal("500000000"), new BigDecimal("470000000"));
         assertThat(snapshot.ebitdaHistory())
                 .containsExactly(new BigDecimal("900000000"), new BigDecimal("850000000"));
+        // RM2 (specs/sector-aware-valuation-metrics.md §4.2): AFFO's recurring-capex input.
+        assertThat(snapshot.capitalExpenditureHistory())
+                .containsExactly(new BigDecimal("-120000000"), new BigDecimal("-100000000"));
+        // RM2: EBITDA interest coverage input, confirmed live against O/PLD/SPG during RM2.
+        assertThat(snapshot.interestExpenseHistory())
+                .containsExactly(new BigDecimal("120000000"), new BigDecimal("110000000"));
     }
 
     @Test

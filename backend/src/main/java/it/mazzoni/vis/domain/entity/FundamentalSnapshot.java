@@ -54,6 +54,15 @@ public class FundamentalSnapshot {
     @Column(precision = 20, scale = 2)
     private BigDecimal ebitda;
 
+    // RM2 (specs/sector-aware-valuation-metrics.md §4.2): AFFO's recurring-capex input; null for
+    // Yahoo-sourced snapshots, same posture as the two RM1 fields above.
+    @Column(precision = 20, scale = 2)
+    private BigDecimal capitalExpenditure;
+
+    // RM2: EBITDA interest coverage input, confirmed live against O/PLD/SPG during RM2.
+    @Column(precision = 20, scale = 2)
+    private BigDecimal interestExpense;
+
     @Column(precision = 10, scale = 4)
     private BigDecimal eps;
 
@@ -124,6 +133,12 @@ public class FundamentalSnapshot {
 
     public BigDecimal getEbitda() { return ebitda; }
     public void setEbitda(BigDecimal ebitda) { this.ebitda = ebitda; }
+
+    public BigDecimal getCapitalExpenditure() { return capitalExpenditure; }
+    public void setCapitalExpenditure(BigDecimal capitalExpenditure) { this.capitalExpenditure = capitalExpenditure; }
+
+    public BigDecimal getInterestExpense() { return interestExpense; }
+    public void setInterestExpense(BigDecimal interestExpense) { this.interestExpense = interestExpense; }
 
     public BigDecimal getEps() { return eps; }
     public void setEps(BigDecimal eps) { this.eps = eps; }

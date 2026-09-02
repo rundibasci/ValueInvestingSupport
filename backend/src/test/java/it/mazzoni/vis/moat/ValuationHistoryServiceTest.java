@@ -54,12 +54,58 @@ class ValuationHistoryServiceTest {
         assertThat(pe.getPercentile75()).isEqualByComparingTo("20");
     }
 
+    // RM2 (specs/sector-aware-valuation-metrics.md §4.3): P_FFO band is additive — a REIT fixture
+    // with priceToFfo populated produces a real band, mirroring the PE band's own assertion shape.
+    @Test
+    void compute_reitFixture_producesPFfoBand() {
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(
+                        ratioWithPriceToFfo("10"),
+                        ratioWithPriceToFfo("14"),
+                        ratioWithPriceToFfo("16"),
+                        ratioWithPriceToFfo("18"),
+                        ratioWithPriceToFfo("22")
+                ));
+
+        List<ValuationBandResult> results = service.compute(security);
+
+        ValuationBandResult pFfo = results.stream().filter(r -> r.getMetric().equals("P_FFO")).findFirst().orElseThrow();
+        assertThat(pFfo.getPosition()).isEqualTo(ValuationBandPosition.HISTORICALLY_CHEAP);
+        assertThat(pFfo.getPercentile25()).isEqualByComparingTo("14");
+        assertThat(pFfo.getPercentile75()).isEqualByComparingTo("18");
+    }
+
+    // RM2: a non-REIT fixture (priceToFfo null on every row, matching SectorMetricService's
+    // no-op for a non-REIT security) must resolve P_FFO to INSUFFICIENT_DATA — zero code change
+    // required to the non-REIT path for this to hold, confirming Group 6 is truly additive.
+    @Test
+    void compute_nonReitFixture_pFfoIsInsufficientData() {
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(
+                        ratio("8", "2", "10", "0.02"),
+                        ratio("12", "2", "10", "0.02"),
+                        ratio("15", "2", "10", "0.02")
+                ));
+
+        List<ValuationBandResult> results = service.compute(security);
+
+        ValuationBandResult pFfo = results.stream().filter(r -> r.getMetric().equals("P_FFO")).findFirst().orElseThrow();
+        assertThat(pFfo.getPosition()).isEqualTo(ValuationBandPosition.INSUFFICIENT_DATA);
+        assertThat(pFfo.getYearsAnalyzed()).isZero();
+    }
+
     private RatioSnapshot ratio(String pe, String pb, String ev, String yield) {
         RatioSnapshot ratio = new RatioSnapshot();
         ratio.setPeRatio(new BigDecimal(pe));
         ratio.setPbRatio(new BigDecimal(pb));
         ratio.setEvToEbitda(new BigDecimal(ev));
         ratio.setDividendYield(new BigDecimal(yield));
+        return ratio;
+    }
+
+    private RatioSnapshot ratioWithPriceToFfo(String priceToFfo) {
+        RatioSnapshot ratio = new RatioSnapshot();
+        ratio.setPriceToFfo(new BigDecimal(priceToFfo));
         return ratio;
     }
 }

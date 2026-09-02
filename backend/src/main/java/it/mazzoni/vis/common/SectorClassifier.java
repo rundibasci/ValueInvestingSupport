@@ -39,4 +39,24 @@ public final class SectorClassifier {
         String lower = sector.toLowerCase();
         return lower.contains("real estate") || lower.contains("reit") || lower.contains("utilit");
     }
+
+    /**
+     * True for REIT/real-estate sector strings only — deliberately excludes utilities.
+     *
+     * <p>RM2 ({@code specs/sector-aware-valuation-metrics.md} §10, open question 4) gates the
+     * {@code SectorMetricProfile} (FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA computation) on this narrower
+     * classification, separate from {@link #isReitOrUtility}, which continues to gate only the
+     * RM0 caveat and the {@code "reit-utility"} scoring weight-profile key. A utility security is
+     * structurally leveraged for different reasons than a REIT and has no FFO/AFFO concept — it
+     * must keep its GAAP metrics until a dedicated utility {@code SectorMetricProfile} is scoped,
+     * so it must never start rendering REIT-shaped fields just because it shares the weight
+     * profile's sector-string match.
+     */
+    public static boolean isReit(String sector) {
+        if (sector == null) {
+            return false;
+        }
+        String lower = sector.toLowerCase();
+        return lower.contains("real estate") || lower.contains("reit");
+    }
 }

@@ -31,4 +31,24 @@ class SectorClassifierTest {
     void isReitOrUtility_nullSector_returnsFalse() {
         assertThat(SectorClassifier.isReitOrUtility(null)).isFalse();
     }
+
+    // RM2 (specs/sector-aware-valuation-metrics.md §10, open question 4): isReit is narrower than
+    // isReitOrUtility — REIT/real-estate only, excluding utility. Regression-guards that the
+    // weight-profile classification above is unchanged by this new, separate method.
+    @ParameterizedTest
+    @ValueSource(strings = {"Real Estate", "REIT - Retail", "real estate", "REIT"})
+    void isReit_matchesRealEstateAndReitSectors(String sector) {
+        assertThat(SectorClassifier.isReit(sector)).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Utilities", "Utility", "Technology", "Financial Services"})
+    void isReit_doesNotMatchUtilityOrOtherSectors(String sector) {
+        assertThat(SectorClassifier.isReit(sector)).isFalse();
+    }
+
+    @Test
+    void isReit_nullSector_returnsFalse() {
+        assertThat(SectorClassifier.isReit(null)).isFalse();
+    }
 }
