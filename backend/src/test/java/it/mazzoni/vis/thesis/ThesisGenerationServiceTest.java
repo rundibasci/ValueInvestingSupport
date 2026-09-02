@@ -54,7 +54,8 @@ class ThesisGenerationServiceTest {
 
         fakeInputBuilder = sec -> new ThesisInput(sec.getSymbol(), sec.getCompanyName(), LocalDate.now(),
                 new BigDecimal("100"), new BigDecimal("120"), new BigDecimal("16.67"),
-                new BigDecimal("70"), null, null, null, Trend.STABLE, Trend.STABLE, Trend.STABLE,
+                new BigDecimal("70"), null, null, null, null, null, null, null, null,
+                Trend.STABLE, Trend.STABLE, Trend.STABLE,
                 DataQuality.COMPLETE, List.of());
     }
 

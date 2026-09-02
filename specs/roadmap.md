@@ -1450,7 +1450,7 @@ Independent of Group K: Vertex AI is a managed Google Cloud API reachable from l
 
 ---
 
-## Group RM — Sector-Aware Valuation Metrics (REIT-First)
+## Group RM — Sector-Aware Valuation Metrics (REIT-First) (complete)
 
 Goal: replace GAAP-earnings metrics that are structurally distorted for REITs (P/E, ROE/ROIC, Debt/Equity, EPS payout ratio) with sector-standard cash-flow metrics (FFO, AFFO, Debt/EBITDA, AFFO payout ratio), architected as a general `SectorMetricProfile` extension point so a future Financial/Utility metric redefinition doesn't require a second refactor. `ValueScoreService.determineWeightProfile` already special-cases REIT/real-estate/utility securities into a `reit-utility` *weight* profile, but every pillar underneath it still computes from the same GAAP-earnings formulas used for an industrial company — this group fixes the metrics themselves, not just their weighting.
 
@@ -1480,9 +1480,11 @@ Source: `specs/sector-aware-valuation-metrics.md` — the full metric definition
 - Security-detail/review page: FFO/AFFO/P-FFO/P-AFFO/Debt-EBITDA card (plus Implied Cap Rate/NAV if RM1 confirmed NOI availability), each metric showing its formula and inputs (Design Principle 2) and `INSUFFICIENT_DATA` labeling where source data is missing (Design Principle 12).
 - Retire the RM0 generic caveat for fields that now have a computed sector-aware replacement displayed alongside them; keep it for any GAAP metric still shown without one.
 
-### Phase RM4: AI Thesis Propagation
-- Extend `ThesisInput`/`thesis-input.schema.json` with the new optional REIT fields (`ffoPerShare`, `affoPerShare`, `priceToFfo`, `priceToAffo`, `affoPayoutRatio`, and a now-precise `netDebtToEbitda`); update `ThesisInputBuilder`'s EBITDA-approximation documentation now that a real D&A figure exists.
-- Prompt-content review (own explicit decision, tracked the way TA2 tracked every prompt-touching decision) on whether `system-prompt-v2.txt` needs REIT-awareness wording so the model reasons from FFO/AFFO instead of flagging a depreciation-suppressed net income as a red flag on its own.
+### Phase RM4: AI Thesis Propagation *(complete)*
+- Extended `ThesisInput`/`thesis-input.schema.json` with the 5 new optional REIT fields (`ffoPerShare`, `affoPerShare`, `priceToFfo`, `priceToAffo`, `affoPayoutRatio`), read from RM2's already-computed `RatioSnapshot` entity via `RatioSnapshotRepository`, gated on `SectorClassifier.isReit` — zero new computation, zero added repository load for non-REIT securities. Switched `ThesisInputBuilder`'s `netDebtToEbitda` derivation from the `operatingIncomeHistory` approximation to RM1's precise, FMP-computed `ebitdaHistory` figure, platform-wide (not REIT-gated).
+- Made all 5 new fields (plus `netDebtToEbitda`) citable `evidenceFields` for bull/bear claims: `EvidenceField` enum, `ThesisResponseSchema.EVIDENCE_FIELDS`, `thesis-output.schema.json`, `config/vertex-gemini-v1.json`'s regenerated `responseSchema`, the backend parity fixture, and `system-prompt-v3.txt`'s allowed-values list (both copies) — 12 → 17 total.
+- Prompt-content review (own explicit decision, tracked the way TA2 tracked every prompt-touching decision) concluded REIT-awareness wording was needed: added one new numbered rule to `system-prompt-v3.txt` (both copies, in place — the roadmap's own "`system-prompt-v2.txt`" reference above was stale; the live prompt was already v3 before this phase). Live-verified against the real Vertex AI Gemini endpoint: `O`'s generated thesis cites `affoPayoutRatio`/`priceToAffo`/`netDebtToEbitda` in its bear case and does not misread its `VOLATILE` GAAP earnings trend as an unqualified red flag; `AAPL`'s thesis shows zero REIT-field citations (regression-clean).
+- **Bug found and fixed via this phase's own live smoke test:** `deriveNetDebtToEbitda` read the *oldest* year in a multi-year history as "latest" (inherited, pre-existing indexing bug from the pre-RM4 `operatingIncomeHistory`-based version) — produced `O`'s netDebtToEbitda as 35.4x instead of the correct ~9.1x. Root-caused against real `fundamental_snapshot` columns and fixed (index 0, not the last index, is FMP's "most recent" convention). **A related, larger-scope bug was found but deliberately left unfixed and flagged for a follow-up phase:** `classifyTrend`'s trend-direction logic plausibly reads `revenueTrend`/`earningsTrend`/`freeCashFlowTrend` in reverse-chronological order for every AI thesis generated since TA4 (2026-08-28) — full detail in `specs/2026-09-02-rm4-ai-thesis-propagation/validation.md` → Known Risks.
 
 ### Acceptance checklist
 - The RM0 disclaimer is visible on every REIT/real-estate/utility-classified security's screener row and security-detail GAAP-metric fields before any other RM phase ships.

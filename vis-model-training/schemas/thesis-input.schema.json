@@ -56,6 +56,21 @@
     "netDebtToEbitda": {
       "type": ["number", "null"]
     },
+    "ffoPerShare": {
+      "type": ["number", "null"]
+    },
+    "affoPerShare": {
+      "type": ["number", "null"]
+    },
+    "priceToFfo": {
+      "type": ["number", "null"]
+    },
+    "priceToAffo": {
+      "type": ["number", "null"]
+    },
+    "affoPayoutRatio": {
+      "type": ["number", "null"]
+    },
     "revenueTrend": {
       "$ref": "#/$defs/trend"
     },

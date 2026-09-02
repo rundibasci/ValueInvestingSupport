@@ -1,10 +1,12 @@
 package it.mazzoni.vis.thesis;
 
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.domain.FundamentalSnapshot;
 import it.mazzoni.vis.domain.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Security;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
+import it.mazzoni.vis.domain.repository.RatioSnapshotRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.ValueScoreRepository;
 import it.mazzoni.vis.marketdata.MarketDataClient;
@@ -23,16 +25,24 @@ import java.util.Optional;
  * {@link ValuationResultRepository}, {@link ValueScoreRepository} unchanged.
  *
  * <p><b>New derivation, not a reuse of existing logic</b> (flagged explicitly, TA4 session
- * decision, 2026-08-28): {@code netDebtToEbitda} and the three trend fields
- * (revenue/earnings/free-cash-flow) had no equivalent anywhere else in this codebase before
- * this class. EBITDA is approximated from {@code operatingIncomeHistory} (no separate
- * depreciation/amortization figure is captured anywhere in {@link FundamentalSnapshot}) —
- * documented here as an approximation, not a precise EBITDA calculation, and this
- * approximation must never leak into any deterministic VIS calculation (DCF/Graham/DDM/Value
- * Score) — it exists solely to feed the AI thesis interpretation layer, per mission.md
- * Principle 15's "never computes... itself" boundary. Trend thresholds are a first-pass,
- * documented heuristic (see {@link #classifyTrend}) — review before relying on it as more
- * than a reasonable default; not derived from any existing VIS specification.
+ * decision, 2026-08-28): the three trend fields (revenue/earnings/free-cash-flow) had no
+ * equivalent anywhere else in this codebase before this class. Trend thresholds are a
+ * first-pass, documented heuristic (see {@link #classifyTrend}) — review before relying on
+ * it as more than a reasonable default; not derived from any existing VIS specification.
+ *
+ * <p><b>{@code netDebtToEbitda} (RM4):</b> reads {@link FundamentalSnapshot#ebitdaHistory()},
+ * RM1's precise, FMP-computed EBITDA figure — no longer an approximation now that a real
+ * EBITDA field exists platform-wide (not REIT-gated; see
+ * {@code specs/2026-09-02-rm4-ai-thesis-propagation/requirements.md} Decision 3). Never feeds
+ * any deterministic VIS calculation (DCF/Graham/DDM/Value Score), only this AI-interpretation-
+ * layer input, per mission.md Principle 15's "never computes... itself" boundary.
+ *
+ * <p><b>The five REIT fields (RM4, {@code ffoPerShare}/{@code affoPerShare}/{@code priceToFfo}/
+ * {@code priceToAffo}/{@code affoPayoutRatio}):</b> zero new computation here — read directly
+ * off RM2's already-computed {@code RatioSnapshot} entity columns
+ * ({@link RatioSnapshotRepository}, same access path {@code SecurityReviewService} already
+ * uses) for {@link SectorClassifier#isReit(String) REIT-classified} securities only. Non-REIT
+ * securities never query {@link RatioSnapshotRepository} at all.
  */
 @Component
 public class ThesisInputBuilder implements ThesisInputSource {
@@ -44,13 +54,16 @@ public class ThesisInputBuilder implements ThesisInputSource {
     private final MarketDataClient marketDataClient;
     private final ValuationResultRepository valuationResultRepository;
     private final ValueScoreRepository valueScoreRepository;
+    private final RatioSnapshotRepository ratioSnapshotRepository;
 
     public ThesisInputBuilder(MarketDataClient marketDataClient,
                               ValuationResultRepository valuationResultRepository,
-                              ValueScoreRepository valueScoreRepository) {
+                              ValueScoreRepository valueScoreRepository,
+                              RatioSnapshotRepository ratioSnapshotRepository) {
         this.marketDataClient = marketDataClient;
         this.valuationResultRepository = valuationResultRepository;
         this.valueScoreRepository = valueScoreRepository;
+        this.ratioSnapshotRepository = ratioSnapshotRepository;
     }
 
     @Override
@@ -77,6 +90,10 @@ public class ThesisInputBuilder implements ThesisInputSource {
 
         BigDecimal netDebtToEbitda = deriveNetDebtToEbitda(fundamentals, warnings);
 
+        it.mazzoni.vis.domain.entity.RatioSnapshot reitRatios = SectorClassifier.isReit(security.getSector())
+                ? ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security).orElse(null)
+                : null;
+
         DataQuality dataQuality = deriveDataQuality(marketPrice, intrinsicValue, totalScore, warnings);
 
         return new ThesisInput(
@@ -90,6 +107,11 @@ public class ThesisInputBuilder implements ThesisInputSource {
                 ratios != null ? ratios.dividendYield() : null,
                 ratios != null ? ratios.payoutRatio() : null,
                 netDebtToEbitda,
+                reitRatios != null ? reitRatios.getFfoPerShare() : null,
+                reitRatios != null ? reitRatios.getAffoPerShare() : null,
+                reitRatios != null ? reitRatios.getPriceToFfo() : null,
+                reitRatios != null ? reitRatios.getPriceToAffo() : null,
+                reitRatios != null ? reitRatios.getAffoPayoutRatio() : null,
                 revenueTrend,
                 earningsTrend,
                 fcfTrend,
@@ -154,22 +176,33 @@ public class ThesisInputBuilder implements ThesisInputSource {
         return Trend.STRONGLY_DECLINING;
     }
 
-    /** netDebt / latest operating income — an EBITDA *approximation* (no separate D&A figure
-     * is captured anywhere in FundamentalSnapshot); documented, not precise. Never feeds any
-     * deterministic VIS calculation, only this AI-interpretation-layer input. */
+    /** netDebt / latest EBITDA ({@link FundamentalSnapshot#ebitdaHistory()}, RM1's precise,
+     * FMP-computed figure — no longer an operating-income approximation as of RM4). Never
+     * feeds any deterministic VIS calculation, only this AI-interpretation-layer input.
+     *
+     * <p><b>Index 0, not the last index, is "latest"</b> (RM4, found via this phase's own
+     * live smoke test against real seeded FMP data for {@code O}: the {@code size()-1}
+     * indexing this method previously used — inherited from the pre-RM4
+     * {@code operatingIncomeHistory}-based version — silently picked the *oldest* year in a
+     * ~7-year history, producing a materially wrong ratio, e.g. ~35x instead of the correct
+     * ~9x for {@code O}). {@code FmpAdapter.toFundamentalSnapshot}'s every *History list is
+     * built from FMP's own newest-first statement ordering ({@code income.get(0)} is read as
+     * "TTM/current" for {@code epsTtm}/{@code totalDebt}/{@code cash}/{@code shares}
+     * elsewhere in that same method), and {@code SeedTickerService.persistFundamentals} only
+     * falls back to the domain record's scalar {@code totalDebt()}/{@code cash()} at
+     * {@code i == 0} — both confirm index 0, not the last index, is the most recent period. */
     private BigDecimal deriveNetDebtToEbitda(FundamentalSnapshot fundamentals, List<String> warnings) {
         if (fundamentals == null || fundamentals.netDebt() == null
-                || fundamentals.operatingIncomeHistory() == null || fundamentals.operatingIncomeHistory().isEmpty()) {
-            warnings.add("netDebtToEbitda unavailable: netDebt or operating income history missing");
+                || fundamentals.ebitdaHistory() == null || fundamentals.ebitdaHistory().isEmpty()) {
+            warnings.add("netDebtToEbitda unavailable: netDebt or EBITDA history missing");
             return null;
         }
-        List<BigDecimal> operatingIncome = fundamentals.operatingIncomeHistory();
-        BigDecimal latestOperatingIncome = operatingIncome.get(operatingIncome.size() - 1);
-        if (latestOperatingIncome == null || latestOperatingIncome.compareTo(BigDecimal.ZERO) <= 0) {
-            warnings.add("netDebtToEbitda unavailable: latest operating income (EBITDA approximation) is missing or non-positive");
+        BigDecimal latestEbitda = fundamentals.ebitdaHistory().get(0);
+        if (latestEbitda == null || latestEbitda.compareTo(BigDecimal.ZERO) <= 0) {
+            warnings.add("netDebtToEbitda unavailable: latest EBITDA is missing or non-positive");
             return null;
         }
-        return fundamentals.netDebt().divide(latestOperatingIncome, 2, RoundingMode.HALF_UP);
+        return fundamentals.netDebt().divide(latestEbitda, 2, RoundingMode.HALF_UP);
     }
 
     private DataQuality deriveDataQuality(BigDecimal marketPrice, BigDecimal intrinsicValue,
