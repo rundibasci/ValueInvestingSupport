@@ -74,6 +74,30 @@ public class RatioSnapshot {
     @Column(precision = 10, scale = 4)
     private BigDecimal netMargin;
 
+    // RM2 (specs/sector-aware-valuation-metrics.md §2, §7): VIS-computed REIT sector metrics —
+    // null for every non-REIT-classified security and for Yahoo-fallback rows, populated by
+    // SectorMetricService rather than sourced directly from the market data provider.
+    @Column(precision = 12, scale = 4)
+    private BigDecimal ffoPerShare;
+
+    @Column(precision = 12, scale = 4)
+    private BigDecimal affoPerShare;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal priceToFfo;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal priceToAffo;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal netDebtToEbitda;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal interestCoverageEbitda;
+
+    @Column(precision = 10, scale = 4)
+    private BigDecimal affoPayoutRatio;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -133,4 +157,25 @@ public class RatioSnapshot {
 
     public BigDecimal getNetMargin() { return netMargin; }
     public void setNetMargin(BigDecimal netMargin) { this.netMargin = netMargin; }
+
+    public BigDecimal getFfoPerShare() { return ffoPerShare; }
+    public void setFfoPerShare(BigDecimal ffoPerShare) { this.ffoPerShare = ffoPerShare; }
+
+    public BigDecimal getAffoPerShare() { return affoPerShare; }
+    public void setAffoPerShare(BigDecimal affoPerShare) { this.affoPerShare = affoPerShare; }
+
+    public BigDecimal getPriceToFfo() { return priceToFfo; }
+    public void setPriceToFfo(BigDecimal priceToFfo) { this.priceToFfo = priceToFfo; }
+
+    public BigDecimal getPriceToAffo() { return priceToAffo; }
+    public void setPriceToAffo(BigDecimal priceToAffo) { this.priceToAffo = priceToAffo; }
+
+    public BigDecimal getNetDebtToEbitda() { return netDebtToEbitda; }
+    public void setNetDebtToEbitda(BigDecimal netDebtToEbitda) { this.netDebtToEbitda = netDebtToEbitda; }
+
+    public BigDecimal getInterestCoverageEbitda() { return interestCoverageEbitda; }
+    public void setInterestCoverageEbitda(BigDecimal interestCoverageEbitda) { this.interestCoverageEbitda = interestCoverageEbitda; }
+
+    public BigDecimal getAffoPayoutRatio() { return affoPayoutRatio; }
+    public void setAffoPayoutRatio(BigDecimal affoPayoutRatio) { this.affoPayoutRatio = affoPayoutRatio; }
 }

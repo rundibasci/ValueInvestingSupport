@@ -45,7 +45,14 @@ public class ValuationHistoryService {
                 band(security, resultDate, "PE", annuals, RatioSnapshot::getPeRatio, false),
                 band(security, resultDate, "PB", annuals, RatioSnapshot::getPbRatio, false),
                 band(security, resultDate, "EV_EBITDA", annuals, RatioSnapshot::getEvToEbitda, false),
-                band(security, resultDate, "DIVIDEND_YIELD", annuals, RatioSnapshot::getDividendYield, true)
+                band(security, resultDate, "DIVIDEND_YIELD", annuals, RatioSnapshot::getDividendYield, true),
+                // RM2 (specs/sector-aware-valuation-metrics.md §4.3): REIT MoS pillar input — P/FFO
+                // percentile vs. own history, lower is cheaper (same higherIsCheap=false semantics
+                // as PE/PB/EV_EBITDA). priceToFfo is null for every non-REIT-classified security
+                // (SectorMetricService.compute is a no-op there), so this band is additive: no
+                // branching required here for it to correctly resolve to INSUFFICIENT_DATA outside
+                // the REIT sector.
+                band(security, resultDate, "P_FFO", annuals, RatioSnapshot::getPriceToFfo, false)
         );
         valuationBandResultRepository.deleteBySecurity(security);
         return valuationBandResultRepository.saveAll(bands);

@@ -4,6 +4,7 @@ import it.mazzoni.vis.config.ValuationDefaultsProperties;
 import it.mazzoni.vis.config.ValuationEnhancementProperties;
 import it.mazzoni.vis.config.ValuationWeightsProperties;
 import it.mazzoni.vis.config.ScoringRiskProperties;
+import it.mazzoni.vis.config.SectorMetricProperties;
 import it.mazzoni.vis.config.DeploymentProperties;
 import it.mazzoni.vis.config.JobsProperties;
 import it.mazzoni.vis.marketdata.MarketDataProperties;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 @EnableConfigurationProperties({
         MarketDataProperties.class,
         ScoringRiskProperties.class,
+        SectorMetricProperties.class,
         ValuationWeightsProperties.class,
         ValuationDefaultsProperties.class,
         ValuationEnhancementProperties.class,

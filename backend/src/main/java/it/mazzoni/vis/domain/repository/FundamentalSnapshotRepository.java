@@ -14,6 +14,11 @@ public interface FundamentalSnapshotRepository extends JpaRepository<Fundamental
     Optional<FundamentalSnapshot> findTopBySecurityAndPeriodOrderByReportDateDesc(Security security, Period period);
     List<FundamentalSnapshot> findBySecurity(Security security);
     boolean existsBySecurityAndPeriodAndReportDate(Security security, Period period, LocalDate reportDate);
+    // RM2 (specs/sector-aware-valuation-metrics.md §2, §7): pairs a RatioSnapshot row with the
+    // FundamentalSnapshot row for the same security/period/reportDate — both ingestion paths
+    // (SeedTickerService, BulkFundamentalsSyncJob/BulkRatiosSyncJob) persist matching report dates
+    // per period, so this lookup is expected to find a row whenever both syncs have run.
+    Optional<FundamentalSnapshot> findBySecurityAndPeriodAndReportDate(Security security, Period period, LocalDate reportDate);
     long deleteBySecurityAndPeriod(Security security, Period period);
     long deleteBySecurityAndPeriodAndFiscalYear(Security security, Period period, Integer fiscalYear);
 }

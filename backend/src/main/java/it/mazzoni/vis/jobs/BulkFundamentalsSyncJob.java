@@ -99,6 +99,12 @@ public class BulkFundamentalsSyncJob implements CloudRunJob {
             e.setDepreciationAndAmortization(data.depreciationAndAmortizationHistory().get(0));
         if (data.ebitdaHistory() != null && !data.ebitdaHistory().isEmpty())
             e.setEbitda(data.ebitdaHistory().get(0));
+        // RM2 (specs/sector-aware-valuation-metrics.md §4.2): AFFO's recurring-capex input.
+        if (data.capitalExpenditureHistory() != null && !data.capitalExpenditureHistory().isEmpty())
+            e.setCapitalExpenditure(data.capitalExpenditureHistory().get(0));
+        // RM2: EBITDA interest coverage input, confirmed live against O/PLD/SPG during RM2.
+        if (data.interestExpenseHistory() != null && !data.interestExpenseHistory().isEmpty())
+            e.setInterestExpense(data.interestExpenseHistory().get(0));
         return e;
     }
 }
