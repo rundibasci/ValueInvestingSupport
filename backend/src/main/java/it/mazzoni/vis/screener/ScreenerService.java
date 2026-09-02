@@ -50,7 +50,7 @@ public class ScreenerService {
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int MAX_PAGE_SIZE = 100;
     private static final Set<String> VALID_SORT_FIELDS =
-            Set.of("totalScore", "marginOfSafety", "symbol", "companyName", "sector", "exchange");
+            Set.of("totalScore", "marginOfSafety", "symbol", "companyName", "sector", "exchange", "priceToFfo");
 
     @PersistenceContext
     private EntityManager em;
@@ -91,7 +91,8 @@ public class ScreenerService {
         if (request == null) {
             request = new ScreenerRequest(
                     null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null, null);
+                    null, null, null, null, null, null, null, null,
+                    null, null, null, null);
         }
         validatePercentThreshold("minMarginOfSafety", request.minMarginOfSafety());
         validatePercentThreshold("maxMarginOfSafety", request.maxMarginOfSafety());
@@ -116,6 +117,9 @@ public class ScreenerService {
                 clean(request.altmanZone()),
                 clean(request.moatStrength()),
                 clean(request.sharesOutstandingTrend()),
+                request.maxPriceToFfo(),
+                request.maxNetDebtToEbitda(),
+                request.maxAffoPayoutRatio(),
                 clean(request.sortField()),
                 clean(request.sortDirection()),
                 request.page(),
@@ -178,14 +182,21 @@ public class ScreenerService {
                 vr.get("compositeFairValue").alias("compositeFairValue"),
                 vr.get("currentPrice").alias("currentPrice"),
                 vr.get("marginOfSafety").alias("marginOfSafety"),
-                vr.get("recommendation").alias("recommendation")
+                vr.get("recommendation").alias("recommendation"),
+                rs.get("ffoPerShare").alias("ffoPerShare"),
+                rs.get("affoPerShare").alias("affoPerShare"),
+                rs.get("priceToFfo").alias("priceToFfo"),
+                rs.get("priceToAffo").alias("priceToAffo"),
+                rs.get("netDebtToEbitda").alias("netDebtToEbitda"),
+                rs.get("interestCoverageEbitda").alias("interestCoverageEbitda"),
+                rs.get("affoPayoutRatio").alias("affoPayoutRatio")
         );
 
         List<Predicate> predicates = buildPredicates(cb, query, sec, vs, vr, rs, pr, ar, mr, car, request);
         query.where(predicates.toArray(new Predicate[0]));
         query.orderBy(sortDesc
-                ? cb.desc(sortExpression(sortField, sec, vs, vr))
-                : cb.asc(sortExpression(sortField, sec, vs, vr)));
+                ? cb.desc(sortExpression(sortField, sec, vs, vr, rs))
+                : cb.asc(sortExpression(sortField, sec, vs, vr, rs)));
 
         List<Tuple> tuples = em.createQuery(query)
                 .setFirstResult(page * pageSize)
@@ -286,6 +297,21 @@ public class ScreenerService {
             predicates.add(cb.greaterThanOrEqualTo(rs.get("dividendYield"), yieldDecimal));
         }
         // minRevenueGrowth is not applied in the query (requires self-join on FundamentalSnapshot)
+        // --- RM3 REIT-only filters (specs/2026-09-02-rm3-screener-security-detail-surfacing/) ---
+        // priceToFfo/netDebtToEbitda/affoPayoutRatio are null for every non-REIT security (RM2
+        // only populates them via SectorClassifier.isReit), so setting any of these three filters
+        // implicitly restricts results to REIT-classified securities — a null <= threshold
+        // comparison excludes the row, the same implicit-scoping behavior minRoic/maxDebtToEquity
+        // already have for a symbol missing that ratio. Documented in requirements.md Decision 2.
+        if (request.maxPriceToFfo() != null) {
+            predicates.add(cb.lessThanOrEqualTo(rs.get("priceToFfo"), request.maxPriceToFfo()));
+        }
+        if (request.maxNetDebtToEbitda() != null) {
+            predicates.add(cb.lessThanOrEqualTo(rs.get("netDebtToEbitda"), request.maxNetDebtToEbitda()));
+        }
+        if (request.maxAffoPayoutRatio() != null) {
+            predicates.add(cb.lessThanOrEqualTo(rs.get("affoPayoutRatio"), request.maxAffoPayoutRatio()));
+        }
         if (pr != null) {
             predicates.add(cb.equal(pr.get("security"), sec));
             Subquery<LocalDate> maxPiotroskiDate = query.subquery(LocalDate.class);
@@ -352,13 +378,15 @@ public class ScreenerService {
     private Expression<?> sortExpression(String field,
                                           Root<Security> sec,
                                           Root<ValueScore> vs,
-                                          Root<ValuationResult> vr) {
+                                          Root<ValuationResult> vr,
+                                          Root<RatioSnapshot> rs) {
         return switch (field) {
             case "totalScore"      -> vs.get("totalScore");
             case "marginOfSafety"  -> vr.get("marginOfSafety");
             case "companyName"     -> sec.get("companyName");
             case "sector"          -> sec.get("sector");
             case "exchange"        -> sec.get("exchange");
+            case "priceToFfo"      -> rs.get("priceToFfo");
             default                -> sec.get("symbol");
         };
     }
@@ -395,7 +423,14 @@ public class ScreenerService {
                 altman != null ? altman.getAvailabilityStatus().name() : "MISSING_INTERNAL_COMPUTATION",
                 moat != null ? moat.getMoatStrength().name() : null,
                 capitalAllocation != null ? capitalAllocation.getSharesOutstandingTrend().name() : null,
-                SectorClassifier.isReitOrUtility(sector) ? SectorClassifier.REIT_UTILITY_METRIC_CAVEAT : null
+                SectorClassifier.isReitOrUtility(sector) ? SectorClassifier.REIT_UTILITY_METRIC_CAVEAT : null,
+                t.get("ffoPerShare", BigDecimal.class),
+                t.get("affoPerShare", BigDecimal.class),
+                t.get("priceToFfo", BigDecimal.class),
+                t.get("priceToAffo", BigDecimal.class),
+                t.get("netDebtToEbitda", BigDecimal.class),
+                t.get("interestCoverageEbitda", BigDecimal.class),
+                t.get("affoPayoutRatio", BigDecimal.class)
         );
     }
 }

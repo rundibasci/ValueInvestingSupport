@@ -67,6 +67,16 @@ type Moat = { symbol: string; resultDate: string | null; moatStrength: string | 
 type CapitalAllocation = { symbol: string; resultDate: string | null; sharesOutstandingTrend: string | null; classification: string | null; yearsAnalyzed: number | null; sharesChangePercentage: number | null; sharesCagr: number | null; dividendYield: number | null; netBuybackYield: number | null; totalShareholderYield: number | null; insiderOwnershipPercentage: number | null; acquisitionSpendToFcf: number | null; availabilityMessage: string | null }
 type ValuationBandItem = { metric: string; yearsAnalyzed: number | null; currentValue: number | null; medianValue: number | null; percentile25: number | null; percentile75: number | null; currentPercentile: number | null; position: string | null; availabilityMessage: string | null }
 type ValuationBands = { symbol: string; resultDate: string | null; bands: ValuationBandItem[] }
+// RM3 (specs/2026-09-02-rm3-screener-security-detail-surfacing/) — REIT sector metrics RM2
+// persists on RatioSnapshot, surfaced here field-for-field with the backend SectorMetricResponse.
+type SectorMetrics = {
+  ffoPerShare: number | null; ffoFormula: string
+  affoPerShare: number | null; affoFormula: string
+  priceToFfo: number | null; priceToAffo: number | null; valuationMultipleFormula: string
+  netDebtToEbitda: number | null; interestCoverageEbitda: number | null; safetyFormula: string
+  affoPayoutRatio: number | null; payoutFormula: string
+  availability: { status: string; reason: string; dataAsOf: string | null }
+}
 type FinancialHealth = { totalDebt: number | null; cash: number | null; netDebt: number | null; debtToEquity: number | null; currentRatio: number | null; quickRatio: number | null; interestCoverage: number | null; payoutRatio: number | null; dividendYield: number | null; grossMargin: number | null; operatingMargin: number | null; netMargin: number | null; dataAsOf: string | null }
 type SourceCoverageItem = { category: string; provider: string | null; status: string; message: string | null }
 type FreshnessItem = { category: string; dataAsOf: string | null; status: string; message: string | null }
@@ -91,6 +101,7 @@ type Review = {
   moat: Moat | null
   capitalAllocation: CapitalAllocation | null
   valuationBands: ValuationBands | null
+  sectorMetrics: SectorMetrics | null
   financialHealth: FinancialHealth
   sourceCoverage: SourceCoverageItem[]
   freshness: FreshnessItem[]
@@ -439,6 +450,11 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
   const bandByMetric = (name: string) => bands.find((band) => band.metric.toUpperCase().replace(/[^A-Z0-9]/g, '').includes(name))
   const peBand = bandByMetric('PE')
   const evEbitdaBand = bandByMetric('EVEBITDA')
+  // RM3: reuses RM2's existing "P_FFO" valuation band (ValuationHistoryService already computes
+  // it for REIT-classified securities; INSUFFICIENT_DATA for every other sector) — gated on
+  // review.sectorMetrics so a non-REIT security never renders this chart.
+  const pFfoBand = bandByMetric('PFFO')
+  const sectorMetrics = review.sectorMetrics
   const stability = moat?.stabilityCriteria || []
   const stabilityPassed = stability.filter((criterion) => criterion.status === 'PASS').length
   const roicChart = (moat?.roicObservations || []).slice().reverse().map((item) => ({
@@ -523,6 +539,12 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
           <div className="space-y-4">
             {peBand ? <ValuationBandMiniChart band={peBand} /> : <DataGap>P/E historical valuation band is unavailable.</DataGap>}
             {evEbitdaBand ? <ValuationBandMiniChart band={evEbitdaBand} /> : <DataGap>EV/EBITDA historical valuation band is unavailable.</DataGap>}
+            {sectorMetrics && (
+              <div>
+                {pFfoBand ? <ValuationBandMiniChart band={pFfoBand} /> : <DataGap>P/FFO historical valuation band is unavailable.</DataGap>}
+                <p className="mt-2 text-xs leading-5 text-amber-100">P/FFO is relative to this security's own history, not an intrinsic-value margin of safety — see the REIT Cash-Flow Metrics panel.</p>
+              </div>
+            )}
           </div>
         </Panel>
 
@@ -548,6 +570,29 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
           ) : <DataGap>Stability criteria are unavailable. The current review cannot show individual Graham stability pass/fail evidence.</DataGap>}
         </Panel>
       </div>
+
+      {sectorMetrics && (
+        <div className="grid gap-5 xl:grid-cols-1">
+          <Panel title="REIT Cash-Flow Metrics">
+            {sectorMetrics.availability.status === 'MISSING_INTERNAL_COMPUTATION' ? (
+              <DataGap>{sectorMetrics.availability.reason}</DataGap>
+            ) : (
+              <div className="space-y-4">
+                <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <Metric label="FFO / share" value={money(sectorMetrics.ffoPerShare, review.detail.currency || 'USD')} note={sectorMetrics.ffoFormula} />
+                  <Metric label="AFFO / share" value={money(sectorMetrics.affoPerShare, review.detail.currency || 'USD')} note={sectorMetrics.affoFormula} />
+                  <Metric label="P/FFO" value={number(sectorMetrics.priceToFfo)} note={sectorMetrics.valuationMultipleFormula} />
+                  <Metric label="P/AFFO" value={number(sectorMetrics.priceToAffo)} note={sectorMetrics.valuationMultipleFormula} />
+                  <Metric label="Net Debt / EBITDA" value={sectorMetrics.netDebtToEbitda == null ? 'Unavailable' : `${number(sectorMetrics.netDebtToEbitda)}x`} note={sectorMetrics.safetyFormula} />
+                  <Metric label="EBITDA interest coverage" value={sectorMetrics.interestCoverageEbitda == null ? 'Unavailable' : `${number(sectorMetrics.interestCoverageEbitda)}x`} note={sectorMetrics.safetyFormula} />
+                  <Metric label="AFFO payout ratio" value={ratioPercent(sectorMetrics.affoPayoutRatio)} note={sectorMetrics.payoutFormula} />
+                </dl>
+                <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">These are VIS-computed sector-aware substitutes for GAAP metrics — see the Risk and Data Quality section for what remains GAAP-based for this security.</p>
+              </div>
+            )}
+          </Panel>
+        </div>
+      )}
     </div>
   )
 }

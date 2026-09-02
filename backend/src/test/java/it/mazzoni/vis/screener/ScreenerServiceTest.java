@@ -59,6 +59,90 @@ class ScreenerServiceTest {
     }
 
     @Test
+    void search_reitSecurity_returnsPersistedSectorMetricFields() {
+        seedReitO();
+        em.flush();
+
+        ScreenerResponse result = screenerService.search(emptyRequest());
+        var item = result.results().stream().filter(r -> "O".equals(r.symbol())).findFirst().orElseThrow();
+
+        assertThat(item.ffoPerShare()).isEqualByComparingTo("3.9024");
+        assertThat(item.affoPerShare()).isEqualByComparingTo("1.9897");
+        assertThat(item.priceToFfo()).isEqualByComparingTo("15.6442");
+        assertThat(item.priceToAffo()).isEqualByComparingTo("30.6830");
+        assertThat(item.netDebtToEbitda()).isEqualByComparingTo("9.1298");
+        assertThat(item.interestCoverageEbitda()).isEqualByComparingTo("3.1088");
+        assertThat(item.affoPayoutRatio()).isEqualByComparingTo("1.6225");
+    }
+
+    @Test
+    void search_nonReitSecurity_sectorMetricFieldsAreNull() {
+        ScreenerResponse result = screenerService.search(emptyRequest());
+        var item = result.results().stream().filter(r -> "AAPL".equals(r.symbol())).findFirst().orElseThrow();
+
+        assertThat(item.ffoPerShare()).isNull();
+        assertThat(item.affoPerShare()).isNull();
+        assertThat(item.priceToFfo()).isNull();
+        assertThat(item.priceToAffo()).isNull();
+        assertThat(item.netDebtToEbitda()).isNull();
+        assertThat(item.interestCoverageEbitda()).isNull();
+        assertThat(item.affoPayoutRatio()).isNull();
+    }
+
+    @Test
+    void search_maxNetDebtToEbitda_excludesHighlyLeveredReits() {
+        seedReitO();
+        seedReitPld();
+        em.flush();
+
+        ScreenerRequest req = new ScreenerRequest(
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null,
+                null, new BigDecimal("5.0"), null,
+                "totalScore", "DESC", 0, 20);
+
+        ScreenerResponse result = screenerService.search(req);
+        assertThat(result.results()).extracting("symbol").containsExactly("PLD");
+    }
+
+    @Test
+    void search_maxPriceToFfo_excludesNonReitSecurities() {
+        // Non-REIT rows have a null priceToFfo; a <= threshold comparison against null excludes
+        // them — documented, implicit REIT-only scoping (requirements.md Decision 2).
+        seedReitO();
+        em.flush();
+
+        ScreenerRequest req = new ScreenerRequest(
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null,
+                new BigDecimal("20.0"), null, null,
+                "totalScore", "DESC", 0, 20);
+
+        ScreenerResponse result = screenerService.search(req);
+        assertThat(result.results()).extracting("symbol").containsExactly("O");
+    }
+
+    @Test
+    void search_sortByPriceToFfo_ordersReitResultsAscending() {
+        seedReitO();
+        seedReitPld();
+        em.flush();
+
+        ScreenerRequest req = new ScreenerRequest(
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null,
+                null, null, null,
+                "priceToFfo", "ASC", 0, 20);
+
+        ScreenerResponse result = screenerService.search(req);
+        // Non-REIT rows sort with a null priceToFfo; only assert the relative order of the two
+        // REIT rows, which is what this test is actually about.
+        var symbols = result.results().stream().map(r -> r.symbol())
+                .filter(s -> s.equals("O") || s.equals("PLD")).toList();
+        assertThat(symbols).containsExactly("O", "PLD");
+    }
+
+    @Test
     void search_noFilters_returnsAllThreeSecurities() {
         ScreenerResponse result = screenerService.search(emptyRequest());
         assertThat(result.totalElements()).isEqualTo(3);
@@ -253,5 +337,71 @@ class ScreenerServiceTest {
         fs.setReportDate(LocalDate.now());
         fs.setRevenue(new BigDecimal("1000000000"));
         em.persist(fs);
+    }
+
+    // RM3 (specs/2026-09-02-rm3-screener-security-detail-surfacing/): REIT fixtures reusing the
+    // exact RM2-validated values from specs/2026-09-02-rm2-sector-metric-profile/validation.md's
+    // live psql inspection, so these tests double as a regression check against real numbers.
+    private void seedReitO() {
+        seedReitSecurity("O", "Realty Income Corp.",
+                new BigDecimal("3.9024"), new BigDecimal("1.9897"),
+                new BigDecimal("15.6442"), new BigDecimal("30.6830"),
+                new BigDecimal("9.1298"), new BigDecimal("3.1088"),
+                new BigDecimal("1.6225"));
+    }
+
+    private void seedReitPld() {
+        seedReitSecurity("PLD", "Prologis Inc.",
+                new BigDecimal("6.3012"), new BigDecimal("4.3824"),
+                new BigDecimal("21.8871"), new BigDecimal("31.4702"),
+                new BigDecimal("4.7078"), new BigDecimal("7.1804"),
+                new BigDecimal("0.8916"));
+    }
+
+    private void seedReitSecurity(String symbol, String name,
+                                   BigDecimal ffoPerShare, BigDecimal affoPerShare,
+                                   BigDecimal priceToFfo, BigDecimal priceToAffo,
+                                   BigDecimal netDebtToEbitda, BigDecimal interestCoverageEbitda,
+                                   BigDecimal affoPayoutRatio) {
+        Security sec = new Security();
+        sec.setSymbol(symbol);
+        sec.setCompanyName(name);
+        sec.setSector("Real Estate");
+        sec.setExchange("NYSE");
+        em.persist(sec);
+
+        ValuationResult vr = new ValuationResult();
+        vr.setSecurity(sec);
+        vr.setValuationDate(LocalDate.now());
+        vr.setCompositeFairValue(new BigDecimal("60.00"));
+        vr.setCurrentPrice(new BigDecimal("55.00"));
+        vr.setMarginOfSafety(new BigDecimal("5.00"));
+        vr.setRecommendation(Recommendation.QUALITY_VALUE);
+        vr.setSource("test");
+        em.persist(vr);
+
+        RatioSnapshot rs = new RatioSnapshot();
+        rs.setSecurity(sec);
+        rs.setPeriod(Period.TTM);
+        rs.setReportDate(LocalDate.now());
+        rs.setFfoPerShare(ffoPerShare);
+        rs.setAffoPerShare(affoPerShare);
+        rs.setPriceToFfo(priceToFfo);
+        rs.setPriceToAffo(priceToAffo);
+        rs.setNetDebtToEbitda(netDebtToEbitda);
+        rs.setInterestCoverageEbitda(interestCoverageEbitda);
+        rs.setAffoPayoutRatio(affoPayoutRatio);
+        em.persist(rs);
+
+        ValueScore vs = new ValueScore();
+        vs.setSecurity(sec);
+        vs.setScoreDate(LocalDate.now());
+        vs.setMosScore(new BigDecimal("20"));
+        vs.setQualityScore(BigDecimal.ZERO);
+        vs.setSafetyScore(BigDecimal.ZERO);
+        vs.setGrowthScore(BigDecimal.ZERO);
+        vs.setDividendScore(BigDecimal.ZERO);
+        vs.setTotalScore(new BigDecimal("40.00"));
+        em.persist(vs);
     }
 }

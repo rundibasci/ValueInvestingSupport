@@ -56,6 +56,7 @@ import it.mazzoni.vis.security.dto.QuarterlyFinancials;
 import it.mazzoni.vis.security.dto.RatioSnapshotItem;
 import it.mazzoni.vis.security.dto.RatiosHistoryResponse;
 import it.mazzoni.vis.security.dto.SecurityDetailResponse;
+import it.mazzoni.vis.security.dto.SectorMetricResponse;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
 import it.mazzoni.vis.security.dto.TtmFinancials;
 import it.mazzoni.vis.security.dto.ValuationDetailResponse;
@@ -203,6 +204,8 @@ public class SecurityReviewService {
                 stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(security, moatResult.getResultDate()));
         CapitalAllocationResponse capitalAllocation = CapitalAllocationResponse.from(capitalAllocationService.analyze(security));
         ValuationBandsResponse valuationBands = ValuationBandsResponse.from(upper, valuationHistoryService.compute(security));
+        SectorMetricResponse sectorMetrics = SectorClassifier.isReit(security.getSector())
+                ? SectorMetricResponse.from(latestRatios) : null;
         SecurityReviewResponse.FinancialHealth financialHealth = financialHealth(latestAnnual, latestRatios);
 
         return new SecurityReviewResponse(
@@ -222,6 +225,7 @@ public class SecurityReviewService {
                 moat,
                 capitalAllocation,
                 valuationBands,
+                sectorMetrics,
                 financialHealth,
                 sourceCoverage(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends, peers),
                 freshness(latestAnnual, latestRatios, latestPrice, latestValuation, latestScore, dividends),
@@ -607,10 +611,20 @@ public class SecurityReviewService {
         if (rawValuation != null && rawValuation.getDcfFairValue() == null) notes.add(note("Valuation", "INFO", "DCF output is unavailable, likely because eligibility guards were not met."));
         if (score == null) notes.add(note("Score", "INFO", "No persisted value score is available for this symbol."));
         if (dividends.history().isEmpty()) notes.add(note("Dividends", "INFO", "Dividend history is unavailable for this symbol."));
-        // RM0 (specs/sector-aware-valuation-metrics.md): interim caveat until sector-aware
-        // FFO/AFFO/Debt-EBITDA metrics ship (RM1+) — the GAAP metrics above remain visible but
-        // are known to be less reliable for this sector.
-        if (SectorClassifier.isReitOrUtility(sector)) notes.add(note("Sector metrics", "INFO", SectorClassifier.REIT_UTILITY_METRIC_CAVEAT));
+        // RM3 (specs/2026-09-02-rm3-screener-security-detail-surfacing/): retire RM0's generic
+        // GAAP-metric caveat for REIT-classified securities now that a computed sector-aware
+        // replacement (SectorMetricResponse) is displayed alongside it in the Moat and Business
+        // Quality section — replaced with a note pointing at that replacement. Utility securities
+        // have no SectorMetricProfile yet, so they keep RM0's original generic caveat unchanged.
+        if (SectorClassifier.isReit(sector)) {
+            notes.add(note("Sector metrics", "INFO",
+                    "FFO, AFFO, P/FFO, P/AFFO, Net Debt/EBITDA, and AFFO payout ratio are shown in "
+                    + "the Moat and Business Quality section as sector-appropriate replacements. "
+                    + "P/E, ROE/ROIC, and Debt/Equity above remain GAAP-based and are known to be "
+                    + "less reliable for this sector."));
+        } else if (SectorClassifier.isReitOrUtility(sector)) {
+            notes.add(note("Sector metrics", "INFO", SectorClassifier.REIT_UTILITY_METRIC_CAVEAT));
+        }
         notes.add(note("Advice boundary", "INFO", "Fair value, margin of safety, recommendation, and score are decision-support outputs, not investment advice."));
         return notes;
     }

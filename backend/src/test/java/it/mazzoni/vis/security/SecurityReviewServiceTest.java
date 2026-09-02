@@ -25,6 +25,7 @@ import it.mazzoni.vis.domain.entity.SharesOutstandingTrend;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.ValueScore;
 import it.mazzoni.vis.domain.entity.WaccResultEntity;
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.AltmanResultRepository;
 import it.mazzoni.vis.domain.repository.CyclicalityResultRepository;
@@ -240,6 +241,152 @@ class SecurityReviewServiceTest {
         });
         assertThat(response.dataQualityNotes()).extracting(SecurityReviewResponse.DataQualityNote::category)
                 .contains("Valuation", "Score", "Dividends", "Advice boundary");
+    }
+
+    // RM3 (specs/2026-09-02-rm3-screener-security-detail-surfacing/) — sectorMetrics surfacing.
+
+    @Test
+    void getReview_reitSecurity_returnsPopulatedSectorMetrics() {
+        Security security = security("O", "Real Estate");
+        RatioSnapshot ratios = ratios(security);
+        ratios.setFfoPerShare(new BigDecimal("3.9024"));
+        ratios.setAffoPerShare(new BigDecimal("1.9897"));
+        ratios.setPriceToFfo(new BigDecimal("15.6442"));
+        ratios.setPriceToAffo(new BigDecimal("30.6830"));
+        ratios.setNetDebtToEbitda(new BigDecimal("9.1298"));
+        ratios.setInterestCoverageEbitda(new BigDecimal("3.1088"));
+        ratios.setAffoPayoutRatio(new BigDecimal("1.6225"));
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("O");
+
+        assertThat(response.sectorMetrics()).isNotNull();
+        assertThat(response.sectorMetrics().ffoPerShare()).isEqualByComparingTo("3.9024");
+        assertThat(response.sectorMetrics().affoPerShare()).isEqualByComparingTo("1.9897");
+        assertThat(response.sectorMetrics().priceToFfo()).isEqualByComparingTo("15.6442");
+        assertThat(response.sectorMetrics().priceToAffo()).isEqualByComparingTo("30.6830");
+        assertThat(response.sectorMetrics().netDebtToEbitda()).isEqualByComparingTo("9.1298");
+        assertThat(response.sectorMetrics().interestCoverageEbitda()).isEqualByComparingTo("3.1088");
+        assertThat(response.sectorMetrics().affoPayoutRatio()).isEqualByComparingTo("1.6225");
+        assertThat(response.sectorMetrics().availability().status().name()).isEqualTo("AVAILABLE");
+    }
+
+    @Test
+    void getReview_reitSecurityMissingSectorMetrics_returnsInsufficientData() {
+        // A REIT fixture whose RatioSnapshot has all 7 RM2 fields null — e.g. seeded before
+        // RM2's ordering fix — must surface as an explicit MISSING_INTERNAL_COMPUTATION status,
+        // never a silently-zeroed sectorMetrics object (Design Principle 12).
+        Security security = security("O", "Real Estate");
+        RatioSnapshot ratios = ratios(security);
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("O");
+
+        assertThat(response.sectorMetrics()).isNotNull();
+        assertThat(response.sectorMetrics().ffoPerShare()).isNull();
+        assertThat(response.sectorMetrics().availability().status().name())
+                .isEqualTo("MISSING_INTERNAL_COMPUTATION");
+    }
+
+    @Test
+    void getReview_nonReitSecurity_sectorMetricsIsNull() {
+        Security security = security();
+        RatioSnapshot ratios = ratios(security);
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("AAPL");
+
+        assertThat(response.sectorMetrics()).isNull();
+    }
+
+    @Test
+    void getReview_reitSecurity_dataQualityNotesUsesSpecificCaveat() {
+        Security security = security("O", "Real Estate");
+        RatioSnapshot ratios = ratios(security);
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("O");
+
+        assertThat(response.dataQualityNotes())
+                .anySatisfy(note -> assertThat(note.message()).contains("Moat and Business Quality section"));
+        assertThat(response.dataQualityNotes())
+                .noneMatch(note -> SectorClassifier.REIT_UTILITY_METRIC_CAVEAT.equals(note.message()));
+    }
+
+    @Test
+    void getReview_utilitySecurity_dataQualityNotesKeepsGenericCaveat() {
+        Security security = security("NEE", "Utilities");
+        RatioSnapshot ratios = ratios(security);
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("NEE");
+
+        assertThat(response.sectorMetrics()).isNull();
+        assertThat(response.dataQualityNotes())
+                .anyMatch(note -> SectorClassifier.REIT_UTILITY_METRIC_CAVEAT.equals(note.message()));
+    }
+
+    @Test
+    void getReview_nonReitOrUtility_noSectorMetricNote() {
+        Security security = security();
+        RatioSnapshot ratios = ratios(security);
+        stubMinimalReview(security, ratios);
+
+        SecurityReviewResponse response = service.getReview("AAPL");
+
+        assertThat(response.dataQualityNotes()).noneMatch(note -> "Sector metrics".equals(note.category()));
+    }
+
+    /** Stubs the full mock chain {@code getReview} needs to complete without NPEs, parameterized
+     * by security/sector — mirrors {@code getReview_knownSymbol_returnsNestedReviewPacket}'s stub
+     * set exactly, generalized for the RM3 sector-metric tests above. */
+    private void stubMinimalReview(Security security, RatioSnapshot ratios) {
+        String symbol = security.getSymbol();
+        FundamentalSnapshot annual = annual(security);
+        PriceQuote quote = quote(security);
+        ValuationResult valuation = valuation(security);
+        ValueScore score = score(security);
+
+        when(securityRepository.findBySymbol(symbol)).thenReturn(Optional.of(security));
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(Optional.of(annual));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(annual));
+        when(fundamentalSnapshotRepository.findBySecurityAndPeriodOrderByFiscalYearDescFiscalQuarterDesc(security, Period.QUARTERLY))
+                .thenReturn(List.of());
+        when(fundamentalSnapshotRepository.findTopBySecurityAndPeriodOrderByReportDateDesc(security, Period.TTM))
+                .thenReturn(Optional.empty());
+        when(ratioSnapshotRepository.findBySecurityAndPeriodOrderByReportDateDesc(security, Period.ANNUAL))
+                .thenReturn(List.of(ratios));
+        when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security)).thenReturn(Optional.of(ratios));
+        when(priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)).thenReturn(Optional.of(quote));
+        when(valuationResultRepository.findTopBySecurityOrderByValuationDateDesc(security)).thenReturn(Optional.of(valuation));
+        when(waccResultRepository.findByValuationResult(valuation)).thenReturn(Optional.empty());
+        when(grahamChecklistItemRepository.findByValuationResultOrderByCriterionCodeAsc(valuation)).thenReturn(List.of());
+        when(valueScoreRepository.findTopBySecurityOrderByScoreDateDesc(security)).thenReturn(Optional.of(score));
+        when(riskAnalysisService.computePiotroski(symbol)).thenReturn(piotroski(security));
+        when(riskAnalysisService.computeAltman(symbol)).thenReturn(altman(security));
+        when(riskAnalysisService.assessCyclicality(symbol)).thenReturn(cyclicality(security));
+        when(riskAnalysisService.computeEarningsQuality(symbol)).thenReturn(earningsQuality(security));
+        when(dividendRecordRepository.findBySecurityOrderByExDividendDateDesc(security)).thenReturn(List.of());
+        when(analystEstimateRepository.findBySecuritySymbolOrderByTargetDateDesc(symbol)).thenReturn(List.of());
+        when(securityRepository.findByActiveTrueAndSectorAndSymbolNot(security.getSector(), symbol)).thenReturn(List.of());
+        when(moatAssessmentService.analyze(security)).thenReturn(moat(security));
+        when(stabilityResultRepository.findBySecurityAndResultDateOrderByCriterionCodeAsc(any(Security.class), any(LocalDate.class)))
+                .thenReturn(List.of());
+        when(capitalAllocationService.analyze(security)).thenReturn(capitalAllocation(security));
+        when(valuationHistoryService.compute(security)).thenReturn(List.of());
+    }
+
+    private Security security(String symbol, String sector) {
+        Security s = new Security();
+        s.setSymbol(symbol);
+        s.setCompanyName(symbol + " Inc.");
+        s.setSector(sector);
+        s.setCurrency("USD");
+        s.setExchange("NYSE");
+        s.setCountry("US");
+        return s;
     }
 
     private Security security() {

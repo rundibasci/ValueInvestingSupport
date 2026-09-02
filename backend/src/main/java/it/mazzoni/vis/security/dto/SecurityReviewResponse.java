@@ -31,6 +31,7 @@ public record SecurityReviewResponse(
         MoatResponse moat,
         CapitalAllocationResponse capitalAllocation,
         ValuationBandsResponse valuationBands,
+        SectorMetricResponse sectorMetrics,
         FinancialHealth financialHealth,
         List<SourceCoverageItem> sourceCoverage,
         List<FreshnessItem> freshness,
@@ -58,7 +59,7 @@ public record SecurityReviewResponse(
             List<DataQualityNote> dataQualityNotes
     ) {
         this(symbol, detail, financials, ratios, valuation, dividends, growth, peers, score,
-                piotroski, altman, cyclicality, earningsQuality, null, null, null,
+                piotroski, altman, cyclicality, earningsQuality, null, null, null, null,
                 financialHealth, sourceCoverage, freshness, availability, dataQualityNotes);
     }
 

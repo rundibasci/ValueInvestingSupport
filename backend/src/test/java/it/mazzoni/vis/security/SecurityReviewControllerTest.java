@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.mazzoni.vis.common.dto.AvailabilityResponse;
 import it.mazzoni.vis.demo.GlobalExceptionHandler;
 import it.mazzoni.vis.security.dto.SecurityReviewResponse;
+import it.mazzoni.vis.security.dto.SectorMetricResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -74,5 +77,31 @@ class SecurityReviewControllerTest {
                 .andExpect(jsonPath("$.sourceCoverage[0].category").value("Profile"))
                 .andExpect(jsonPath("$.sourceCoverage[0].status").value("AVAILABLE"))
                 .andExpect(jsonPath("$.dataQualityNotes[0].category").value("Advice boundary"));
+    }
+
+    @Test
+    void review_reitSymbol_serializesSectorMetrics() throws Exception {
+        SectorMetricResponse sectorMetrics = new SectorMetricResponse(
+                new BigDecimal("3.9024"), "ffo formula",
+                new BigDecimal("1.9897"), "affo formula",
+                new BigDecimal("15.6442"), new BigDecimal("30.6830"), "valuation multiple formula",
+                new BigDecimal("9.1298"), new BigDecimal("3.1088"), "safety formula",
+                new BigDecimal("1.6225"), "payout formula",
+                AvailabilityResponse.available(LocalDate.now()));
+
+        SecurityReviewResponse response = new SecurityReviewResponse(
+                "O", null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null,
+                sectorMetrics,
+                null,
+                List.of(), List.of(), List.of(), List.of());
+        when(securityReviewService.getReview("O")).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/securities/O/review"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.symbol").value("O"))
+                .andExpect(jsonPath("$.sectorMetrics.ffoPerShare").value(3.9024))
+                .andExpect(jsonPath("$.sectorMetrics.priceToFfo").value(15.6442))
+                .andExpect(jsonPath("$.sectorMetrics.availability.status").value("AVAILABLE"));
     }
 }
