@@ -129,7 +129,10 @@ resource "google_cloud_run_v2_service" "this" {
       # AI Investment Thesis (Group TA). Plain env vars, not secrets: project id, region,
       # and a public model identifier carry no confidential value. Auth is via the runtime
       # service account's attached identity (roles/aiplatform.user, granted in the iam
-      # module), never a key file. thesis_agent_enabled defaults false in every environment.
+      # module), never a key file. This module's own thesis_agent_enabled variable still
+      # defaults false (see variables.tf) — each environment's variables.tf sets its own
+      # value; staging defaults true (2026-09-01 operational decision, TA3's GO), dev stays
+      # false.
       env {
         name  = "THESIS_AGENT_ENABLED"
         value = tostring(var.thesis_agent_enabled)
