@@ -63,40 +63,59 @@ class ThesisInputBuilderTest {
 
     @Test
     void classifyTrend_stronglyGrowing_onLargeIncrease() {
-        assertThat(builder.classifyTrend(series("100", "120"), "revenue", new ArrayList<>()))
+        // Newest-first, matching production data (FmpAdapter/DemoAnalysisService/
+        // deriveNetDebtToEbitda convention) — latest listed first: 120 (latest) vs 100 (prior)
+        // = +20%.
+        assertThat(builder.classifyTrend(series("120", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.STRONGLY_GROWING);
     }
 
     @Test
     void classifyTrend_growing_onModerateIncrease() {
-        assertThat(builder.classifyTrend(series("100", "105"), "revenue", new ArrayList<>()))
+        // Newest-first: 105 (latest) vs 100 (prior) = +5%.
+        assertThat(builder.classifyTrend(series("105", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.GROWING);
     }
 
     @Test
     void classifyTrend_stable_onSmallChange() {
-        assertThat(builder.classifyTrend(series("100", "101"), "revenue", new ArrayList<>()))
+        // Newest-first: 101 (latest) vs 100 (prior) = +1%.
+        assertThat(builder.classifyTrend(series("101", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.STABLE);
     }
 
     @Test
     void classifyTrend_declining_onModerateDecrease() {
-        assertThat(builder.classifyTrend(series("100", "95"), "revenue", new ArrayList<>()))
+        // Newest-first: 95 (latest) vs 100 (prior) = -5%.
+        assertThat(builder.classifyTrend(series("95", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.DECLINING);
     }
 
     @Test
     void classifyTrend_stronglyDeclining_onLargeDecrease() {
-        assertThat(builder.classifyTrend(series("100", "70"), "revenue", new ArrayList<>()))
+        // Newest-first: 60 (latest) vs 100 (prior) = -40%.
+        assertThat(builder.classifyTrend(series("60", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.STRONGLY_DECLINING);
     }
 
     @Test
     void classifyTrend_volatile_whenAnyPeriodSwingExceedsThreshold() {
-        // 100 -> 200 (+100%) -> 210 (+5%): the huge first swing marks this volatile even
-        // though the latest period alone would read as merely "growing".
-        assertThat(builder.classifyTrend(series("100", "200", "210"), "revenue", new ArrayList<>()))
+        // Newest-first: 210 (latest) <- 200 (+5% period-over-period) <- 100 (prior, +100%
+        // swing) — the huge older swing marks this volatile even though the latest period
+        // alone would read as merely "growing".
+        assertThat(builder.classifyTrend(series("210", "200", "100"), "revenue", new ArrayList<>()))
                 .isEqualTo(Trend.VOLATILE);
+    }
+
+    @Test
+    void classifyTrend_readsNewestFirst_notOldestFirst() {
+        // Latest (index 0) = 70, prior (index 1) = 100: a genuine -30% decline ->
+        // STRONGLY_DECLINING. Reading the array in the opposite (pre-TA6) direction would
+        // instead treat 100 as "latest" and 70 as "prior", a +42.857...% increase ->
+        // STRONGLY_GROWING — the two directions disagree on the resulting Trend, so this test
+        // fails against the pre-fix implementation and passes against the fix.
+        assertThat(builder.classifyTrend(series("70", "100"), "revenue", new ArrayList<>()))
+                .isEqualTo(Trend.STRONGLY_DECLINING);
     }
 
     @Test
