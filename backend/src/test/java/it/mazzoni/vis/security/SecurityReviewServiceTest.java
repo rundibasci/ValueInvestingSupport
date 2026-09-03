@@ -309,6 +309,10 @@ class SecurityReviewServiceTest {
 
         assertThat(response.dataQualityNotes())
                 .anySatisfy(note -> assertThat(note.message()).contains("Moat and Business Quality section"));
+        // RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): Margin of Safety/Fair Value are
+        // now clarified as AFFO-based for a REIT, not left ambiguous next to the GAAP-metric caveat.
+        assertThat(response.dataQualityNotes())
+                .anySatisfy(note -> assertThat(note.message()).contains("AFFO-based multiple"));
         assertThat(response.dataQualityNotes())
                 .noneMatch(note -> SectorClassifier.REIT_UTILITY_METRIC_CAVEAT.equals(note.message()));
     }

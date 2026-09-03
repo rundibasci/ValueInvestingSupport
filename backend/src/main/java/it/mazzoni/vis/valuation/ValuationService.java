@@ -1,5 +1,6 @@
 package it.mazzoni.vis.valuation;
 
+import it.mazzoni.vis.common.SectorClassifier;
 import it.mazzoni.vis.config.ValuationEnhancementProperties;
 import it.mazzoni.vis.config.ValuationWeightsProperties;
 import it.mazzoni.vis.domain.entity.DividendRecord;
@@ -7,8 +8,11 @@ import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.GrahamChecklistItem;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
+import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.ValuationBandPosition;
+import it.mazzoni.vis.domain.entity.ValuationBandResult;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.entity.WaccResultEntity;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
@@ -20,6 +24,7 @@ import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.moat.ValuationHistoryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +50,8 @@ public class ValuationService {
     private final GrahamCriteriaService grahamCriteriaService;
     private final WaccResultRepository waccResultRepository;
     private final GrahamChecklistItemRepository grahamChecklistItemRepository;
+    private final RatioSnapshotRepository ratioSnapshotRepository;
+    private final ValuationHistoryService valuationHistoryService;
 
     public ValuationService(
             SecurityRepository securityRepository,
@@ -56,7 +63,8 @@ public class ValuationService {
             ValuationEnhancementProperties enhancementProperties,
             RatioSnapshotRepository ratioSnapshotRepository,
             WaccResultRepository waccResultRepository,
-            GrahamChecklistItemRepository grahamChecklistItemRepository) {
+            GrahamChecklistItemRepository grahamChecklistItemRepository,
+            ValuationHistoryService valuationHistoryService) {
         this.securityRepository = securityRepository;
         this.fundamentalSnapshotRepository = fundamentalSnapshotRepository;
         this.dividendRecordRepository = dividendRecordRepository;
@@ -68,6 +76,8 @@ public class ValuationService {
                 fundamentalSnapshotRepository, ratioSnapshotRepository, dividendRecordRepository);
         this.waccResultRepository = waccResultRepository;
         this.grahamChecklistItemRepository = grahamChecklistItemRepository;
+        this.ratioSnapshotRepository = ratioSnapshotRepository;
+        this.valuationHistoryService = valuationHistoryService;
     }
 
     public ValuationOutcome calculate(String symbol, ValuationParams params) {
@@ -97,7 +107,21 @@ public class ValuationService {
                 ddmFairValue,
                 dcfResult != null && dcfResult.highTerminalDependence(),
                 symbol);
-        BigDecimal compositeFairValue = computeComposite(dcfFairValue, grahamNumber, ddmFairValue, effectiveWeights);
+
+        // RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): for a REIT, the headline
+        // compositeFairValue/marginOfSafety come from an AFFO-based multiple instead of the
+        // GAAP-anchored DCF/Graham/DDM blend below — dcfFairValue/grahamNumber/ddmFairValue are
+        // still computed and persisted unchanged (still informative, still GAAP-based), they are
+        // just no longer blended into this sector's headline number. affoFairValue is null
+        // (never a silent fallback to the GAAP blend) when AFFO history is insufficient.
+        BigDecimal affoFairValue = null;
+        BigDecimal compositeFairValue;
+        if (SectorClassifier.isReit(security.getSector())) {
+            affoFairValue = deriveAffoFairValue(security);
+            compositeFairValue = affoFairValue;
+        } else {
+            compositeFairValue = computeComposite(dcfFairValue, grahamNumber, ddmFairValue, effectiveWeights);
+        }
 
         BigDecimal currentPrice = priceQuoteRepository.findTopBySecurityOrderByQuoteDateDesc(security)
                 .map(PriceQuote::getClose)
@@ -129,6 +153,7 @@ public class ValuationService {
         result.setOwnerEarnings(ownerEarnings.value());
         result.setMaintenanceCapexEstimate(ownerEarnings.maintenanceCapex());
         result.setCompositeFairValue(compositeFairValue);
+        result.setAffoFairValue(affoFairValue);
         result.setCurrentPrice(currentPrice);
         result.setMarginOfSafety(mos);
         result.setRecommendation(recommendation);
@@ -166,6 +191,43 @@ public class ValuationService {
                 .filter(s -> s.getFreeCashFlow() != null
                         && s.getFreeCashFlow().compareTo(BigDecimal.ZERO) > 0)
                 .count();
+    }
+
+    /**
+     * AFFO-based substitute fair value for a REIT-classified security (RM5): median historical
+     * P/AFFO (this security's own trailing multiple, not a peer comparison — same "own history"
+     * semantics as the P/FFO Value-Score pillar {@code ValueScoreService.computeMosScoreReit}
+     * already uses) times the latest persisted AFFO per share. Computed live via {@link
+     * ValuationHistoryService#compute(Security)} rather than read from a cached {@link
+     * ValuationBandResult} row — same reasoning as {@code ValueScoreService.computeMosScoreReit}:
+     * there is no ingestion-time job that populates {@code ValuationBandResult}, so a REIT's very
+     * first valuation after seeding would otherwise find no persisted "P_AFFO" row at all.
+     *
+     * <p>Returns {@code null} — deliberately, never a fallback to the GAAP DCF/Graham/DDM blend —
+     * when either input is unavailable: fewer than three years of {@code priceToAffo} history
+     * ({@code P_AFFO} band {@code INSUFFICIENT_DATA}) or no persisted {@code
+     * RatioSnapshot.affoPerShare} yet (REIT seeded before {@code SectorMetricService} ran). A
+     * {@code null} return here means {@code compositeFairValue} and {@code marginOfSafety} are
+     * {@code null} for this run — the whole point of RM5 ({@code
+     * specs/2026-09-03-rm5-reit-composite-fair-value/requirements.md}, Decision 5) is that a
+     * REIT's headline valuation output must never silently reuse the GAAP-anchored composite it
+     * structurally distorts.
+     */
+    private BigDecimal deriveAffoFairValue(Security security) {
+        ValuationBandResult pAffoBand = valuationHistoryService.compute(security).stream()
+                .filter(b -> "P_AFFO".equals(b.getMetric()))
+                .findFirst().orElse(null);
+        if (pAffoBand == null || pAffoBand.getPosition() == ValuationBandPosition.INSUFFICIENT_DATA
+                || pAffoBand.getMedianValue() == null) {
+            return null;
+        }
+        BigDecimal affoPerShare = ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security)
+                .map(RatioSnapshot::getAffoPerShare)
+                .orElse(null);
+        if (affoPerShare == null || affoPerShare.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+        return pAffoBand.getMedianValue().multiply(affoPerShare).setScale(4, RoundingMode.HALF_UP);
     }
 
     private BigDecimal computeBvps(FundamentalSnapshot snapshot) {
