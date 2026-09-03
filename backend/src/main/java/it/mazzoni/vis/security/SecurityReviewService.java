@@ -616,12 +616,21 @@ public class SecurityReviewService {
         // replacement (SectorMetricResponse) is displayed alongside it in the Moat and Business
         // Quality section — replaced with a note pointing at that replacement. Utility securities
         // have no SectorMetricProfile yet, so they keep RM0's original generic caveat unchanged.
+        // RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): this caveat's scope was always
+        // "P/E, ROE/ROIC, and Debt/Equity" only — it never technically claimed Margin of
+        // Safety/Fair Value were also GAAP-based, but a reader seeing an uncaveated MoS number
+        // right next to this warning could reasonably assume it was covered too. RM5 made it
+        // genuinely AFFO-based (or explicitly unavailable) for a REIT, so say so explicitly here
+        // rather than leaving it ambiguous.
         if (SectorClassifier.isReit(sector)) {
             notes.add(note("Sector metrics", "INFO",
                     "FFO, AFFO, P/FFO, P/AFFO, Net Debt/EBITDA, and AFFO payout ratio are shown in "
                     + "the Moat and Business Quality section as sector-appropriate replacements. "
                     + "P/E, ROE/ROIC, and Debt/Equity above remain GAAP-based and are known to be "
-                    + "less reliable for this sector."));
+                    + "less reliable for this sector. Margin of Safety and Fair Value, by contrast, "
+                    + "are computed from an AFFO-based multiple for this sector (not the GAAP-based "
+                    + "DCF/Graham/DDM composite used elsewhere), or shown as unavailable when "
+                    + "insufficient AFFO history exists."));
         } else if (SectorClassifier.isReitOrUtility(sector)) {
             notes.add(note("Sector metrics", "INFO", SectorClassifier.REIT_UTILITY_METRIC_CAVEAT));
         }

@@ -6,8 +6,11 @@ import it.mazzoni.vis.domain.entity.DividendRecord;
 import it.mazzoni.vis.domain.entity.FundamentalSnapshot;
 import it.mazzoni.vis.domain.entity.Period;
 import it.mazzoni.vis.domain.entity.PriceQuote;
+import it.mazzoni.vis.domain.entity.RatioSnapshot;
 import it.mazzoni.vis.domain.entity.Recommendation;
 import it.mazzoni.vis.domain.entity.Security;
+import it.mazzoni.vis.domain.entity.ValuationBandPosition;
+import it.mazzoni.vis.domain.entity.ValuationBandResult;
 import it.mazzoni.vis.domain.entity.ValuationResult;
 import it.mazzoni.vis.domain.repository.DividendRecordRepository;
 import it.mazzoni.vis.domain.repository.FundamentalSnapshotRepository;
@@ -18,6 +21,7 @@ import it.mazzoni.vis.domain.repository.SecurityRepository;
 import it.mazzoni.vis.domain.repository.ValuationResultRepository;
 import it.mazzoni.vis.domain.repository.WaccResultRepository;
 import it.mazzoni.vis.exception.SymbolNotFoundException;
+import it.mazzoni.vis.moat.ValuationHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +54,7 @@ class ValuationServiceTest {
     @Mock RatioSnapshotRepository ratioSnapshotRepository;
     @Mock WaccResultRepository waccResultRepository;
     @Mock GrahamChecklistItemRepository grahamChecklistItemRepository;
+    @Mock ValuationHistoryService valuationHistoryService;
 
     private ValuationService service;
 
@@ -72,7 +77,7 @@ class ValuationServiceTest {
                 securityRepository, fundamentalSnapshotRepository, dividendRecordRepository,
                 priceQuoteRepository, valuationResultRepository, defaultWeights,
                 enhancementProperties, ratioSnapshotRepository, waccResultRepository,
-                grahamChecklistItemRepository);
+                grahamChecklistItemRepository, valuationHistoryService);
 
         security = new Security();
         security.setSymbol("AAPL");
@@ -370,5 +375,89 @@ class ValuationServiceTest {
         r.setExDividendDate(date);
         r.setAmount(new BigDecimal(amount));
         return r;
+    }
+
+    // ── RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): REIT AFFO-based composite ────
+
+    private ValuationBandResult pAffoBand(String median, ValuationBandPosition position) {
+        ValuationBandResult band = new ValuationBandResult();
+        band.setMetric("P_AFFO");
+        band.setPosition(position);
+        if (median != null) {
+            band.setMedianValue(new BigDecimal(median));
+        }
+        return band;
+    }
+
+    @Test
+    void calculate_reitWithSufficientAffoData_usesAffoFairValueAsComposite() {
+        security.setSector("REIT - Retail");
+        stubThreePositiveFcfYears();
+        stubPrice("50.00");
+        when(valuationHistoryService.compute(security))
+                .thenReturn(List.of(pAffoBand("16", ValuationBandPosition.NORMAL)));
+        RatioSnapshot ratios = new RatioSnapshot();
+        ratios.setAffoPerShare(new BigDecimal("2.50"));
+        when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security))
+                .thenReturn(Optional.of(ratios));
+
+        ValuationResult result = service.calculate("AAPL", dcfOnlyParams()).result();
+
+        // 16 (median P/AFFO) * 2.50 (affoPerShare) = 40.00
+        assertThat(result.getAffoFairValue()).isEqualByComparingTo("40.0000");
+        assertThat(result.getCompositeFairValue()).isEqualByComparingTo("40.0000");
+        assertThat(result.getMarginOfSafety())
+                .isEqualByComparingTo(MarginOfSafetyCalculator.compute(new BigDecimal("40.0000"), new BigDecimal("50.00")));
+        // dcfFairValue/grahamNumber are still computed and persisted, unchanged, even though
+        // they no longer feed the headline composite for a REIT.
+        assertThat(result.getDcfFairValue()).isNotNull();
+        assertThat(result.getGrahamNumber()).isNotNull();
+    }
+
+    @Test
+    void calculate_reitWithInsufficientAffoData_leavesCompositeFairValueAndMarginOfSafetyNull() {
+        security.setSector("REIT - Retail");
+        stubThreePositiveFcfYears();
+        stubPrice("50.00");
+        when(valuationHistoryService.compute(security))
+                .thenReturn(List.of(pAffoBand(null, ValuationBandPosition.INSUFFICIENT_DATA)));
+
+        ValuationResult result = service.calculate("AAPL", dcfOnlyParams()).result();
+
+        assertThat(result.getAffoFairValue()).isNull();
+        assertThat(result.getCompositeFairValue()).isNull();
+        assertThat(result.getMarginOfSafety()).isNull();
+        // never a silent fallback to the GAAP blend — this is the whole point of RM5
+        assertThat(result.getDcfFairValue()).isNotNull();
+        assertThat(result.getGrahamNumber()).isNotNull();
+    }
+
+    @Test
+    void calculate_reitWithNoAffoPerShareYet_leavesCompositeFairValueNull() {
+        security.setSector("Real Estate");
+        stubThreePositiveFcfYears();
+        stubPrice("50.00");
+        when(valuationHistoryService.compute(security))
+                .thenReturn(List.of(pAffoBand("16", ValuationBandPosition.NORMAL)));
+        when(ratioSnapshotRepository.findTopBySecurityOrderByReportDateDesc(security))
+                .thenReturn(Optional.empty());
+
+        ValuationResult result = service.calculate("AAPL", dcfOnlyParams()).result();
+
+        assertThat(result.getAffoFairValue()).isNull();
+        assertThat(result.getCompositeFairValue()).isNull();
+        assertThat(result.getMarginOfSafety()).isNull();
+    }
+
+    @Test
+    void calculate_nonReitSecurity_neverCallsValuationHistoryServiceAndAffoFairValueStaysNull() {
+        stubThreePositiveFcfYears();
+        stubNoPrice();
+
+        ValuationResult result = service.calculate("AAPL", dcfOnlyParams()).result();
+
+        assertThat(result.getAffoFairValue()).isNull();
+        assertThat(result.getCompositeFairValue()).isNotNull(); // unchanged GAAP blend
+        org.mockito.Mockito.verifyNoInteractions(valuationHistoryService);
     }
 }

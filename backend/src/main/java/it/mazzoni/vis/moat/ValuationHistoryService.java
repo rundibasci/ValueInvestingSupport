@@ -52,7 +52,12 @@ public class ValuationHistoryService {
                 // (SectorMetricService.compute is a no-op there), so this band is additive: no
                 // branching required here for it to correctly resolve to INSUFFICIENT_DATA outside
                 // the REIT sector.
-                band(security, resultDate, "P_FFO", annuals, RatioSnapshot::getPriceToFfo, false)
+                band(security, resultDate, "P_FFO", annuals, RatioSnapshot::getPriceToFfo, false),
+                // RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): REIT headline
+                // compositeFairValue/marginOfSafety input — median historical P/AFFO times current
+                // AFFO/share substitutes for the GAAP DCF/Graham/DDM blend (ValuationService).
+                // Same additive/INSUFFICIENT_DATA-outside-REIT guarantee as P_FFO above.
+                band(security, resultDate, "P_AFFO", annuals, RatioSnapshot::getPriceToAffo, false)
         );
         valuationBandResultRepository.deleteBySecurity(security);
         return valuationBandResultRepository.saveAll(bands);

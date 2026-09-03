@@ -61,6 +61,15 @@ public class ValuationResult {
     @Column(precision = 15, scale = 4)
     private BigDecimal compositeFairValue;
 
+    // RM5 (specs/2026-09-03-rm5-reit-composite-fair-value/): for a REIT-classified security,
+    // compositeFairValue above IS this AFFO-based figure (median historical P/AFFO × current
+    // AFFO/share) — not the DCF/Graham/DDM blend used for every other sector. This column exists
+    // separately so the security-detail page can distinguish "not a REIT" (null) from "REIT but
+    // insufficient AFFO history" (also null) from "REIT with a computed AFFO fair value" without
+    // re-deriving isReit client-side. Always null for a non-REIT security.
+    @Column(precision = 15, scale = 4)
+    private BigDecimal affoFairValue;
+
     @Column(precision = 15, scale = 4)
     private BigDecimal currentPrice;
 
@@ -129,6 +138,9 @@ public class ValuationResult {
 
     public BigDecimal getCompositeFairValue() { return compositeFairValue; }
     public void setCompositeFairValue(BigDecimal compositeFairValue) { this.compositeFairValue = compositeFairValue; }
+
+    public BigDecimal getAffoFairValue() { return affoFairValue; }
+    public void setAffoFairValue(BigDecimal affoFairValue) { this.affoFairValue = affoFairValue; }
 
     public BigDecimal getCurrentPrice() { return currentPrice; }
     public void setCurrentPrice(BigDecimal currentPrice) { this.currentPrice = currentPrice; }
