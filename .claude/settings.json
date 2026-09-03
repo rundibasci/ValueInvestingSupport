@@ -3,7 +3,11 @@
     "allow": [
       "Bash(mvn test*)",
       "Bash(mvn spring-boot:run*)",
-      "Bash(git push*)"
+      "Bash(git push*)",
+      "Bash(terraform *)",
+      "Bash(~/bin/terraform *)",
+      "Bash(gcloud sql *)"
+
     ]
   }
 }
