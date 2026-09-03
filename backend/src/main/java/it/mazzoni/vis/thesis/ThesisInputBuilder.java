@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,16 +144,27 @@ public class ThesisInputBuilder implements ThesisInputSource {
      * declining, &lt;=-3% declining. With 3+ points, a period-over-period swing exceeding 50%
      * anywhere in the series overrides to VOLATILE regardless of the latest direction. Fewer
      * than two points, or a zero/undefined prior-period base, yields NOT_AVAILABLE rather than
-     * a fabricated classification. */
+     * a fabricated classification.
+     *
+     * <p><b>{@code history} is newest-first</b> (index 0 = most recent), the same convention
+     * confirmed platform-wide for every {@code FundamentalSnapshot} {@code *History} list (see
+     * {@link #deriveNetDebtToEbitda}'s Javadoc below, {@code FmpAdapter.toFundamentalSnapshot},
+     * and {@code DemoAnalysisService}). This method reverses it into chronological (oldest-first)
+     * order before computing period-over-period changes, so "the latest period" below correctly
+     * means the most recent one, not index {@code history.size() - 1} (TA6: prior to this fix,
+     * this method made the opposite assumption from every other reader of these lists — see
+     * {@code specs/2026-09-03-ta6-thesis-trend-direction-fix/requirements.md}). */
     Trend classifyTrend(List<BigDecimal> history, String label, List<String> warnings) {
         if (history == null || history.size() < 2) {
             warnings.add(label + "Trend unavailable: fewer than 2 historical data points");
             return Trend.NOT_AVAILABLE;
         }
+        List<BigDecimal> chronological = new ArrayList<>(history);
+        Collections.reverse(chronological);
         List<BigDecimal> periodChanges = new ArrayList<>();
-        for (int i = 1; i < history.size(); i++) {
-            BigDecimal prev = history.get(i - 1);
-            BigDecimal curr = history.get(i);
+        for (int i = 1; i < chronological.size(); i++) {
+            BigDecimal prev = chronological.get(i - 1);
+            BigDecimal curr = chronological.get(i);
             if (prev == null || curr == null || prev.compareTo(BigDecimal.ZERO) == 0) {
                 continue;
             }
