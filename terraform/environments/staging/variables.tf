@@ -50,12 +50,14 @@ variable "custom_domain" {
   default     = ""
 }
 
-# AI Investment Thesis (Group TA). False by default, same as every other environment —
-# enabling it is an explicit, separate operational decision passed via -var at apply time,
-# never a committed default (specs/tech-stack.md).
+# AI Investment Thesis (Group TA). Defaults to true for staging only — the TA3 capability
+# gate passed with a GO decision (specs/2026-08-27-ta3-vertex-capability-benchmark/validation.md),
+# and the user explicitly decided to make it staging's standing default rather than a
+# per-apply -var override (2026-09-01). dev's variables.tf keeps the false default —
+# this is a staging-only operational decision, not a change to the shared module.
 variable "thesis_agent_enabled" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "vertex_ai_location" {
