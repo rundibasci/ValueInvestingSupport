@@ -2,6 +2,8 @@ Reactivate or refresh the K2 `staging` GCP environment (`vis-version0`, `europe-
 
 **Canonical runbook — read this first, every time:** `~/Documents/valueinvestorsupport/ValueInvestingSupport/2026-09-03-K2 - Staging manual bootstrap runbook.md` (Obsidian vault; a plain file on disk, readable directly). It has the exact commands, every gotcha hit so far (image must be `--platform linux/amd64`, JWT key must be PKCS#8 not PKCS#1, Secret Manager containers referenced by Cloud Run need *some* version even when "meant to stay disabled," no self-registration endpoint so the first ADMIN user needs a temporary public-IP bootstrap window, the two ways to reach the app), and the state as of its last update. Read it in full before doing anything — do not re-derive the procedure from memory or from this file alone, this file is a trigger + state-check protocol, not a replacement for the runbook's detail. **If you discover a new gotcha or the procedure changes, update that note afterward** — it's the single source of truth this command exists to keep current.
 
+**Portable copy for other machines/agents:** [AGENTS.md](../../AGENTS.md) at the repo root has the same procedure merged into one self-contained, git-tracked file (no dependency on this Mac's Obsidian vault) — that's what a non-Claude agent (e.g. Codex CLI on another PC) should read instead, since it can't reach the vault path above. If the procedure changes, keep both in sync: update the vault note here, and mirror the change into `AGENTS.md` (or flag the drift to the user if you can't reach one of the two).
+
 ## 1. Check current state before touching anything
 
 Run all of these before deciding what to do — don't assume staging is either fully up or fully torn down:
