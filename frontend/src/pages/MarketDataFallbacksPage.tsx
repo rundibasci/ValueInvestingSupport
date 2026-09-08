@@ -95,7 +95,10 @@ export function MarketDataFallbacksPage(): JSX.Element {
 
       {(events.isError || summary.isError) && <p className="rounded-lg border border-rose-400/30 bg-rose-400/10 p-4 text-rose-200">Unable to load fallback diagnostics.</p>}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-800">
+      <ul className="space-y-3 lg:hidden">
+        {(events.data?.content ?? []).map((event) => <EventCard key={event.id} event={event} />)}
+      </ul>
+      <div className="hidden overflow-x-auto rounded-lg border border-slate-800 lg:block">
         <table className="min-w-[1250px] w-full divide-y divide-slate-800 text-sm">
           <thead className="bg-slate-900/80 text-left text-xs uppercase tracking-[.14em] text-slate-400">
             <tr><th className="px-4 py-3">Time / symbol</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Operation</th><th className="px-4 py-3">Trigger</th><th className="px-4 py-3">Outcome</th><th className="px-4 py-3">Fields</th><th className="px-4 py-3">Job</th><th className="px-4 py-3">Detail</th></tr>
@@ -104,8 +107,8 @@ export function MarketDataFallbacksPage(): JSX.Element {
             {(events.data?.content ?? []).map((event) => <EventRow key={event.id} event={event} />)}
           </tbody>
         </table>
-        {!events.isLoading && !events.data?.content.length && <p className="p-6 text-sm text-slate-400">No Yahoo fallback attempts match these filters.</p>}
       </div>
+      {!events.isLoading && !events.data?.content.length && <p className="rounded-lg border border-slate-800 p-6 text-sm text-slate-400">No Yahoo fallback attempts match these filters.</p>}
 
       <div className="flex items-center justify-between text-sm text-slate-300">
         <span>{events.data?.totalElements ?? 0} events · last attempt {date(summary.data?.lastAttemptAt ?? null)}</span>
@@ -130,6 +133,48 @@ function EventRow({ event }: { event: MarketDataFallbackEvent }): JSX.Element {
       <td className="px-4 py-4 align-top text-xs text-slate-400"><p>{event.jobName ?? "HTTP request"}</p><p className="mt-1 max-w-36 truncate">{event.jobRunId ?? "-"}</p></td>
       <td className="max-w-xs px-4 py-4 align-top text-xs text-rose-200">{event.errorDetail ?? "-"}</td>
     </tr>
+  );
+}
+
+function EventCard({ event }: { event: MarketDataFallbackEvent }): JSX.Element {
+  return (
+    <li className="rounded-lg border border-slate-800 bg-slate-950 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <strong className="text-white">{event.symbol}</strong>
+          <p className="mt-1 text-xs text-slate-400">{date(event.occurredAt)} · {event.durationMs}ms</p>
+        </div>
+        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${outcomeClass(event.outcome)}`}>{event.outcome}</span>
+      </div>
+      <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <dt className="text-xs uppercase text-slate-400">Type</dt>
+          <dd className="text-slate-200">{event.eventType.replace("PRIMARY_PROVIDER_", "")}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase text-slate-400">Operation</dt>
+          <dd className="text-slate-200">{event.operation}<p className="text-xs text-slate-400">{event.primaryProvider} → {event.fallbackProvider}</p></dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase text-slate-400">Trigger</dt>
+          <dd><span className="text-amber-100">{event.triggerReason}</span><p className="text-xs text-slate-400">{event.primaryStatus ?? "-"}</p></dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase text-slate-400">Job</dt>
+          <dd className="text-xs text-slate-400"><p>{event.jobName ?? "HTTP request"}</p><p className="truncate">{event.jobRunId ?? "-"}</p></dd>
+        </div>
+        <div className="col-span-2">
+          <dt className="text-xs uppercase text-slate-400">Fields</dt>
+          <dd className="text-xs"><p className="text-slate-300">Missing: {event.missingFields ?? "-"}</p><p className="mt-1 text-emerald-200">Accepted: {event.acceptedFields ?? "-"}</p></dd>
+        </div>
+        {event.errorDetail && (
+          <div className="col-span-2">
+            <dt className="text-xs uppercase text-slate-400">Detail</dt>
+            <dd className="text-xs text-rose-200">{event.errorDetail}</dd>
+          </div>
+        )}
+      </dl>
+    </li>
   );
 }
 
