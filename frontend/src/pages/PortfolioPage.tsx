@@ -626,57 +626,107 @@ function ConservativeReviewPack({
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_20rem]">
-        <div className="min-w-0 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
-          <table className="w-full min-w-[64rem] text-left text-sm">
-            <thead className="bg-slate-950/60 text-xs uppercase text-slate-400">
-              <tr>
-                <th className="px-4 py-3">Holding</th>
-                <th>Weight</th>
-                <th>Sector</th>
-                <th>Price</th>
-                <th>MoS</th>
-                <th>Valuation</th>
-                <th>Score</th>
-                <th>Rationale</th>
-                <th>Validation</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {portfolio.holdings.map((holding) => {
-                const watchItem = watchlistBySymbol.get(
-                  holding.symbol.toUpperCase(),
-                );
-                const findings = conservativeFindings(holding);
-                return (
-                  <tr key={holding.id} className="align-top">
-                    <td className="px-4 py-3 font-semibold text-emerald-300">
-                      {holding.symbol}
-                    </td>
-                    <td>{percent(holding.weightPercent)}</td>
-                    <td>{holding.sector ?? "Missing"}</td>
-                    <td>{money(holding.currentPrice)}</td>
-                    <td>{percent(holding.marginOfSafety)}</td>
-                    <td>
-                      <StatusChip value={holding.valueStatus} />
-                    </td>
-                    <td>
-                      <StatusChip value="not reported by holding API" />
-                    </td>
-                    <td className="max-w-[14rem] text-xs leading-5 text-slate-400">
-                      {watchItem?.rationaleNote ||
-                        (watchItem?.monitoringReason
-                          ? label(watchItem.monitoringReason)
-                          : null) ||
-                        "No watchlist rationale linked"}
-                    </td>
-                    <td className="max-w-[16rem] text-xs leading-5 text-slate-300">
-                      {findings.length ? findings.join("; ") : "Complete"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50">
+          <ul className="divide-y divide-slate-800 lg:hidden">
+            {portfolio.holdings.map((holding) => {
+              const watchItem = watchlistBySymbol.get(
+                holding.symbol.toUpperCase(),
+              );
+              const findings = conservativeFindings(holding);
+              return (
+                <li key={holding.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-emerald-300">{holding.symbol}</p>
+                      <p className="text-xs text-slate-400">{holding.sector ?? "Missing sector"}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-white">{money(holding.currentPrice)}</p>
+                      <p className="text-xs text-slate-400">{percent(holding.weightPercent)} of portfolio</p>
+                    </div>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-xs uppercase text-slate-400">MoS</dt>
+                      <dd className="font-medium text-white">{percent(holding.marginOfSafety)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase text-slate-400">Valuation</dt>
+                      <dd><StatusChip value={holding.valueStatus} /></dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-xs uppercase text-slate-400">Score</dt>
+                      <dd><StatusChip value="not reported by holding API" /></dd>
+                    </div>
+                  </dl>
+                  <p className="mt-3 text-xs leading-5 text-slate-400">
+                    <span className="font-semibold uppercase tracking-wide text-slate-500">Rationale: </span>
+                    {watchItem?.rationaleNote ||
+                      (watchItem?.monitoringReason
+                        ? label(watchItem.monitoringReason)
+                        : null) ||
+                      "No watchlist rationale linked"}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-300">
+                    <span className="font-semibold uppercase tracking-wide text-slate-500">Validation: </span>
+                    {findings.length ? findings.join("; ") : "Complete"}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full min-w-[64rem] text-left text-sm">
+              <thead className="bg-slate-950/60 text-xs uppercase text-slate-400">
+                <tr>
+                  <th className="px-4 py-3">Holding</th>
+                  <th>Weight</th>
+                  <th>Sector</th>
+                  <th>Price</th>
+                  <th>MoS</th>
+                  <th>Valuation</th>
+                  <th>Score</th>
+                  <th>Rationale</th>
+                  <th>Validation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {portfolio.holdings.map((holding) => {
+                  const watchItem = watchlistBySymbol.get(
+                    holding.symbol.toUpperCase(),
+                  );
+                  const findings = conservativeFindings(holding);
+                  return (
+                    <tr key={holding.id} className="align-top">
+                      <td className="px-4 py-3 font-semibold text-emerald-300">
+                        {holding.symbol}
+                      </td>
+                      <td>{percent(holding.weightPercent)}</td>
+                      <td>{holding.sector ?? "Missing"}</td>
+                      <td>{money(holding.currentPrice)}</td>
+                      <td>{percent(holding.marginOfSafety)}</td>
+                      <td>
+                        <StatusChip value={holding.valueStatus} />
+                      </td>
+                      <td>
+                        <StatusChip value="not reported by holding API" />
+                      </td>
+                      <td className="max-w-[14rem] text-xs leading-5 text-slate-400">
+                        {watchItem?.rationaleNote ||
+                          (watchItem?.monitoringReason
+                            ? label(watchItem.monitoringReason)
+                            : null) ||
+                          "No watchlist rationale linked"}
+                      </td>
+                      <td className="max-w-[16rem] text-xs leading-5 text-slate-300">
+                        {findings.length ? findings.join("; ") : "Complete"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <aside className="space-y-4">
@@ -1081,60 +1131,111 @@ export function PortfolioPage(): JSX.Element {
               </p>
             )}
             {detail.data?.holdings?.length ? (
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[46rem] text-left text-sm">
-                  <thead className="text-xs uppercase text-slate-400">
-                    <tr>
-                      <th>Holding</th>
-                      <th>Quantity</th>
-                      <th>Value</th>
-                      <th>Weight</th>
-                      <th>MoS</th>
-                      <th>Liquidity</th>
-                      <th>
-                        <span className="sr-only">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {detail.data.holdings.map((holding) => (
-                      <tr key={holding.id}>
-                        <td className="py-3 font-semibold text-emerald-300">
-                          {holding.symbol}
-                        </td>
-                        <td>{holding.quantity}</td>
-                        <td>{money(holding.currentValue)}</td>
-                        <td>{percent(holding.weightPercent)}</td>
-                        <td>{percent(holding.marginOfSafety)}</td>
-                        <td>
-                          <LiquidityCell
-                            liquidity={liquidityBySymbol.get(
-                              holding.symbol.toUpperCase(),
-                            )}
-                          />
-                        </td>
-                        <td>
-                          <div className="flex flex-wrap gap-3">
-                            <Link
-                              to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
-                              className="text-xs font-semibold text-emerald-200 underline"
-                            >
-                              Review
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => removeHolding.mutate(holding.id)}
-                              className="text-xs font-semibold text-rose-200 underline"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
+              <>
+                <ul className="mt-5 divide-y divide-slate-800 rounded-xl border border-slate-800 lg:hidden">
+                  {detail.data.holdings.map((holding) => (
+                    <li key={holding.id} className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-semibold text-emerald-300">{holding.symbol}</p>
+                        <p className="font-semibold text-white">{money(holding.currentValue)}</p>
+                      </div>
+                      <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Quantity</dt>
+                          <dd className="font-medium text-white">{holding.quantity}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Weight</dt>
+                          <dd className="font-medium text-white">{percent(holding.weightPercent)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">MoS</dt>
+                          <dd className="font-medium text-white">{percent(holding.marginOfSafety)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Liquidity</dt>
+                          <dd>
+                            <LiquidityCell
+                              liquidity={liquidityBySymbol.get(
+                                holding.symbol.toUpperCase(),
+                              )}
+                            />
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="mt-3 flex flex-wrap gap-4 border-t border-slate-800 pt-3">
+                        <Link
+                          to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
+                          className="text-sm font-semibold text-emerald-200 underline"
+                        >
+                          Review
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => removeHolding.mutate(holding.id)}
+                          className="text-sm font-semibold text-rose-200 underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-5 hidden overflow-x-auto lg:block">
+                  <table className="w-full min-w-[46rem] text-left text-sm">
+                    <thead className="text-xs uppercase text-slate-400">
+                      <tr>
+                        <th>Holding</th>
+                        <th>Quantity</th>
+                        <th>Value</th>
+                        <th>Weight</th>
+                        <th>MoS</th>
+                        <th>Liquidity</th>
+                        <th>
+                          <span className="sr-only">Actions</span>
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {detail.data.holdings.map((holding) => (
+                        <tr key={holding.id}>
+                          <td className="py-3 font-semibold text-emerald-300">
+                            {holding.symbol}
+                          </td>
+                          <td>{holding.quantity}</td>
+                          <td>{money(holding.currentValue)}</td>
+                          <td>{percent(holding.weightPercent)}</td>
+                          <td>{percent(holding.marginOfSafety)}</td>
+                          <td>
+                            <LiquidityCell
+                              liquidity={liquidityBySymbol.get(
+                                holding.symbol.toUpperCase(),
+                              )}
+                            />
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-3">
+                              <Link
+                                to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
+                                className="text-xs font-semibold text-emerald-200 underline"
+                              >
+                                Review
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => removeHolding.mutate(holding.id)}
+                                className="text-xs font-semibold text-rose-200 underline"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
               activeId && (
                 <p className="mt-5 rounded-lg bg-slate-950/60 p-4 text-sm text-slate-400">
