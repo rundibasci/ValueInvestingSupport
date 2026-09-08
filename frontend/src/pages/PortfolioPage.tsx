@@ -300,7 +300,7 @@ function BenchmarkPanel({
     },
   ];
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-white">Benchmark comparison</h3>
         <StatusChip value={benchmark.availabilityStatus} />
@@ -416,7 +416,7 @@ function AnalyticsDashboard({
           <h3 className="font-semibold text-white">Sector allocation</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-[15rem_1fr]">
             <div
-              className="h-52"
+              className="h-52 min-h-52 min-w-0 w-full"
               aria-label="Portfolio sector allocation chart"
             >
               <ResponsiveContainer>
@@ -619,7 +619,7 @@ function ConservativeReviewPack({
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_20rem]">
-        <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
+        <div className="min-w-0 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
           <table className="w-full min-w-[64rem] text-left text-sm">
             <thead className="bg-slate-950/60 text-xs uppercase text-slate-400">
               <tr>
@@ -1025,7 +1025,7 @@ export function PortfolioPage(): JSX.Element {
           <ErrorNotice error={portfolios.error ?? create.error} />
         </aside>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <section id="simulation-constraints" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -1376,7 +1376,7 @@ export function PortfolioPage(): JSX.Element {
 
       {simulation && (
         <section className="grid gap-6 xl:grid-cols-[1fr_20rem]">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
             <div className="border-b border-slate-800 p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold text-white">
@@ -1444,7 +1444,7 @@ export function PortfolioPage(): JSX.Element {
             <h2 className="text-lg font-semibold text-white">
               Sector allocation
             </h2>
-            <div className="mt-4 h-56" aria-label="Sector allocation chart">
+            <div className="mt-4 h-56 min-h-56 min-w-0 w-full" aria-label="Sector allocation chart">
               <ResponsiveContainer>
                 <PieChart>
                   <Pie
