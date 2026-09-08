@@ -85,7 +85,7 @@ export function ChecklistPage(): JSX.Element {
             ))}
           </div>
         </aside>
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <form onSubmit={submit} className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-medium text-slate-200">Name<input required value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} className={inputClass} /></label>
