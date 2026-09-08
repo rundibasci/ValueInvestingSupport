@@ -356,7 +356,7 @@ export function ScreenerPage(): JSX.Element {
                   <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
                     {emptyStateDiagnostics.data.suggestedRelaxations.map((item) => <li key={item}>{item}</li>)}
                   </ul>
-                  <p className="mt-4 text-xs leading-5 text-slate-500">{emptyStateDiagnostics.data.decisionSupportNote}</p>
+                  <p className="mt-4 text-xs leading-5 text-slate-400">{emptyStateDiagnostics.data.decisionSupportNote}</p>
                 </div>
               </div>
             )}
@@ -492,7 +492,7 @@ export function ScreenerPage(): JSX.Element {
                   const byGroup = Object.fromEntries(row.metrics.map((metric) => [metric.group, metric]))
                   return (
                     <tr key={row.symbol} className="text-slate-200">
-                      <td className="px-4 py-4"><span className="block font-semibold text-white">{row.symbol}</span><span className="text-xs text-slate-500">{row.companyName}</span></td>
+                      <td className="px-4 py-4"><span className="block font-semibold text-white">{row.symbol}</span><span className="text-xs text-slate-400">{row.companyName}</span></td>
                       {['valuation', 'score', 'quality', 'resilience', 'growth', 'dividend', 'coverage'].map((group) => (
                         <td key={group} className="px-4 py-4">
                           <span className="block font-medium text-slate-100">{byGroup[group]?.value ?? '-'}</span>

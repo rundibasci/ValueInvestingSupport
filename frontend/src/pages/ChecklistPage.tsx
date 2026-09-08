@@ -80,7 +80,7 @@ export function ChecklistPage(): JSX.Element {
             {checklists.data?.map((checklist) => (
               <button key={checklist.id} type="button" onClick={() => load(checklist)} className={`min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400 ${editingId === checklist.id ? 'bg-slate-800 text-emerald-200' : 'text-slate-300 hover:bg-slate-800'}`}>
                 <span className="block font-semibold">{checklist.name}</span>
-                <span className="text-xs text-slate-500">{checklist.criteria.length} criteria</span>
+                <span className="text-xs text-slate-400">{checklist.criteria.length} criteria</span>
               </button>
             ))}
           </div>

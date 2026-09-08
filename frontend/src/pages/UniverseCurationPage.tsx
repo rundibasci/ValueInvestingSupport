@@ -353,7 +353,7 @@ export function UniverseCurationPage(): JSX.Element {
             <button
               type="button"
               disabled
-              className="mt-4 rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-500"
+              className="mt-4 rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-400"
             >
               Exclusion persistence unavailable
             </button>
@@ -513,7 +513,7 @@ function DistributionList({
           ))}
         </div>
       ) : (
-        <p className="mt-2 text-sm text-slate-500">No preview yet.</p>
+        <p className="mt-2 text-sm text-slate-400">No preview yet.</p>
       )}
     </div>
   );
@@ -601,7 +601,7 @@ function SeedResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                 <td className="px-4 py-4">{result.companyName ?? "-"}</td>
                 <td className="px-4 py-4 text-slate-300">
                   <span className="block">{result.sector ?? "-"}</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-400">
                     {[result.exchange, result.country].filter(Boolean).join(" / ") || "-"}
                   </span>
                 </td>
@@ -625,7 +625,7 @@ function SeedResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                       </Link>
                     </>
                   ) : (
-                    <span className="text-xs text-slate-500">No handoff</span>
+                    <span className="text-xs text-slate-400">No handoff</span>
                   )}
                 </td>
               </tr>

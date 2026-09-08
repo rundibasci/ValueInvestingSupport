@@ -116,7 +116,7 @@ export function LoginPage(): JSX.Element {
             </p>
           )}
 
-          <div className="my-6 flex items-center gap-3 text-xs uppercase text-slate-500">
+          <div className="my-6 flex items-center gap-3 text-xs uppercase text-slate-400">
             <span className="h-px flex-1 bg-slate-800" />
             <span>Password</span>
             <span className="h-px flex-1 bg-slate-800" />
@@ -152,7 +152,7 @@ export function LoginPage(): JSX.Element {
               {submitting ? 'Signing in...' : 'Sign in to research'}
             </button>
           </form>
-          <p className="mt-8 text-xs leading-5 text-slate-500">
+          <p className="mt-8 text-xs leading-5 text-slate-400">
             Value Investing is decision support, not investment advice. Your judgment stays in the room.
           </p>
         </section>

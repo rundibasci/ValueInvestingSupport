@@ -165,7 +165,7 @@ function ReadinessPanel({
           Exclusions: {Object.entries(readiness.exclusionCounts).map(([reason, count]) => `${label(reason)} (${count})`).join(" · ")}
         </p>
       )}
-      <p className="mt-3 text-xs text-slate-500">Platform facts describe data readiness only. Your constraints are never changed automatically.</p>
+      <p className="mt-3 text-xs text-slate-400">Platform facts describe data readiness only. Your constraints are never changed automatically.</p>
     </div>
   );
 }
@@ -213,7 +213,7 @@ function MetricTile({
 }): JSX.Element {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-      <p className="text-xs uppercase text-slate-500">{labelText}</p>
+      <p className="text-xs uppercase text-slate-400">{labelText}</p>
       <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
       {helper && <p className="mt-1 text-xs text-slate-400">{helper}</p>}
     </div>
@@ -259,7 +259,7 @@ function LiquidityCell({
 }: {
   liquidity: LiquidityResult | undefined;
 }): JSX.Element {
-  if (!liquidity) return <span className="text-slate-500">N/A</span>;
+  if (!liquidity) return <span className="text-slate-400">N/A</span>;
   return (
     <div className="space-y-1">
       <StatusChip value={liquidity.classification} />
@@ -269,7 +269,7 @@ function LiquidityCell({
           : `${ratio(liquidity.daysToLiquidate)} days`}
       </p>
       {liquidity.averageDailyDollarVolume != null && (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           ADV {compactMoney(liquidity.averageDailyDollarVolume)}
         </p>
       )}
@@ -310,7 +310,7 @@ function BenchmarkPanel({
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[24rem] text-left text-sm">
-          <thead className="text-xs uppercase text-slate-500">
+          <thead className="text-xs uppercase text-slate-400">
             <tr>
               <th>Metric</th>
               <th>Portfolio</th>
@@ -330,7 +330,7 @@ function BenchmarkPanel({
       </div>
       {Object.keys(benchmark.sectorWeightDifference ?? {}).length > 0 && (
         <div className="mt-4 space-y-2">
-          <p className="text-xs uppercase text-slate-500">Sector difference</p>
+          <p className="text-xs uppercase text-slate-400">Sector difference</p>
           {Object.entries(benchmark.sectorWeightDifference).map(
             ([sector, value]) => (
               <ProgressBar
@@ -621,7 +621,7 @@ function ConservativeReviewPack({
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_20rem]">
         <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
           <table className="w-full min-w-[64rem] text-left text-sm">
-            <thead className="bg-slate-950/60 text-xs uppercase text-slate-500">
+            <thead className="bg-slate-950/60 text-xs uppercase text-slate-400">
               <tr>
                 <th className="px-4 py-3">Holding</th>
                 <th>Weight</th>

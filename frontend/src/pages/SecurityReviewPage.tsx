@@ -150,7 +150,7 @@ function Panel({ title, children }: { title: string; children: ReactNode }): JSX
 
 function Metric({ label, value, note }: { label: string; value: string; note?: string }): JSX.Element {
   const unavailable = value === 'Unavailable'
-  return <div className={`rounded-lg border p-3 ${unavailable ? 'border-slate-800 bg-slate-950/40' : 'border-slate-800 bg-slate-950/60'}`}><dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt><dd className={`mt-1 font-medium ${unavailable ? 'text-slate-500' : 'text-white'}`}>{value}</dd>{note && <p className="mt-1 text-xs leading-5 text-slate-500">{note}</p>}</div>
+  return <div className={`rounded-lg border p-3 ${unavailable ? 'border-slate-800 bg-slate-950/40' : 'border-slate-800 bg-slate-950/60'}`}><dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt><dd className={`mt-1 font-medium ${unavailable ? 'text-slate-400' : 'text-white'}`}>{value}</dd>{note && <p className="mt-1 text-xs leading-5 text-slate-400">{note}</p>}</div>
 }
 
 function DataGap({ children }: { children: ReactNode }): JSX.Element {
@@ -260,12 +260,12 @@ function AvailabilityDiagnosticsPanel({ diagnostics }: { diagnostics?: Availabil
         <div key={item.status} className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${availabilityClass(item.status)}`}>{availabilityLabel(item.status)}</span>
-            <span className="text-xs uppercase tracking-wide text-slate-500">{item.exampleCategory}</span>
+            <span className="text-xs uppercase tracking-wide text-slate-400">{item.exampleCategory}</span>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-300">{item.exampleReason}</p>
-          <p className="mt-2 text-xs leading-5 text-slate-500">{item.conservativeInterpretation}</p>
+          <p className="mt-2 text-xs leading-5 text-slate-400">{item.conservativeInterpretation}</p>
           <p className="mt-2 text-xs leading-5 text-amber-100">{item.decisionSupportNote}</p>
-          <p className="mt-2 text-xs text-slate-500">Surfaces: {item.surfaces.join(', ')}</p>
+          <p className="mt-2 text-xs text-slate-400">Surfaces: {item.surfaces.join(', ')}</p>
         </div>
       ))}
     </div>
@@ -339,7 +339,7 @@ function ValuationBandMiniChart({ band }: { band: ValuationBandItem }): JSX.Elem
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h4 className="font-semibold text-white">{band.metric}</h4>
-          <p className="mt-1 text-xs text-slate-500">{band.yearsAnalyzed ?? 0} years analyzed</p>
+          <p className="mt-1 text-xs text-slate-400">{band.yearsAnalyzed ?? 0} years analyzed</p>
         </div>
         <QualityBadge value={band.position} />
       </div>
@@ -394,7 +394,7 @@ function RiskIntelligence({ review, currency }: { review: Review; currency: stri
                 </div>
               ))}
             </div>
-            <p className="text-xs leading-5 text-slate-500">{piotroski.availabilityMessage || `Result date: ${date(piotroski.resultDate)}`}</p>
+            <p className="text-xs leading-5 text-slate-400">{piotroski.availabilityMessage || `Result date: ${date(piotroski.resultDate)}`}</p>
           </div>
         ) : <DataGap>Piotroski result is unavailable. Seed or recompute scoring data for this symbol.</DataGap>}
       </Panel>
@@ -410,7 +410,7 @@ function RiskIntelligence({ review, currency }: { review: Review; currency: stri
               <Metric label="Market equity / liabilities" value={ratioPercent(altman.marketValueEquityToLiabilities)} />
               <Metric label="Sales / assets" value={ratioPercent(altman.salesToAssets)} />
             </dl>
-            <p className="text-xs leading-5 text-slate-500">{altman.availabilityMessage || `Result date: ${date(altman.resultDate)}`}</p>
+            <p className="text-xs leading-5 text-slate-400">{altman.availabilityMessage || `Result date: ${date(altman.resultDate)}`}</p>
           </div>
         ) : <DataGap>Altman Z-Score is unavailable. Distress-zone classification cannot be shown from the current local data.</DataGap>}
       </Panel>
@@ -502,14 +502,14 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
                         <span className={`rounded-full px-2 py-0.5 font-semibold ${item.source === 'DERIVED_INTERNAL' ? 'bg-amber-300/15 text-amber-100' : item.source === 'UNAVAILABLE' ? 'bg-slate-700 text-slate-300' : 'bg-emerald-300/15 text-emerald-100'}`}>{item.source.replace(/_/g, ' ').toLowerCase()}</span>
                       </div>
                       <p className="mt-1 text-slate-400">{item.formulaNote}</p>
-                      {item.inputProvider && <p className="text-slate-500">Input provider: {item.inputProvider}</p>}
+                      {item.inputProvider && <p className="text-slate-400">Input provider: {item.inputProvider}</p>}
                       {item.unavailableReason && <p className="text-amber-100">Unavailable: {item.unavailableReason.replace(/_/g, ' ').toLowerCase()}</p>}
                     </div>
                   ))}
                 </div>
               )}
               <p className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">{moat.methodologyDisclaimer}</p>
-              {moat.availabilityMessage && <p className="text-xs leading-5 text-slate-500">{moat.availabilityMessage}</p>}
+              {moat.availabilityMessage && <p className="text-xs leading-5 text-slate-400">{moat.availabilityMessage}</p>}
             </div>
           ) : <DataGap>Moat assessment is unavailable. Recompute or seed MA1 business-quality data for this symbol.</DataGap>}
         </Panel>
@@ -528,7 +528,7 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
                 <Metric label="Insider ownership" value={capital.insiderOwnershipPercentage == null ? 'Unavailable' : percentPoint(capital.insiderOwnershipPercentage)} note={capital.insiderOwnershipPercentage == null ? 'Provider data did not supply insider ownership.' : undefined} />
               </dl>
               <Chart data={sharesData} lines={[['sharesIndex', 'Shares outstanding index']]} summary="Shares outstanding normalized to 100 in the first available annual period. Rising values indicate dilution; falling values indicate net buybacks." />
-              {capital.availabilityMessage && <p className="text-xs leading-5 text-slate-500">{capital.availabilityMessage}</p>}
+              {capital.availabilityMessage && <p className="text-xs leading-5 text-slate-400">{capital.availabilityMessage}</p>}
             </div>
           ) : <DataGap>Capital allocation assessment is unavailable. Shares trend and allocator classification cannot be shown from current local data.</DataGap>}
         </Panel>
@@ -560,7 +560,7 @@ function BusinessQuality({ review, annual }: { review: Review; annual: Array<Ann
                   <div key={criterion.criterionCode} className="flex flex-col justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2 text-sm sm:flex-row sm:items-center">
                     <div>
                       <p className="font-medium text-slate-200">{criterion.label}</p>
-                      <p className="mt-1 text-xs text-slate-500">{criterion.message || `Actual value: ${number(criterion.actualValue)}`}</p>
+                      <p className="mt-1 text-xs text-slate-400">{criterion.message || `Actual value: ${number(criterion.actualValue)}`}</p>
                     </div>
                     <QualityBadge value={criterion.status} />
                   </div>
@@ -672,10 +672,10 @@ function CoverageGrid({ coverage, freshness }: { coverage: SourceCoverageItem[];
     const available = item.status === 'AVAILABLE'
     return (
       <div key={item.category} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-        <span className="block text-xs uppercase tracking-wide text-slate-500">{item.category}</span>
+        <span className="block text-xs uppercase tracking-wide text-slate-400">{item.category}</span>
         <span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${available ? 'bg-emerald-300/15 text-emerald-100' : 'bg-slate-700 text-slate-200'}`}>{item.provider || item.status.toLowerCase()}</span>
-        {fresh && <p className="mt-2 text-xs leading-5 text-slate-500">{fresh.status.toLowerCase()} · {date(fresh.dataAsOf)}</p>}
-        {item.message && <p className="mt-2 text-xs leading-5 text-slate-500">{item.message}</p>}
+        {fresh && <p className="mt-2 text-xs leading-5 text-slate-400">{fresh.status.toLowerCase()} · {date(fresh.dataAsOf)}</p>}
+        {item.message && <p className="mt-2 text-xs leading-5 text-slate-400">{item.message}</p>}
       </div>
     )
   })}</div>
@@ -772,7 +772,7 @@ function AddToPortfolio({ symbol, currentPrice, sector }: { symbol: string; curr
       <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-4">
         <p className="text-sm leading-6 text-slate-300">Create a portfolio before adding reviewed symbols to a model portfolio.</p>
         <Link to="/portfolio" className="mt-4 inline-flex rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300">Create portfolio</Link>
-        <p className="mt-3 text-xs leading-5 text-slate-500">Securities are shared research data; portfolios remain user-owned.</p>
+        <p className="mt-3 text-xs leading-5 text-slate-400">Securities are shared research data; portfolios remain user-owned.</p>
       </div>
     )
   }
@@ -816,7 +816,7 @@ function AddToPortfolio({ symbol, currentPrice, sector }: { symbol: string; curr
           />
         </label>
       </div>
-      {portfolioDetail.isLoading && <p className="mt-3 text-xs text-slate-500">Checking existing holdings...</p>}
+      {portfolioDetail.isLoading && <p className="mt-3 text-xs text-slate-400">Checking existing holdings...</p>}
       {portfolioDetail.isError && (
         <p role="alert" className="mt-3 rounded-lg border border-rose-300/30 bg-rose-400/10 p-3 text-sm leading-6 text-rose-100">
           Portfolio holdings could not be checked. Try again before adding this symbol.
@@ -840,7 +840,7 @@ function AddToPortfolio({ symbol, currentPrice, sector }: { symbol: string; curr
       {validation && <p role="alert" className="mt-3 text-sm text-rose-200">{validation}</p>}
       {addHolding.isSuccess && addedPortfolioId === activePortfolioId && !existingHolding && <p role="status" className="mt-3 text-sm text-emerald-200">Added {symbol} to {activePortfolio?.name || 'your portfolio'}.</p>}
       {addHolding.isError && <p role="alert" className="mt-3 text-sm text-rose-200">{addHolding.error instanceof Error ? addHolding.error.message : 'Could not add this holding.'}</p>}
-      <p className="mt-3 text-xs leading-5 text-slate-500">Fair value, margin of safety, and portfolio context are decision-support outputs, not investment advice.</p>
+      <p className="mt-3 text-xs leading-5 text-slate-400">Fair value, margin of safety, and portfolio context are decision-support outputs, not investment advice.</p>
     </form>
   )
 }
@@ -878,7 +878,7 @@ function SensitivityTable({ valuation, currentPrice, currency }: { valuation: Va
   if (!sensitivity || !sensitivity.cells.length) return <DataGap>DCF sensitivity is unavailable until the backend has enough positive free-cash-flow history and WACC inputs for this symbol.</DataGap>
   const cellByKey = new Map(sensitivity.cells.map((cell) => [`${cell.wacc}:${cell.terminalRate}`, cell]))
   const mosClass = (fairValue: number | null | undefined) => {
-    if (fairValue == null || currentPrice == null || currentPrice === 0) return 'bg-slate-950 text-slate-500'
+    if (fairValue == null || currentPrice == null || currentPrice === 0) return 'bg-slate-950 text-slate-400'
     const mos = ((fairValue - currentPrice) / currentPrice) * 100
     if (mos >= 15) return 'bg-emerald-400/15 text-emerald-100'
     if (mos >= 0) return 'bg-amber-300/15 text-amber-100'
@@ -1076,7 +1076,7 @@ export function SecurityReviewPage(): JSX.Element {
       <div className="rounded-lg border border-slate-800 bg-slate-900/40 p-5 sm:p-7">
         <Section id="source" title="Source Coverage And Freshness">
           <CoverageGrid coverage={review.data.sourceCoverage} freshness={review.data.freshness} />
-          {review.data.availability.length > 0 && <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{review.data.availability.map((item) => <div key={item.category} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-500">{item.category}</span><div className="mt-2"><AvailabilityBadge state={item.state} /></div><p className="mt-2 text-xs leading-5 text-slate-500">{item.state.reason}</p></div>)}</div>}
+          {review.data.availability.length > 0 && <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{review.data.availability.map((item) => <div key={item.category} className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"><span className="block text-xs uppercase tracking-wide text-slate-400">{item.category}</span><div className="mt-2"><AvailabilityBadge state={item.state} /></div><p className="mt-2 text-xs leading-5 text-slate-400">{item.state.reason}</p></div>)}</div>}
           <DataGap>Provider labels are shown where the backend has stored provider metadata. Otherwise the endpoint reports application data availability without inferring a provider.</DataGap>
           <AvailabilityDiagnosticsPanel diagnostics={availabilityDiagnostics.data} />
         </Section>

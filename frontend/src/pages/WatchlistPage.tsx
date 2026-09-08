@@ -156,12 +156,12 @@ function WatchlistCard({ item, active, editing, removePending, onEdit, onRemove 
     <div className="flex items-start justify-between gap-3">
       <div>
         <Link to={`/securities/${encodeURIComponent(item.symbol)}`} className="text-xl font-semibold text-white hover:text-emerald-300">{item.symbol}</Link>
-        <p className="mt-1 text-xs text-slate-500">Added {date(item.addedAt)}</p>
+        <p className="mt-1 text-xs text-slate-400">Added {date(item.addedAt)}</p>
       </div>
       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${active ? 'bg-amber-300/15 text-amber-100' : 'bg-emerald-300/10 text-emerald-200'}`}>{active ? 'Active alert' : 'Monitoring'}</span>
     </div>
     <div className="mt-4 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-      <p className="text-xs uppercase tracking-wide text-slate-500">Research rationale</p>
+      <p className="text-xs uppercase tracking-wide text-slate-400">Research rationale</p>
       <p className="mt-1 text-sm font-medium text-slate-200">{friendlyReason(item.monitoringReason)}</p>
       <p className="mt-1 text-sm leading-6 text-slate-400">{item.rationaleNote || 'No note saved yet.'}</p>
     </div>
@@ -203,11 +203,11 @@ function NumberField({ label, value, onChange }: { label: string; value: string;
 
 function AlertCard({ alert, pending, onAcknowledge }: { alert: Alert; pending: boolean; onAcknowledge: () => void }): JSX.Element {
   const high = alert.priority === 'HIGH'
-  return <article className="rounded-xl border border-slate-800 bg-slate-950/50 p-5"><div className="flex items-start justify-between gap-3"><div><Link to={`/securities/${encodeURIComponent(alert.symbol)}`} className="font-semibold text-white hover:text-emerald-300">{alert.symbol}</Link><p className="mt-1 text-sm text-slate-300">{friendlyAlertType(alert.alertType)}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${high ? 'bg-rose-300/15 text-rose-100' : 'bg-amber-300/15 text-amber-100'}`}>{high ? 'High priority' : 'Active alert'}</span></div><p className="mt-4 text-sm leading-6 text-slate-400">{alertDescription(alert)}</p><p className="mt-3 text-xs text-slate-500">Triggered {date(alert.triggeredAt)} - Delivery: {alert.deliveryStatus || 'not recorded'}</p><div className="mt-4 flex flex-wrap gap-3"><Link to={`/securities/${encodeURIComponent(alert.symbol)}/review`} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-400/10">Review</Link><button disabled={pending} onClick={onAcknowledge} className="rounded-lg border border-slate-600 px-3 py-2 text-sm font-medium text-slate-200 hover:border-emerald-300 hover:text-white disabled:opacity-60">Acknowledge</button></div></article>
+  return <article className="rounded-xl border border-slate-800 bg-slate-950/50 p-5"><div className="flex items-start justify-between gap-3"><div><Link to={`/securities/${encodeURIComponent(alert.symbol)}`} className="font-semibold text-white hover:text-emerald-300">{alert.symbol}</Link><p className="mt-1 text-sm text-slate-300">{friendlyAlertType(alert.alertType)}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${high ? 'bg-rose-300/15 text-rose-100' : 'bg-amber-300/15 text-amber-100'}`}>{high ? 'High priority' : 'Active alert'}</span></div><p className="mt-4 text-sm leading-6 text-slate-400">{alertDescription(alert)}</p><p className="mt-3 text-xs text-slate-400">Triggered {date(alert.triggeredAt)} - Delivery: {alert.deliveryStatus || 'not recorded'}</p><div className="mt-4 flex flex-wrap gap-3"><Link to={`/securities/${encodeURIComponent(alert.symbol)}/review`} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-400/10">Review</Link><button disabled={pending} onClick={onAcknowledge} className="rounded-lg border border-slate-600 px-3 py-2 text-sm font-medium text-slate-200 hover:border-emerald-300 hover:text-white disabled:opacity-60">Acknowledge</button></div></article>
 }
 
 function Metric({ label, value }: { label: string; value: string }): JSX.Element {
-  return <div><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1 font-medium text-slate-200">{value}</dd></div>
+  return <div><dt className="text-xs text-slate-400">{label}</dt><dd className="mt-1 font-medium text-slate-200">{value}</dd></div>
 }
 
 function State({ message, retry, error }: { message: string; retry?: () => void; error?: boolean }): JSX.Element {

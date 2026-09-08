@@ -50,13 +50,13 @@ function Disclaimer(): JSX.Element {
 }
 
 function EvidenceList({ items, symbol }: { items: ThesisEvidence[]; symbol: string }): JSX.Element {
-  if (!items.length) return <p className="text-sm text-slate-500">None reported.</p>;
+  if (!items.length) return <p className="text-sm text-slate-400">None reported.</p>;
   return (
     <ul className="space-y-2 text-sm leading-6 text-slate-200">
       {items.map((item, index) => (
         <li key={`${index}-${item.claim}`} className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
           <p>{item.claim}</p>
-          <p className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-slate-500">
+          <p className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-slate-400">
             Evidence:{" "}
             {item.evidenceFields.map((field) => (
               <a key={field} href={`/securities/${symbol}/review#${EVIDENCE_FIELD_SECTION[field]}`} className="text-emerald-300 underline">
@@ -71,7 +71,7 @@ function EvidenceList({ items, symbol }: { items: ThesisEvidence[]; symbol: stri
 }
 
 function StringList({ items }: { items: string[] }): JSX.Element {
-  if (!items.length) return <p className="text-sm text-slate-500">None reported.</p>;
+  if (!items.length) return <p className="text-sm text-slate-400">None reported.</p>;
   return (
     <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-slate-200">
       {items.map((item, index) => (
@@ -86,10 +86,10 @@ function ProvenanceInspector({ thesis }: { thesis: Thesis }): JSX.Element {
     <details className="mt-4 rounded-lg border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
       <summary className="cursor-pointer font-semibold text-slate-200">Model & prompt details</summary>
       <dl className="mt-3 grid gap-2 sm:grid-cols-2">
-        <div><dt className="text-xs uppercase tracking-wide text-slate-500">Model</dt><dd>{thesis.modelId || "Unavailable"}</dd></div>
-        <div><dt className="text-xs uppercase tracking-wide text-slate-500">Model version</dt><dd>{thesis.modelVersion || "Unavailable"}</dd></div>
-        <div><dt className="text-xs uppercase tracking-wide text-slate-500">Prompt version</dt><dd>{thesis.promptVersion || "Unavailable"}</dd></div>
-        <div><dt className="text-xs uppercase tracking-wide text-slate-500">Generated at</dt><dd>{thesis.generatedAt || "Unavailable"}</dd></div>
+        <div><dt className="text-xs uppercase tracking-wide text-slate-400">Model</dt><dd>{thesis.modelId || "Unavailable"}</dd></div>
+        <div><dt className="text-xs uppercase tracking-wide text-slate-400">Model version</dt><dd>{thesis.modelVersion || "Unavailable"}</dd></div>
+        <div><dt className="text-xs uppercase tracking-wide text-slate-400">Prompt version</dt><dd>{thesis.promptVersion || "Unavailable"}</dd></div>
+        <div><dt className="text-xs uppercase tracking-wide text-slate-400">Generated at</dt><dd>{thesis.generatedAt || "Unavailable"}</dd></div>
       </dl>
       <pre className="mt-3 max-h-64 overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-400">{JSON.stringify(thesis, null, 2)}</pre>
     </details>

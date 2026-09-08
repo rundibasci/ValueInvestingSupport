@@ -69,7 +69,7 @@ export function MarketDataFallbacksPage(): JSX.Element {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {cards.map(([label, value]) => (
           <div key={label} className="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
-            <p className="text-xs uppercase tracking-[.16em] text-slate-500">{label}</p>
+            <p className="text-xs uppercase tracking-[.16em] text-slate-400">{label}</p>
             <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
           </div>
         ))}
@@ -121,10 +121,10 @@ export function MarketDataFallbacksPage(): JSX.Element {
 function EventRow({ event }: { event: MarketDataFallbackEvent }): JSX.Element {
   return (
     <tr>
-      <td className="px-4 py-4 align-top"><strong className="text-white">{event.symbol}</strong><p className="mt-1 text-xs text-slate-500">{date(event.occurredAt)} · {event.durationMs}ms</p></td>
+      <td className="px-4 py-4 align-top"><strong className="text-white">{event.symbol}</strong><p className="mt-1 text-xs text-slate-400">{date(event.occurredAt)} · {event.durationMs}ms</p></td>
       <td className="px-4 py-4 align-top text-xs text-slate-300">{event.eventType.replace("PRIMARY_PROVIDER_", "")}</td>
-      <td className="px-4 py-4 align-top"><span className="text-slate-200">{event.operation}</span><p className="mt-1 text-xs text-slate-500">{event.primaryProvider} → {event.fallbackProvider}</p></td>
-      <td className="px-4 py-4 align-top"><span className="text-amber-100">{event.triggerReason}</span><p className="mt-1 text-xs text-slate-500">{event.primaryStatus ?? "-"}</p></td>
+      <td className="px-4 py-4 align-top"><span className="text-slate-200">{event.operation}</span><p className="mt-1 text-xs text-slate-400">{event.primaryProvider} → {event.fallbackProvider}</p></td>
+      <td className="px-4 py-4 align-top"><span className="text-amber-100">{event.triggerReason}</span><p className="mt-1 text-xs text-slate-400">{event.primaryStatus ?? "-"}</p></td>
       <td className="px-4 py-4 align-top"><span className={`rounded-md px-2 py-1 text-xs font-semibold ${outcomeClass(event.outcome)}`}>{event.outcome}</span></td>
       <td className="px-4 py-4 align-top text-xs"><p className="text-slate-300">Missing: {event.missingFields ?? "-"}</p><p className="mt-1 text-emerald-200">Accepted: {event.acceptedFields ?? "-"}</p></td>
       <td className="px-4 py-4 align-top text-xs text-slate-400"><p>{event.jobName ?? "HTTP request"}</p><p className="mt-1 max-w-36 truncate">{event.jobRunId ?? "-"}</p></td>

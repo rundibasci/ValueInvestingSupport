@@ -42,7 +42,7 @@ function statusClass(status: string | null | undefined): string {
 }
 
 function RunSummary({ run }: { run: JobRunSummary | null }): JSX.Element {
-  if (!run) return <span className="text-slate-500">No runs</span>;
+  if (!run) return <span className="text-slate-400">No runs</span>;
   return (
     <div className="space-y-1">
       <span className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${statusClass(run.status)}`}>
@@ -203,7 +203,7 @@ export function AdminJobsPage(): JSX.Element {
           </select>
         </label>
         <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
-          <p className="text-xs uppercase tracking-[.18em] text-slate-500">Jobs</p>
+          <p className="text-xs uppercase tracking-[.18em] text-slate-400">Jobs</p>
           <p className="mt-1 text-2xl font-semibold text-white">{filteredJobs.length}</p>
         </div>
       </div>
@@ -227,7 +227,7 @@ export function AdminJobsPage(): JSX.Element {
                   <button className="text-left font-semibold text-white hover:text-emerald-300" onClick={() => setSelectedJob(job.jobName)} type="button">
                     {job.jobName}
                   </button>
-                  <p className="mt-1 text-xs text-slate-500">Source {job.dataSource ?? "-"}</p>
+                  <p className="mt-1 text-xs text-slate-400">Source {job.dataSource ?? "-"}</p>
                 </td>
                 <td className="px-4 py-4 align-top">
                   <span className={job.enabled ? "text-emerald-200" : "text-amber-200"}>{job.enabled ? "Enabled" : "Disabled"}</span>
@@ -235,12 +235,12 @@ export function AdminJobsPage(): JSX.Element {
                 </td>
                 <td className="px-4 py-4 align-top">
                   <code className="text-xs text-slate-300">{job.cronExpression}</code>
-                  <p className="mt-1 text-xs text-slate-500">{job.enabled ? `Next ${formatDate(job.nextRunAt)}` : "Schedule inactive"}</p>
+                  <p className="mt-1 text-xs text-slate-400">{job.enabled ? `Next ${formatDate(job.nextRunAt)}` : "Schedule inactive"}</p>
                   {job.scheduleError && <p className="mt-1 text-xs text-amber-200">{job.scheduleError}</p>}
                 </td>
                 <td className="px-4 py-4 align-top">
                   <span className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${statusClass(job.currentStatus)}`}>{job.currentStatus}</span>
-                  <p className="mt-1 text-xs text-slate-500">{formatDuration(job.currentDurationSeconds)}</p>
+                  <p className="mt-1 text-xs text-slate-400">{formatDuration(job.currentDurationSeconds)}</p>
                 </td>
                 <td className="px-4 py-4 align-top">
                   <RunSummary run={job.lastRun} />
@@ -316,10 +316,10 @@ function RunStatusPanel({ status }: { status: JobRunStatus }): JSX.Element {
         <span className="text-xs text-slate-400">{formatDuration(status.elapsedSeconds)}</span>
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div><dt className="text-slate-500">Processed</dt><dd className="font-semibold text-white">{status.recordsProcessed ?? "-"}</dd></div>
-        <div><dt className="text-slate-500">Errors</dt><dd className="font-semibold text-white">{status.errorCount}</dd></div>
-        <div><dt className="text-slate-500">Symbols</dt><dd className="font-semibold text-white">{status.scopeSymbols ?? "-"}</dd></div>
-        <div><dt className="text-slate-500">Data</dt><dd className="font-semibold text-white">{status.scopeDataTypes ?? "-"}</dd></div>
+        <div><dt className="text-slate-400">Processed</dt><dd className="font-semibold text-white">{status.recordsProcessed ?? "-"}</dd></div>
+        <div><dt className="text-slate-400">Errors</dt><dd className="font-semibold text-white">{status.errorCount}</dd></div>
+        <div><dt className="text-slate-400">Symbols</dt><dd className="font-semibold text-white">{status.scopeSymbols ?? "-"}</dd></div>
+        <div><dt className="text-slate-400">Data</dt><dd className="font-semibold text-white">{status.scopeDataTypes ?? "-"}</dd></div>
       </dl>
       {status.errorMessage && <p className="mt-3 text-sm text-rose-200">{status.errorMessage}</p>}
     </div>
@@ -334,7 +334,7 @@ function HistoryList({ rows }: { rows: JobRunSummary[] }): JSX.Element {
         <div className="rounded-lg border border-slate-800 bg-slate-950 p-3" key={run.id}>
           <div className="flex items-center justify-between gap-3">
             <span className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${statusClass(run.status)}`}>{run.status}</span>
-            <span className="text-xs text-slate-500">{formatDate(run.startedAt)}</span>
+            <span className="text-xs text-slate-400">{formatDate(run.startedAt)}</span>
           </div>
           <p className="mt-2 text-sm text-slate-300">Records {run.recordsProcessed ?? "-"}</p>
           {run.errorMessage && <p className="mt-1 text-sm text-rose-200">{run.errorMessage}</p>}
@@ -352,7 +352,7 @@ function EventList({ rows }: { rows: IngestionEvent[] }): JSX.Element {
         <div className="rounded-lg border border-slate-800 bg-slate-950 p-3" key={event.id}>
           <div className="flex items-center justify-between gap-3">
             <span className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${statusClass(event.status)}`}>{event.status}</span>
-            <span className="text-xs text-slate-500">{formatDate(event.occurredAt)}</span>
+            <span className="text-xs text-slate-400">{formatDate(event.occurredAt)}</span>
           </div>
           <p className="mt-2 text-sm text-slate-300">{event.symbol ?? "-"} / {event.dataType} / {event.source ?? "-"}</p>
           {event.errorDetail && <p className="mt-1 text-sm text-rose-200">{event.errorDetail}</p>}

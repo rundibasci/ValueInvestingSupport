@@ -61,7 +61,7 @@ export function SeedRunProgress({ runId, onRunChange, onDismiss }: {
       {(outcomes.data?.content.length ?? 0) > 0 && <OutcomeList rows={outcomes.data!.content} />}
       {done && run.data.failed > 0 && <button type="button" disabled={retry.isPending} onClick={() => retry.mutate()} className="mt-4 rounded-lg border border-amber-300/40 px-3 py-2 text-sm font-semibold text-amber-100 disabled:opacity-50">{retry.isPending ? "Starting retry…" : "Retry failed symbols only"}</button>}
       {retry.error && <p role="alert" className="mt-2 text-sm text-rose-100">{retry.error.message}</p>}
-      <p className="mt-3 text-xs text-slate-500">Successful and partially seeded symbols are never included in a failure retry.</p>
+      <p className="mt-3 text-xs text-slate-400">Successful and partially seeded symbols are never included in a failure retry.</p>
     </section>
   );
 }
