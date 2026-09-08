@@ -1,0 +1,2749 @@
+[
+  {
+    "width": 320,
+    "route": "/login",
+    "errors": [],
+    "pageWidth": 320,
+    "headings": [
+      {
+        "text": "Research before conviction.",
+        "x": 53,
+        "y": 201,
+        "width": 214,
+        "height": 135
+      },
+      {
+        "text": "Enter your workspace",
+        "x": 53,
+        "y": 803,
+        "width": 214,
+        "height": 72
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "email",
+        "name": "Email",
+        "font": "14px",
+        "x": 53,
+        "y": 1211,
+        "width": 214,
+        "height": 46
+      },
+      {
+        "tag": "INPUT",
+        "type": "password",
+        "name": "Password",
+        "font": "14px",
+        "x": 53,
+        "y": 1305,
+        "width": 214,
+        "height": 46
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 320,
+    "route": "/screener",
+    "errors": [],
+    "pageWidth": 320,
+    "headings": [
+      {
+        "text": "Build a better shortlist.",
+        "x": 65,
+        "y": 342,
+        "width": 190,
+        "height": 72
+      },
+      {
+        "text": "Screen criteria",
+        "x": 61,
+        "y": 684,
+        "width": 198,
+        "height": 28
+      },
+      {
+        "text": "Screen results",
+        "x": 61,
+        "y": 2415,
+        "width": 198,
+        "height": 28
+      },
+      {
+        "text": "Agent 1 selected-symbol comparison",
+        "x": 61,
+        "y": 2920,
+        "width": 198,
+        "height": 56
+      }
+    ],
+    "fields": [
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "SectorAll sectors",
+        "font": "14px",
+        "x": 61,
+        "y": 902,
+        "width": 198,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "ExchangeAll exchanges",
+        "font": "14px",
+        "x": 61,
+        "y": 981,
+        "width": 198,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. margin of safety (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1060,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. margin of safety (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1140,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. value score",
+        "font": "14px",
+        "x": 61,
+        "y": 1220,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. ROIC (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1300,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. debt / equity",
+        "font": "14px",
+        "x": 61,
+        "y": 1380,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. dividend yield (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1460,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. revenue growth (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1540,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. Piotroski F-Score",
+        "font": "14px",
+        "x": 61,
+        "y": 1620,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Piotroski F-Score",
+        "font": "14px",
+        "x": 61,
+        "y": 1700,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Altman zoneAny zoneSafeGreyDistress",
+        "font": "14px",
+        "x": 61,
+        "y": 1780,
+        "width": 198,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Moat strengthAny moatWideNarrowNoneInsufficient data",
+        "font": "14px",
+        "x": 61,
+        "y": 1859,
+        "width": 198,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Shares trendAny trendNet buybackStableNet diluterInsufficient data",
+        "font": "14px",
+        "x": 61,
+        "y": 1938,
+        "width": 198,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. P/FFO (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 2017,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Net Debt/EBITDA (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 2097,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. AFFO payout ratio (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 2197,
+        "width": 198,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Rows102050",
+        "font": "14px",
+        "x": 103.3125,
+        "y": 2479,
+        "width": 56,
+        "height": 33
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 280,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      },
+      {
+        "tag": "DIV",
+        "width": 238,
+        "scrollWidth": 1985,
+        "x": 41,
+        "y": 2533,
+        "height": 160
+      },
+      {
+        "tag": "DIV",
+        "width": 238,
+        "scrollWidth": 1200,
+        "x": 41,
+        "y": 3217,
+        "height": 40
+      }
+    ],
+    "smallTargets": [
+      {
+        "text": "Company",
+        "x": 57,
+        "y": 2545,
+        "width": 57.8125,
+        "height": 16
+      },
+      {
+        "text": "Sector",
+        "x": 152.9375,
+        "y": 2545,
+        "width": 40.875,
+        "height": 16
+      },
+      {
+        "text": "Exchange",
+        "x": 380.140625,
+        "y": 2545,
+        "width": 59.5,
+        "height": 16
+      },
+      {
+        "text": "MoS",
+        "x": 647.75,
+        "y": 2545,
+        "width": 26.859375,
+        "height": 16
+      },
+      {
+        "text": "Value scoredown",
+        "x": 706.609375,
+        "y": 2545,
+        "width": 109.015625,
+        "height": 16
+      },
+      {
+        "text": "P/FFO",
+        "x": 1332.875,
+        "y": 2545,
+        "width": 36.328125,
+        "height": 16
+      }
+    ]
+  },
+  {
+    "width": 320,
+    "route": "/checklists",
+    "errors": [],
+    "pageWidth": 320,
+    "headings": [
+      {
+        "text": "Investment checklist",
+        "x": 20,
+        "y": 285,
+        "width": 280,
+        "height": 72
+      },
+      {
+        "text": "Evaluate a symbol",
+        "x": 41,
+        "y": 1235,
+        "width": 238,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "font": "14px",
+        "x": 41,
+        "y": 592,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 41,
+        "y": 670,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "font": "14px",
+        "x": 54,
+        "y": 745,
+        "width": 212,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 799,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 852,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 905,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 958,
+        "width": 212,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 1303,
+        "width": 238,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 280,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 320,
+    "route": "/portfolio",
+    "errors": [],
+    "pageWidth": 320,
+    "headings": [
+      {
+        "text": "Build with constraints, not hunches.",
+        "x": 45,
+        "y": 310,
+        "width": 230,
+        "height": 108
+      },
+      {
+        "text": "Import an existing portfolio",
+        "x": 41,
+        "y": 612,
+        "width": 238,
+        "height": 56
+      },
+      {
+        "text": "Your portfolios",
+        "x": 41,
+        "y": 826,
+        "width": 238,
+        "height": 28
+      },
+      {
+        "text": "Select or create a portfolio",
+        "x": 41,
+        "y": 1157,
+        "width": 238,
+        "height": 56
+      },
+      {
+        "text": "Allocation constraints",
+        "x": 41,
+        "y": 1323,
+        "width": 238,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "New portfolio",
+        "font": "14px",
+        "x": 41,
+        "y": 923,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 41,
+        "y": 997,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Risk profileBalancedConservativeGrowth",
+        "font": "14px",
+        "x": 41,
+        "y": 1459,
+        "width": 238,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Budget (USD)",
+        "font": "14px",
+        "x": 41,
+        "y": 1536,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum yield (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1614,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. stock (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1692,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. sector (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1770,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. country (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1848,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum MoS (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1926,
+        "width": 238,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 280,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 320,
+    "route": "/watchlist",
+    "errors": [],
+    "pageWidth": 320,
+    "headings": [
+      {
+        "text": "Watchlist & alerts",
+        "x": 45,
+        "y": 310,
+        "width": 230,
+        "height": 72
+      },
+      {
+        "text": "Your watchlist",
+        "x": 20,
+        "y": 641,
+        "width": 280,
+        "height": 28
+      },
+      {
+        "text": "Add to watchlist",
+        "x": 41,
+        "y": 914,
+        "width": 238,
+        "height": 28
+      },
+      {
+        "text": "Alerts requiring review",
+        "x": 45,
+        "y": 1705,
+        "width": 230,
+        "height": 64
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Ticker symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 1032,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Monitoring reasonNo reason selectedWait for better priceValuation concernData-quality gapDividend concernNarrative catalystOther",
+        "font": "14px",
+        "x": 41,
+        "y": 1112,
+        "width": 238,
+        "height": 37
+      },
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "name": "Research note",
+        "font": "14px",
+        "x": 41,
+        "y": 1191,
+        "width": 238,
+        "height": 96
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety floor (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1329,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety ceiling (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1409,
+        "width": 238,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Fundamental degradation threshold (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1509,
+        "width": 238,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 280,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "route": "/login",
+    "errors": [],
+    "pageWidth": 390,
+    "headings": [
+      {
+        "text": "Research before conviction.",
+        "x": 53,
+        "y": 201,
+        "width": 284,
+        "height": 90
+      },
+      {
+        "text": "Enter your workspace",
+        "x": 53,
+        "y": 678,
+        "width": 284,
+        "height": 72
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "email",
+        "name": "Email",
+        "font": "14px",
+        "x": 53,
+        "y": 1042,
+        "width": 284,
+        "height": 46
+      },
+      {
+        "tag": "INPUT",
+        "type": "password",
+        "name": "Password",
+        "font": "14px",
+        "x": 53,
+        "y": 1136,
+        "width": 284,
+        "height": 46
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "route": "/screener",
+    "errors": [],
+    "pageWidth": 390,
+    "headings": [
+      {
+        "text": "Build a better shortlist.",
+        "x": 65,
+        "y": 342,
+        "width": 260,
+        "height": 72
+      },
+      {
+        "text": "Screen criteria",
+        "x": 61,
+        "y": 656,
+        "width": 268,
+        "height": 28
+      },
+      {
+        "text": "Screen results",
+        "x": 61,
+        "y": 2315,
+        "width": 268,
+        "height": 28
+      },
+      {
+        "text": "Agent 1 selected-symbol comparison",
+        "x": 61,
+        "y": 2804,
+        "width": 268,
+        "height": 56
+      }
+    ],
+    "fields": [
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "SectorAll sectors",
+        "font": "14px",
+        "x": 61,
+        "y": 874,
+        "width": 268,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "ExchangeAll exchanges",
+        "font": "14px",
+        "x": 61,
+        "y": 953,
+        "width": 268,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. margin of safety (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1032,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. margin of safety (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1112,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. value score",
+        "font": "14px",
+        "x": 61,
+        "y": 1192,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. ROIC (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1272,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. debt / equity",
+        "font": "14px",
+        "x": 61,
+        "y": 1352,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. dividend yield (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1432,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. revenue growth (%)",
+        "font": "14px",
+        "x": 61,
+        "y": 1512,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. Piotroski F-Score",
+        "font": "14px",
+        "x": 61,
+        "y": 1592,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Piotroski F-Score",
+        "font": "14px",
+        "x": 61,
+        "y": 1672,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Altman zoneAny zoneSafeGreyDistress",
+        "font": "14px",
+        "x": 61,
+        "y": 1752,
+        "width": 268,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Moat strengthAny moatWideNarrowNoneInsufficient data",
+        "font": "14px",
+        "x": 61,
+        "y": 1831,
+        "width": 268,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Shares trendAny trendNet buybackStableNet diluterInsufficient data",
+        "font": "14px",
+        "x": 61,
+        "y": 1910,
+        "width": 268,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. P/FFO (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 1989,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Net Debt/EBITDA (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 2069,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. AFFO payout ratio (REIT)",
+        "font": "14px",
+        "x": 61,
+        "y": 2149,
+        "width": 268,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Rows102050",
+        "font": "14px",
+        "x": 103.3125,
+        "y": 2379,
+        "width": 56,
+        "height": 33
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 350,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      },
+      {
+        "tag": "DIV",
+        "width": 308,
+        "scrollWidth": 1985,
+        "x": 41,
+        "y": 2433,
+        "height": 160
+      },
+      {
+        "tag": "DIV",
+        "width": 308,
+        "scrollWidth": 1200,
+        "x": 41,
+        "y": 3029,
+        "height": 40
+      }
+    ],
+    "smallTargets": [
+      {
+        "text": "Company",
+        "x": 57,
+        "y": 2445,
+        "width": 57.8125,
+        "height": 16
+      },
+      {
+        "text": "Sector",
+        "x": 152.9375,
+        "y": 2445,
+        "width": 40.875,
+        "height": 16
+      },
+      {
+        "text": "Exchange",
+        "x": 380.140625,
+        "y": 2445,
+        "width": 59.5,
+        "height": 16
+      },
+      {
+        "text": "MoS",
+        "x": 647.75,
+        "y": 2445,
+        "width": 26.859375,
+        "height": 16
+      },
+      {
+        "text": "Value scoredown",
+        "x": 706.609375,
+        "y": 2445,
+        "width": 109.015625,
+        "height": 16
+      },
+      {
+        "text": "P/FFO",
+        "x": 1332.875,
+        "y": 2445,
+        "width": 36.328125,
+        "height": 16
+      }
+    ],
+    "reviewEnterDestination": "/securities/TEST"
+  },
+  {
+    "width": 390,
+    "route": "/checklists",
+    "errors": [],
+    "pageWidth": 390,
+    "headings": [
+      {
+        "text": "Investment checklist",
+        "x": 20,
+        "y": 285,
+        "width": 350,
+        "height": 36
+      },
+      {
+        "text": "Evaluate a symbol",
+        "x": 41,
+        "y": 1199,
+        "width": 308,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "font": "14px",
+        "x": 41,
+        "y": 556,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 41,
+        "y": 634,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "font": "14px",
+        "x": 54,
+        "y": 709,
+        "width": 282,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 763,
+        "width": 282,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 816,
+        "width": 282,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 869,
+        "width": 282,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "",
+        "font": "14px",
+        "x": 54,
+        "y": 922,
+        "width": 282,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 1267,
+        "width": 241.4375,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 350,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "route": "/portfolio",
+    "errors": [],
+    "pageWidth": 390,
+    "headings": [
+      {
+        "text": "Build with constraints, not hunches.",
+        "x": 45,
+        "y": 310,
+        "width": 300,
+        "height": 72
+      },
+      {
+        "text": "Import an existing portfolio",
+        "x": 41,
+        "y": 548,
+        "width": 308,
+        "height": 28
+      },
+      {
+        "text": "Your portfolios",
+        "x": 41,
+        "y": 734,
+        "width": 308,
+        "height": 28
+      },
+      {
+        "text": "Select or create a portfolio",
+        "x": 41,
+        "y": 1065,
+        "width": 308,
+        "height": 28
+      },
+      {
+        "text": "Allocation constraints",
+        "x": 41,
+        "y": 1203,
+        "width": 308,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "New portfolio",
+        "font": "14px",
+        "x": 41,
+        "y": 831,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 41,
+        "y": 905,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Risk profileBalancedConservativeGrowth",
+        "font": "14px",
+        "x": 41,
+        "y": 1339,
+        "width": 308,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Budget (USD)",
+        "font": "14px",
+        "x": 41,
+        "y": 1416,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum yield (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1494,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. stock (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1572,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. sector (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1650,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. country (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1728,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum MoS (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1806,
+        "width": 308,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 350,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 390,
+    "route": "/watchlist",
+    "errors": [],
+    "pageWidth": 390,
+    "headings": [
+      {
+        "text": "Watchlist & alerts",
+        "x": 45,
+        "y": 310,
+        "width": 300,
+        "height": 36
+      },
+      {
+        "text": "Your watchlist",
+        "x": 20,
+        "y": 561,
+        "width": 350,
+        "height": 28
+      },
+      {
+        "text": "Add to watchlist",
+        "x": 41,
+        "y": 834,
+        "width": 308,
+        "height": 28
+      },
+      {
+        "text": "Alerts requiring review",
+        "x": 45,
+        "y": 1605,
+        "width": 244.484375,
+        "height": 32
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Ticker symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 952,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Monitoring reasonNo reason selectedWait for better priceValuation concernData-quality gapDividend concernNarrative catalystOther",
+        "font": "14px",
+        "x": 41,
+        "y": 1032,
+        "width": 308,
+        "height": 37
+      },
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "name": "Research note",
+        "font": "14px",
+        "x": 41,
+        "y": 1111,
+        "width": 308,
+        "height": 96
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety floor (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1249,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety ceiling (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1329,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Fundamental degradation threshold (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1409,
+        "width": 308,
+        "height": 38
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "NAV",
+        "width": 350,
+        "scrollWidth": 707,
+        "x": 20,
+        "y": 84,
+        "height": 56
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "width": 768,
+    "route": "/login",
+    "errors": [],
+    "pageWidth": 768,
+    "headings": [
+      {
+        "text": "Research before conviction.",
+        "x": 69,
+        "y": 217,
+        "width": 448,
+        "height": 96
+      },
+      {
+        "text": "Enter your workspace",
+        "x": 69,
+        "y": 656,
+        "width": 630,
+        "height": 36
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "email",
+        "name": "Email",
+        "font": "14px",
+        "x": 69,
+        "y": 964,
+        "width": 630,
+        "height": 46
+      },
+      {
+        "tag": "INPUT",
+        "type": "password",
+        "name": "Password",
+        "font": "14px",
+        "x": 69,
+        "y": 1058,
+        "width": 630,
+        "height": 46
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 768,
+    "route": "/screener",
+    "errors": [],
+    "pageWidth": 768,
+    "headings": [
+      {
+        "text": "Build a better shortlist.",
+        "x": 73,
+        "y": 350,
+        "width": 512.296875,
+        "height": 40
+      },
+      {
+        "text": "Screen criteria",
+        "x": 65,
+        "y": 546,
+        "width": 313.421875,
+        "height": 28
+      },
+      {
+        "text": "Screen results",
+        "x": 65,
+        "y": 1482,
+        "width": 120.8125,
+        "height": 28
+      },
+      {
+        "text": "Agent 1 selected-symbol comparison",
+        "x": 65,
+        "y": 1852,
+        "width": 638,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "SectorAll sectors",
+        "font": "14px",
+        "x": 65,
+        "y": 674,
+        "width": 311,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "ExchangeAll exchanges",
+        "font": "14px",
+        "x": 392,
+        "y": 674,
+        "width": 311,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. margin of safety (%)",
+        "font": "14px",
+        "x": 65,
+        "y": 753,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. margin of safety (%)",
+        "font": "14px",
+        "x": 392,
+        "y": 753,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. value score",
+        "font": "14px",
+        "x": 65,
+        "y": 833,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. ROIC (%)",
+        "font": "14px",
+        "x": 392,
+        "y": 833,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. debt / equity",
+        "font": "14px",
+        "x": 65,
+        "y": 913,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. dividend yield (%)",
+        "font": "14px",
+        "x": 392,
+        "y": 913,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. revenue growth (%)",
+        "font": "14px",
+        "x": 65,
+        "y": 993,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. Piotroski F-Score",
+        "font": "14px",
+        "x": 392,
+        "y": 993,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Piotroski F-Score",
+        "font": "14px",
+        "x": 65,
+        "y": 1073,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Altman zoneAny zoneSafeGreyDistress",
+        "font": "14px",
+        "x": 392,
+        "y": 1073,
+        "width": 311,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Moat strengthAny moatWideNarrowNoneInsufficient data",
+        "font": "14px",
+        "x": 65,
+        "y": 1153,
+        "width": 311,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Shares trendAny trendNet buybackStableNet diluterInsufficient data",
+        "font": "14px",
+        "x": 392,
+        "y": 1153,
+        "width": 311,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. P/FFO (REIT)",
+        "font": "14px",
+        "x": 65,
+        "y": 1232,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Net Debt/EBITDA (REIT)",
+        "font": "14px",
+        "x": 392,
+        "y": 1232,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. AFFO payout ratio (REIT)",
+        "font": "14px",
+        "x": 65,
+        "y": 1312,
+        "width": 311,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Rows102050",
+        "font": "14px",
+        "x": 647,
+        "y": 1491.5,
+        "width": 56,
+        "height": 33
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "DIV",
+        "width": 686,
+        "scrollWidth": 1985,
+        "x": 41,
+        "y": 1555,
+        "height": 160
+      },
+      {
+        "tag": "DIV",
+        "width": 686,
+        "scrollWidth": 1200,
+        "x": 41,
+        "y": 1977,
+        "height": 40
+      }
+    ],
+    "smallTargets": [
+      {
+        "text": "Company",
+        "x": 57,
+        "y": 1567,
+        "width": 57.8125,
+        "height": 16
+      },
+      {
+        "text": "Sector",
+        "x": 152.9375,
+        "y": 1567,
+        "width": 40.875,
+        "height": 16
+      },
+      {
+        "text": "Exchange",
+        "x": 380.140625,
+        "y": 1567,
+        "width": 59.5,
+        "height": 16
+      },
+      {
+        "text": "MoS",
+        "x": 647.75,
+        "y": 1567,
+        "width": 26.859375,
+        "height": 16
+      },
+      {
+        "text": "Value scoredown",
+        "x": 706.609375,
+        "y": 1567,
+        "width": 109.015625,
+        "height": 16
+      },
+      {
+        "text": "P/FFO",
+        "x": 1332.875,
+        "y": 1567,
+        "width": 36.328125,
+        "height": 16
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "route": "/checklists",
+    "errors": [],
+    "pageWidth": 768,
+    "headings": [
+      {
+        "text": "Investment checklist",
+        "x": 20,
+        "y": 285,
+        "width": 728,
+        "height": 36
+      },
+      {
+        "text": "Evaluate a symbol",
+        "x": 41,
+        "y": 830,
+        "width": 701.53125,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "font": "14px",
+        "x": 41,
+        "y": 532,
+        "width": 342.765625,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 399.765625,
+        "y": 532,
+        "width": 342.765625,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "font": "14px",
+        "x": 54,
+        "y": 607,
+        "width": 26,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 92,
+        "y": 607,
+        "width": 144,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 248,
+        "y": 607,
+        "width": 160,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 420,
+        "y": 607,
+        "width": 96,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "",
+        "font": "14px",
+        "x": 528,
+        "y": 607,
+        "width": 112,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 898,
+        "width": 241.4375,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 768,
+    "route": "/portfolio",
+    "errors": [],
+    "pageWidth": 768,
+    "headings": [
+      {
+        "text": "Build with constraints, not hunches.",
+        "x": 53,
+        "y": 318,
+        "width": 662,
+        "height": 40
+      },
+      {
+        "text": "Import an existing portfolio",
+        "x": 41,
+        "y": 504,
+        "width": 448.109375,
+        "height": 28
+      },
+      {
+        "text": "Your portfolios",
+        "x": 41,
+        "y": 622,
+        "width": 686,
+        "height": 28
+      },
+      {
+        "text": "Select or create a portfolio",
+        "x": 45,
+        "y": 957,
+        "width": 347.75,
+        "height": 28
+      },
+      {
+        "text": "Allocation constraints",
+        "x": 45,
+        "y": 1083,
+        "width": 678,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "New portfolio",
+        "font": "14px",
+        "x": 41,
+        "y": 719,
+        "width": 686,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 41,
+        "y": 793,
+        "width": 686,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Risk profileBalancedConservativeGrowth",
+        "font": "14px",
+        "x": 45,
+        "y": 1179,
+        "width": 331,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Budget (USD)",
+        "font": "14px",
+        "x": 392,
+        "y": 1179,
+        "width": 331,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum yield (%)",
+        "font": "14px",
+        "x": 45,
+        "y": 1257,
+        "width": 331,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. stock (%)",
+        "font": "14px",
+        "x": 392,
+        "y": 1257,
+        "width": 331,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. sector (%)",
+        "font": "14px",
+        "x": 45,
+        "y": 1335,
+        "width": 331,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. country (%)",
+        "font": "14px",
+        "x": 392,
+        "y": 1335,
+        "width": 331,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum MoS (%)",
+        "font": "14px",
+        "x": 45,
+        "y": 1413,
+        "width": 331,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 768,
+    "route": "/watchlist",
+    "errors": [],
+    "pageWidth": 768,
+    "headings": [
+      {
+        "text": "Watchlist & alerts",
+        "x": 53,
+        "y": 318,
+        "width": 279.859375,
+        "height": 80
+      },
+      {
+        "text": "Your watchlist",
+        "x": 20,
+        "y": 543,
+        "width": 482.203125,
+        "height": 28
+      },
+      {
+        "text": "Add to watchlist",
+        "x": 41,
+        "y": 722,
+        "width": 686,
+        "height": 28
+      },
+      {
+        "text": "Alerts requiring review",
+        "x": 53,
+        "y": 1481,
+        "width": 244.484375,
+        "height": 32
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Ticker symbol",
+        "font": "14px",
+        "x": 41,
+        "y": 820,
+        "width": 686,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Monitoring reasonNo reason selectedWait for better priceValuation concernData-quality gapDividend concernNarrative catalystOther",
+        "font": "14px",
+        "x": 41,
+        "y": 900,
+        "width": 686,
+        "height": 37
+      },
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "name": "Research note",
+        "font": "14px",
+        "x": 41,
+        "y": 979,
+        "width": 686,
+        "height": 96
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety floor (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1117,
+        "width": 686,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety ceiling (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1197,
+        "width": 686,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Fundamental degradation threshold (%)",
+        "font": "14px",
+        "x": 41,
+        "y": 1277,
+        "width": 686,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 1440,
+    "route": "/login",
+    "errors": [],
+    "pageWidth": 1440,
+    "headings": [
+      {
+        "text": "Research before conviction.",
+        "x": 257,
+        "y": 250,
+        "width": 439.546875,
+        "height": 96
+      },
+      {
+        "text": "Enter your workspace",
+        "x": 793.546875,
+        "y": 142,
+        "width": 389.4375,
+        "height": 36
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "email",
+        "name": "Email",
+        "font": "14px",
+        "x": 793.546875,
+        "y": 450,
+        "width": 389.4375,
+        "height": 46
+      },
+      {
+        "tag": "INPUT",
+        "type": "password",
+        "name": "Password",
+        "font": "14px",
+        "x": 793.546875,
+        "y": 544,
+        "width": 389.4375,
+        "height": 46
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 1440,
+    "route": "/screener",
+    "errors": [],
+    "pageWidth": 1440,
+    "headings": [
+      {
+        "text": "Build a better shortlist.",
+        "x": 369,
+        "y": 189,
+        "width": 672,
+        "height": 40
+      },
+      {
+        "text": "Screen criteria",
+        "x": 361,
+        "y": 379,
+        "width": 372.203125,
+        "height": 28
+      },
+      {
+        "text": "Screen results",
+        "x": 361,
+        "y": 971,
+        "width": 120.8125,
+        "height": 28
+      },
+      {
+        "text": "Agent 1 selected-symbol comparison",
+        "x": 361,
+        "y": 1341,
+        "width": 990,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "SectorAll sectors",
+        "font": "14px",
+        "x": 361,
+        "y": 481,
+        "width": 235.5,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "ExchangeAll exchanges",
+        "font": "14px",
+        "x": 612.5,
+        "y": 481,
+        "width": 235.5,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. margin of safety (%)",
+        "font": "14px",
+        "x": 864,
+        "y": 481,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. margin of safety (%)",
+        "font": "14px",
+        "x": 1115.5,
+        "y": 481,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. value score",
+        "font": "14px",
+        "x": 361,
+        "y": 561,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. ROIC (%)",
+        "font": "14px",
+        "x": 612.5,
+        "y": 561,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. debt / equity",
+        "font": "14px",
+        "x": 864,
+        "y": 561,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. dividend yield (%)",
+        "font": "14px",
+        "x": 1115.5,
+        "y": 561,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. revenue growth (%)",
+        "font": "14px",
+        "x": 361,
+        "y": 641,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Min. Piotroski F-Score",
+        "font": "14px",
+        "x": 612.5,
+        "y": 641,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Piotroski F-Score",
+        "font": "14px",
+        "x": 864,
+        "y": 641,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Altman zoneAny zoneSafeGreyDistress",
+        "font": "14px",
+        "x": 1115.5,
+        "y": 641,
+        "width": 235.5,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Moat strengthAny moatWideNarrowNoneInsufficient data",
+        "font": "14px",
+        "x": 361,
+        "y": 721,
+        "width": 235.5,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Shares trendAny trendNet buybackStableNet diluterInsufficient data",
+        "font": "14px",
+        "x": 612.5,
+        "y": 721,
+        "width": 235.5,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. P/FFO (REIT)",
+        "font": "14px",
+        "x": 864,
+        "y": 721,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. Net Debt/EBITDA (REIT)",
+        "font": "14px",
+        "x": 1115.5,
+        "y": 721,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Max. AFFO payout ratio (REIT)",
+        "font": "14px",
+        "x": 361,
+        "y": 801,
+        "width": 235.5,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Rows102050",
+        "font": "14px",
+        "x": 1295,
+        "y": 980.5,
+        "width": 56,
+        "height": 33
+      }
+    ],
+    "scrollers": [
+      {
+        "tag": "DIV",
+        "width": 1038,
+        "scrollWidth": 1985,
+        "x": 337,
+        "y": 1044,
+        "height": 160
+      },
+      {
+        "tag": "DIV",
+        "width": 1038,
+        "scrollWidth": 1200,
+        "x": 337,
+        "y": 1442,
+        "height": 40
+      }
+    ],
+    "smallTargets": [
+      {
+        "text": "Company",
+        "x": 353,
+        "y": 1056,
+        "width": 57.8125,
+        "height": 16
+      },
+      {
+        "text": "Sector",
+        "x": 448.9375,
+        "y": 1056,
+        "width": 40.875,
+        "height": 16
+      },
+      {
+        "text": "Exchange",
+        "x": 676.140625,
+        "y": 1056,
+        "width": 59.5,
+        "height": 16
+      },
+      {
+        "text": "MoS",
+        "x": 943.75,
+        "y": 1056,
+        "width": 26.859375,
+        "height": 16
+      },
+      {
+        "text": "Value scoredown",
+        "x": 1002.609375,
+        "y": 1056,
+        "width": 109.015625,
+        "height": 16
+      },
+      {
+        "text": "P/FFO",
+        "x": 1628.875,
+        "y": 1056,
+        "width": 36.328125,
+        "height": 16
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "route": "/checklists",
+    "errors": [],
+    "pageWidth": 1440,
+    "headings": [
+      {
+        "text": "Investment checklist",
+        "x": 304,
+        "y": 124,
+        "width": 1104,
+        "height": 36
+      },
+      {
+        "text": "Evaluate a symbol",
+        "x": 637,
+        "y": 559,
+        "width": 750,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "font": "14px",
+        "x": 637,
+        "y": 261,
+        "width": 367,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 1020,
+        "y": 261,
+        "width": 367,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "font": "14px",
+        "x": 650,
+        "y": 336,
+        "width": 74.46875,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 736.46875,
+        "y": 336,
+        "width": 144,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 892.46875,
+        "y": 336,
+        "width": 160,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "",
+        "font": "14px",
+        "x": 1064.46875,
+        "y": 336,
+        "width": 96,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "",
+        "font": "14px",
+        "x": 1172.46875,
+        "y": 336,
+        "width": 112,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "font": "14px",
+        "x": 637,
+        "y": 627,
+        "width": 241.4375,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 1440,
+    "route": "/portfolio",
+    "errors": [],
+    "pageWidth": 1440,
+    "headings": [
+      {
+        "text": "Build with constraints, not hunches.",
+        "x": 337,
+        "y": 157,
+        "width": 1038,
+        "height": 40
+      },
+      {
+        "text": "Import an existing portfolio",
+        "x": 325,
+        "y": 343,
+        "width": 448.109375,
+        "height": 28
+      },
+      {
+        "text": "Your portfolios",
+        "x": 325,
+        "y": 461,
+        "width": 278,
+        "height": 28
+      },
+      {
+        "text": "Select or create a portfolio",
+        "x": 673,
+        "y": 465,
+        "width": 347.75,
+        "height": 28
+      },
+      {
+        "text": "Allocation constraints",
+        "x": 673,
+        "y": 591,
+        "width": 710,
+        "height": 28
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "New portfolio",
+        "font": "14px",
+        "x": 325,
+        "y": 558,
+        "width": 278,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "font": "14px",
+        "x": 325,
+        "y": 632,
+        "width": 278,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Risk profileBalancedConservativeGrowth",
+        "font": "14px",
+        "x": 673,
+        "y": 687,
+        "width": 226,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Budget (USD)",
+        "font": "14px",
+        "x": 915,
+        "y": 687,
+        "width": 226,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum yield (%)",
+        "font": "14px",
+        "x": 1157,
+        "y": 687,
+        "width": 226,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. stock (%)",
+        "font": "14px",
+        "x": 673,
+        "y": 765,
+        "width": 226,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. sector (%)",
+        "font": "14px",
+        "x": 915,
+        "y": 765,
+        "width": 226,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Max. country (%)",
+        "font": "14px",
+        "x": 1157,
+        "y": 765,
+        "width": 226,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Minimum MoS (%)",
+        "font": "14px",
+        "x": 673,
+        "y": 843,
+        "width": 226,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  },
+  {
+    "width": 1440,
+    "route": "/watchlist",
+    "errors": [],
+    "pageWidth": 1440,
+    "headings": [
+      {
+        "text": "Watchlist & alerts",
+        "x": 337,
+        "y": 157,
+        "width": 451.796875,
+        "height": 40
+      },
+      {
+        "text": "Your watchlist",
+        "x": 304,
+        "y": 318,
+        "width": 482.203125,
+        "height": 28
+      },
+      {
+        "text": "Add to watchlist",
+        "x": 1061,
+        "y": 339,
+        "width": 326,
+        "height": 28
+      },
+      {
+        "text": "Alerts requiring review",
+        "x": 337,
+        "y": 1118,
+        "width": 244.484375,
+        "height": 32
+      }
+    ],
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Ticker symbol",
+        "font": "14px",
+        "x": 1061,
+        "y": 457,
+        "width": 326,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Monitoring reasonNo reason selectedWait for better priceValuation concernData-quality gapDividend concernNarrative catalystOther",
+        "font": "14px",
+        "x": 1061,
+        "y": 537,
+        "width": 326,
+        "height": 37
+      },
+      {
+        "tag": "TEXTAREA",
+        "type": "textarea",
+        "name": "Research note",
+        "font": "14px",
+        "x": 1061,
+        "y": 616,
+        "width": 326,
+        "height": 96
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety floor (%)",
+        "font": "14px",
+        "x": 1061,
+        "y": 754,
+        "width": 326,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Margin of safety ceiling (%)",
+        "font": "14px",
+        "x": 1061,
+        "y": 834,
+        "width": 326,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Fundamental degradation threshold (%)",
+        "font": "14px",
+        "x": 1061,
+        "y": 914,
+        "width": 326,
+        "height": 38
+      }
+    ],
+    "scrollers": [],
+    "smallTargets": []
+  }
+]
