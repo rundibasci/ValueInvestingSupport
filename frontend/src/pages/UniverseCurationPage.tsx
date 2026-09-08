@@ -401,10 +401,12 @@ function MultiSelect({
           </option>
         ))}
       </select>
+      <span className="mt-2 block text-xs font-normal text-slate-500">Or edit as a comma-separated list</span>
       <input
+        aria-label={`${label}, comma-separated list`}
         value={value.join(", ")}
         onChange={(event) => onChange(parseList(event.target.value))}
-        className="mt-2 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-300 outline-none focus:border-emerald-400"
+        className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-300 outline-none focus:border-emerald-400"
       />
     </label>
   );
@@ -535,7 +537,26 @@ function PreviewTable({ preview }: { preview: UniversePreview }): JSX.Element {
           </span>
         )}
       </div>
-      <div className="overflow-x-auto">
+      <ul className="divide-y divide-slate-800 lg:hidden">
+        {preview.symbols.map((row) => (
+          <li key={row.symbol} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold text-emerald-300">{row.symbol}</p>
+                <p className="text-xs text-slate-400">{row.companyName ?? "-"}</p>
+              </div>
+              <p className="text-right text-sm text-slate-200">{formatMoney(row.marketCap)}</p>
+            </div>
+            <dl className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-300">
+              <div><dt className="inline text-slate-400">Exchange </dt><dd className="inline">{row.exchange ?? "-"}</dd></div>
+              <div><dt className="inline text-slate-400">Country </dt><dd className="inline">{row.country ?? "-"}</dd></div>
+              <div><dt className="inline text-slate-400">Sector </dt><dd className="inline">{row.sector ?? "-"}</dd></div>
+              <div><dt className="inline text-slate-400">Volume </dt><dd className="inline">{formatNumber(row.volume)}</dd></div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
             <tr>
@@ -580,7 +601,41 @@ function SeedResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
           {fullCount} fully seeded · {partialCount} partially seeded · {results.length - fullCount - partialCount} failed or unavailable.
         </p>
       </div>
-      <div className="overflow-x-auto">
+      <ul className="divide-y divide-slate-800 lg:hidden">
+        {results.map((result) => (
+          <li key={result.symbol} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold text-emerald-300">{result.symbol}</p>
+                <p className="text-xs text-slate-400">{result.companyName ?? "-"}</p>
+              </div>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${seedStatusClass(result)}`}>
+                {result.error ?? result.status ?? "seeded"}
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-slate-300">
+              {result.sector ?? "-"}
+              <span className="text-slate-400"> · {[result.exchange, result.country].filter(Boolean).join(" / ") || "-"}</span>
+            </p>
+            {result.reason && <p className="mt-2 text-xs leading-5 text-sky-100">{result.reason}</p>}
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-slate-800 pt-3">
+              {!result.error ? (
+                <>
+                  <Link className="text-sm font-semibold text-emerald-300 hover:text-emerald-200" to={`/securities/${encodeURIComponent(result.symbol)}`}>
+                    Detail
+                  </Link>
+                  <Link className="text-sm font-semibold text-emerald-300 hover:text-emerald-200" to={`/securities/${encodeURIComponent(result.symbol)}/review`}>
+                    Review
+                  </Link>
+                </>
+              ) : (
+                <span className="text-xs text-slate-400">No handoff</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
             <tr>

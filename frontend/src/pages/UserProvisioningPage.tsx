@@ -63,11 +63,26 @@ export function UserProvisioningPage(): JSX.Element {
       <button disabled={create.isPending} className="rounded-lg bg-emerald-400 px-4 py-2 font-semibold text-slate-950 disabled:opacity-50">{create.isPending ? 'Creating…' : 'Create user'}</button>
     </form>
 
-    <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/50">
+    <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/50">
       {users.isLoading && <p className="p-6 text-slate-400">Loading users…</p>}
       {users.isError && <div className="p-6"><p className="text-rose-300">Unable to load users.</p><button onClick={() => void users.refetch()} className="mt-3 rounded-lg border border-slate-600 px-3 py-2">Retry</button></div>}
       {users.data && users.data.content.length === 0 && <p className="p-6 text-slate-400">No users found.</p>}
-      {users.data && users.data.content.length > 0 && <table className="w-full min-w-[760px] text-left text-sm">
+      {users.data && users.data.content.length > 0 && <ul className="divide-y divide-slate-800/70 lg:hidden">{users.data.content.map(user => {
+        const self = user.email.toLowerCase() === session.email.toLowerCase()
+        const pending = lifecycle.isPending && lifecycle.variables?.id === user.id
+        return <li key={user.id} className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <p className="font-medium text-white">{user.email}</p>
+            <span className={user.active ? 'text-emerald-300' : 'text-amber-300'}>{user.active ? 'Active' : 'Disabled'}</span>
+          </div>
+          <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
+            <div><dt className="inline text-slate-400">Role </dt><dd className="inline">{user.role}</dd></div>
+            <div><dt className="inline text-slate-400">Created </dt><dd className="inline text-slate-400">{new Date(user.createdAt).toLocaleDateString()}</dd></div>
+          </dl>
+          <button title={self && user.active ? 'You cannot disable your own account.' : undefined} disabled={pending || (self && user.active)} onClick={() => changeActive(user.id, user.email, !user.active)} className="mt-3 min-h-11 rounded-lg border border-slate-600 px-3 py-2 disabled:cursor-not-allowed disabled:opacity-40">{pending ? 'Updating…' : user.active ? 'Disable' : 'Enable'}</button>
+        </li>
+      })}</ul>}
+      {users.data && users.data.content.length > 0 && <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm">
         <thead className="border-b border-slate-800 text-slate-400"><tr><th className="p-4">Email</th><th className="p-4">Role</th><th className="p-4">Status</th><th className="p-4">Created</th><th className="p-4">Action</th></tr></thead>
         <tbody>{users.data.content.map(user => {
           const self = user.email.toLowerCase() === session.email.toLowerCase()
@@ -79,7 +94,7 @@ export function UserProvisioningPage(): JSX.Element {
             <td className="p-4"><button title={self && user.active ? 'You cannot disable your own account.' : undefined} disabled={pending || (self && user.active)} onClick={() => changeActive(user.id, user.email, !user.active)} className="rounded-lg border border-slate-600 px-3 py-2 disabled:cursor-not-allowed disabled:opacity-40">{pending ? 'Updating…' : user.active ? 'Disable' : 'Enable'}</button></td>
           </tr>
         })}</tbody>
-      </table>}
+      </table></div>}
       {users.data && <div className="flex items-center justify-between border-t border-slate-800 p-4 text-sm text-slate-400">
         <span>Page {users.data.number + 1} of {Math.max(users.data.totalPages, 1)} · {users.data.totalElements} users</span>
         <div className="flex gap-2"><button disabled={users.data.first} onClick={() => setPage(value => Math.max(0, value - 1))} className="rounded border border-slate-700 px-3 py-1 disabled:opacity-40">Previous</button><button disabled={users.data.last} onClick={() => setPage(value => value + 1)} className="rounded border border-slate-700 px-3 py-1 disabled:opacity-40">Next</button></div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminJobsApi, type IngestionEvent, type JobRunStatus, type JobRunSummary } from "../api/adminJobs";
+import { adminJobsApi, type IngestionEvent, type JobMonitorRow, type JobRunStatus, type JobRunSummary } from "../api/adminJobs";
 import { useAuth } from "../auth/AuthProvider";
 
 type DetailMode = "history" | "events";
@@ -208,7 +208,22 @@ export function AdminJobsPage(): JSX.Element {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-800">
+      <ul className="space-y-3 lg:hidden">
+        {filteredJobs.map((job) => (
+          <JobCard
+            key={job.jobName}
+            job={job}
+            selected={selectedJob === job.jobName}
+            onSelect={() => setSelectedJob(job.jobName)}
+            onRun={() => runMutation.mutate(job.jobName)}
+            runPending={runMutation.isPending}
+            onToggleEnabled={() => enabledMutation.mutate({ jobName: job.jobName, enabled: !job.enabled })}
+            onHistory={() => { setSelectedJob(job.jobName); setDetailMode("history"); }}
+            onEvents={() => { setSelectedJob(job.jobName); setDetailMode("events"); }}
+          />
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto rounded-lg border border-slate-800 lg:block">
         <table className="min-w-[1100px] w-full divide-y divide-slate-800 text-sm">
           <thead className="bg-slate-900/80 text-left text-xs uppercase tracking-[.16em] text-slate-400">
             <tr>
@@ -247,16 +262,16 @@ export function AdminJobsPage(): JSX.Element {
                 </td>
                 <td className="px-4 py-4 align-top">
                   <div className="flex flex-wrap gap-2">
-                    <button className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60" disabled={runMutation.isPending} onClick={() => runMutation.mutate(job.jobName)} type="button">
+                    <button className="min-h-11 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60" disabled={runMutation.isPending} onClick={() => runMutation.mutate(job.jobName)} type="button">
                       Run now
                     </button>
-                    <button className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => enabledMutation.mutate({ jobName: job.jobName, enabled: !job.enabled })} type="button">
+                    <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => enabledMutation.mutate({ jobName: job.jobName, enabled: !job.enabled })} type="button">
                       {job.enabled ? "Disable" : "Enable"}
                     </button>
-                    <button className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => { setSelectedJob(job.jobName); setDetailMode("history"); }} type="button">
+                    <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => { setSelectedJob(job.jobName); setDetailMode("history"); }} type="button">
                       History
                     </button>
-                    <button className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => { setSelectedJob(job.jobName); setDetailMode("events"); }} type="button">
+                    <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={() => { setSelectedJob(job.jobName); setDetailMode("events"); }} type="button">
                       Events
                     </button>
                   </div>
@@ -266,6 +281,7 @@ export function AdminJobsPage(): JSX.Element {
           </tbody>
         </table>
       </div>
+      {!monitorQuery.isLoading && !filteredJobs.length && <p className="rounded-lg border border-slate-800 p-6 text-sm text-slate-400">No jobs match these filters.</p>}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <section className="rounded-lg border border-slate-800 bg-slate-900/50 p-5">
@@ -305,6 +321,68 @@ export function AdminJobsPage(): JSX.Element {
         </section>
       </div>
     </section>
+  );
+}
+
+function JobCard({
+  job,
+  selected,
+  onSelect,
+  onRun,
+  runPending,
+  onToggleEnabled,
+  onHistory,
+  onEvents,
+}: {
+  job: JobMonitorRow;
+  selected: boolean;
+  onSelect: () => void;
+  onRun: () => void;
+  runPending: boolean;
+  onToggleEnabled: () => void;
+  onHistory: () => void;
+  onEvents: () => void;
+}): JSX.Element {
+  return (
+    <li className={`rounded-lg border p-4 ${selected ? "border-emerald-400/60 bg-slate-900/80" : "border-slate-800 bg-slate-950"}`}>
+      <button className="text-left font-semibold text-white hover:text-emerald-300" onClick={onSelect} type="button">
+        {job.jobName}
+      </button>
+      <p className="mt-1 text-xs text-slate-400">Source {job.dataSource ?? "-"}</p>
+      <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <dt className="text-xs uppercase text-slate-400">State</dt>
+          <dd className={job.enabled ? "text-emerald-200" : "text-amber-200"}>{job.enabled ? "Enabled" : "Disabled"}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase text-slate-400">Current</dt>
+          <dd><span className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${statusClass(job.currentStatus)}`}>{job.currentStatus}</span><p className="mt-1 text-xs text-slate-400">{formatDuration(job.currentDurationSeconds)}</p></dd>
+        </div>
+        <div className="col-span-2">
+          <dt className="text-xs uppercase text-slate-400">Schedule</dt>
+          <dd><code className="text-xs text-slate-300">{job.cronExpression}</code><p className="mt-1 text-xs text-slate-400">{job.enabled ? `Next ${formatDate(job.nextRunAt)}` : "Schedule inactive"}</p></dd>
+        </div>
+        <div className="col-span-2">
+          <dt className="text-xs uppercase text-slate-400">Last run</dt>
+          <dd><RunSummary run={job.lastRun} /></dd>
+        </div>
+      </dl>
+      {job.latestError && <p className="mt-2 text-xs text-rose-200">{job.latestError}</p>}
+      <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-800 pt-3">
+        <button className="min-h-11 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60" disabled={runPending} onClick={onRun} type="button">
+          Run now
+        </button>
+        <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={onToggleEnabled} type="button">
+          {job.enabled ? "Disable" : "Enable"}
+        </button>
+        <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={onHistory} type="button">
+          History
+        </button>
+        <button className="min-h-11 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-emerald-300" onClick={onEvents} type="button">
+          Events
+        </button>
+      </div>
+    </li>
   );
 }
 
