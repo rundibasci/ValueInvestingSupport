@@ -369,15 +369,20 @@ function AnalyticsDashboard({
         : "emerald";
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-white">
-            Portfolio intelligence
-          </h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Portfolio-level diagnostics for concentration, liquidity, benchmark characteristics, and quality.
-          </p>
+    <details open className="group rounded-2xl border border-slate-800 bg-slate-900/50">
+      <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-start justify-between gap-3 p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400 sm:p-6 [&::-webkit-details-marker]:hidden">
+        <div className="flex items-start gap-2">
+          <svg aria-hidden="true" className="mt-1.5 h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+          <div>
+            <h2 className="text-xl font-semibold text-white">
+              Portfolio intelligence
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Portfolio-level diagnostics for concentration, liquidity, benchmark characteristics, and quality.
+            </p>
+          </div>
         </div>
         <div className="text-right text-sm">
           <p className="text-slate-400">Snapshot</p>
@@ -385,8 +390,9 @@ function AnalyticsDashboard({
             {new Date(analytics.capturedAt).toLocaleString()}
           </p>
         </div>
-      </div>
+      </summary>
 
+      <div className="px-5 pb-5 sm:px-6 sm:pb-6">
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <MetricTile
           labelText="Weighted MoS"
@@ -534,7 +540,8 @@ function AnalyticsDashboard({
           ))}
         </div>
       )}
-    </section>
+      </div>
+    </details>
   );
 }
 
