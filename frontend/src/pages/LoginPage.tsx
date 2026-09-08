@@ -72,7 +72,7 @@ export function LoginPage(): JSX.Element {
   return (
     <main className="login-canvas min-h-screen px-5 py-8 text-slate-100 sm:grid sm:place-items-center">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-950/80 shadow-2xl shadow-emerald-950/30 lg:grid-cols-[1.05fr_.95fr]">
-        <section className="relative overflow-hidden border-b border-slate-800 p-8 sm:p-12 lg:border-b-0 lg:border-r">
+        <section className="relative order-2 overflow-hidden p-8 sm:p-12 lg:order-1 lg:border-r lg:border-slate-800">
           <div className="relative">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-400 font-bold text-slate-950">V</span>
@@ -89,7 +89,7 @@ export function LoginPage(): JSX.Element {
             </div>
           </div>
         </section>
-        <section className="p-8 sm:p-12">
+        <section className="order-1 border-b border-slate-800 p-8 sm:p-12 lg:order-2 lg:border-b-0">
           <p className="text-sm font-medium text-emerald-300">Welcome back</p>
           <h2 className="mt-2 text-3xl font-semibold text-white">Enter your workspace</h2>
           <p className="mt-2 text-sm text-slate-400">Sign in to continue your research.</p>
@@ -116,7 +116,7 @@ export function LoginPage(): JSX.Element {
             </p>
           )}
 
-          <div className="my-6 flex items-center gap-3 text-xs uppercase text-slate-500">
+          <div className="my-6 flex items-center gap-3 text-xs uppercase text-slate-400">
             <span className="h-px flex-1 bg-slate-800" />
             <span>Password</span>
             <span className="h-px flex-1 bg-slate-800" />
@@ -152,7 +152,7 @@ export function LoginPage(): JSX.Element {
               {submitting ? 'Signing in...' : 'Sign in to research'}
             </button>
           </form>
-          <p className="mt-8 text-xs leading-5 text-slate-500">
+          <p className="mt-8 text-xs leading-5 text-slate-400">
             Value Investing is decision support, not investment advice. Your judgment stays in the room.
           </p>
         </section>

@@ -1,0 +1,158 @@
+[
+  {
+    "width": 390,
+    "unnamed": 0,
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "x": 41,
+        "y": 424,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "x": 41,
+        "y": 502,
+        "width": 308,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "x": 54,
+        "y": 597,
+        "width": 282,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "TypeAutoManual",
+        "x": 54,
+        "y": 671,
+        "width": 135,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "MetricmarginOfSafetyvalueScoreroicdebtToEquitydividendYieldpiotroskiScorealtmanScore",
+        "x": 201,
+        "y": 671,
+        "width": 135,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Operator>=<=><=",
+        "x": 54,
+        "y": 744,
+        "width": 135,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Threshold",
+        "x": 201,
+        "y": 744,
+        "width": 135,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "x": 41,
+        "y": 1105,
+        "width": 241.4375,
+        "height": 38
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "unnamed": 0,
+    "fields": [
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Name",
+        "x": 41,
+        "y": 400,
+        "width": 335,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Description",
+        "x": 392,
+        "y": 400,
+        "width": 335,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Criterion label",
+        "x": 54,
+        "y": 495,
+        "width": 660,
+        "height": 38
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "TypeAutoManual",
+        "x": 54,
+        "y": 569,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "MetricmarginOfSafetyvalueScoreroicdebtToEquitydividendYieldpiotroskiScorealtmanScore",
+        "x": 278,
+        "y": 569,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "SELECT",
+        "type": "select-one",
+        "name": "Operator>=<=><=",
+        "x": 502,
+        "y": 569,
+        "width": 212,
+        "height": 37
+      },
+      {
+        "tag": "INPUT",
+        "type": "number",
+        "name": "Threshold",
+        "x": 54,
+        "y": 642,
+        "width": 212,
+        "height": 38
+      },
+      {
+        "tag": "INPUT",
+        "type": "text",
+        "name": "Symbol",
+        "x": 41,
+        "y": 947,
+        "width": 241.4375,
+        "height": 38
+      }
+    ]
+  }
+]

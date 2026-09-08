@@ -72,14 +72,14 @@ export function AdminThesisReviewPage(): JSX.Element {
                     {item.humanReviewRequired ? (
                       <span className="inline-flex rounded-full bg-rose-400/15 px-2.5 py-1 text-xs font-semibold text-rose-100">flagged</span>
                     ) : (
-                      <span className="text-slate-500">no</span>
+                      <span className="text-slate-400">no</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
                     {item.dataWarningsPresent ? (
                       <span className="inline-flex rounded-full bg-amber-300/15 px-2.5 py-1 text-xs font-semibold text-amber-100">present</span>
                     ) : (
-                      <span className="text-slate-500">none</span>
+                      <span className="text-slate-400">none</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-slate-400">{formatDate(item.generatedAt)}</td>

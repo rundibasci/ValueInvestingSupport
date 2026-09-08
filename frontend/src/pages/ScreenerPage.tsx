@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api/client'
 import { professionalApi } from '../api/professional'
 import { availabilityClass, availabilityLabel } from '../lib/availability'
@@ -168,6 +168,9 @@ export function ScreenerPage(): JSX.Element {
   const [filters, setFilters] = useState<Filters>(emptyFilters)
   const [query, setQuery] = useState<QueryState>(initialQuery)
   const [error, setError] = useState<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null)
+  const filterButton = useRef<HTMLButtonElement>(null)
   const sectors = useQuery({ queryKey: ['screener', 'sectors'], queryFn: () => getJson<string[]>('/api/v1/screener/sectors') })
   const exchanges = useQuery({ queryKey: ['screener', 'exchanges'], queryFn: () => getJson<string[]>('/api/v1/screener/exchanges') })
   const presets = useQuery({ queryKey: ['screener', 'presets'], queryFn: () => getJson<Presets>('/api/v1/screener/presets') })
@@ -184,7 +187,7 @@ export function ScreenerPage(): JSX.Element {
     queryFn: () => getJson<ConservativeEmptyStateDiagnostic>('/api/v1/conservative-workflow/empty-state-diagnostics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serialise(query)) }),
     enabled: Boolean(results.data && results.data.results.length === 0),
   })
-  const activeFilterCount = useMemo(() => Object.values(filters).filter((value) => value !== '').length, [filters])
+  const activeFilterCount = useMemo(() => Object.keys(emptyFilters).filter((key) => query[key as keyof Filters] !== '').length, [query])
   const update = (field: keyof Filters, value: string) => setFilters((current) => ({ ...current, [field]: value }))
 
   function apply(event?: FormEvent): void {
@@ -202,6 +205,8 @@ export function ScreenerPage(): JSX.Element {
     }
     setError(null)
     setQuery((current) => ({ ...current, ...filters, page: 0 }))
+    setFiltersOpen(false)
+    filterButton.current?.focus()
   }
 
   function reset(): void {
@@ -224,6 +229,7 @@ export function ScreenerPage(): JSX.Element {
   }
 
   function rowKeyDown(event: KeyboardEvent<HTMLTableRowElement>, symbol: string): void {
+    if (event.target !== event.currentTarget) return
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       navigate(`/securities/${symbol}`)
@@ -239,30 +245,27 @@ export function ScreenerPage(): JSX.Element {
   )
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-5 py-8 lg:px-8">
-      <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-slate-950/20 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[.22em] text-emerald-300">Discover</p>
-        <div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <h1 className="text-3xl font-semibold text-white sm:text-4xl">Build a better shortlist.</h1>
-            <p className="mt-3 max-w-2xl leading-7 text-slate-300">Start with the evidence: quality, resilience, growth, income, and the gap between market price and calculated fair value.</p>
-          </div>
-          <span className="w-fit rounded-full bg-emerald-400/10 px-3 py-1.5 text-sm text-emerald-200">{activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'}</span>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Screener</h1>
+          <p aria-live="polite" className="mt-1 text-sm text-slate-400">{results.isLoading ? 'Finding companies...' : results.isError ? 'Results unavailable' : `${formatNumber(results.data?.totalElements ?? 0)} companies found`}{results.isFetching && !results.isLoading ? ' · Updating...' : ''}</p>
         </div>
-      </section>
+        <button ref={filterButton} type="button" aria-expanded={filtersOpen} aria-controls="screen-filters" onClick={() => setFiltersOpen((open) => !open)} className="min-h-11 rounded-lg border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">Filters · {activeFilterCount}</button>
+      </div>
 
-      <section aria-labelledby="filter-heading" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+      <section aria-labelledby="filter-heading" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h2 id="filter-heading" className="text-lg font-semibold text-white">Screen criteria</h2>
-            <p className="mt-1 text-sm text-slate-400">Apply your own discipline or begin with a research preset.</p>
+            <h2 id="filter-heading" className="text-sm font-semibold text-white">Research presets</h2>
             {competence.data?.preferredSectors.length ? <p className="mt-2 text-xs text-amber-100">Rows outside your marked sectors are labelled in the results table.</p> : null}
           </div>
-          <div className="flex flex-wrap gap-2">{['graham', 'dividend', 'quality', 'conservative'].map((preset) => <button key={preset} type="button" disabled={presets.isLoading || !presets.data?.[preset]} onClick={() => usePreset(preset)} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium capitalize text-emerald-200 transition hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50">{preset}</button>)}</div>
+          <div className="flex flex-wrap gap-2">{['graham', 'dividend', 'quality', 'conservative'].map((preset) => <button key={preset} type="button" disabled={presets.isLoading || !presets.data?.[preset]} onClick={() => usePreset(preset)} className="min-h-11 rounded-lg border border-emerald-400/30 px-3 py-2 text-sm font-medium capitalize text-emerald-200 transition hover:bg-emerald-400/10 disabled:cursor-wait disabled:opacity-50">{preset}</button>)}</div>
         </div>
         {presets.isError && <p role="alert" className="mt-3 text-sm text-amber-200">Research presets are unavailable right now.</p>}
         {conservativePreset.data && (
-          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+          <details className="mt-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+            <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">About the conservative preset</summary>
             <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
               <div>
                 <p className="text-sm font-semibold text-white">Conservative preset</p>
@@ -279,9 +282,10 @@ export function ScreenerPage(): JSX.Element {
                 </div>
               ))}
             </div>
-          </div>
+          </details>
         )}
-        <form className="mt-6 space-y-5" onSubmit={apply}>
+        <form id="screen-filters" hidden={!filtersOpen} className="mt-5 space-y-5" onSubmit={apply}>
+          <h3 className="text-lg font-semibold text-white">Screen criteria</h3>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <label className="block text-sm font-medium text-slate-200">Sector<select value={filters.sector} onChange={(event) => update('sector', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">All sectors</option>{sectors.data?.map((sector) => <option key={sector} value={sector}>{sector}</option>)}</select></label>
             <label className="block text-sm font-medium text-slate-200">Exchange<select value={filters.exchange} onChange={(event) => update('exchange', event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/25"><option value="">All exchanges</option>{exchanges.data?.map((exchange) => <option key={exchange} value={exchange}>{exchange}</option>)}</select></label>
@@ -352,14 +356,67 @@ export function ScreenerPage(): JSX.Element {
                   <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
                     {emptyStateDiagnostics.data.suggestedRelaxations.map((item) => <li key={item}>{item}</li>)}
                   </ul>
-                  <p className="mt-4 text-xs leading-5 text-slate-500">{emptyStateDiagnostics.data.decisionSupportNote}</p>
+                  <p className="mt-4 text-xs leading-5 text-slate-400">{emptyStateDiagnostics.data.decisionSupportNote}</p>
                 </div>
               </div>
             )}
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="lg:hidden">
+              <div className="flex flex-wrap items-end gap-3 border-b border-slate-800 p-4">
+                <label className="min-w-0 flex-1 text-sm text-slate-300">Sort by
+                  <select value={query.sortField} onChange={(event) => setQuery((current) => ({ ...current, sortField: event.target.value as SortField, page: 0 }))} className="mt-1 min-h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
+                    <option value="totalScore">Value score</option><option value="marginOfSafety">Margin of safety</option><option value="companyName">Company</option><option value="sector">Sector</option><option value="exchange">Exchange</option><option value="priceToFfo">P/FFO</option>
+                  </select>
+                </label>
+                <button type="button" onClick={() => setQuery((current) => ({ ...current, sortDirection: current.sortDirection === 'DESC' ? 'ASC' : 'DESC', page: 0 }))} className="min-h-11 rounded-lg border border-slate-700 px-3 text-sm text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">{query.sortDirection === 'DESC' ? 'Descending' : 'Ascending'}</button>
+              </div>
+              <ul aria-label="Companies found" className="divide-y divide-slate-700">
+                {results.data?.results.map((item) => (
+                  <li key={item.symbol}>
+                    <h3>
+                      <button type="button" id={`company-toggle-${item.symbol}`} aria-expanded={expandedSymbol === item.symbol} aria-controls={`company-panel-${item.symbol}`} onClick={() => setExpandedSymbol((current) => current === item.symbol ? null : item.symbol)} className="flex min-h-11 w-full items-center justify-between gap-3 p-4 text-left hover:bg-slate-800/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-400">
+                        <span className="min-w-0"><span className="block text-sm font-semibold text-white">{item.companyName}</span><span className="mt-1 block text-xs font-medium text-emerald-300">{item.symbol}</span></span>
+                        <svg aria-hidden="true" className="shrink-0 text-slate-300" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={expandedSymbol === item.symbol ? 'm6 15 6-6 6 6' : 'm6 9 6 6 6-6'} /></svg>
+                      </button>
+                    </h3>
+                    <div id={`company-panel-${item.symbol}`} hidden={expandedSymbol !== item.symbol} className="space-y-3 px-4 pb-4">
+                    <p className="text-xs text-slate-400">{item.sector ?? 'Sector unavailable'} · {item.exchange ?? 'Exchange unavailable'}</p>
+                    <p className="text-sm font-medium text-slate-200">{item.recommendation?.replace(/_/g, ' ') ?? 'Recommendation unavailable'}</p>
+                    <dl className="grid grid-cols-2 gap-3 text-sm">
+                      <div><dt className="text-xs text-slate-400">Price</dt><dd className="mt-1 font-medium text-white">{formatNumber(item.currentPrice, { style: 'currency', currency: 'USD' })}</dd></div>
+                      <div><dt className="text-xs text-slate-400">Fair value</dt><dd className="mt-1 font-medium text-white">{formatNumber(item.compositeFairValue, { style: 'currency', currency: 'USD' })}</dd></div>
+                      <div><dt className="text-xs text-slate-400">Margin of safety</dt><dd className={`mt-1 w-fit rounded px-2 py-1 font-semibold ${statusClass(item.marginOfSafety)}`}>{formatPercent(item.marginOfSafety)}</dd></div>
+                      <div><dt className="text-xs text-slate-400">Value score</dt><dd className="mt-1 font-medium text-white">{formatNumber(item.totalScore)}<span className="block text-xs font-normal text-slate-400">{statusText(item.scoreAvailability?.status)}</span></dd></div>
+                    </dl>
+                    {item.sector && competence.data?.preferredSectors.length ? <p className="text-xs text-amber-100">{competence.data.preferredSectors.includes(item.sector) ? 'Inside' : 'Outside'} your preferred sectors</p> : null}
+                    {item.sectorMetricCaveat && <p className="text-xs leading-5 text-amber-100">{item.sectorMetricCaveat}</p>}
+                    <details>
+                      <summary className="min-h-11 cursor-pointer py-3 text-sm text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">More indicators</summary>
+                      <dl className="grid grid-cols-2 gap-3 py-2 text-sm">
+                        {[
+                          ['Piotroski', `${item.piotroskiScore == null ? '—' : `${item.piotroskiScore}/9`} · ${statusText(item.piotroskiAvailabilityStatus)}`],
+                          ['Altman', `${item.altmanZone ?? 'Unavailable'} · ${statusText(item.altmanAvailabilityStatus)}`],
+                          ['Moat', item.moatStrength?.replace(/_/g, ' ') ?? 'Unavailable'],
+                          ['Shares trend', item.sharesOutstandingTrend?.replace(/_/g, ' ') ?? 'Unavailable'],
+                          ['P/FFO', formatNumber(item.priceToFfo)], ['P/AFFO', formatNumber(item.priceToAffo)],
+                          ['Debt/EBITDA', formatNumber(item.netDebtToEbitda)], ['AFFO payout', item.affoPayoutRatio == null ? '—' : formatPercent(item.affoPayoutRatio * 100)],
+                        ].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-400">{label}</dt><dd className="mt-1 break-words text-slate-200">{value}</dd></div>)}
+                      </dl>
+                      {item.scoreAvailability?.reason && <p className="text-xs leading-5 text-slate-400">{item.scoreAvailability.reason}</p>}
+                    </details>
+                    <p className="text-xs text-slate-400">As of {item.scoreDate ?? 'unavailable'}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Link to={`/securities/${item.symbol}`} aria-label={`Details ${item.symbol}`} className="flex min-h-11 items-center justify-center rounded-lg border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">Details</Link>
+                      <Link to={`/securities/${item.symbol}/review`} aria-label={`Review ${item.symbol}`} className="flex min-h-11 items-center justify-center rounded-lg border border-emerald-400/40 px-3 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-400/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">Review</Link>
+                    </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="hidden overflow-x-auto lg:block">
               <table className="min-w-[1900px] w-full border-collapse text-sm">
                 <thead className="bg-slate-950/50 text-xs uppercase tracking-wide text-slate-400">
                   <tr>{header('Company', 'companyName')}{header('Sector', 'sector')}<th className="whitespace-nowrap px-4 py-3 text-left">Competence</th>{header('Exchange', 'exchange')}<th className="whitespace-nowrap px-4 py-3 text-left">Price</th><th className="whitespace-nowrap px-4 py-3 text-left">Fair value</th>{header('MoS', 'marginOfSafety')}{header('Value score', 'totalScore')}<th className="whitespace-nowrap px-4 py-3 text-left">Piotroski</th><th className="whitespace-nowrap px-4 py-3 text-left">Altman</th><th className="whitespace-nowrap px-4 py-3 text-left">Moat</th><th className="whitespace-nowrap px-4 py-3 text-left">Shares trend</th>{header('P/FFO', 'priceToFfo')}<th className="whitespace-nowrap px-4 py-3 text-left">P/AFFO</th><th className="whitespace-nowrap px-4 py-3 text-left">Debt/EBITDA</th><th className="whitespace-nowrap px-4 py-3 text-left">AFFO payout</th><th className="whitespace-nowrap px-4 py-3 text-left">Recommendation</th><th className="whitespace-nowrap px-4 py-3 text-left">As of</th><th className="whitespace-nowrap px-4 py-3 text-left">Review</th></tr>
@@ -435,7 +492,7 @@ export function ScreenerPage(): JSX.Element {
                   const byGroup = Object.fromEntries(row.metrics.map((metric) => [metric.group, metric]))
                   return (
                     <tr key={row.symbol} className="text-slate-200">
-                      <td className="px-4 py-4"><span className="block font-semibold text-white">{row.symbol}</span><span className="text-xs text-slate-500">{row.companyName}</span></td>
+                      <td className="px-4 py-4"><span className="block font-semibold text-white">{row.symbol}</span><span className="text-xs text-slate-400">{row.companyName}</span></td>
                       {['valuation', 'score', 'quality', 'resilience', 'growth', 'dividend', 'coverage'].map((group) => (
                         <td key={group} className="px-4 py-4">
                           <span className="block font-medium text-slate-100">{byGroup[group]?.value ?? '-'}</span>

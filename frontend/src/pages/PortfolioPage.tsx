@@ -165,7 +165,7 @@ function ReadinessPanel({
           Exclusions: {Object.entries(readiness.exclusionCounts).map(([reason, count]) => `${label(reason)} (${count})`).join(" · ")}
         </p>
       )}
-      <p className="mt-3 text-xs text-slate-500">Platform facts describe data readiness only. Your constraints are never changed automatically.</p>
+      <p className="mt-3 text-xs text-slate-400">Platform facts describe data readiness only. Your constraints are never changed automatically.</p>
     </div>
   );
 }
@@ -213,7 +213,7 @@ function MetricTile({
 }): JSX.Element {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-      <p className="text-xs uppercase text-slate-500">{labelText}</p>
+      <p className="text-xs uppercase text-slate-400">{labelText}</p>
       <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
       {helper && <p className="mt-1 text-xs text-slate-400">{helper}</p>}
     </div>
@@ -259,7 +259,7 @@ function LiquidityCell({
 }: {
   liquidity: LiquidityResult | undefined;
 }): JSX.Element {
-  if (!liquidity) return <span className="text-slate-500">N/A</span>;
+  if (!liquidity) return <span className="text-slate-400">N/A</span>;
   return (
     <div className="space-y-1">
       <StatusChip value={liquidity.classification} />
@@ -269,7 +269,7 @@ function LiquidityCell({
           : `${ratio(liquidity.daysToLiquidate)} days`}
       </p>
       {liquidity.averageDailyDollarVolume != null && (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           ADV {compactMoney(liquidity.averageDailyDollarVolume)}
         </p>
       )}
@@ -300,7 +300,7 @@ function BenchmarkPanel({
     },
   ];
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-white">Benchmark comparison</h3>
         <StatusChip value={benchmark.availabilityStatus} />
@@ -310,7 +310,7 @@ function BenchmarkPanel({
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[24rem] text-left text-sm">
-          <thead className="text-xs uppercase text-slate-500">
+          <thead className="text-xs uppercase text-slate-400">
             <tr>
               <th>Metric</th>
               <th>Portfolio</th>
@@ -330,7 +330,7 @@ function BenchmarkPanel({
       </div>
       {Object.keys(benchmark.sectorWeightDifference ?? {}).length > 0 && (
         <div className="mt-4 space-y-2">
-          <p className="text-xs uppercase text-slate-500">Sector difference</p>
+          <p className="text-xs uppercase text-slate-400">Sector difference</p>
           {Object.entries(benchmark.sectorWeightDifference).map(
             ([sector, value]) => (
               <ProgressBar
@@ -369,15 +369,20 @@ function AnalyticsDashboard({
         : "emerald";
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold text-white">
-            Portfolio intelligence
-          </h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Portfolio-level diagnostics for concentration, liquidity, benchmark characteristics, and quality.
-          </p>
+    <details open className="group rounded-2xl border border-slate-800 bg-slate-900/50">
+      <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-start justify-between gap-3 p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400 sm:p-6 [&::-webkit-details-marker]:hidden">
+        <div className="flex items-start gap-2">
+          <svg aria-hidden="true" className="mt-1.5 h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+          <div>
+            <h2 className="text-xl font-semibold text-white">
+              Portfolio intelligence
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Portfolio-level diagnostics for concentration, liquidity, benchmark characteristics, and quality.
+            </p>
+          </div>
         </div>
         <div className="text-right text-sm">
           <p className="text-slate-400">Snapshot</p>
@@ -385,8 +390,9 @@ function AnalyticsDashboard({
             {new Date(analytics.capturedAt).toLocaleString()}
           </p>
         </div>
-      </div>
+      </summary>
 
+      <div className="px-5 pb-5 sm:px-6 sm:pb-6">
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <MetricTile
           labelText="Weighted MoS"
@@ -416,7 +422,7 @@ function AnalyticsDashboard({
           <h3 className="font-semibold text-white">Sector allocation</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-[15rem_1fr]">
             <div
-              className="h-52"
+              className="h-52 min-h-52 min-w-0 w-full"
               aria-label="Portfolio sector allocation chart"
             >
               <ResponsiveContainer>
@@ -534,7 +540,8 @@ function AnalyticsDashboard({
           ))}
         </div>
       )}
-    </section>
+      </div>
+    </details>
   );
 }
 
@@ -619,57 +626,107 @@ function ConservativeReviewPack({
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_20rem]">
-        <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
-          <table className="w-full min-w-[64rem] text-left text-sm">
-            <thead className="bg-slate-950/60 text-xs uppercase text-slate-500">
-              <tr>
-                <th className="px-4 py-3">Holding</th>
-                <th>Weight</th>
-                <th>Sector</th>
-                <th>Price</th>
-                <th>MoS</th>
-                <th>Valuation</th>
-                <th>Score</th>
-                <th>Rationale</th>
-                <th>Validation</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {portfolio.holdings.map((holding) => {
-                const watchItem = watchlistBySymbol.get(
-                  holding.symbol.toUpperCase(),
-                );
-                const findings = conservativeFindings(holding);
-                return (
-                  <tr key={holding.id} className="align-top">
-                    <td className="px-4 py-3 font-semibold text-emerald-300">
-                      {holding.symbol}
-                    </td>
-                    <td>{percent(holding.weightPercent)}</td>
-                    <td>{holding.sector ?? "Missing"}</td>
-                    <td>{money(holding.currentPrice)}</td>
-                    <td>{percent(holding.marginOfSafety)}</td>
-                    <td>
-                      <StatusChip value={holding.valueStatus} />
-                    </td>
-                    <td>
-                      <StatusChip value="not reported by holding API" />
-                    </td>
-                    <td className="max-w-[14rem] text-xs leading-5 text-slate-400">
-                      {watchItem?.rationaleNote ||
-                        (watchItem?.monitoringReason
-                          ? label(watchItem.monitoringReason)
-                          : null) ||
-                        "No watchlist rationale linked"}
-                    </td>
-                    <td className="max-w-[16rem] text-xs leading-5 text-slate-300">
-                      {findings.length ? findings.join("; ") : "Complete"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50">
+          <ul className="divide-y divide-slate-800 lg:hidden">
+            {portfolio.holdings.map((holding) => {
+              const watchItem = watchlistBySymbol.get(
+                holding.symbol.toUpperCase(),
+              );
+              const findings = conservativeFindings(holding);
+              return (
+                <li key={holding.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-emerald-300">{holding.symbol}</p>
+                      <p className="text-xs text-slate-400">{holding.sector ?? "Missing sector"}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-white">{money(holding.currentPrice)}</p>
+                      <p className="text-xs text-slate-400">{percent(holding.weightPercent)} of portfolio</p>
+                    </div>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-xs uppercase text-slate-400">MoS</dt>
+                      <dd className="font-medium text-white">{percent(holding.marginOfSafety)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase text-slate-400">Valuation</dt>
+                      <dd><StatusChip value={holding.valueStatus} /></dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-xs uppercase text-slate-400">Score</dt>
+                      <dd><StatusChip value="not reported by holding API" /></dd>
+                    </div>
+                  </dl>
+                  <p className="mt-3 text-xs leading-5 text-slate-400">
+                    <span className="font-semibold uppercase tracking-wide text-slate-500">Rationale: </span>
+                    {watchItem?.rationaleNote ||
+                      (watchItem?.monitoringReason
+                        ? label(watchItem.monitoringReason)
+                        : null) ||
+                      "No watchlist rationale linked"}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-300">
+                    <span className="font-semibold uppercase tracking-wide text-slate-500">Validation: </span>
+                    {findings.length ? findings.join("; ") : "Complete"}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full min-w-[64rem] text-left text-sm">
+              <thead className="bg-slate-950/60 text-xs uppercase text-slate-400">
+                <tr>
+                  <th className="px-4 py-3">Holding</th>
+                  <th>Weight</th>
+                  <th>Sector</th>
+                  <th>Price</th>
+                  <th>MoS</th>
+                  <th>Valuation</th>
+                  <th>Score</th>
+                  <th>Rationale</th>
+                  <th>Validation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {portfolio.holdings.map((holding) => {
+                  const watchItem = watchlistBySymbol.get(
+                    holding.symbol.toUpperCase(),
+                  );
+                  const findings = conservativeFindings(holding);
+                  return (
+                    <tr key={holding.id} className="align-top">
+                      <td className="px-4 py-3 font-semibold text-emerald-300">
+                        {holding.symbol}
+                      </td>
+                      <td>{percent(holding.weightPercent)}</td>
+                      <td>{holding.sector ?? "Missing"}</td>
+                      <td>{money(holding.currentPrice)}</td>
+                      <td>{percent(holding.marginOfSafety)}</td>
+                      <td>
+                        <StatusChip value={holding.valueStatus} />
+                      </td>
+                      <td>
+                        <StatusChip value="not reported by holding API" />
+                      </td>
+                      <td className="max-w-[14rem] text-xs leading-5 text-slate-400">
+                        {watchItem?.rationaleNote ||
+                          (watchItem?.monitoringReason
+                            ? label(watchItem.monitoringReason)
+                            : null) ||
+                          "No watchlist rationale linked"}
+                      </td>
+                      <td className="max-w-[16rem] text-xs leading-5 text-slate-300">
+                        {findings.length ? findings.join("; ") : "Complete"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <aside className="space-y-4">
@@ -1025,7 +1082,7 @@ export function PortfolioPage(): JSX.Element {
           <ErrorNotice error={portfolios.error ?? create.error} />
         </aside>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <section id="simulation-constraints" className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -1074,60 +1131,111 @@ export function PortfolioPage(): JSX.Element {
               </p>
             )}
             {detail.data?.holdings?.length ? (
-              <div className="mt-5 overflow-x-auto">
-                <table className="w-full min-w-[46rem] text-left text-sm">
-                  <thead className="text-xs uppercase text-slate-400">
-                    <tr>
-                      <th>Holding</th>
-                      <th>Quantity</th>
-                      <th>Value</th>
-                      <th>Weight</th>
-                      <th>MoS</th>
-                      <th>Liquidity</th>
-                      <th>
-                        <span className="sr-only">Actions</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {detail.data.holdings.map((holding) => (
-                      <tr key={holding.id}>
-                        <td className="py-3 font-semibold text-emerald-300">
-                          {holding.symbol}
-                        </td>
-                        <td>{holding.quantity}</td>
-                        <td>{money(holding.currentValue)}</td>
-                        <td>{percent(holding.weightPercent)}</td>
-                        <td>{percent(holding.marginOfSafety)}</td>
-                        <td>
-                          <LiquidityCell
-                            liquidity={liquidityBySymbol.get(
-                              holding.symbol.toUpperCase(),
-                            )}
-                          />
-                        </td>
-                        <td>
-                          <div className="flex flex-wrap gap-3">
-                            <Link
-                              to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
-                              className="text-xs font-semibold text-emerald-200 underline"
-                            >
-                              Review
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => removeHolding.mutate(holding.id)}
-                              className="text-xs font-semibold text-rose-200 underline"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
+              <>
+                <ul className="mt-5 divide-y divide-slate-800 rounded-xl border border-slate-800 lg:hidden">
+                  {detail.data.holdings.map((holding) => (
+                    <li key={holding.id} className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-semibold text-emerald-300">{holding.symbol}</p>
+                        <p className="font-semibold text-white">{money(holding.currentValue)}</p>
+                      </div>
+                      <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Quantity</dt>
+                          <dd className="font-medium text-white">{holding.quantity}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Weight</dt>
+                          <dd className="font-medium text-white">{percent(holding.weightPercent)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">MoS</dt>
+                          <dd className="font-medium text-white">{percent(holding.marginOfSafety)}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs uppercase text-slate-400">Liquidity</dt>
+                          <dd>
+                            <LiquidityCell
+                              liquidity={liquidityBySymbol.get(
+                                holding.symbol.toUpperCase(),
+                              )}
+                            />
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="mt-3 flex flex-wrap gap-4 border-t border-slate-800 pt-3">
+                        <Link
+                          to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
+                          className="text-sm font-semibold text-emerald-200 underline"
+                        >
+                          Review
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => removeHolding.mutate(holding.id)}
+                          className="text-sm font-semibold text-rose-200 underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-5 hidden overflow-x-auto lg:block">
+                  <table className="w-full min-w-[46rem] text-left text-sm">
+                    <thead className="text-xs uppercase text-slate-400">
+                      <tr>
+                        <th>Holding</th>
+                        <th>Quantity</th>
+                        <th>Value</th>
+                        <th>Weight</th>
+                        <th>MoS</th>
+                        <th>Liquidity</th>
+                        <th>
+                          <span className="sr-only">Actions</span>
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {detail.data.holdings.map((holding) => (
+                        <tr key={holding.id}>
+                          <td className="py-3 font-semibold text-emerald-300">
+                            {holding.symbol}
+                          </td>
+                          <td>{holding.quantity}</td>
+                          <td>{money(holding.currentValue)}</td>
+                          <td>{percent(holding.weightPercent)}</td>
+                          <td>{percent(holding.marginOfSafety)}</td>
+                          <td>
+                            <LiquidityCell
+                              liquidity={liquidityBySymbol.get(
+                                holding.symbol.toUpperCase(),
+                              )}
+                            />
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-3">
+                              <Link
+                                to={`/securities/${encodeURIComponent(holding.symbol)}/review`}
+                                className="text-xs font-semibold text-emerald-200 underline"
+                              >
+                                Review
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => removeHolding.mutate(holding.id)}
+                                className="text-xs font-semibold text-rose-200 underline"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
               activeId && (
                 <p className="mt-5 rounded-lg bg-slate-950/60 p-4 text-sm text-slate-400">
@@ -1376,7 +1484,7 @@ export function PortfolioPage(): JSX.Element {
 
       {simulation && (
         <section className="grid gap-6 xl:grid-cols-[1fr_20rem]">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
             <div className="border-b border-slate-800 p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-semibold text-white">
@@ -1444,7 +1552,7 @@ export function PortfolioPage(): JSX.Element {
             <h2 className="text-lg font-semibold text-white">
               Sector allocation
             </h2>
-            <div className="mt-4 h-56" aria-label="Sector allocation chart">
+            <div className="mt-4 h-56 min-h-56 min-w-0 w-full" aria-label="Sector allocation chart">
               <ResponsiveContainer>
                 <PieChart>
                   <Pie

@@ -1,0 +1,14 @@
+import {chromium} from '../node_modules/playwright/index.mjs';
+const browser = await chromium.launch({headless:false,args:['--remote-debugging-port=9222','--remote-debugging-address=127.0.0.1']});
+const context = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+const page = await context.newPage();
+await page.goto('http://localhost:5173/login');
+await page.locator('input[type=email]').fill('investor@realdemo.local');
+await page.locator('input[type=password]').fill('admin');
+await page.getByRole('button',{name:'Sign in to research'}).click();
+await page.waitForURL('http://localhost:5173/',{timeout:30000});
+await page.waitForLoadState('networkidle',{timeout:20000}).catch(()=>{});
+await page.screenshot({path:new URL('01-dashboard-mobile.png',import.meta.url).pathname});
+console.log(JSON.stringify({url:page.url(),viewport:page.viewportSize(),text:await page.locator('body').innerText()}));
+console.log('Browser remains open for guided review on localhost CDP port 9222.');
+await new Promise(resolve=>browser.on('disconnected',resolve));

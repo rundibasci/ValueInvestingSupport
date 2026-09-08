@@ -214,7 +214,7 @@ export function DashboardPage(): JSX.Element {
               ) : movers.length ? (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[38rem] text-left text-sm">
-                    <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
+                    <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
                       <tr>
                         <th className="pb-3">Holding</th>
                         <th className="pb-3">Value</th>
@@ -312,7 +312,7 @@ export function DashboardPage(): JSX.Element {
                           {alert.priority === "HIGH" ? "High" : "Active"}
                         </span>
                       </div>
-                      <p className="mt-3 text-xs text-slate-500">
+                      <p className="mt-3 text-xs text-slate-400">
                         Triggered {date(alert.triggeredAt)}. Threshold{" "}
                         {percent(alert.threshold)}.
                       </p>
@@ -393,7 +393,7 @@ function MetricCard({
           : "border-slate-800 bg-slate-900/60"
       }`}
     >
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
       <p className="mt-3 text-2xl font-semibold text-white">{value}</p>
       <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </article>
@@ -409,7 +409,7 @@ function SmallMetric({
 }): JSX.Element {
   return (
     <div className="rounded-lg bg-slate-950/55 p-3">
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
+      <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
       <dd className="mt-1 font-medium text-white">{value}</dd>
     </div>
   );

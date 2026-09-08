@@ -339,7 +339,7 @@ function PreviewPanel({ preview }: { preview: Preview }): JSX.Element {
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">No valid tickers yet.</p>
+        <p className="mt-3 text-sm text-slate-400">No valid tickers yet.</p>
       )}
       {preview.duplicates.length > 0 && (
         <p className="mt-3 text-xs text-amber-100">
@@ -408,7 +408,7 @@ function ResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                 </td>
                 <td className="px-4 py-4 text-slate-300">
                   <span className="block">{result.sector ?? "-"}</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-400">
                     {[result.exchange, result.country].filter(Boolean).join(" / ") ||
                       "-"}
                   </span>
@@ -475,7 +475,7 @@ function ResultsTable({ results }: { results: SeedResult[] }): JSX.Element {
                       </Link>
                     </>
                   ) : (
-                    <span className="text-xs text-slate-500">No handoff</span>
+                    <span className="text-xs text-slate-400">No handoff</span>
                   )}
                 </td>
               </tr>

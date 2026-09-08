@@ -101,19 +101,19 @@ export function AccountPage(): JSX.Element {
           <div className="space-y-6">
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs font-semibold uppercase text-slate-500">Email</dt>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Email</dt>
                 <dd className="mt-1 text-sm text-slate-100">{account.email}</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase text-slate-500">Role</dt>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Role</dt>
                 <dd className="mt-1 text-sm text-slate-100">{account.role}</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase text-slate-500">Google sign-in</dt>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Google sign-in</dt>
                 <dd className="mt-1 text-sm text-slate-100">{account.googleLinked ? 'Linked' : 'Not linked'}</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase text-slate-500">Password sign-in</dt>
+                <dt className="text-xs font-semibold uppercase text-slate-400">Password sign-in</dt>
                 <dd className="mt-1 text-sm text-slate-100">{account.localPasswordAvailable ? 'Available' : 'Not configured'}</dd>
               </div>
             </dl>
